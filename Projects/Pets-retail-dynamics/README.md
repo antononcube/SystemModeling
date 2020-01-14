@@ -4,9 +4,9 @@ This project has models for different aspects of Pets retail dynamics.
 
 ## The model
 
-The following mind-map illustrates the scope of the model considered:
+The following mind-map illustrates the scope of the considered model:
 
-![Pets-retail-dynamics-mind-map](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Pets-retail-dynamics-mind-map.pdf) 
+![Pets-retail-dynamics-mind-map](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Pets-retail-dynamics-mind-map.pdf)
 
 
 ## Data analysis
@@ -27,9 +27,12 @@ The first model is uses a lot of simplifying assumptions and deals only with own
 Nevertheless, the model provides certain insight and it is a good starting point for multiple types of
 model extensions. 
 
-Here is component interaction diagram:
+Here is a component interaction diagram:
 
 ![Dogs-owned-and-dog-food-dynamics-modeling](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Dogs-owned-and-dog-food-dynamics-modeling.png) 
+
+Here is "a teaser" of how the models interactive interface looks like:
+
 
 
 ## Model extensions plan
