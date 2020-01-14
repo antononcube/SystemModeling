@@ -31,7 +31,7 @@ Here is a component interaction diagram:
 
 ![Dogs-owned-and-dog-food-dynamics-modeling](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Dogs-owned-and-dog-food-dynamics-modeling.png) 
 
-Here is "a teaser" of how the models interactive interface looks like:
+Here is "a teaser" of how the simple model interactive interface looks like:
 
 
 
