@@ -6,7 +6,7 @@ This project has models for different aspects of Pets retail dynamics.
 
 The following mind-map illustrates the scope of the considered model:
 
-![Pets-retail-dynamics-mind-map](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Pets-retail-dynamics-mind-map.pdf)
+![Pets-retail-dynamics-mind-map](https://github.com/antononcube/SystemModeling/raw/master/Projects/Pets-retail-dynamics/Diagrams/Pets-retail-dynamics-mind-map.png)
 
 
 ## Data analysis
