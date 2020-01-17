@@ -35,7 +35,7 @@ The ZIP code coordinates data was taken from a GitHub repository,  ["US Zip Code
 dsPetLicenses=ResourceFunction["ImportCSVToDataset"]["~/Datasets/Seattle/Seattle_Pet_Licenses.csv"]
 ```
 
-![image-3281001a-2f3d-4a8e-87b9-dc8a8b9803b3](img/image-3281001a-2f3d-4a8e-87b9-dc8a8b9803b3.png)
+![image-3281001a-2f3d-4a8e-87b9-dc8a8b9803b3](Diagrams/Pets-licensing-data-analysis/image-3281001a-2f3d-4a8e-87b9-dc8a8b9803b3.png)
 
 Convert “Licence Issue Date” values into DateObjects.
 
@@ -49,7 +49,7 @@ dsPetLicenses=dsPetLicenses[All,Prepend[#,"DateObject"->DateObject[{#[[1]],{"Mon
 ResourceFunction["RecordsSummary"][dsPetLicenses]
 ```
 
-![image-49aecba4-2b43-40d7-87ba-15ceb848898d](img/image-49aecba4-2b43-40d7-87ba-15ceb848898d.png)
+![image-49aecba4-2b43-40d7-87ba-15ceb848898d](Diagrams/Pets-licensing-data-analysis/image-49aecba4-2b43-40d7-87ba-15ceb848898d.png)
 
 ###### Keep dogs and cats only
 
@@ -85,13 +85,13 @@ aZipLatLon=Association[Normal[Query[#ZIP->{#LAT,#LON}&]/@dsZIPCodes]];
 ResourceFunction["RecordsSummary"][dsZIPCodes]
 ```
 
-![image-572ef441-b14e-438d-b5b7-85f244aa1857](img/image-572ef441-b14e-438d-b5b7-85f244aa1857.png)
+![image-572ef441-b14e-438d-b5b7-85f244aa1857](Diagrams/Pets-licensing-data-analysis/image-572ef441-b14e-438d-b5b7-85f244aa1857.png)
 
 ```mathematica
 ResourceFunction["RecordsSummary"][aZipLatLon,Thread->True]
 ```
 
-![image-c0d4f154-ee22-457f-8a36-715b77c92e08](img/image-c0d4f154-ee22-457f-8a36-715b77c92e08.png)
+![image-c0d4f154-ee22-457f-8a36-715b77c92e08](Diagrams/Pets-licensing-data-analysis/image-c0d4f154-ee22-457f-8a36-715b77c92e08.png)
 
 #### Pareto principle adherence
 
@@ -112,13 +112,13 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
     dsQuery=Dataset[ReverseSort/@Normal[dsQuery]]
 ```
 
-![image-d1bac8f8-fe6c-42c0-8d52-45ed21ab6cc2](img/image-d1bac8f8-fe6c-42c0-8d52-45ed21ab6cc2.png)
+![image-d1bac8f8-fe6c-42c0-8d52-45ed21ab6cc2](Diagrams/Pets-licensing-data-analysis/image-d1bac8f8-fe6c-42c0-8d52-45ed21ab6cc2.png)
 
 ```mathematica
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#1,Spacer[3],focusColumnName}],ImageSize->Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-3c320985-1ed4-4d11-b983-29f87d4cdc7c](img/image-3c320985-1ed4-4d11-b983-29f87d4cdc7c.png)
+![image-3c320985-1ed4-4d11-b983-29f87d4cdc7c](Diagrams/Pets-licensing-data-analysis/image-3c320985-1ed4-4d11-b983-29f87d4cdc7c.png)
 
 ##### Animal names
 
@@ -133,13 +133,13 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
     dsQuery=Dataset[ReverseSort/@Normal[dsQuery]]
 ```
 
-![image-cb6368b6-b735-4f77-a3dd-bcb0be60f28e](img/image-cb6368b6-b735-4f77-a3dd-bcb0be60f28e.png)
+![image-cb6368b6-b735-4f77-a3dd-bcb0be60f28e](Diagrams/Pets-licensing-data-analysis/image-cb6368b6-b735-4f77-a3dd-bcb0be60f28e.png)
 
 ```mathematica
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#1,Spacer[3],focusColumnName}],ImageSize->Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-bbcac6bb-5247-400c-a093-f3002206b5cf](img/image-bbcac6bb-5247-400c-a093-f3002206b5cf.png)
+![image-bbcac6bb-5247-400c-a093-f3002206b5cf](Diagrams/Pets-licensing-data-analysis/image-bbcac6bb-5247-400c-a093-f3002206b5cf.png)
 
 ##### Zip codes
 
@@ -158,7 +158,7 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#1,Spacer[3],focusColumnName}],ImageSize->Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-72cae8dd-d342-4c90-a11d-11607545133e](img/image-72cae8dd-d342-4c90-a11d-11607545133e.png)
+![image-72cae8dd-d342-4c90-a11d-11607545133e](Diagrams/Pets-licensing-data-analysis/image-72cae8dd-d342-4c90-a11d-11607545133e.png)
 
 #### Geo-distribution
 
@@ -181,7 +181,7 @@ lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString
 GeoHistogram[lsCoords,GeoCenter->city,GeoRange->Quantity[20,"Miles"],PlotLegends->Automatic,ColorFunction->(Hue[2/3,2/3,1-#]&),opts]
 ```
 
-![image-94ae1316-ada2-4195-b2fc-6864ff1fd642](img/image-94ae1316-ada2-4195-b2fc-6864ff1fd642.png)
+![image-94ae1316-ada2-4195-b2fc-6864ff1fd642](Diagrams/Pets-licensing-data-analysis/image-94ae1316-ada2-4195-b2fc-6864ff1fd642.png)
 
 ##### Cats and dogs separate
 
@@ -199,7 +199,7 @@ lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString
 ResourceFunction["GridTableForm"][{gr1,gr2},TableHeadings->{"Dogs","Cats"},Background->White]
 ```
 
-![image-836dff19-7000-45e0-b0a4-1f3fe4a066c9](img/image-836dff19-7000-45e0-b0a4-1f3fe4a066c9.png)
+![image-836dff19-7000-45e0-b0a4-1f3fe4a066c9](Diagrams/Pets-licensing-data-analysis/image-836dff19-7000-45e0-b0a4-1f3fe4a066c9.png)
 
 ##### Pet stores
 
@@ -224,7 +224,7 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#DateObject&],Length]@dsPetLicenses;
     aTS=TimeSeries/@(List@@@Normal[#]&/@Normal[dsQuery])
 ```
 
-![image-49ae54cb-0644-427e-a015-0392284aaaa7](img/image-49ae54cb-0644-427e-a015-0392284aaaa7.png)
+![image-49ae54cb-0644-427e-a015-0392284aaaa7](Diagrams/Pets-licensing-data-analysis/image-49ae54cb-0644-427e-a015-0392284aaaa7.png)
 
 ##### Time series plots of all registrations
 
@@ -234,7 +234,7 @@ Here are time series plots corresponding to all registrations:
 DateListPlot[#,opts]&/@aTS
 ```
 
-![image-02632be6-ab52-41b8-959a-e200641fdd8f](img/image-02632be6-ab52-41b8-959a-e200641fdd8f.png)
+![image-02632be6-ab52-41b8-959a-e200641fdd8f](Diagrams/Pets-licensing-data-analysis/image-02632be6-ab52-41b8-959a-e200641fdd8f.png)
 
 ##### Time series plots of most recent registrations
 
@@ -244,7 +244,7 @@ It is an interesting question why the number of registrations is much higher in 
 DateListPlot[TimeSeriesWindow[#,{{2017,1,1},{2020,1,1}}],opts]&/@aTS
 ```
 
-![image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e](img/image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e.png)
+![image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e](Diagrams/Pets-licensing-data-analysis/image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e.png)
 
 ##### Upward trend
 
@@ -258,7 +258,7 @@ QRMonUnit[TimeSeriesWindow[#,{{2018,1,1},{2020,1,1}}]]\[DoubleLongRightArrow]
     QRMonTakeValue&/@aTS
 ```
 
-![image-6df4d9d2-e48a-4d63-885c-6ed5112c0f15](img/image-6df4d9d2-e48a-4d63-885c-6ed5112c0f15.png)
+![image-6df4d9d2-e48a-4d63-885c-6ed5112c0f15](Diagrams/Pets-licensing-data-analysis/image-6df4d9d2-e48a-4d63-885c-6ed5112c0f15.png)
 
 We can see that there is clear upward trend for both dogs and cats.
 
@@ -296,7 +296,7 @@ ts2=TimeSeriesResample[TimeSeriesWindow[aTS[[1]],{{2019,1,1},{2020,1,1}}],"Day"]
 ts3=TimeSeries[Transpose[{ts1["Path"][[All,1]],ts2["Path"][[All,2]]-ts1["Path"][[All,2]]}]]
 ```
 
-![image-8f9e3af0-46b7-4417-bd1e-3201c1134f34](img/image-8f9e3af0-46b7-4417-bd1e-3201c1134f34.png)
+![image-8f9e3af0-46b7-4417-bd1e-3201c1134f34](Diagrams/Pets-licensing-data-analysis/image-8f9e3af0-46b7-4417-bd1e-3201c1134f34.png)
 
 ```mathematica
 qrObj=
@@ -306,9 +306,9 @@ qrObj=
     QRMonDateListPlot[opts];
 ```
 
-![image-30b836dc-f166-4f21-9c0b-9cca922058e6](img/image-30b836dc-f166-4f21-9c0b-9cca922058e6.png)
+![image-30b836dc-f166-4f21-9c0b-9cca922058e6](Diagrams/Pets-licensing-data-analysis/image-30b836dc-f166-4f21-9c0b-9cca922058e6.png)
 
-![image-65e4d1bf-dfff-4073-88a0-63177eeed1b5](img/image-65e4d1bf-dfff-4073-88a0-63177eeed1b5.png)
+![image-65e4d1bf-dfff-4073-88a0-63177eeed1b5](Diagrams/Pets-licensing-data-analysis/image-65e4d1bf-dfff-4073-88a0-63177eeed1b5.png)
 
 ```mathematica
 qrObj=
@@ -318,9 +318,9 @@ qrObj=
     QRMonEchoFunctionValue[DateListPlot[#,PlotLabel->"Simulated data",opts]&];
 ```
 
-![image-6d107cad-6fef-46c8-92a8-59ea78b5039f](img/image-6d107cad-6fef-46c8-92a8-59ea78b5039f.png)
+![image-6d107cad-6fef-46c8-92a8-59ea78b5039f](Diagrams/Pets-licensing-data-analysis/image-6d107cad-6fef-46c8-92a8-59ea78b5039f.png)
 
-![image-d0d517e0-925b-486c-88fd-287cfe02e799](img/image-d0d517e0-925b-486c-88fd-287cfe02e799.png)
+![image-d0d517e0-925b-486c-88fd-287cfe02e799](Diagrams/Pets-licensing-data-analysis/image-d0d517e0-925b-486c-88fd-287cfe02e799.png)
 
 Take the simulated time series difference:
 
@@ -337,7 +337,7 @@ tsSim=MapThread[{#1[[1]],#1[[2]]+#2[[2]]}&,{ts2["Path"],tsSimDiff["Path"]}];
     DateListPlot[tsSim,opts]
 ```
 
-![image-2a29feca-73b8-4fce-8051-145d74ec499c](img/image-2a29feca-73b8-4fce-8051-145d74ec499c.png)
+![image-2a29feca-73b8-4fce-8051-145d74ec499c](Diagrams/Pets-licensing-data-analysis/image-2a29feca-73b8-4fce-8051-145d74ec499c.png)
 
 ##### Plot all years together
 
@@ -345,7 +345,7 @@ tsSim=MapThread[{#1[[1]],#1[[2]]+#2[[2]]}&,{ts2["Path"],tsSimDiff["Path"]}];
 DateListPlot[{ts1,ts2,tsSim},opts,PlotLegends->{2018,2019,2020}]
 ```
 
-![image-793f146a-07f9-455f-9bc7-2ef7d7897691](img/image-793f146a-07f9-455f-9bc7-2ef7d7897691.png)
+![image-793f146a-07f9-455f-9bc7-2ef7d7897691](Diagrams/Pets-licensing-data-analysis/image-793f146a-07f9-455f-9bc7-2ef7d7897691.png)
 
 #### Discussion
 
