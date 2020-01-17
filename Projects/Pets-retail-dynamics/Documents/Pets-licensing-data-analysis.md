@@ -251,10 +251,10 @@ DateListPlot[TimeSeriesWindow[#,{{2017,1,1},{2020,1,1}}],opts]&/@aTS
 Here we apply both Linear Regression and Quantile Regression:
 
 ```mathematica
-QRMonUnit[TimeSeriesWindow[#,{{2018,1,1},{2020,1,1}}]]\[DoubleLongRightArrow]
-    QRMonLeastSquaresFit[{1,x}]\[DoubleLongRightArrow]
-    QRMonQuantileRegressionFit[4,0.5]\[DoubleLongRightArrow]
-    QRMonDateListPlot[opts,"Echo"->False]\[DoubleLongRightArrow]
+QRMonUnit[TimeSeriesWindow[#,{{2018,1,1},{2020,1,1}}]]⟹
+    QRMonLeastSquaresFit[{1,x}]⟹
+    QRMonQuantileRegressionFit[4,0.5]⟹
+    QRMonDateListPlot[opts,"Echo"->False]⟹
     QRMonTakeValue&/@aTS
 ```
 
@@ -300,9 +300,9 @@ ts3=TimeSeries[Transpose[{ts1["Path"][[All,1]],ts2["Path"][[All,2]]-ts1["Path"][
 
 ```mathematica
 qrObj=
-    QRMonUnit[ts3]\[DoubleLongRightArrow]
-    QRMonEchoDataSummary\[DoubleLongRightArrow]
-    QRMonQuantileRegression[20,Join[Range[0.1,0.9,0.1],{0.03,0.93}],InterpolationOrder->2]\[DoubleLongRightArrow]
+    QRMonUnit[ts3]⟹
+    QRMonEchoDataSummary⟹
+    QRMonQuantileRegression[20,Join[Range[0.1,0.9,0.1],{0.03,0.93}],InterpolationOrder->2]⟹
     QRMonDateListPlot[opts];
 ```
 
@@ -312,9 +312,9 @@ qrObj=
 
 ```mathematica
 qrObj=
-    qrObj\[DoubleLongRightArrow]
-    QRMonEchoFunctionContext[DateListPlot[#data,PlotLabel->"Original data",opts]&]\[DoubleLongRightArrow]
-    QRMonSimulate[ts2["Path"]//Length]\[DoubleLongRightArrow]
+    qrObj⟹
+    QRMonEchoFunctionContext[DateListPlot[#data,PlotLabel->"Original data",opts]&]⟹
+    QRMonSimulate[ts2["Path"]//Length]⟹
     QRMonEchoFunctionValue[DateListPlot[#,PlotLabel->"Simulated data",opts]&];
 ```
 
@@ -325,7 +325,7 @@ qrObj=
 Take the simulated time series difference:
 
 ```mathematica
-tsSimDiff=TimeSeries[qrObj\[DoubleLongRightArrow]QRMonTakeValue];
+tsSimDiff=TimeSeries[qrObj⟹QRMonTakeValue];
 ```
 
 Add the simulated time series difference to year 2019, clip the values less than zero, shift the result to 2020:
