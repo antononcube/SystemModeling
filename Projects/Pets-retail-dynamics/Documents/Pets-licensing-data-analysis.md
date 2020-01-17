@@ -99,7 +99,8 @@ In this section we apply to the Pareto principle statistic in order to see does 
 
 ##### Breeds
 
-We see a typical Pareto principle adherence for both dog breeds and cat breeds. For example, $20$% of the dog breeds correspond to $80$% of all registered dogs. 
+We see a typical Pareto principle adherence for both dog breeds and cat breeds. 
+For example, $20$% of the dog breeds correspond to $80$% of all registered dogs. 
 
 Note the number of unique cat breeds is 4 times smaller than the number of unique dog breeds.
 
@@ -122,7 +123,8 @@ KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#
 
 ##### Animal names
 
-We see a typical Pareto principle adherence for the frequencies of the pet names. For dogs, $10$% of the unique names correspond to $\text{$\$$Failed}$% of the pets.
+We see a typical Pareto principle adherence for the frequencies of the pet names. 
+For dogs, $10$% of the unique names correspond to ~$65$% of the pets.
 
 ```mathematica
 focusColumnName="Animal's Name";
@@ -183,7 +185,7 @@ GeoHistogram[lsCoords,GeoCenter->city,GeoRange->Quantity[20,"Miles"],PlotLegends
 
 ![image-94ae1316-ada2-4195-b2fc-6864ff1fd642](Diagrams/Pets-licensing-data-analysis/image-94ae1316-ada2-4195-b2fc-6864ff1fd642.png)
 
-##### Cats and dogs separate
+##### Dogs and cats separate
 
 ```mathematica
 lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species=="Dog"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
@@ -205,7 +207,8 @@ ResourceFunction["GridTableForm"][{gr1,gr2},TableHeadings->{"Dogs","Cats"},Backg
 
 In this subsection we show the distribution of pet stores (in Seattle). 
 
-It is better instead of image retrieval we should show corresponding geo-markers in the geo-histograms above. (This is not considered that important in the first version of this notebook/document.)
+It is better instead of image retrieval we should show corresponding geo-markers in the geo-histograms above. 
+(This is not considered that important in the first version of this notebook/document.)
 
 ```mathematica
 (*WebImage["https://www.google.com/maps/search/pet+stores+in+Seattle,+WA/@47.6326975,-122.4227211,12.05z"]*)
@@ -353,7 +356,9 @@ This section has subsections that correspond to additional discussion questions.
 
 ###### □ Too few pets
 
-The number of registered pets seems too few. Seattle is a large city with more than $600000$ citizens; approximately $50$% of the USA households have dogs; hence the registered pets are too few ($\text{$\$$Failed}$). 
+The number of registered pets seems too few. Seattle is a large city with more than $600000$ citizens; 
+approximately $50$% of the USA households have dogs; 
+hence the registered pets are too few (~$50000$). 
 
 ###### □ Why too few pets?
 
