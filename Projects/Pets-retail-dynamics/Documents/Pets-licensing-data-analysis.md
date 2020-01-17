@@ -379,62 +379,22 @@ Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/m
 
 #### References
 
-[AA1] Anton Antonov, [Pets retail dynamics project](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics), 2020, [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
-      URL: [https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics) .
+[AA1] Anton Antonov, 
+[Pets retail dynamics project](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
-[AA2] Anton Antonov, [A monad for Quantile Regression workflows](https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/), (2018), [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com).
+[AA2] Anton Antonov, 
+[A monad for Quantile Regression workflows](https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/), 
+(2018), 
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com).
 
-[AAp1] Anton Antonov, [Monadic Quantile Regression Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m), (2018), [MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction).
-          URL: [https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m) .
+[AAp1] Anton Antonov, 
+[Monadic Quantile Regression Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m), 
+(2018), 
+[MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction).
 
-[SOD1] Seattle Open Data,  [“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) , [https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) . 
+[SOD1] Seattle Open Data, 
+[“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data), 
+[https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) . 
 
-#### Export
-
-```mathematica
-SetDirectory[NotebookDirectory[]]
-
-(*"/Volumes/Macintosh HD/Users/antonov/SystemModeling/Projects/Pets-retail-dynamics/Documents"*)
-```
-
-```mathematica
-Needs["M2MD`"]
-```
-
-```mathematica
-EvaluationNotebook[]
-```
-
-![image-5fb95a49-d106-4481-b879-7bb67a633962](Diagrams/Pets-licensing-data-analysis/image-5fb95a49-d106-4481-b879-7bb67a633962.png)
-
-```mathematica
-Options[MDExport]
-
-(*{"ImagesExportURL"\[Rule]Automatic,"ImagesFetchURL"\[Rule]"Relative","IgnoredStyles"\[Rule]None}*)
-```
-
-```mathematica
-SeedRandom[2323]
-```
-
-```mathematica
-MDExport["Pets-licensing-data-analysis.md",EvaluationNotebook[]]
-```
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-[//]: # ($Failed)
-
-```mathematica
-SystemOpen["Pets-licensing-data-analysis.md"]
-```
