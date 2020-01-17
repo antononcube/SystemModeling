@@ -22,9 +22,9 @@ Generally speaking, the
 [System dynamics](https://en.wikipedia.org/wiki/System_dynamics) 
 methodology is used. 
 
-The first model is uses a lot of simplifying assumptions and deals only with owned dogs and dog food.
+The first model uses a lot of simplifying assumptions and deals only with owned dogs and dog food.
 
-Nevertheless, the model provides certain insight and it is a good starting point for multiple types of
+Nevertheless, that simple model provides certain insights and it is a good starting point for multiple types of
 model extensions. 
 
 Here is a component interaction diagram:
