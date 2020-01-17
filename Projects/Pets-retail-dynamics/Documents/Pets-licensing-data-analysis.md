@@ -7,15 +7,21 @@ January 2020
 
 #### Introduction
 
-In order to build or confirm certain modeling conjectures and assumptions data analysis is made for Seattle pets licensing data. The main ones are:
+This notebook / document provides ground data analysis used to make or confirm certain modeling conjectures and assumptions of a Pets Retail Dynamics Model (PRDM), [ [AA1]](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics). Seattle pets licensing data is used, [[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)].
 
-   + the Pareto principle manifests for pets breeds;
+We want to provide answers to the following questions.
 
-   + the Pareto principle manifests for zip code;
+   + Does the Pareto principle manifests for pets breeds?
 
-   + there is upward trend for becoming a pet owner.
+   + Does the Pareto principle manifests for ZIP codes?
 
-All three are confirmed, assuming the retrieved data is representative. See the last section of an additional discussion.
+   + Is there an upward trend for becoming a pet owner?
+
+All three questions have positive answers, assuming the retrieved data, [[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)], is representative. See the last section for an additional discussion.
+
+We also discuss pet adoption simulations that are done using Quantile Regression, [AA2, AAp1].
+
+This notebook/document is part of the [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling) project ["Pets retail dynamics", [AA1].](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)
 
 #### Data
 
@@ -29,7 +35,7 @@ The ZIP code coordinates data was taken from a GitHub repository,  ["US Zip Code
 dsPetLicenses=ResourceFunction["ImportCSVToDataset"]["~/Datasets/Seattle/Seattle_Pet_Licenses.csv"]
 ```
 
-![image-a3d1899d-7db0-469b-b17a-8c5560a1b054](Diagrams/Pets-licensing-data-analysis/image-a3d1899d-7db0-469b-b17a-8c5560a1b054.png)
+![image-ea876d98-0d9b-4cd9-85b3-fda700b8bbb3](Diagrams/Pets-licensing-data-analysis/image-ea876d98-0d9b-4cd9-85b3-fda700b8bbb3.png)
 
 Convert “Licence Issue Date” values into DateObjects.
 
@@ -43,7 +49,7 @@ dsPetLicenses=dsPetLicenses[All,Prepend[#,"DateObject"\[Rule]DateObject[{#\[Left
 ResourceFunction["RecordsSummary"][dsPetLicenses]
 ```
 
-![image-6e4da24c-199f-4eaf-a5e1-e140ab35ee8c](Diagrams/Pets-licensing-data-analysis/image-6e4da24c-199f-4eaf-a5e1-e140ab35ee8c.png)
+![image-8b9d9b09-962c-4161-8486-087bb8b1bf2c](Diagrams/Pets-licensing-data-analysis/image-8b9d9b09-962c-4161-8486-087bb8b1bf2c.png)
 
 ###### Keep dogs and cats only
 
@@ -79,13 +85,13 @@ aZipLatLon=Association[Normal[Query[#ZIP\[Rule]{#LAT,#LON}&]/@dsZIPCodes]];
 ResourceFunction["RecordsSummary"][dsZIPCodes]
 ```
 
-![image-51abafa2-c876-47b9-9f01-5dd83db61fef](Diagrams/Pets-licensing-data-analysis/image-51abafa2-c876-47b9-9f01-5dd83db61fef.png)
+![image-20da68a4-d1e4-4c24-9622-ec6974c0d72a](Diagrams/Pets-licensing-data-analysis/image-20da68a4-d1e4-4c24-9622-ec6974c0d72a.png)
 
 ```mathematica
 ResourceFunction["RecordsSummary"][aZipLatLon,Thread\[Rule]True]
 ```
 
-![image-2dc2a453-9f4e-4844-96c1-140c2fd90138](Diagrams/Pets-licensing-data-analysis/image-2dc2a453-9f4e-4844-96c1-140c2fd90138.png)
+![image-0dff52f8-6a51-4b61-be10-cd401172c34e](Diagrams/Pets-licensing-data-analysis/image-0dff52f8-6a51-4b61-be10-cd401172c34e.png)
 
 #### Pareto principle adherence
 
@@ -106,13 +112,13 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
     dsQuery=Dataset[ReverseSort/@Normal[dsQuery]]
 ```
 
-![image-ecb8ba8e-56c3-4c96-84d9-509f2e4401df](Diagrams/Pets-licensing-data-analysis/image-ecb8ba8e-56c3-4c96-84d9-509f2e4401df.png)
+![image-833188a8-e768-4e14-815e-ccf490f5ac74](Diagrams/Pets-licensing-data-analysis/image-833188a8-e768-4e14-815e-ccf490f5ac74.png)
 
 ```mathematica
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel\[Rule]Row[{#1,Spacer[3],focusColumnName}],ImageSize\[Rule]Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-1bc1f37b-3679-4d10-8c62-8c90ba8b1b7c](Diagrams/Pets-licensing-data-analysis/image-1bc1f37b-3679-4d10-8c62-8c90ba8b1b7c.png)
+![image-38f833a7-7567-40b7-852b-81c5b655b980](Diagrams/Pets-licensing-data-analysis/image-38f833a7-7567-40b7-852b-81c5b655b980.png)
 
 ##### Animal names
 
@@ -127,13 +133,13 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
     dsQuery=Dataset[ReverseSort/@Normal[dsQuery]]
 ```
 
-![image-9e996709-1919-4908-aef6-427e1f10b3b5](Diagrams/Pets-licensing-data-analysis/image-9e996709-1919-4908-aef6-427e1f10b3b5.png)
+![image-c157c400-62d9-4b82-bdb1-91a7d66399f4](Diagrams/Pets-licensing-data-analysis/image-c157c400-62d9-4b82-bdb1-91a7d66399f4.png)
 
 ```mathematica
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel\[Rule]Row[{#1,Spacer[3],focusColumnName}],ImageSize\[Rule]Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-93387b32-2fc6-4ab1-ab45-1ea37c421525](Diagrams/Pets-licensing-data-analysis/image-93387b32-2fc6-4ab1-ab45-1ea37c421525.png)
+![image-a90843ee-1fa7-4821-af6a-5b8703eab134](Diagrams/Pets-licensing-data-analysis/image-a90843ee-1fa7-4821-af6a-5b8703eab134.png)
 
 ##### Zip codes
 
@@ -152,7 +158,7 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#[focusColumnName]&],Length]@dsPetLicen
 KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel\[Rule]Row[{#1,Spacer[3],focusColumnName}],ImageSize\[Rule]Medium,opts]&,Normal[dsQuery]]
 ```
 
-![image-dac393de-16b4-44f0-aba3-99ffdda37c9e](Diagrams/Pets-licensing-data-analysis/image-dac393de-16b4-44f0-aba3-99ffdda37c9e.png)
+![image-4f0afaeb-f6a6-4d45-ad6e-383f84ed10fc](Diagrams/Pets-licensing-data-analysis/image-4f0afaeb-f6a6-4d45-ad6e-383f84ed10fc.png)
 
 #### Geo-distribution
 
@@ -175,25 +181,25 @@ lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString
 GeoHistogram[lsCoords,GeoCenter\[Rule]city,GeoRange\[Rule]Quantity[20,"Miles"],PlotLegends\[Rule]Automatic,ColorFunction\[Rule](Hue[2/3,2/3,1-#]&),opts]
 ```
 
-![image-fddcaf0e-7269-4982-b69b-67c6f6426be2](Diagrams/Pets-licensing-data-analysis/image-fddcaf0e-7269-4982-b69b-67c6f6426be2.png)
+![image-b5a2acab-0035-447f-aedd-42a5ca41f961](Diagrams/Pets-licensing-data-analysis/image-b5a2acab-0035-447f-aedd-42a5ca41f961.png)
 
 ##### Cats and dogs separate
 
 ```mathematica
-lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species\[Equal]"Cat"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
+lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species\[Equal]"Dog"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
     gr1=GeoHistogram[lsCoords,GeoCenter\[Rule]city,GeoRange\[Rule]Quantity[20,"Miles"],PlotLegends\[Rule]Automatic,ColorFunction\[Rule](Hue[2/3,2/3,1-#]&),opts];
 ```
 
 ```mathematica
-lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species\[Equal]"Dog"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
+lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species\[Equal]"Cat"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
     gr2=GeoHistogram[lsCoords,GeoCenter\[Rule]city,GeoRange\[Rule]Quantity[20,"Miles"],PlotLegends\[Rule]Automatic,ColorFunction\[Rule](Hue[2/3,2/3,1-#]&),opts];
 ```
 
 ```mathematica
-ResourceFunction["GridTableForm"][{gr1,gr2},TableHeadings\[Rule]{"Cats","Dogs"},Background\[Rule]White]
+ResourceFunction["GridTableForm"][{gr1,gr2},TableHeadings\[Rule]{"Dogs","Cats"},Background\[Rule]White]
 ```
 
-![image-acfe1976-c101-4730-aabd-c54fc877a865](Diagrams/Pets-licensing-data-analysis/image-acfe1976-c101-4730-aabd-c54fc877a865.png)
+![image-5a06739b-d88c-49c4-9886-ea2c64b72afb](Diagrams/Pets-licensing-data-analysis/image-5a06739b-d88c-49c4-9886-ea2c64b72afb.png)
 
 ##### Pet stores
 
@@ -218,15 +224,17 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#DateObject&],Length]@dsPetLicenses;
     aTS=TimeSeries/@(List@@@Normal[#]&/@Normal[dsQuery])
 ```
 
-![image-fa62a758-a0ad-46d9-91ad-583d8df8bfb2](Diagrams/Pets-licensing-data-analysis/image-fa62a758-a0ad-46d9-91ad-583d8df8bfb2.png)
+![image-962fa7ef-5050-4e22-b58a-9cd42f6b96c6](Diagrams/Pets-licensing-data-analysis/image-962fa7ef-5050-4e22-b58a-9cd42f6b96c6.png)
 
 ##### Time series plots of all registrations
+
+Here are time series plots corresponding to all registrations:
 
 ```mathematica
 DateListPlot[#,opts]&/@aTS
 ```
 
-![image-1aea9e3b-224b-4983-8b7a-838515656a91](Diagrams/Pets-licensing-data-analysis/image-1aea9e3b-224b-4983-8b7a-838515656a91.png)
+![image-7f3b2bb5-6546-4a43-a40c-65ccfc414132](Diagrams/Pets-licensing-data-analysis/image-7f3b2bb5-6546-4a43-a40c-65ccfc414132.png)
 
 ##### Time series plots of most recent registrations
 
@@ -236,23 +244,39 @@ It is an interesting question why the number of registrations is much higher in 
 DateListPlot[TimeSeriesWindow[#,{{2017,1,1},{2020,1,1}}],opts]&/@aTS
 ```
 
-![image-43372841-146d-410f-a2a7-5cc5c34f82c8](Diagrams/Pets-licensing-data-analysis/image-43372841-146d-410f-a2a7-5cc5c34f82c8.png)
+![image-79abc7dd-3af1-4738-a344-95da51644b51](Diagrams/Pets-licensing-data-analysis/image-79abc7dd-3af1-4738-a344-95da51644b51.png)
 
-#### Quantile regression application
+##### Upward trend
 
-##### Fit over the data
-
-Here we apply both Linear and Quantile Regression 
+Here we apply both Linear Regression and Quantile Regression:
 
 ```mathematica
 QRMonUnit[TimeSeriesWindow[#,{{2018,1,1},{2020,1,1}}]]\[DoubleLongRightArrow]
-    QRMonLeastSquaresFit[4]\[DoubleLongRightArrow]
-    QRMonQuantileRegression[20]\[DoubleLongRightArrow]
+    QRMonLeastSquaresFit[{1,x}]\[DoubleLongRightArrow]
+    QRMonQuantileRegressionFit[4,0.5]\[DoubleLongRightArrow]
     QRMonDateListPlot[opts,"Echo"->False]\[DoubleLongRightArrow]
     QRMonTakeValue&/@aTS
 ```
 
-![image-3fd2d851-64af-4107-9e41-87ce38e44ffa](Diagrams/Pets-licensing-data-analysis/image-3fd2d851-64af-4107-9e41-87ce38e44ffa.png)
+![image-490a024e-09c7-4307-9181-0c95a88fefc5](Diagrams/Pets-licensing-data-analysis/image-490a024e-09c7-4307-9181-0c95a88fefc5.png)
+
+We can see that there is clear upward trend for both dogs and cats.
+
+#### Quantile regression application
+
+In this section we investigate the possibility to simulate the pet adoption rate. We plan to use simulations of the pet adoption rate in PRDM.
+
+We do that using the software monad QRMon, [AAp1]. A list of steps follows.
+
+   + Split the time series into windows corresponding to the years 2018 and 2019.
+
+   + Find the difference between the two years.
+
+   + Apply Quantile Regression to the difference using a reasonable grid of probabilities.
+
+   + Simulate the difference.
+
+   + Add the simulated difference to year 2019.
 
 ##### Simulation
 
@@ -272,19 +296,19 @@ ts2=TimeSeriesResample[TimeSeriesWindow[aTS\[LeftDoubleBracket]1\[RightDoubleBra
 ts3=TimeSeries[Transpose[{ts1["Path"]\[LeftDoubleBracket]All,1\[RightDoubleBracket],ts2["Path"]\[LeftDoubleBracket]All,2\[RightDoubleBracket]-ts1["Path"]\[LeftDoubleBracket]All,2\[RightDoubleBracket]}]]
 ```
 
-![image-517e6b7e-1bc1-4304-95f8-7aa5d0945368](Diagrams/Pets-licensing-data-analysis/image-517e6b7e-1bc1-4304-95f8-7aa5d0945368.png)
+![image-dfdd4c7f-24b6-4500-8650-247a69c51b60](Diagrams/Pets-licensing-data-analysis/image-dfdd4c7f-24b6-4500-8650-247a69c51b60.png)
 
 ```mathematica
 qrObj=
     QRMonUnit[ts3]\[DoubleLongRightArrow]
     QRMonEchoDataSummary\[DoubleLongRightArrow]
-    QRMonQuantileRegression[30,Join[Range[0.1,0.9,0.1],{0.01,0.99}]]\[DoubleLongRightArrow]
+    QRMonQuantileRegression[20,Join[Range[0.1,0.9,0.1],{0.03,0.93}],InterpolationOrder\[Rule]2]\[DoubleLongRightArrow]
     QRMonDateListPlot[opts];
 ```
 
-[//]: # (No rules defined for Echo:BoxData)
+![image-3e02ea3d-59c3-4d7a-948d-7f16c5346af9](Diagrams/Pets-licensing-data-analysis/image-3e02ea3d-59c3-4d7a-948d-7f16c5346af9.png)
 
-[//]: # (No rules defined for Echo:BoxData)
+![image-5013d1ae-5d75-437a-b46a-a99c83e420fd](Diagrams/Pets-licensing-data-analysis/image-5013d1ae-5d75-437a-b46a-a99c83e420fd.png)
 
 ```mathematica
 qrObj=
@@ -294,24 +318,34 @@ qrObj=
     QRMonEchoFunctionValue[DateListPlot[#,PlotLabel\[Rule]"Simulated data",opts]&];
 ```
 
-[//]: # (No rules defined for Echo:BoxData)
+![image-176bfce1-4a9e-407b-ac96-1e1a12ea68d2](Diagrams/Pets-licensing-data-analysis/image-176bfce1-4a9e-407b-ac96-1e1a12ea68d2.png)
 
-[//]: # (No rules defined for Echo:BoxData)
+![image-7c613725-ed83-45b3-bf83-295304c9a8cb](Diagrams/Pets-licensing-data-analysis/image-7c613725-ed83-45b3-bf83-295304c9a8cb.png)
+
+Take the simulated time series difference:
 
 ```mathematica
-tsSimDiff=TimeSeries[qrObj\[DoubleLongRightArrow]QRMonTakeValue]
+tsSimDiff=TimeSeries[qrObj\[DoubleLongRightArrow]QRMonTakeValue];
 ```
 
-![image-9c69cb93-0d4f-48a1-b545-b5b9d7faa52c](Diagrams/Pets-licensing-data-analysis/image-9c69cb93-0d4f-48a1-b545-b5b9d7faa52c.png)
+Add the simulated time series difference to year 2019, clip the values less than zero, shift the result to 2020:
 
 ```mathematica
 tsSim=MapThread[{#1\[LeftDoubleBracket]1\[RightDoubleBracket],#1\[LeftDoubleBracket]2\[RightDoubleBracket]+#2\[LeftDoubleBracket]2\[RightDoubleBracket]}&,{ts2["Path"],tsSimDiff["Path"]}];
     tsSim\[LeftDoubleBracket]All,2\[RightDoubleBracket]=Clip[tsSim\[LeftDoubleBracket]All,2\[RightDoubleBracket],{0,Max[tsSim\[LeftDoubleBracket]All,2\[RightDoubleBracket]]}];
-    tsSim=TimeSeries[tsSim];
+    tsSim=TimeSeriesShift[TimeSeries[tsSim],Quantity[365,"Days"]];
     DateListPlot[tsSim,opts]
 ```
 
-![image-22670dca-f5fb-4bbe-a2cd-cc118f68f5e7](Diagrams/Pets-licensing-data-analysis/image-22670dca-f5fb-4bbe-a2cd-cc118f68f5e7.png)
+![image-5fba8275-2ff2-4c59-9e31-34d3fbf4eaf5](Diagrams/Pets-licensing-data-analysis/image-5fba8275-2ff2-4c59-9e31-34d3fbf4eaf5.png)
+
+##### Plot all years together
+
+```mathematica
+DateListPlot[{ts1,ts2,tsSim},opts,PlotLegends\[Rule]{2018,2019,2020}]
+```
+
+![image-7d92dbf0-962e-4e84-b0f5-35e22952d5aa](Diagrams/Pets-licensing-data-analysis/image-7d92dbf0-962e-4e84-b0f5-35e22952d5aa.png)
 
 #### Discussion
 
@@ -323,11 +357,15 @@ The number of registered pets seems too few. Seattle is a large city with more t
 
 ###### □ Why too few pets?
 
-Seattle is high tech city and its citizens are too busy to have pets?
+Seattle is a high tech city and its citizens are too busy to have pets?
 
 Most people do not register their pets? (Very unlikely if they have used veterinary services.)
 
 Incomplete data?
+
+###### Adoption rate
+
+Can we tell apart the adoption rates of pet-less people and people who already have pets?
 
 #### Preliminary definitions
 
@@ -335,7 +373,68 @@ Incomplete data?
 opts=Sequence@@{PlotRange\[Rule]All,ImageSize\[Rule]Medium,PlotTheme\[Rule]"Detailed"};
 ```
 
+```mathematica
+Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/MonadicQuantileRegression.m"]
+```
 
 #### References
 
-[1] Anton Antonov, Pets retail modeling, SystemModeling at GitHub, 2020.
+[AA1] Anton Antonov, [Pets retail dynamics project](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics), 2020, [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+      URL: [https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics) .
+
+[AA2] Anton Antonov, [A monad for Quantile Regression workflows](https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/), (2018), [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com).
+
+[AAp1] Anton Antonov, [Monadic Quantile Regression Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m), (2018), [MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction).
+          URL: [https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m) .
+
+[SOD1] Seattle Open Data,  [“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) , [https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) . 
+
+#### Export
+
+```mathematica
+SetDirectory[NotebookDirectory[]]
+
+(*"/Volumes/Macintosh HD/Users/antonov/SystemModeling/Projects/Pets-retail-dynamics/Documents"*)
+```
+
+```mathematica
+Needs["M2MD`"]
+```
+
+```mathematica
+EvaluationNotebook[]
+```
+
+![image-5fb95a49-d106-4481-b879-7bb67a633962](Diagrams/Pets-licensing-data-analysis/image-5fb95a49-d106-4481-b879-7bb67a633962.png)
+
+```mathematica
+Options[MDExport]
+
+(*{"ImagesExportURL"\[Rule]Automatic,"ImagesFetchURL"\[Rule]"Relative","IgnoredStyles"\[Rule]None}*)
+```
+
+```mathematica
+SeedRandom[2323]
+```
+
+```mathematica
+MDExport["Pets-licensing-data-analysis.md",EvaluationNotebook[]]
+```
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+[//]: # ($Failed)
+
+```mathematica
+SystemOpen["Pets-licensing-data-analysis.md"]
+```
