@@ -1,13 +1,16 @@
 # Pets licensing data analysis
 
-Anton Antonov
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
+Anton Antonov   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)   
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
 January 2020
 
-#### Introduction
+## Introduction
 
-This notebook / document provides ground data analysis used to make or confirm certain modeling conjectures and assumptions of a Pets Retail Dynamics Model (PRDM), [ [AA1]](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics). Seattle pets licensing data is used, [[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)].
+This notebook / document provides ground data analysis used to make or confirm certain modeling conjectures and assumptions 
+of a Pets Retail Dynamics Model (PRDM), 
+\[[AA1](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)\]. 
+Seattle pets licensing data is used, \[[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)\].
 
 We want to provide answers to the following questions.
 
@@ -17,19 +20,27 @@ We want to provide answers to the following questions.
 
    + Is there an upward trend for becoming a pet owner?
 
-All three questions have positive answers, assuming the retrieved data, [[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)], is representative. See the last section for an additional discussion.
+All three questions have positive answers, assuming the retrieved data, 
+\[[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)\], 
+is representative. See the last section for an additional discussion.
 
-We also discuss pet adoption simulations that are done using Quantile Regression, [AA2, AAp1].
+We also discuss pet adoption simulations that are done using Quantile Regression, \[AA2, AAp1\].
 
-This notebook/document is part of the [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling) project ["Pets retail dynamics", [AA1].](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)
+This notebook/document is part of the 
+[SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling) 
+project 
+"Pets retail dynamics", [AA1].](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)
 
-#### Data
+## Data
 
-The pet licensing data was taken from this page:  [“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) , [https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) . 
+The pet licensing data was taken from this page:
+[“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data), 
+[https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data). 
 
-The ZIP code coordinates data was taken from a GitHub repository,  ["US Zip Codes from 2013 Government Data", https://gist.github.com/erichurst/7882666 .](https://gist.github.com/erichurst/7882666)
+The ZIP code coordinates data was taken from a GitHub repository,  
+["US Zip Codes from 2013 Government Data", https://gist.github.com/erichurst/7882666](https://gist.github.com/erichurst/7882666).
 
-##### Animal licenses
+### Animal licenses
 
 ```mathematica
 dsPetLicenses=ResourceFunction["ImportCSVToDataset"]["~/Datasets/Seattle/Seattle_Pet_Licenses.csv"]
@@ -43,7 +54,7 @@ Convert “Licence Issue Date” values into DateObjects.
 dsPetLicenses=dsPetLicenses[All,Prepend[#,"DateObject"->DateObject[{#[[1]],{"Month","Day","Year"}}]]&];
 ```
 
-###### Summary
+#### Summary
 
 ```mathematica
 ResourceFunction["RecordsSummary"][dsPetLicenses]
@@ -51,7 +62,7 @@ ResourceFunction["RecordsSummary"][dsPetLicenses]
 
 ![image-49aecba4-2b43-40d7-87ba-15ceb848898d](Diagrams/Pets-licensing-data-analysis/image-49aecba4-2b43-40d7-87ba-15ceb848898d.png)
 
-###### Keep dogs and cats only
+#### Keep dogs and cats only
 
 Since the number of animals that are not cats or dogs is very small we remove them from the data in order to produce more concise statistics.
 
@@ -62,7 +73,7 @@ dsPetLicenses=dsPetLicenses[Select[MemberQ[{"Cat","Dog"},#Species]&]];
 (*{49191,8}*)
 ```
 
-##### ZIP code geo-coordinates
+### ZIP code geo-coordinates
 
 ```mathematica
 dsZIPCodes=ImportCSVToDataset["~/Datasets/USAZipCodes/US-Zip-Codes-from-2013-Government-Data.csv"];
@@ -79,7 +90,7 @@ aZipLatLon=Association[Normal[Query[#ZIP->{#LAT,#LON}&]/@dsZIPCodes]];
 (*33144*)
 ```
 
-###### Summary
+#### Summary
 
 ```mathematica
 ResourceFunction["RecordsSummary"][dsZIPCodes]
@@ -93,11 +104,11 @@ ResourceFunction["RecordsSummary"][aZipLatLon,Thread->True]
 
 ![image-c0d4f154-ee22-457f-8a36-715b77c92e08](Diagrams/Pets-licensing-data-analysis/image-c0d4f154-ee22-457f-8a36-715b77c92e08.png)
 
-#### Pareto principle adherence
+## Pareto principle adherence
 
 In this section we apply to the Pareto principle statistic in order to see does the Pareto principle manifests over the different columns of the pet licensing data.
 
-##### Breeds
+### Breeds
 
 We see a typical Pareto principle adherence for both dog breeds and cat breeds. 
 For example, $20$% of the dog breeds correspond to $80$% of all registered dogs. 
@@ -121,7 +132,7 @@ KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#
 
 ![image-3c320985-1ed4-4d11-b983-29f87d4cdc7c](Diagrams/Pets-licensing-data-analysis/image-3c320985-1ed4-4d11-b983-29f87d4cdc7c.png)
 
-##### Animal names
+### Animal names
 
 We see a typical Pareto principle adherence for the frequencies of the pet names. 
 For dogs, $10$% of the unique names correspond to ~$65$% of the pets.
@@ -143,7 +154,7 @@ KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#
 
 ![image-bbcac6bb-5247-400c-a093-f3002206b5cf](Diagrams/Pets-licensing-data-analysis/image-bbcac6bb-5247-400c-a093-f3002206b5cf.png)
 
-##### Zip codes
+### Zip codes
 
 We see typical -- even exaggerated -- manifestation of the Pareto principle over ZIP codes of the registered pets.
 
@@ -162,7 +173,7 @@ KeyValueMap[ResourceFunction["ParetoPrinciplePlot"][Values[#2],PlotLabel->Row[{#
 
 ![image-72cae8dd-d342-4c90-a11d-11607545133e](Diagrams/Pets-licensing-data-analysis/image-72cae8dd-d342-4c90-a11d-11607545133e.png)
 
-#### Geo-distribution
+## Geo-distribution
 
 In this section we visualize the pets licensing geo-distribution with geo-histograms.
 
@@ -173,7 +184,7 @@ city=Entity["City",{"Seattle","Washington","UnitedStates"}];
 (*GeoPosition[{47.6205,-122.351}]*)
 ```
 
-##### Both cats and dogs
+### Both cats and dogs
 
 ```mathematica
 lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[All,"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
@@ -185,7 +196,7 @@ GeoHistogram[lsCoords,GeoCenter->city,GeoRange->Quantity[20,"Miles"],PlotLegends
 
 ![image-94ae1316-ada2-4195-b2fc-6864ff1fd642](Diagrams/Pets-licensing-data-analysis/image-94ae1316-ada2-4195-b2fc-6864ff1fd642.png)
 
-##### Dogs and cats separate
+### Dogs and cats separate
 
 ```mathematica
 lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species=="Dog"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
@@ -203,22 +214,22 @@ ResourceFunction["GridTableForm"][{gr1,gr2},TableHeadings->{"Dogs","Cats"},Backg
 
 ![image-836dff19-7000-45e0-b0a4-1f3fe4a066c9](Diagrams/Pets-licensing-data-analysis/image-836dff19-7000-45e0-b0a4-1f3fe4a066c9.png)
 
-##### Pet stores
+### Pet stores
 
 In this subsection we show the distribution of pet stores (in Seattle). 
 
-It is better instead of image retrieval we should show corresponding geo-markers in the geo-histograms above. 
+It is better instead of image retrieval to show corresponding geo-markers in the geo-histograms above. 
 (This is not considered that important in the first version of this notebook/document.)
 
 ```mathematica
-(*WebImage["https://www.google.com/maps/search/pet+stores+in+Seattle,+WA/@47.6326975,-122.4227211,12.05z"]*)
+WebImage["https://www.google.com/maps/search/pet+stores+in+Seattle,+WA/@47.6326975,-122.4227211,12.05z"]
 ```
 
-#### Time series
+## Time series
 
 In this section we visualize the time series corresponding to the pet registrations.
 
-##### Time series objects
+### Time series objects
 
 Here we make time series objects:
 
@@ -229,7 +240,7 @@ dsQuery=Query[GroupBy[#Species&],GroupBy[#DateObject&],Length]@dsPetLicenses;
 
 ![image-49ae54cb-0644-427e-a015-0392284aaaa7](Diagrams/Pets-licensing-data-analysis/image-49ae54cb-0644-427e-a015-0392284aaaa7.png)
 
-##### Time series plots of all registrations
+### Time series plots of all registrations
 
 Here are time series plots corresponding to all registrations:
 
@@ -239,7 +250,7 @@ DateListPlot[#,opts]&/@aTS
 
 ![image-02632be6-ab52-41b8-959a-e200641fdd8f](Diagrams/Pets-licensing-data-analysis/image-02632be6-ab52-41b8-959a-e200641fdd8f.png)
 
-##### Time series plots of most recent registrations
+### Time series plots of most recent registrations
 
 It is an interesting question why the number of registrations is much higher in volume and frequency in the years 2018 and later.
 
@@ -249,7 +260,7 @@ DateListPlot[TimeSeriesWindow[#,{{2017,1,1},{2020,1,1}}],opts]&/@aTS
 
 ![image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e](Diagrams/Pets-licensing-data-analysis/image-85ebeab1-cad5-4fe3-bd5d-c7c8c94a753e.png)
 
-##### Upward trend
+### Upward trend
 
 Here we apply both Linear Regression and Quantile Regression:
 
@@ -265,11 +276,12 @@ QRMonUnit[TimeSeriesWindow[#,{{2018,1,1},{2020,1,1}}]]⟹
 
 We can see that there is clear upward trend for both dogs and cats.
 
-#### Quantile regression application
+## Quantile regression application
 
-In this section we investigate the possibility to simulate the pet adoption rate. We plan to use simulations of the pet adoption rate in PRDM.
+In this section we investigate the possibility to simulate the pet adoption rate. 
+We plan to use simulations of the pet adoption rate in PRDM.
 
-We do that using the software monad QRMon, [AAp1]. A list of steps follows.
+We do that using the software monad `QRMon`, \[AAp1\]. A list of steps follows.
 
    + Split the time series into windows corresponding to the years 2018 and 2019.
 
@@ -283,7 +295,8 @@ We do that using the software monad QRMon, [AAp1]. A list of steps follows.
 
 ##### Simulation
 
-In this sub-section we simulate the differences between the time series for 2018 and 2019, then we add the simulated difference to the time series of the year 2019.
+In this sub-section we simulate the differences between the time series for 2018 and 2019, 
+then we add the simulated difference to the time series of the year 2019.
 
 ```mathematica
 ts1=TimeSeriesResample[TimeSeriesWindow[aTS[[1]],{{2018,1,1},{2019,1,1}}],"Day"];
@@ -342,7 +355,7 @@ tsSim=MapThread[{#1[[1]],#1[[2]]+#2[[2]]}&,{ts2["Path"],tsSimDiff["Path"]}];
 
 ![image-2a29feca-73b8-4fce-8051-145d74ec499c](Diagrams/Pets-licensing-data-analysis/image-2a29feca-73b8-4fce-8051-145d74ec499c.png)
 
-##### Plot all years together
+### Plot all years together
 
 ```mathematica
 DateListPlot[{ts1,ts2,tsSim},opts,PlotLegends->{2018,2019,2020}]
@@ -350,17 +363,17 @@ DateListPlot[{ts1,ts2,tsSim},opts,PlotLegends->{2018,2019,2020}]
 
 ![image-793f146a-07f9-455f-9bc7-2ef7d7897691](Diagrams/Pets-licensing-data-analysis/image-793f146a-07f9-455f-9bc7-2ef7d7897691.png)
 
-#### Discussion
+## Discussion
 
 This section has subsections that correspond to additional discussion questions. Not all questions are answered, the plan is to progressively answer the questions with the subsequent versions of the this notebook / document.
 
-###### □ Too few pets
+### □ Too few pets
 
 The number of registered pets seems too few. Seattle is a large city with more than $600000$ citizens; 
 approximately $50$% of the USA households have dogs; 
 hence the registered pets are too few (~$50000$). 
 
-###### □ Why too few pets?
+### □ Why too few pets?
 
 Seattle is a high tech city and its citizens are too busy to have pets?
 
@@ -368,11 +381,11 @@ Most people do not register their pets? (Very unlikely if they have used veterin
 
 Incomplete data?
 
-###### Adoption rate
+### Adoption rate
 
 Can we tell apart the adoption rates of pet-less people and people who already have pets?
 
-#### Preliminary definitions
+## Preliminary definitions
 
 ```mathematica
 opts=Sequence@@{PlotRange->All,ImageSize->Medium,PlotTheme->"Detailed"};
@@ -384,21 +397,21 @@ Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/m
 
 #### References
 
-[AA1] Anton Antonov, 
+\[AA1\] Anton Antonov, 
 [Pets retail dynamics project](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics), 
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
  
-[AA2] Anton Antonov, 
+\[AA2\] Anton Antonov, 
 [A monad for Quantile Regression workflows](https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/), 
 (2018), 
 [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com).
 
-[AAp1] Anton Antonov, 
+\[AAp1\] Anton Antonov, 
 [Monadic Quantile Regression Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m), 
 (2018), 
 [MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction).
 
-[SOD1] Seattle Open Data, 
+\[SOD1\] Seattle Open Data, 
 [“Seattle Pet Licenses”](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data), 
 [https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data) . 
