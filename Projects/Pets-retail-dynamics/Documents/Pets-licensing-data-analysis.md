@@ -10,7 +10,8 @@ January 2020
 This notebook / document provides ground data analysis used to make or confirm certain modeling conjectures and assumptions 
 of a Pets Retail Dynamics Model (PRDM), 
 \[[AA1](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)\]. 
-Seattle pets licensing data is used, \[[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)\].
+Seattle pets licensing data is used, 
+\[[SOD2](https://data.seattle.gov/Community/Seattle-Pet-Licenses/jguv-t9rb/data)\].
 
 We want to provide answers to the following questions.
 
@@ -29,7 +30,7 @@ We also discuss pet adoption simulations that are done using Quantile Regression
 This notebook/document is part of the 
 [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling) 
 project 
-"Pets retail dynamics", [AA1].](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)
+"Pets retail dynamics", \[[AA1](https://github.com/antononcube/SystemModeling/tree/master/Projects/Pets-retail-dynamics)\].
 
 ## Data
 
