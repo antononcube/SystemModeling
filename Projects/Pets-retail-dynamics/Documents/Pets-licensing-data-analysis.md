@@ -106,14 +106,15 @@ ResourceFunction["RecordsSummary"][aZipLatLon,Thread->True]
 
 ## Pareto principle adherence
 
-In this section we apply to the Pareto principle statistic in order to see does the Pareto principle manifests over the different columns of the pet licensing data.
+In this section we apply the Pareto principle statistic in order to see 
+does the Pareto principle manifests over the different columns of the pet licensing data.
 
 ### Breeds
 
 We see a typical Pareto principle adherence for both dog breeds and cat breeds. 
 For example, $20$% of the dog breeds correspond to $80$% of all registered dogs. 
 
-Note the number of unique cat breeds is 4 times smaller than the number of unique dog breeds.
+Note that the number of unique cat breeds is 4 times smaller than the number of unique dog breeds.
 
 ```mathematica
 focusColumnName="Primary Breed";
@@ -196,7 +197,7 @@ GeoHistogram[lsCoords,GeoCenter->city,GeoRange->Quantity[20,"Miles"],PlotLegends
 
 ![image-94ae1316-ada2-4195-b2fc-6864ff1fd642](Diagrams/Pets-licensing-data-analysis/image-94ae1316-ada2-4195-b2fc-6864ff1fd642.png)
 
-### Dogs and cats separate
+### Dogs and cats separately
 
 ```mathematica
 lsCoords=Map[If[KeyExistsQ[aZipLatLon,#],aZipLatLon[#],Nothing]&,Select[ToString/@Normal[dsPetLicenses[Select[#Species=="Dog"&],"ZIP Code"]],StringQ[#]&&StringLength[#]>=5&]];
@@ -293,7 +294,7 @@ We do that using the software monad `QRMon`, \[AAp1\]. A list of steps follows.
 
    + Add the simulated difference to year 2019.
 
-##### Simulation
+### Simulation
 
 In this sub-section we simulate the differences between the time series for 2018 and 2019, 
 then we add the simulated difference to the time series of the year 2019.
@@ -367,13 +368,13 @@ DateListPlot[{ts1,ts2,tsSim},opts,PlotLegends->{2018,2019,2020}]
 
 This section has subsections that correspond to additional discussion questions. Not all questions are answered, the plan is to progressively answer the questions with the subsequent versions of the this notebook / document.
 
-### □ Too few pets
+#### □ Too few pets
 
 The number of registered pets seems too few. Seattle is a large city with more than $600000$ citizens; 
 approximately $50$% of the USA households have dogs; 
 hence the registered pets are too few (~$50000$). 
 
-### □ Why too few pets?
+#### □ Why too few pets?
 
 Seattle is a high tech city and its citizens are too busy to have pets?
 
@@ -381,7 +382,11 @@ Most people do not register their pets? (Very unlikely if they have used veterin
 
 Incomplete data?
 
-### Adoption rate
+#### □ Registration rates
+
+Why the number of registrations is much higher in volume and frequency in the years 2018 and later?
+
+#### □ Adoption rates
 
 Can we tell apart the adoption rates of pet-less people and people who already have pets?
 
