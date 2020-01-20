@@ -226,6 +226,9 @@ It is better instead of image retrieval to show corresponding geo-markers in the
 WebImage["https://www.google.com/maps/search/pet+stores+in+Seattle,+WA/@47.6326975,-122.4227211,12.05z"]
 ```
 
+![image-836dff19-7000-45e0-b0a4-1f3fe4a066c9](Diagrams/Pets-licensing-data-analysis/image-b1609a4c-1142-4b2f-9353-c58494a1232a.png)
+
+
 ## Time series
 
 In this section we visualize the time series corresponding to the pet registrations.
