@@ -2,7 +2,7 @@
 
 ## In brief
 
-In this (tutorial) presentation we are going to:
+In this (tutorial) presentation we:
 1. Discuss the modeling and evolution of different scenarios of the coronavirus propagation and related decease
 2. Overview classic compartmental models in epidemiology
 4. Discuss the theory behind the System dynamics approach using simple examples
@@ -21,29 +21,28 @@ Most of the models are not coronavirus specific and the presentation can be seen
 
 ## Part 1 -- Coronavirus outbreak overview (7-10 min)
 
-In the first part we are going to describe the "2019-2020 coronavirus outbreak problem" and
-establish related terminology.
+In the first part we describe the "2019-2020 coronavirus outbreak problem" and establish related terminology.
 
 ## Part 2 -- Compartmental models and System dynamics models (30 min)
 
-In the second part we are going to:
+In the second part we:
 1. Discuss and outline the classic compartmental models in epidemiology using several examples
 2. Introduce, clarify, and demonstrate the basics of System dynamics theory and methodology 
 using progressively more complicated examples.
 
-First we will see the mathematical models and related R code. 
-After that we will show how different interactive interfaces (made with Shiny) can be utilized to better understand
-the results.
+First we show the mathematical models and related R code. 
+After that we show how different interactive interfaces (made with Shiny) can be utilized for better understanding
+of the results.
 
 ## Part 3 -- Coronavirus Scenario modeling and simulations (20 min)
 
-In the last part we are going to show how to model various propagation, policy, and economic aspects related to the 
+In the last part we show how to model various propagation, policy, and economic aspects related to the 
 coronavirus 2019-20 outbreak. 
 
 We focus on the different strategies to model the outbreak dynamics and how the different 
 states can be interpreted from economics point of view.
 
-We show how to progressively built comprehensive models starting from (relatively) simple ones. 
+We show how to progressively build comprehensive models starting from (relatively) simple ones. 
 We also discuss the interpretation of the simulation outcomes.
 
 
@@ -79,6 +78,6 @@ We also discuss the interpretation of the simulation outcomes.
 ["SDMR"](https://github.com/JimDuggan/SDMR), 
 2016, 
 [GitHub](https://github.com/JimDuggan).   
-("Resources for text book "System Dynamics Modeling with R".)
+(Resources for text book "System Dynamics Modeling with R".)
  
  
