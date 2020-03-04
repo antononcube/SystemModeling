@@ -7,7 +7,7 @@ In this (tutorial) presentation we are going to:
 2. Overview classic compartmental models in epidemiology
 4. Discuss the theory behind the System dynamics approach using simple examples
 3. Discus philosophical, scientific, and mathematical justifications
-5. Describe System Dynamics' approaches of modeling the propagation of
+5. Describe System dynamics' approaches of modeling the propagation of
 [SARS-CoV-2](https://en.wikipedia.org/wiki/Severe_acute_respiratory_syndrome_coronavirus_2) 
 and the economic impact of 
 [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019). 
@@ -26,9 +26,9 @@ establish related terminology.
 
 ## Part 2 -- Compartmental models and System dynamics models (30 min)
 
-In the second part we are going to
+In the second part we are going to:
 1. Discuss and outline the classic compartmental models in epidemiology using several examples
-2. Introduce, clarify, and demonstrate the basics of SD's theory and methodology 
+2. Introduce, clarify, and demonstrate the basics of System dynamics theory and methodology 
 using progressively more complicated examples.
 
 First we will see the mathematical models and related R code. 
@@ -43,7 +43,7 @@ coronavirus 2019-20 outbreak.
 We focus on the different strategies to model the outbreak dynamics and how the different 
 states can be interpreted from economics point of view.
 
-We show how to progressively built complicated models starting from (relatively) simple ones. 
+We show how to progressively built comprehensive models starting from (relatively) simple ones. 
 We also discuss the interpretation of the simulation outcomes.
 
 
