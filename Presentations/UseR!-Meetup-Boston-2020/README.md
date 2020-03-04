@@ -6,7 +6,7 @@ In this (tutorial) presentation we are going to:
 1. Discuss the modeling and evolution of different scenarios of the coronavirus propagation and related decease
 2. Overview classic compartmental models in epidemiology models
 3. Discus philosophical, scientific, and mathematical justifications
-4. Discuss the theory behind the System Dynamics (SD) approach using simple examples
+4. Discuss the theory behind the System dynamics approach using simple examples
 5. Describe SD's application to model the propagation of
 [SARS-CoV-2](https://en.wikipedia.org/wiki/Severe_acute_respiratory_syndrome_coronavirus_2) 
 and the economic impact of 
@@ -16,6 +16,8 @@ Our focus is on the modeling strategy and techniques and how they can implemente
 
 Most of the examples used to illustrate the theoretical concepts and practical aspects will have 
 graphics visualizations. The more important ones will have interactive interfaces. 
+
+Most of the models are not coronavirus specific and the presentation can be seen as an introduction to System dynamics.
 
 ## Part 1 -- Coronavirus outbreak overview (7-10 min)
 
@@ -36,8 +38,14 @@ the results.
 ## Part 3 -- Coronavirus Scenario modeling and simulations (20 min)
 
 In the last part we are going to show how to model various propagation, policy, and economic aspects related to the 
-coronavirus 2019-20 outbreak. We focus on the different strategies to model the outbreak dynamics and how the different 
-states can be interpreted from economics point of view. 
+coronavirus 2019-20 outbreak. 
+
+We focus on the different strategies to model the outbreak dynamics and how the different 
+states can be interpreted from economics point of view.
+
+We show how to progressively built complicated models starting from (relatively) simple ones. 
+We also discuss the interpretation of the simulation outcomes.
+
 
 ## References
 
