@@ -12,7 +12,7 @@ In this (tutorial) presentation we:
 and the economic impact of 
 [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019). 
 
-Our focus is on the modeling strategy and techniques and how they can be implemented using R.
+Our focus is on the modeling strategy and techniques and how they can be implemented using R. (See \[AA1\].)
 
 Most of the examples used to illustrate the theoretical concepts and practical aspects will have 
 graphics visualizations. The more important examples will have interactive interfaces. 
@@ -45,6 +45,12 @@ states can be interpreted from economics point of view.
 We show how to progressively build comprehensive models starting from (relatively) simple ones. 
 We also discuss the interpretation of the simulation outcomes.
 
+## Visual aid
+
+*(From the dedicated project
+[Coronavirus propagation dynamics](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics). 
+)*
+![Coronavirus propagation simple dynamics](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
 
 ## References
 
@@ -80,4 +86,8 @@ We also discuss the interpretation of the simulation outcomes.
 [GitHub](https://github.com/JimDuggan).   
 (Resources for text book "System Dynamics Modeling with R".)
  
+ \[AA1\] Anton Antonov, 
+ ["COVID-19-modeling-in-R"](../../Projects/Coronavirus-propagation-dynamics/COVID-19-modeling-in-R), 
+ 2020,
+ [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
  
