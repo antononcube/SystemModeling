@@ -39,11 +39,11 @@ model extensions.
 
 Here is a component interaction diagram:
 
-![](./Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
+![Coronavirus-propagation-simple-dynamics](./Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
 
 Here is "a teaser" of how the simple model interactive interface looks like:
 
-(TBD...)
+![Coronavirus-propagation-interactive-modeling-teaser](./Diagrams/Coronavirus-propagation-interactive-modeling-teaser-2.png)
 
 ## Model extensions plan
 
