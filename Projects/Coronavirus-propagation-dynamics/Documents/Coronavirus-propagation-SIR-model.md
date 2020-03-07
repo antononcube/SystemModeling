@@ -60,13 +60,13 @@ The model design workflow used in this notebook has the following steps.
 For the interactive plots we use the functions in the package [AAp1].
 
 ```mathematica
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
 ```
 
 ## Model design
 
-The description of the [SIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) can be found in [Wk1, HH1]. The assumptions of the SIR model considered in this notebook can be found in [AA1]. 
+The description of the [SIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) can be found in [Wk1, HH1]. 
+The assumptions of the SIR model considered in this notebook can be found in [AA1]. 
 
 ## Model dictionary
 
@@ -129,8 +129,7 @@ In this sub-section we present the equations. (The corresponding rationale / exp
 lsEquations = {
    SP'[t] == -newlyInfectedTerm - 𝛿[TP]*SP[t],
    INSP'[t] == (1 - sspf[SP])*newlyInfectedTerm - (1/aip)* INSP[t] - 𝛿[INSP]*INSP[t],
-   ISSP'[t] == 
-    sspf[SP]*newlyInfectedTerm - (1/aip)*ISSP[t] - 𝛿[ISSP]* ISSP[t],
+   ISSP'[t] == sspf[SP]*newlyInfectedTerm - (1/aip)*ISSP[t] - 𝛿[ISSP]* ISSP[t],
    RP'[t] == (1/aip)*(ISSP[t] + INSP[t]) - 𝛿[TP]*RP[t],
    MLP'[t] == lpcr[ISSP, INSP]*(TP[t] - RP[t] - SP[t])
    };
@@ -151,11 +150,13 @@ newlyInfectedTerm
 
 ![0jt1ca0njasqv](./Diagrams/Coronovirus-propagation-SIR-model/0jt1ca0njasqv.png)
 
-We have two separate terms: one for the normally symptomatic infected population, the other for the severely symptomatic infected population. Each of these populations has its own contact rate, $\beta [\text{INSP}]$ and $\beta [\text{ISSP}]$ respectively.
+We have two separate terms: one for the normally symptomatic infected population, the other for the severely symptomatic infected population. 
+Each of these populations has its own contact rate, $\beta [\text{INSP}]$ and $\beta [\text{ISSP}]$ respectively.
 
 #### Infected normally symptomatic population
 
-One of the finds for the Coronavirus is that $\approx 20$% of the infected are severely symptomatic. This reflected in the parameter $\text{sspf}[\text{SP}]$; we multiple the newly infected by $1-\text{sspf}[\text{SP}]$ to obtain the normally symptomatic. 
+One of the finds for the Coronavirus is that $\approx 20$% of the infected are severely symptomatic. 
+This reflected in the parameter $\text{sspf}[\text{SP}]$; we multiple the newly infected by $1-\text{sspf}[\text{SP}]$ to obtain the normally symptomatic. 
 The normally infected recover after average infectious period (aip) or with a certain rate $1/\text{aip}$. Note that aip the same for both normally and severely infected.
 Further we subtract the number of infected that are going to die.
 
@@ -177,7 +178,9 @@ The recovered population is obtained from:
 
 #### Money from lost productivity
 
-We have a simple monitoring stock $\text{MLP}[t]$ that shows the amount of money lost due to people being infected or dead because of infections. We assume that both the susceptible and the recovered are productive, and infected do not work. Hence, if we subtract the susceptible and recovered from the total population and multiply the result with appropriate loss rate we can the value for $\text{MLP}[t]$. 
+We have a simple monitoring stock $\text{MLP}[t]$ that shows the amount of money lost due to people being infected or dead because of infections. 
+We assume that both the susceptible and the recovered are productive, and infected do not work. 
+Hence, if we subtract the susceptible and recovered from the total population and multiply the result with appropriate loss rate we can the value for $\text{MLP}[t]$. 
 
 ```mathematica
 MLP'[t] == lpcr[ISSP, INSP]*(TP[t] - RP[t] - SP[t])
@@ -189,7 +192,8 @@ MLP'[t] == lpcr[ISSP, INSP]*(TP[t] - RP[t] - SP[t])
 
 ### Parameters
 
-The death rates and the average infectious period were obtained by World Wide Web searches. The contact rates $\beta [\_]$ and the lost productivity cost rate are completely heuristic.
+The death rates and the average infectious period were obtained by World Wide Web searches. 
+The contact rates $\beta [\_]$ and the lost productivity cost rate are completely heuristic.
 
 ```mathematica
 aRateRules = <|
