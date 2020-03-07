@@ -1,5 +1,5 @@
 (*
-    System dynamics interactive interfaces functions Mathematica package
+    Epidemiology models Mathematica package
     Copyright (C) 2020  Anton Antonov
 
     This program is free software: you can redistribute it and/or modify
