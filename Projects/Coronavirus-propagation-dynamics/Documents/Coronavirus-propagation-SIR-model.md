@@ -1,8 +1,8 @@
 # Coronavirus propagation SIR model
 
-Anton Antonov
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
+Anton Antonov   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
 March 2020
 
 ## Introduction
