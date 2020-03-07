@@ -89,19 +89,14 @@ aStocks = <|
 
 ```mathematica
 aRates = <|
-   "Population death rate" -> \[Delta][TP],
-   "Infected Normally Symptomatic Population death rate" -> \
-\[Delta][INSP],
-   "Infected Severely Symptomatic Population death rate" -> \
-\[Delta][ISSP],
+   "Population death rate" -> 𝛿[TP],
+   "Infected Normally Symptomatic Population death rate" -> 𝛿[INSP],
+   "Infected Severely Symptomatic Population death rate" -> 𝛿[ISSP],
    "Severly Symptomatic Population Fraction" -> sspf[SP],
-   "Contact rate for the normally symptomatic population" -> \
-\[Beta][INSP],
-   "Contact rate for the severely symptomatic population" -> \
-\[Beta][ISSP],
+   "Contact rate for the normally symptomatic population" -> 𝛽[INSP],
+   "Contact rate for the severely symptomatic population" -> 𝛽[ISSP],
    "Average infectious period" -> aip,
-   "Lost productivity cost rate (per person per day)" -> 
-    lpcr[ISSP, INSP]
+   "Lost productivity cost rate (per person per day)" -> lpcr[ISSP, INSP]
    |>;
 ```
 
@@ -132,13 +127,11 @@ In this sub-section we present the equations. (The corresponding rationale / exp
 
 ```mathematica
 lsEquations = {
-   SP'[t] == -newlyInfectedTerm - \[Delta][TP]*SP[t],
-   INSP'[t] == (1 - sspf[SP])*newlyInfectedTerm - (1/aip)*
-      INSP[t] - \[Delta][INSP]*INSP[t],
+   SP'[t] == -newlyInfectedTerm - 𝛿[TP]*SP[t],
+   INSP'[t] == (1 - sspf[SP])*newlyInfectedTerm - (1/aip)* INSP[t] - 𝛿[INSP]*INSP[t],
    ISSP'[t] == 
-    sspf[SP]*newlyInfectedTerm - (1/aip)*ISSP[t] - \[Delta][ISSP]*
-      ISSP[t],
-   RP'[t] == (1/aip)*(ISSP[t] + INSP[t]) - \[Delta][TP]*RP[t],
+    sspf[SP]*newlyInfectedTerm - (1/aip)*ISSP[t] - 𝛿[ISSP]* ISSP[t],
+   RP'[t] == (1/aip)*(ISSP[t] + INSP[t]) - 𝛿[TP]*RP[t],
    MLP'[t] == lpcr[ISSP, INSP]*(TP[t] - RP[t] - SP[t])
    };
 ResourceFunction["GridTableForm"][List /@ lsEquations]
@@ -167,8 +160,7 @@ The normally infected recover after average infectious period (aip) or with a ce
 Further we subtract the number of infected that are going to die.
 
 ```mathematica
-INSP'[t] == (1 - sspf[SP])*newlyInfectedTerm - (1/aip)*
-   INSP[t] - \[Delta][INSP]*INSP[t]
+INSP'[t] == (1 - sspf[SP])*newlyInfectedTerm - (1/aip)*INSP[t] - 𝛿[INSP]*INSP[t]
 ```
 
 ![1x6y4qa5kde21](./Diagrams/Coronovirus-propagation-SIR-model/1x6y4qa5kde21.png)
@@ -202,11 +194,11 @@ The death rates and the average infectious period were obtained by World Wide We
 ```mathematica
 aRateRules = <|
    TP[t] -> 100000,
-   \[Delta][TP] -> (800/10^5)/365,
-   \[Delta][ISSP] -> 0.035/aip,
-   \[Delta][INSP] -> 0.01/aip,
-   \[Beta][ISSP] -> 6,
-   \[Beta][INSP] -> 3,
+   𝛿[TP] -> (800/10^5)/365,
+   𝛿[ISSP] -> 0.035/aip,
+   𝛿[INSP] -> 0.01/aip,
+   𝛽[ISSP] -> 6,
+   𝛽[INSP] -> 3,
    aip -> 4*7,
    sspf[SP] -> 0.2,
    lpcr[ISSP, INSP] -> 600
@@ -218,7 +210,7 @@ aRateRules = <|
 To be used for parametric equation solving:
 
 ```mathematica
-lsFocusParams = {aip, sspf[SP], \[Beta][ISSP], \[Beta][INSP]};
+lsFocusParams = {aip, sspf[SP], 𝛽[ISSP], 𝛽[INSP]};
 aParametricRateRules = KeyDrop[aRateRules, lsFocusParams];
 ```
 
@@ -290,26 +282,16 @@ Manipulate[
    nPlotColumns, Dividers -> All, 
    FrameStyle -> GrayLevel[0.8]]
   ],
- {{aip, 21., "Average infectious period (days)"}, 1, 60., 1, 
-  Appearance -> {"Open"}},
- {{spf, 0.2, "Severely symptomatic population fraction"}, 0, 1, 0.025,
-   Appearance -> {"Open"}},
- {{crisp, 6, 
-   "Contact rate of the infected severely symptomatic population"}, 0,
-   30, 0.1, Appearance -> {"Open"}},
- {{criap, 3, 
-   "Contact rate of the infected normally symptomatic population"}, 0,
-   30, 0.1, Appearance -> {"Open"}},
- {{ndays, 90, "Number of days"}, 1, 365, 1, 
-  Appearance -> {"Open"}},
+ {{aip, 21., "Average infectious period (days)"}, 1, 60., 1, Appearance -> {"Open"}},
+ {{spf, 0.2, "Severely symptomatic population fraction"}, 0, 1, 0.025, Appearance -> {"Open"}},
+ {{crisp, 6, "Contact rate of the infected severely symptomatic population"}, 0, 30, 0.1, Appearance -> {"Open"}},
+ {{criap, 3, "Contact rate of the infected normally symptomatic population"}, 0, 30, 0.1, Appearance -> {"Open"}},
+ {{ndays, 90, "Number of days"}, 1, 365, 1, Appearance -> {"Open"}},
  {{popTogetherQ, True, "Plot populations together"}, {False, True}},
- {{popDerivativesQ, False, "Plot populations derivatives"}, {False, 
-   True}},
+ {{popDerivativesQ, False, "Plot populations derivatives"}, {False, True}},
  {{popLogPlotQ, False, "LogPlot populations"}, {False, True}},
- {{econTogetherQ, False, "Plot economics functions together"}, {False,
-    True}},
- {{econDerivativesQ, False, 
-   "Plot economics functions derivatives"}, {False, True}},
+ {{econTogetherQ, False, "Plot economics functions together"}, {False, True}},
+ {{econDerivativesQ, False, "Plot economics functions derivatives"}, {False, True}},
  {{econLogPlotQ, False, "LogPlot economics functions"}, {False, True}},
  {{nPlotColumns, 2, "Number of plot columns"}, Range[5]},
  ControlPlacement -> Left, ContinuousAction -> False]
