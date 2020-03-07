@@ -39,8 +39,22 @@
 (* :Package Version: 0.1 *)
 (* :Mathematica Version: 12.0 *)
 (* :Copyright: (c) 2020 Anton Antonov *)
-(* :Keywords: *)
-(* :Discussion: *)
+(* :Keywords: Epidemiology, model, SIR, System dynamics *)
+(* :Discussion:
+
+   # In brief
+
+   The main purpose of this package is to provide equations and related stocks and rates dictionaries
+   for well known and specific epidemiological models.
+
+   # Usage
+
+   This command generates the SIR model in the context "MyContext`":
+
+      SIRModel[t, "Global`MyContext`"]
+
+
+*)
 
 BeginPackage["EpidemiologyModels`"];
 (* Exported symbols added here with SymbolName::usage *)
