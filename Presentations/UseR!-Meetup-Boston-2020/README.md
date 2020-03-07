@@ -1,4 +1,6 @@
 # Coronavirus propagation modeling
+***useR! Meetup Boston, April 2020***   
+***Extended abstract***
 
 ## In brief
 
