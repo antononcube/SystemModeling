@@ -92,7 +92,7 @@ aRates = <|
    "Population death rate" -> 𝛿[TP],
    "Infected Normally Symptomatic Population death rate" -> 𝛿[INSP],
    "Infected Severely Symptomatic Population death rate" -> 𝛿[ISSP],
-   "Severly Symptomatic Population Fraction" -> sspf[SP],
+   "Severely Symptomatic Population Fraction" -> sspf[SP],
    "Contact rate for the normally symptomatic population" -> 𝛽[INSP],
    "Contact rate for the severely symptomatic population" -> 𝛽[ISSP],
    "Average infectious period" -> aip,
