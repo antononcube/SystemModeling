@@ -29,7 +29,7 @@ If[Length[DownValues[EpidemiologyModels`SIRModel]] == 0,
 BeginPackage["EpidemiologyModelModifications`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-AddIdentifier::usage = "AddIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
+AddCellIdentifier::usage = "AddCellIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
 
 MakeCoreMultiCellModel::usage = "MakeCoreMultiCellModel[coreModel_, n_Integer | ids_List, t_Symbol, context_] \
 makes core multi-cell model.";
@@ -37,8 +37,11 @@ makes core multi-cell model.";
 EquationPosition::usage = "EquationPosition[eqs:{_Equal..}, lhs_] finds the element of eqs that has \
 the specified left hand side lhs.";
 
-AddTermsToEquation::usage = "AddTermsToEquation[eqs:{_Equal..}, nt_Association] adds the corresponding new terms in
+AddTermsToEquations::usage = "AddTermsToEquations[eqs:{_Equal..}, nt_Association] adds the corresponding new terms in
 specified with nt to the right hand side of the equations eqs.";
+
+MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
+the migration terms for the total populations TPs and populations Ps.";
 
 ToGeoCompartmentsModel::usage = "ToGeoCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
@@ -49,9 +52,9 @@ Begin["`Private`"];
 (* Add ID                                                  *)
 (***********************************************************)
 
-Clear[AddIdentifier];
+Clear[AddCellIdentifier];
 
-AddIdentifier[ model_Association, id_ ] :=
+AddCellIdentifier[ model_Association, id_ ] :=
     Block[{modelSymbols, rules},
       modelSymbols = Union @ Cases[ Normal /@ Values[ KeyTake[model, {"Stocks", "Rates"}]], HoldPattern[ (x_Symbol | x_[args__]) -> descr_String ] :> x , Infinity ];
 
@@ -80,10 +83,10 @@ MakeCoreMultiCellModel[model : (_Symbol | _Association), n_Integer, args___] :=
     MakeCoreMultiCellModel[model, Range[n], args];
 
 MakeCoreMultiCellModel[model_Symbol, cellIDs_List, t_Symbol, context_ : "Global`"] :=
-    MapThread[Join, Map[AddIdentifier[model[t, context], #] &, cellIDs]];
+    MapThread[Join, Map[AddCellIdentifier[model[t, context], #] &, cellIDs]];
 
 MakeCoreMultiCellModel[model_Association, cellIDs_List, args___] :=
-    MapThread[Join, Map[AddIdentifier[model, #] &, cellIDs]];
+    MapThread[Join, Map[AddCellIdentifier[model, #] &, cellIDs]];
 
 MakeCoreMultiCellModel[___] :=
     Block[{},
@@ -96,14 +99,26 @@ MakeCoreMultiCellModel[___] :=
 (***********************************************************)
 
 Clear[MakeMigrationTerms];
+
 MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, t_Symbol] :=
-    Block[{n = Dimensions[mat][[2]]},
-      Total /@
-          Association[
-            Table[
-              Ps[[i]] ->
-                  Table[Ps[[j]][t] / TPs[[j]][t] * mat[[j, i]] - Ps[[i]][t] / TPs[[i]][t] * mat[[i, j]], {j, n}], {i, n}]]
+    MakeMigrationTerms[mat, Through[TPs, t], Through[Ps[t]] ];
+
+MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
+    Block[{n = Dimensions[mat][[2]], res},
+      res =
+          Total /@
+              Association[
+                Table[
+                  Ps[[i]] ->
+                      Table[Ps[[j]] / TPs[[j]] * mat[[j, i]] - Ps[[i]] / TPs[[i]] * mat[[i, j]], {j, n}], {i, n}]];
+
+      res = AssociationThread[ Keys[res] /. p_[id_][__] :> p[id], Values[res]];
+
+      res
+
     ] /; Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
+
+MakeMigrationTerms[___] := $Failed;
 
 
 (***********************************************************)
@@ -120,14 +135,15 @@ EquationPosition[equations : {_Equal ..}, lhsSpec_] :=
       If[Length[pos] == 0, $Failed, First[pos]]
     ];
 
+EquationPosition[___] := $Failed;
 
 (***********************************************************)
 (* Add terms to equation                                   *)
 (***********************************************************)
 
-Clear[AddTermsToEquation];
+Clear[AddTermsToEquations];
 
-AddTermsToEquation[equations : {_Equal ..}, lhsSpec_ -> terms_] :=
+AddTermsToEquations[equations : {_Equal ..}, lhsSpec_ -> terms_] :=
     Block[{pos = EquationPosition[equations, lhsSpec]},
 
       If[TrueQ[pos === $Failed], Return[$Failed]];
@@ -135,13 +151,24 @@ AddTermsToEquation[equations : {_Equal ..}, lhsSpec_ -> terms_] :=
       ReplacePart[equations, pos -> equations[[pos, 1]] == equations[[pos, 2]] + terms]
     ];
 
-AddTermsToEquation[equations : {_Equal ..}, newTerms_Association] :=
-    Fold[AddTermsToEquation, equations, Normal@newTerms];
+AddTermsToEquations[equations : {_Equal ..}, newTerms_Association] :=
+    Fold[AddTermsToEquations, equations, Normal@newTerms];
+
+AddTermsToEquations[___] := $Failed;
 
 
 (***********************************************************)
 (* GeoCompartmentsModel                                    *)
 (***********************************************************)
+
+Clear[GetPopulations, GetPopulationSymbols];
+
+GetPopulations[model_Association, descr_String] :=
+    Keys[Select[model["Stocks"], # == descr &]];
+
+GetPopulationSymbols[model_Association, descr_String] :=
+    Cases[GetPopulations[model, descr], p_[id_][_] :> p[id]];
+
 
 (*matMigration - constanst matrix*)
 (*matMigration - time depedent*)
@@ -149,7 +176,7 @@ AddTermsToEquation[equations : {_Equal ..}, newTerms_Association] :=
 
 Clear[ToGeoCompartmentsModel];
 
-GeoCompartmentsModel::"nargs" = "The first argument is expected to be a single cell model association. \
+ToGeoCompartmentsModel::"nargs" = "The first argument is expected to be a single cell model association. \
 The second argument is expected to be a square matrix. \
 The third optional argument is expected to be list of ID's with length that corresponds to number of rows of the first argument.";
 
@@ -159,20 +186,20 @@ ToGeoCompartmentsModel::"nmgrpop" = "At this point only Automatic is implemented
    a subset of {"SP","INSP","ISSP","RP"}
    or one of Automatic, All, or None. *)
 
-Options[GeoCompartmentsModel] = {"MigratingPopulations" -> Automatic};
+Options[ToGeoCompartmentsModel] = {"MigratingPopulations" -> Automatic};
 
-GeoCompartmentsModel[model_Association, matMigration_?MatrixQ, args___ ] :=
+ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : OptionsPattern[] ] :=
     Block[{ids},
-      ids = Range[Dimensions[matMigration[[1]]]];
-      ToGeoCompartmentsModel[matMigration, ids, args]
+      ids = Range @ Dimensions[matMigration][[1]];
+      ToGeoCompartmentsModel[model, matMigration, ids, opts]
     ] /; (Equal @@ Dimensions[matMigration]);
 
 (*ToGeoCompartmentsModel[matMigration_?SSparseMatrixQ] :=*)
 (*    Block[{},*)
 (*    ];*)
 
-GeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
-    Block[{migrPops, coreModel},
+ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
+    Block[{migrPops, coreModel, eqs, newTerms},
 
       migrPops = OptionValue[ToGeoCompartmentsModel, "MigratingPopulations"];
 
@@ -182,6 +209,31 @@ GeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opt
       ];
 
       coreModel = MakeCoreMultiCellModel[model, cellIDs];
+
+      eqs = coreModel["Equations"];
+
+      newTerms =
+          MakeMigrationTerms[matMigration,
+            GetPopulationSymbols[coreModel, "Total Population"],
+            GetPopulationSymbols[coreModel, "Recovered Population"] ];
+
+      eqs = AddTermsToEquations[ eqs, newTerms];
+
+      newTerms =
+          MakeMigrationTerms[matMigration,
+            GetPopulationSymbols[coreModel, "Total Population"],
+            GetPopulationSymbols[coreModel, "Susceptible Population"] ];
+
+      eqs = AddTermsToEquations[ eqs, newTerms];
+
+      newTerms =
+          MakeMigrationTerms[matMigration,
+            GetPopulationSymbols[coreModel, "Total Population"],
+            GetPopulationSymbols[coreModel, "Infected Normally Symptomatic Population"] ];
+
+      eqs = AddTermsToEquations[ eqs, newTerms];
+
+      Append[ coreModel, "Equations" -> eqs ]
 
     ] /; Dimensions[matMigration][[1]] == Dimensions[matMigration][[2]] == Length[cellIDs];
 
