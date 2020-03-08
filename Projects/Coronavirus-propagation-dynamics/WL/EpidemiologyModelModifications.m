@@ -214,26 +214,26 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
 
       newTerms =
           MakeMigrationTerms[matMigration,
-            GetPopulationSymbols[coreModel, "Total Population"],
-            GetPopulationSymbols[coreModel, "Recovered Population"] ];
+            GetPopulations[coreModel, "Total Population"],
+            GetPopulations[coreModel, "Recovered Population"] ];
 
       eqs = AddTermsToEquations[ eqs, newTerms];
 
       newTerms =
           MakeMigrationTerms[matMigration,
-            GetPopulationSymbols[coreModel, "Total Population"],
-            GetPopulationSymbols[coreModel, "Susceptible Population"] ];
+            GetPopulations[coreModel, "Total Population"],
+            GetPopulations[coreModel, "Susceptible Population"] ];
 
       eqs = AddTermsToEquations[ eqs, newTerms];
 
       newTerms =
           MakeMigrationTerms[matMigration,
-            GetPopulationSymbols[coreModel, "Total Population"],
-            GetPopulationSymbols[coreModel, "Infected Normally Symptomatic Population"] ];
+            GetPopulations[coreModel, "Total Population"],
+            GetPopulations[coreModel, "Infected Normally Symptomatic Population"] ];
 
       eqs = AddTermsToEquations[ eqs, newTerms];
 
-      Append[ coreModel, "Equations" -> eqs ]
+      Join[ coreModel, <| "Equations" -> eqs |> ]
 
     ] /; Dimensions[matMigration][[1]] == Dimensions[matMigration][[2]] == Length[cellIDs];
 
