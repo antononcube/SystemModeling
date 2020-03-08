@@ -59,30 +59,11 @@
 BeginPackage["EpidemiologyModels`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-AddIdentifier::usage = "AddIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
-
 SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
 Begin["`Private`"];
 
-(***********************************************************)
-(* Add ID                                                  *)
-(***********************************************************)
-
-Clear[AddIdentifier];
-AddIdentifier[ model_Association, id_ ] :=
-    Block[{modelSymbols, rules},
-      modelSymbols = Union @ Cases[ Normal /@ Values[ KeyTake[model, {"Stocks", "Rates"}]], HoldPattern[ descr_String -> (x_Symbol | x_[args__]) ] :> x , Infinity ];
-
-      rules = {
-        (x_Symbol[args__] /; MemberQ[modelSymbols, x]) :> x[id][args],
-        Derivative[d_][x_Symbol][args__] :> Derivative[d][x[id]][args],
-        (x_Symbol /; MemberQ[modelSymbols, x]) :> x[id]
-      };
-
-      Map[ # /. rules &, model ]
-    ];
 
 (***********************************************************)
 (* SIR                                                     *)
@@ -99,12 +80,12 @@ SIRStocks[t_Symbol, context_ : "Global`"] :=
       MLP = ToExpression[ context <> "MLP"]
     },
 
-      <|"Total Population" -> TP[t],
-        "Susceptible Population" -> SP[t],
-        "Infected Normally Symptomatic Population" -> INSP[t],
-        "Infected Severely Symptomatic Population" -> ISSP[t],
-        "Recovered Population" -> RP[t],
-        "Money of lost productivity" -> MLP[t]|>
+      <|TP[t] -> "Total Population" ,
+        SP[t] -> "Susceptible Population",
+        INSP[t] -> "Infected Normally Symptomatic Population",
+        ISSP[t] -> "Infected Severely Symptomatic Population",
+        RP[t] -> "Recovered Population",
+        MLP[t] -> "Money of lost productivity"|>
     ];
 
 SIRRates[t_Symbol, context_ : "Global`" ] :=
@@ -122,14 +103,14 @@ SIRRates[t_Symbol, context_ : "Global`" ] :=
       lpcr = ToExpression[ context <> "lpcr"]
     },
       <|
-        "Population death rate" -> deathRate[TP],
-        "Infected Normally Symptomatic Population death rate" -> deathRate[INSP],
-        "Infected Severely Symptomatic Population death rate" -> deathRate[ISSP],
-        "Severely Symptomatic Population Fraction" -> sspf[SP],
-        "Contact rate for the normally symptomatic population" -> contactRate[INSP],
-        "Contact rate for the severely symptomatic population" -> contactRate[ISSP],
-        "Average infectious period" -> aip,
-        "Lost productivity cost rate (per person per day)" -> lpcr[ISSP, INSP]
+        deathRate[TP] -> "Population death rate",
+        deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
+        deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
+        sspf[SP] -> "Severely Symptomatic Population Fraction" ,
+        contactRate[INSP] -> "Contact rate for the normally symptomatic population",
+        contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
+        aip -> "Average infectious period",
+        lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
       |>];
 
 Clear[SIRModel];
