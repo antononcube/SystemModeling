@@ -139,7 +139,7 @@ SIRModel[t_Symbol, context_ : "Global`" ] :=
           MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
         };
 
-        <| "Stocks" -> SIRStocks[t, context], "Rates" -> SIRRates[t, context], "Equations" -> lsEquations |>
+        <| "TimeVariable" -> t, "Stocks" -> SIRStocks[t, context], "Rates" -> SIRRates[t, context], "Equations" -> lsEquations |>
       ]
     ];
 
