@@ -59,9 +59,30 @@
 BeginPackage["EpidemiologyModels`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-SIRModel::usage = "Generates a SIR model stocks, rates, and equations.";
+AddIdentifier::usage = "AddIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
+
+SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
 
 Begin["`Private`"];
+
+(***********************************************************)
+(* Add ID                                                  *)
+(***********************************************************)
+
+Clear[AddIdentifier];
+AddIdentifier[ model_Association, id_ ] :=
+    Block[{modelSymbols, rules},
+      modelSymbols = Union @ Cases[ Normal /@ Values[ KeyTake[model, {"Stocks", "Rates"}]], HoldPattern[ descr_String -> (x_Symbol | x_[args__]) ] :> x , Infinity ];
+
+      rules = {
+        (x_Symbol[args__] /; MemberQ[modelSymbols, x]) :> x[id][args],
+        Derivative[d_][x_Symbol][args__] :> Derivative[d][x[id]][args],
+        (x_Symbol /; MemberQ[modelSymbols, x]) :> x[id]
+      };
+
+      Map[ # /. rules &, model ]
+    ];
 
 (***********************************************************)
 (* SIR                                                     *)
@@ -75,7 +96,7 @@ SIRStocks[t_Symbol, context_ : "Global`"] :=
       INSP = ToExpression[ context <> "INSP"],
       ISSP = ToExpression[ context <> "ISSP"],
       RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "TP"]
+      MLP = ToExpression[ context <> "MLP"]
     },
 
       <|"Total Population" -> TP[t],
@@ -93,7 +114,7 @@ SIRRates[t_Symbol, context_ : "Global`" ] :=
       INSP = ToExpression[ context <> "INSP"],
       ISSP = ToExpression[ context <> "ISSP"],
       RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "TP"],
+      MLP = ToExpression[ context <> "MLP"],
       deathRate = ToExpression[ context <> "\[Delta]"],
       sspf = ToExpression[ context <> "sspf"],
       contactRate = ToExpression[ context <> "\[Beta]"],
@@ -120,7 +141,7 @@ SIRModel[t_Symbol, context_ : "Global`" ] :=
         INSP = ToExpression[ context <> "INSP"],
         ISSP = ToExpression[ context <> "ISSP"],
         RP = ToExpression[ context <> "RP"],
-        MLP = ToExpression[ context <> "TP"],
+        MLP = ToExpression[ context <> "MLP"],
         deathRate = ToExpression[ context <> "\[Delta]"],
         sspf = ToExpression[ context <> "sspf"],
         contactRate = ToExpression[ context <> "\[Beta]"],
