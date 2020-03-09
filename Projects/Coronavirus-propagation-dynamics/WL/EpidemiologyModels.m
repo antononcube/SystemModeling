@@ -385,9 +385,9 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         lsEquations = {
           SP'[t] == -newlyInfectedTerm - deathRate[TP] * SP[t],
-          EP'[t] == newlyInfectedTerm - (deathRate[TP] + aincp) * EP[t],
-          INSP'[t] == (1 - sspf[SP]) * aincp * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
-          ISSP'[t] == sspf[SP] * aincp * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
+          INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
         };
