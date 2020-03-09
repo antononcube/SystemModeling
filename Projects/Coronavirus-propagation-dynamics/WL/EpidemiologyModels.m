@@ -72,46 +72,8 @@ Begin["`Private`"];
 
 
 (***********************************************************)
-(* SIR                                                    *)
+(* SI2R                                                    *)
 (***********************************************************)
-
-Clear[SIRStocks];
-SIRStocks[t_Symbol, context_ : "Global`"] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      IP = ToExpression[ context <> "IP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"]
-    },
-
-      <|TP[t] -> "Total Population" ,
-        SP[t] -> "Susceptible Population",
-        IP[t] -> "Infected Population",
-        RP[t] -> "Recovered Population",
-        MLP[t] -> "Money of lost productivity"|>
-    ];
-
-SIRRates[t_Symbol, context_ : "Global`" ] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      IP = ToExpression[ context <> "IP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"],
-      deathRate = ToExpression[ context <> "\[Delta]"],
-      contactRate = ToExpression[ context <> "\[Beta]"],
-      aip = ToExpression[ context <> "aip"],
-      lpcr = ToExpression[ context <> "lpcr"]
-    },
-      <|
-        deathRate[TP] -> "Population death rate",
-        deathRate[IP] -> "Infected Population death rate",
-        contactRate[IP] -> "Contact rate for the population",
-        aip -> "Average infectious period",
-        lpcr[IP] -> "Lost productivity cost rate (per person per day)"
-      |>];
-
 
 Clear[SIRModel];
 
@@ -123,12 +85,14 @@ The second optional argument is expected to be context string.";
 SIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-(* One of Automatic, None, "SumSubstitution", "AlgebraicEquation"  *)
-
-Options[SIRModel] = { "TotalPopulationRepresentation" -> None };
+Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{tpRepr, newlyInfectedTerm, lsEquations},
+    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SIRModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SIRModel, "RateRules" ] ];
 
       tpRepr = OptionValue[ SIRModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -149,6 +113,25 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         lpcr = ToExpression[ context <> "lpcr"]
       },
 
+        (* Stocks *)
+        aStocks =
+            <|TP[t] -> "Total Population" ,
+              SP[t] -> "Susceptible Population",
+              IP[t] -> "Infected Population",
+              RP[t] -> "Recovered Population",
+              MLP[t] -> "Money of lost productivity"|>;
+
+        (* Rates  *)
+        aRates =
+            <|
+              deathRate[TP] -> "Population death rate",
+              deathRate[IP] -> "Infected Population death rate",
+              contactRate[IP] -> "Contact rate for the infected population",
+              aip -> "Average infectious period",
+              lpcr[IP] -> "Lost productivity cost rate (per person per day)"
+            |>;
+
+        (* Equations  *)
         newlyInfectedTerm = contactRate[IP] / TP[t] * SP[t] * IP[t];
 
         lsEquations = {
@@ -166,7 +149,40 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = Append[lsEquations, TP[t] == SP[t] + IP[t] + RP[t] ]
         ];
 
-        <| "Stocks" -> SIRStocks[t, context], "Rates" -> SIRRates[t, context], "Equations" -> lsEquations |>
+        aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
+
+        (* Rate Rules *)
+        If[ addRateRulesQ,
+          aRes =
+              Append[
+                aRes,
+                "RateRules" ->
+                    <| TP[t] -> 100000,
+                      deathRate[TP] -> (800 / 10^5) / 365,
+                      deathRate[IP] -> 0.035 / aip,
+                      contactRate[IP] -> 6,
+                      aip -> 4 * 7,
+                      lpcr[IP] -> 600
+                    |>
+              ]
+        ];
+
+        (* Initial conditions *)
+        If[ addInitialConditionsQ,
+          aRes =
+              Append[
+                aRes,
+                "InitialConditions" ->
+                    {
+                      SP[0] == (TP[t] /. aRates) - 2,
+                      IP[0] == 1,
+                      RP[0] == 0,
+                      MLP[0] == 0}
+              ]
+        ];
+
+        (* Result *)
+        aRes
       ]
     ];
 
@@ -181,51 +197,6 @@ SIRModel[___] :=
 (* SI2R                                                    *)
 (***********************************************************)
 
-Clear[SI2RStocks];
-SI2RStocks[t_Symbol, context_ : "Global`"] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      INSP = ToExpression[ context <> "INSP"],
-      ISSP = ToExpression[ context <> "ISSP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"]
-    },
-
-      <|TP[t] -> "Total Population" ,
-        SP[t] -> "Susceptible Population",
-        INSP[t] -> "Infected Normally Symptomatic Population",
-        ISSP[t] -> "Infected Severely Symptomatic Population",
-        RP[t] -> "Recovered Population",
-        MLP[t] -> "Money of lost productivity"|>
-    ];
-
-SI2RRates[t_Symbol, context_ : "Global`" ] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      INSP = ToExpression[ context <> "INSP"],
-      ISSP = ToExpression[ context <> "ISSP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"],
-      deathRate = ToExpression[ context <> "\[Delta]"],
-      sspf = ToExpression[ context <> "sspf"],
-      contactRate = ToExpression[ context <> "\[Beta]"],
-      aip = ToExpression[ context <> "aip"],
-      lpcr = ToExpression[ context <> "lpcr"]
-    },
-      <|
-        deathRate[TP] -> "Population death rate",
-        deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
-        deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
-        sspf[SP] -> "Severely Symptomatic Population Fraction" ,
-        contactRate[INSP] -> "Contact rate for the normally symptomatic population",
-        contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
-        aip -> "Average infectious period",
-        lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
-      |>];
-
-
 Clear[SI2RModel];
 
 SyntaxInformation[SI2RModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
@@ -236,10 +207,14 @@ The second optional argument is expected to be context string.";
 SI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SI2RModel] = { "TotalPopulationRepresentation" -> None };
+Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{tpRepr, newlyInfectedTerm, lsEquations},
+    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SI2RModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SI2RModel, "RateRules" ] ];
 
       tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -261,6 +236,30 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aip = ToExpression[ context <> "aip"],
         lpcr = ToExpression[ context <> "lpcr"]
       },
+
+        (* Stocks *)
+        aStocks =
+            <|TP[t] -> "Total Population" ,
+              SP[t] -> "Susceptible Population",
+              INSP[t] -> "Infected Normally Symptomatic Population",
+              ISSP[t] -> "Infected Severely Symptomatic Population",
+              RP[t] -> "Recovered Population",
+              MLP[t] -> "Money of lost productivity"|>;
+
+        (* Rates  *)
+        aRates =
+            <|
+              deathRate[TP] -> "Population death rate",
+              deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
+              deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
+              sspf[SP] -> "Severely Symptomatic Population Fraction" ,
+              contactRate[INSP] -> "Contact rate for the normally symptomatic population",
+              contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
+              aip -> "Average infectious period",
+              lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
+            |>;
+
+        (* Equations  *)
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
 
         lsEquations = {
@@ -279,7 +278,44 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = Append[lsEquations, TP[t] == SP[t] + INSP[t] + ISSP[t] + RP[t] ]
         ];
 
-        <| "Stocks" -> SI2RStocks[t, context], "Rates" -> SI2RRates[t, context], "Equations" -> lsEquations |>
+        aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
+
+        (* Rate Rules *)
+        If[ addRateRulesQ,
+          aRes =
+              Append[
+                aRes,
+                "RateRules" ->
+                    <| TP[t] -> 100000,
+                      deathRate[TP] -> (800 / 10^5) / 365,
+                      deathRate[ISSP] -> 0.035 / aip,
+                      deathRate[INSP] -> 0.01 / aip,
+                      contactRate[ISSP] -> 6,
+                      contactRate[INSP] -> 3,
+                      aip -> 4 * 7,
+                      sspf[SP] -> 0.2,
+                      lpcr[ISSP, INSP] -> 600
+                    |>
+              ]
+        ];
+
+        (* Initial conditions *)
+        If[ addInitialConditionsQ,
+          aRes =
+              Append[
+                aRes,
+                "InitialConditions" ->
+                    {
+                      SP[0] == (TP[t] /. aRates) - 2,
+                      ISSP[0] == 1,
+                      INSP[0] == 1,
+                      RP[0] == 0,
+                      MLP[0] == 0}
+              ]
+        ];
+
+        (* Result *)
+        aRes
       ]
     ];
 
@@ -294,56 +330,6 @@ SI2RModel[___] :=
 (* SEI2R                                                   *)
 (***********************************************************)
 
-Clear[SEI2RStocks];
-SEI2RStocks[t_Symbol, context_ : "Global`"] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      EP = ToExpression[ context <> "EP"],
-      INSP = ToExpression[ context <> "INSP"],
-      ISSP = ToExpression[ context <> "ISSP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"]
-    },
-
-      <|TP[t] -> "Total Population" ,
-        SP[t] -> "Susceptible Population",
-        EP[t] -> "Exposed Population",
-        INSP[t] -> "Infected Normally Symptomatic Population",
-        ISSP[t] -> "Infected Severely Symptomatic Population",
-        RP[t] -> "Recovered Population",
-        MLP[t] -> "Money of lost productivity"|>
-    ];
-
-SEI2RRates[t_Symbol, context_ : "Global`" ] :=
-    With[{
-      TP = ToExpression[ context <> "TP"],
-      SP = ToExpression[ context <> "SP"],
-      EP = ToExpression[ context <> "EP"],
-      INSP = ToExpression[ context <> "INSP"],
-      ISSP = ToExpression[ context <> "ISSP"],
-      RP = ToExpression[ context <> "RP"],
-      MLP = ToExpression[ context <> "MLP"],
-      deathRate = ToExpression[ context <> "\[Delta]"],
-      sspf = ToExpression[ context <> "sspf"],
-      contactRate = ToExpression[ context <> "\[Beta]"],
-      aip = ToExpression[ context <> "aip"],
-      aincp = ToExpression[ context <> "aincp"],
-      lpcr = ToExpression[ context <> "lpcr"]
-    },
-      <|
-        deathRate[TP] -> "Population death rate",
-        deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
-        deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
-        sspf[SP] -> "Severely Symptomatic Population Fraction" ,
-        contactRate[INSP] -> "Contact rate for the normally symptomatic population",
-        contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
-        aip -> "Average infectious period",
-        aincp -> "Average incubation period",
-        lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
-      |>];
-
-
 Clear[SEI2RModel];
 
 SyntaxInformation[SEI2RModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
@@ -354,12 +340,16 @@ The second optional argument is expected to be context string.";
 SEI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None };
+Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False  };
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{tpRepr, newlyInfectedTerm, lsEquations},
+    Block[{addRateRulesQ, addInitialConditionsQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
 
-      tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEI2RModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SEI2RModel, "RateRules" ] ];
+
+      tpRepr = OptionValue[ SEI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
       If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
         Message[SIRModel::"ntpval"];
@@ -381,6 +371,32 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aincp = ToExpression[ context <> "aincp"],
         lpcr = ToExpression[ context <> "lpcr"]
       },
+
+        (* Stocks *)
+        aStocks =
+            <|TP[t] -> "Total Population" ,
+              SP[t] -> "Susceptible Population",
+              EP[t] -> "Exposed Population",
+              INSP[t] -> "Infected Normally Symptomatic Population",
+              ISSP[t] -> "Infected Severely Symptomatic Population",
+              RP[t] -> "Recovered Population",
+              MLP[t] -> "Money of lost productivity"|>;
+
+        (* Rates  *)
+        aRates =
+            <|
+              deathRate[TP] -> "Population death rate",
+              deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
+              deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
+              sspf[SP] -> "Severely Symptomatic Population Fraction" ,
+              contactRate[INSP] -> "Contact rate for the normally symptomatic population",
+              contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
+              aip -> "Average infectious period",
+              aincp -> "Average incubation period",
+              lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
+            |>;
+
+        (* Equations  *)
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
 
         lsEquations = {
@@ -400,7 +416,46 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = Append[lsEquations, TP[t] == SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] ]
         ];
 
-        <| "Stocks" -> SEI2RStocks[t, context], "Rates" -> SEI2RRates[t, context], "Equations" -> lsEquations |>
+        aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
+
+        (* Rate Rules *)
+        If[ addRateRulesQ,
+          aRes =
+              Append[
+                aRes,
+                "RateRules" ->
+                    <| TP[t] -> 100000,
+                      deathRate[TP] -> (800 / 10^5) / 365,
+                      deathRate[ISSP] -> 0.035 / aip,
+                      deathRate[INSP] -> 0.01 / aip,
+                      contactRate[ISSP] -> 6,
+                      contactRate[INSP] -> 3,
+                      aip -> 4 * 7,
+                      aincp -> 6,
+                      sspf[SP] -> 0.2,
+                      lpcr[ISSP, INSP] -> 600
+                    |>
+              ]
+        ];
+
+        (* Initial conditions *)
+        If[ addInitialConditionsQ,
+          aRes =
+              Append[
+                aRes,
+                "InitialConditions" ->
+                    {
+                      SP[0] == (TP[t] /. aRates) - 2,
+                      EP[0] == 0,
+                      ISSP[0] == 1,
+                      INSP[0] == 1,
+                      RP[0] == 0,
+                      MLP[0] == 0}
+              ]
+        ];
+
+        (* Result *)
+        aRes
       ]
     ];
 
