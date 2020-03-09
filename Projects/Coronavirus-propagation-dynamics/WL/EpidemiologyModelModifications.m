@@ -180,11 +180,8 @@ ToGeoCompartmentsModel::"nargs" = "The first argument is expected to be a single
 The second argument is expected to be a square matrix. \
 The third optional argument is expected to be list of ID's with length that corresponds to number of rows of the first argument.";
 
-ToGeoCompartmentsModel::"nmgrpop" = "At this point only Automatic is implemented for the option \"MigratingPopulations\".";
-
-(* The values of the option "MigratingPopulations" is expected to be
-   a subset of {"SP","INSP","ISSP","RP"}
-   or one of Automatic, All, or None. *)
+ToGeoCompartmentsModel::"nmgrpop" = "The values of the option \"MigratingPopulations\" is expected to be
+a subset of `1` or one of Automatic, All, or None.";
 
 Options[ToGeoCompartmentsModel] = {"MigratingPopulations" -> Automatic};
 
@@ -199,39 +196,51 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : OptionsP
 (*    ];*)
 
 ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
-    Block[{migrPops, coreModel, eqs, newTerms},
+    Block[{allPops, migrPops, coreModel, eqs, newTerms},
 
       migrPops = OptionValue[ToGeoCompartmentsModel, "MigratingPopulations"];
 
-      If[ !TrueQ[migrPops === Automatic],
-        Message[ToGeoCompartmentsModel::"nmgrpop"];
+      allPops = Values @ Select[ model["Stocks"], StringMatchQ[#, __ ~~ "Population" ~~ EndOfString ]& ];
+      allPops = Complement[allPops, {"Total Population"} ];
+
+      Which[
+        TrueQ[migrPops === None],
+        migrPops = {},
+
+        TrueQ[migrPops === Automatic],
+        migrPops = Complement[ allPops, {"Infected Severely Symptomatic Population"} ],
+
+        TrueQ[migrPops === Automatic] && TrueQ[migrPops === All],
+        migrPops = allPops,
+
+        VectorQ[migrPops, StringQ] && Length[ Intersection[allPops, migrPops] ] == Length[ Union[migrPops] ],
+        migrPops = Union[migrPops],
+
+        True,
+        Message[ToGeoCompartmentsModel::"nmgrpop", allPops];
         Return[$Failed]
       ];
 
       coreModel = MakeCoreMultiCellModel[model, cellIDs];
 
+      If[ Length[migrPops] == 0,
+        Return[coreModel]
+      ];
+
       eqs = coreModel["Equations"];
 
-      newTerms =
-          MakeMigrationTerms[matMigration,
-            GetPopulations[coreModel, "Total Population"],
-            GetPopulations[coreModel, "Recovered Population"] ];
-
-      eqs = AddTermsToEquations[ eqs, newTerms];
-
-      newTerms =
-          MakeMigrationTerms[matMigration,
-            GetPopulations[coreModel, "Total Population"],
-            GetPopulations[coreModel, "Susceptible Population"] ];
-
-      eqs = AddTermsToEquations[ eqs, newTerms];
-
-      newTerms =
-          MakeMigrationTerms[matMigration,
-            GetPopulations[coreModel, "Total Population"],
-            GetPopulations[coreModel, "Infected Normally Symptomatic Population"] ];
-
-      eqs = AddTermsToEquations[ eqs, newTerms];
+      eqs =
+          Fold[(
+            newTerms =
+                MakeMigrationTerms[
+                  matMigration,
+                  GetPopulations[coreModel, "Total Population"],
+                  GetPopulations[coreModel, #2]
+                ];
+            AddTermsToEquations[#1, newTerms])&,
+            eqs,
+            migrPops
+          ];
 
       Join[ coreModel, <| "Equations" -> eqs |> ]
 
