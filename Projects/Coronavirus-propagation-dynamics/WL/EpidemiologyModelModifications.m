@@ -217,7 +217,7 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
         migrPops = Union[migrPops],
 
         True,
-        Message[ToGeoCompartmentsModel::"nmgrpop", allPops];
+        Message[ToGeoCompartmentsModel::"nmgrpop", ToString[InputForm[allPops]] ];
         Return[$Failed]
       ];
 
