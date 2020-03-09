@@ -62,7 +62,7 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params_List, tma
       derivativesQ = TrueQ[OptionValue[ParametricSolutionsPlots, "Derivatives"]];
       derivativesPrefix = OptionValue[ParametricSolutionsPlots, "DerivativePrefix"];
 
-      stockRules = Reverse/@Normal[aStocks];
+      stockRules = Normal[aStocks];
       stockRules[[All,1]] = stockRules[[All,1]] /. x_Symbol[v_Symbol] :> x["t"];
 
       If[logPlotQ, plotFunc = LogPlot];
