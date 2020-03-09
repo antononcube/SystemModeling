@@ -88,7 +88,8 @@ Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
+    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SIRModel, "InitialConditions" ] ];
 
@@ -152,19 +153,17 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
 
         (* Rate Rules *)
+        aRateRules =
+            <| TP[t] -> 100000,
+              deathRate[TP] -> (800 / 10^5) / 365,
+              deathRate[IP] -> 0.035 / aip,
+              contactRate[IP] -> 6,
+              aip -> 4 * 7,
+              lpcr[IP] -> 600
+            |>;
+
         If[ addRateRulesQ,
-          aRes =
-              Append[
-                aRes,
-                "RateRules" ->
-                    <| TP[t] -> 100000,
-                      deathRate[TP] -> (800 / 10^5) / 365,
-                      deathRate[IP] -> 0.035 / aip,
-                      contactRate[IP] -> 6,
-                      aip -> 4 * 7,
-                      lpcr[IP] -> 600
-                    |>
-              ]
+          aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
         (* Initial conditions *)
@@ -174,7 +173,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                 aRes,
                 "InitialConditions" ->
                     {
-                      SP[0] == (TP[t] /. aRates) - 2,
+                      SP[0] == (TP[t] /. aRateRules) - 2,
                       IP[0] == 1,
                       RP[0] == 0,
                       MLP[0] == 0}
@@ -210,7 +209,8 @@ Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
+    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SI2RModel, "InitialConditions" ] ];
 
@@ -281,22 +281,20 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
 
         (* Rate Rules *)
+        aRateRules =
+            <| TP[t] -> 100000,
+              deathRate[TP] -> (800 / 10^5) / 365,
+              deathRate[ISSP] -> 0.035 / aip,
+              deathRate[INSP] -> 0.01 / aip,
+              contactRate[ISSP] -> 6,
+              contactRate[INSP] -> 3,
+              aip -> 4 * 7,
+              sspf[SP] -> 0.2,
+              lpcr[ISSP, INSP] -> 600
+            |>;
+
         If[ addRateRulesQ,
-          aRes =
-              Append[
-                aRes,
-                "RateRules" ->
-                    <| TP[t] -> 100000,
-                      deathRate[TP] -> (800 / 10^5) / 365,
-                      deathRate[ISSP] -> 0.035 / aip,
-                      deathRate[INSP] -> 0.01 / aip,
-                      contactRate[ISSP] -> 6,
-                      contactRate[INSP] -> 3,
-                      aip -> 4 * 7,
-                      sspf[SP] -> 0.2,
-                      lpcr[ISSP, INSP] -> 600
-                    |>
-              ]
+          aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
         (* Initial conditions *)
@@ -306,7 +304,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                 aRes,
                 "InitialConditions" ->
                     {
-                      SP[0] == (TP[t] /. aRates) - 2,
+                      SP[0] == (TP[t] /. aRateRules) - 2,
                       ISSP[0] == 1,
                       INSP[0] == 1,
                       RP[0] == 0,
@@ -343,7 +341,8 @@ Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False  };
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addRateRulesQ, addInitialConditionsQ, tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes},
+    Block[{addRateRulesQ, addInitialConditionsQ, tpRepr,
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2RModel, "InitialConditions" ] ];
 
@@ -419,23 +418,22 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
 
         (* Rate Rules *)
+
+        aRateRules =
+            <| TP[t] -> 100000,
+              deathRate[TP] -> (800 / 10^5) / 365,
+              deathRate[ISSP] -> 0.035 / aip,
+              deathRate[INSP] -> 0.01 / aip,
+              contactRate[ISSP] -> 6,
+              contactRate[INSP] -> 3,
+              aip -> 4 * 7,
+              aincp -> 6,
+              sspf[SP] -> 0.2,
+              lpcr[ISSP, INSP] -> 600
+            |>;
+
         If[ addRateRulesQ,
-          aRes =
-              Append[
-                aRes,
-                "RateRules" ->
-                    <| TP[t] -> 100000,
-                      deathRate[TP] -> (800 / 10^5) / 365,
-                      deathRate[ISSP] -> 0.035 / aip,
-                      deathRate[INSP] -> 0.01 / aip,
-                      contactRate[ISSP] -> 6,
-                      contactRate[INSP] -> 3,
-                      aip -> 4 * 7,
-                      aincp -> 6,
-                      sspf[SP] -> 0.2,
-                      lpcr[ISSP, INSP] -> 600
-                    |>
-              ]
+          aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
         (* Initial conditions *)
@@ -445,7 +443,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                 aRes,
                 "InitialConditions" ->
                     {
-                      SP[0] == (TP[t] /. aRates) - 2,
+                      SP[0] == (TP[t] /. aRateRules) - 2,
                       EP[0] == 0,
                       ISSP[0] == 1,
                       INSP[0] == 1,
