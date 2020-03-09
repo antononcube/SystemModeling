@@ -46,6 +46,9 @@ the migration terms for the total populations TPs and populations Ps.";
 ToGeoCompartmentsModel::usage = "ToGeoCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
 
+SetInitialConditions::usage = "SetInitialConditions[ m_Association, ics_Associations] changes the initial
+conditions of the model m according to the rules ics.";
+
 Begin["`Private`"];
 
 (***********************************************************)
@@ -249,6 +252,48 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
 ToGeoCompartmentsModel[___] :=
     Block[{},
       Message[ToGeoCompartmentsModel::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* Initial conditions setter                               *)
+(***********************************************************)
+
+Clear[SetInitialConditions];
+
+SetInitialConditions::"nargs" = "The first argument is expected to be a model association. \
+The second argument is expected to be a an associations of initial condition rules.";
+
+SetInitialConditions::"ninit" = "The model does not have initial conditions.";
+
+SetInitialConditions[model_Association, aInitConds_Association] :=
+    Block[{lsInitConds, pos},
+
+      If[ KeyExistsQ[model, "InitialConditions"],
+        Message[SetInitialConditions::"ninit"];
+        Return[$Failed]
+      ];
+
+      lsInitConds = model["InitialConditions"];
+
+      lsInitConds =
+          Fold[
+            Function[{ics, icRule},
+              pos = EquationPosition[lsInitConds, icRule[[1]]];
+              If[IntegerQ[pos],
+                ReplacePart[ics, pos -> icRule[[1]] == icRule[[2]]]
+              ]],
+            lsInitConds,
+            Normal[aInitConds]
+          ];
+
+      Join[model, <|"InitialConditions" -> lsInitConds|>]
+    ];
+
+SetInitialConditions[___] :=
+    Block[{},
+      Message[SetInitialConditions::"nargs"];
       $Failed
     ];
 
