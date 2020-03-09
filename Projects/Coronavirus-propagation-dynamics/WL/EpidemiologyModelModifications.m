@@ -43,6 +43,12 @@ specified with nt to the right hand side of the equations eqs.";
 MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
 the migration terms for the total populations TPs and populations Ps.";
 
+GetPopulations::usage = "GetPopulations[m_Association, d_String] get populations in the model m \
+that correspond to the descriptions d.";
+
+GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d_String] get population symbols in the model m \
+that correspond to the descriptions d.";
+
 ToGeoCompartmentsModel::usage = "ToGeoCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
 
