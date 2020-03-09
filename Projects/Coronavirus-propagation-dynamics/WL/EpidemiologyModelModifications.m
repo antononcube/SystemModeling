@@ -276,7 +276,7 @@ SetInitialConditions::"ninit" = "The model does not have initial conditions.";
 SetInitialConditions[model_Association, aInitConds_Association] :=
     Block[{lsInitConds, pos},
 
-      If[ KeyExistsQ[model, "InitialConditions"],
+      If[ !KeyExistsQ[model, "InitialConditions"],
         Message[SetInitialConditions::"ninit"];
         Return[$Failed]
       ];
