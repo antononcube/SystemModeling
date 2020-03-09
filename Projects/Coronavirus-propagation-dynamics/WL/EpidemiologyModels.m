@@ -89,7 +89,7 @@ Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialCondition
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
-      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SIRModel, "InitialConditions" ] ];
 
@@ -162,25 +162,28 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[IP] -> 600
             |>;
 
+        (* Initial conditions *)
+        aInitialConditions =
+            {
+              SP[0] == (TP[t] /. aRateRules) - 2,
+              IP[0] == 1,
+              RP[0] == 0,
+              MLP[0] == 0};
+
+        (* Result *)
+        If[ tpRepr == "AlgebraicEquation",
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[t]]
+        ];
+
         If[ addRateRulesQ,
           aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
-        (* Initial conditions *)
         If[ addInitialConditionsQ,
-          aRes =
-              Append[
-                aRes,
-                "InitialConditions" ->
-                    {
-                      SP[0] == (TP[t] /. aRateRules) - 2,
-                      IP[0] == 1,
-                      RP[0] == 0,
-                      MLP[0] == 0}
-              ]
+          aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
         ];
 
-        (* Result *)
         aRes
       ]
     ];
@@ -210,7 +213,7 @@ Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditio
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
-      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SI2RModel, "InitialConditions" ] ];
 
@@ -293,26 +296,29 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[ISSP, INSP] -> 600
             |>;
 
+        (* Initial conditions *)
+        aInitialConditions =
+            {
+              SP[0] == (TP[t] /. aRateRules) - 2,
+              ISSP[0] == 1,
+              INSP[0] == 1,
+              RP[0] == 0,
+              MLP[0] == 0};
+
+        (* Result *)
+        If[ tpRepr == "AlgebraicEquation",
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[t]]
+        ];
+
         If[ addRateRulesQ,
           aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
-        (* Initial conditions *)
         If[ addInitialConditionsQ,
-          aRes =
-              Append[
-                aRes,
-                "InitialConditions" ->
-                    {
-                      SP[0] == (TP[t] /. aRateRules) - 2,
-                      ISSP[0] == 1,
-                      INSP[0] == 1,
-                      RP[0] == 0,
-                      MLP[0] == 0}
-              ]
+          aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
         ];
 
-        (* Result *)
         aRes
       ]
     ];
@@ -342,7 +348,7 @@ Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditi
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addRateRulesQ, addInitialConditionsQ, tpRepr,
-      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules},
+      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2RModel, "InitialConditions" ] ];
 
@@ -418,7 +424,6 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
 
         (* Rate Rules *)
-
         aRateRules =
             <| TP[t] -> 100000,
               deathRate[TP] -> (800 / 10^5) / 365,
@@ -432,27 +437,29 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[ISSP, INSP] -> 600
             |>;
 
+        (* Initial conditions *)
+        aInitialConditions = {
+          SP[0] == (TP[t] /. aRateRules) - 2,
+          EP[0] == 0,
+          ISSP[0] == 1,
+          INSP[0] == 1,
+          RP[0] == 0,
+          MLP[0] == 0};
+
+        (* Result *)
+        If[ tpRepr == "AlgebraicEquation",
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[t]]
+        ];
+
         If[ addRateRulesQ,
           aRes = Append[aRes, "RateRules" -> aRateRules]
         ];
 
-        (* Initial conditions *)
         If[ addInitialConditionsQ,
-          aRes =
-              Append[
-                aRes,
-                "InitialConditions" ->
-                    {
-                      SP[0] == (TP[t] /. aRateRules) - 2,
-                      EP[0] == 0,
-                      ISSP[0] == 1,
-                      INSP[0] == 1,
-                      RP[0] == 0,
-                      MLP[0] == 0}
-              ]
+          aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
         ];
 
-        (* Result *)
         aRes
       ]
     ];
