@@ -165,7 +165,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         (* Initial conditions *)
         aInitialConditions =
             {
-              SP[0] == (TP[t] /. aRateRules) - 2,
+              SP[0] == (TP[t] /. aRateRules) - 1,
               IP[0] == 1,
               RP[0] == 0,
               MLP[0] == 0};
