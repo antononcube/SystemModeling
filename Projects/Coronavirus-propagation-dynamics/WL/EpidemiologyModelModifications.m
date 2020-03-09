@@ -210,7 +210,7 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
         TrueQ[migrPops === Automatic],
         migrPops = Complement[ allPops, {"Infected Severely Symptomatic Population"} ],
 
-        TrueQ[migrPops === Automatic] && TrueQ[migrPops === All],
+        TrueQ[migrPops === Automatic] || TrueQ[migrPops === All],
         migrPops = allPops,
 
         VectorQ[migrPops, StringQ] && Length[ Intersection[allPops, migrPops] ] == Length[ Union[migrPops] ],
