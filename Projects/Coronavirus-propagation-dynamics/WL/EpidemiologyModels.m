@@ -62,15 +62,123 @@ BeginPackage["EpidemiologyModels`"];
 SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
+SI2RModel::usage = "SI2RModel[var, con] generates SI2R model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
 Begin["`Private`"];
 
 
 (***********************************************************)
-(* SIR                                                     *)
+(* SIR                                                    *)
 (***********************************************************)
 
 Clear[SIRStocks];
 SIRStocks[t_Symbol, context_ : "Global`"] :=
+    With[{
+      TP = ToExpression[ context <> "TP"],
+      SP = ToExpression[ context <> "SP"],
+      IP = ToExpression[ context <> "IP"],
+      RP = ToExpression[ context <> "RP"],
+      MLP = ToExpression[ context <> "MLP"]
+    },
+
+      <|TP[t] -> "Total Population" ,
+        SP[t] -> "Susceptible Population",
+        IP[t] -> "Infected Population",
+        RP[t] -> "Recovered Population",
+        MLP[t] -> "Money of lost productivity"|>
+    ];
+
+SIRRates[t_Symbol, context_ : "Global`" ] :=
+    With[{
+      TP = ToExpression[ context <> "TP"],
+      SP = ToExpression[ context <> "SP"],
+      IP = ToExpression[ context <> "IP"],
+      RP = ToExpression[ context <> "RP"],
+      MLP = ToExpression[ context <> "MLP"],
+      deathRate = ToExpression[ context <> "\[Delta]"],
+      contactRate = ToExpression[ context <> "\[Beta]"],
+      aip = ToExpression[ context <> "aip"],
+      lpcr = ToExpression[ context <> "lpcr"]
+    },
+      <|
+        deathRate[TP] -> "Population death rate",
+        deathRate[IP] -> "Infected Population death rate",
+        contactRate[IP] -> "Contact rate for the population",
+        aip -> "Average infectious period",
+        lpcr[IP] -> "Lost productivity cost rate (per person per day)"
+      |>];
+
+
+Clear[SIRModel];
+
+SyntaxInformation[SIRModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SIRModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+SIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+(* One of Automatic, None, "SumSubstitution", "AlgebraicEquation"  *)
+
+Options[SIRModel] = { "TotalPopulationRepresentation" -> None };
+
+SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{tpRepr, newlyInfectedTerm, lsEquations},
+
+      tpRepr = OptionValue[ SIRModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SIRModel::"ntpval"];
+        $Failed
+      ];
+
+      With[{
+        TP = ToExpression[ context <> "TP"],
+        SP = ToExpression[ context <> "SP"],
+        IP = ToExpression[ context <> "IP"],
+        RP = ToExpression[ context <> "RP"],
+        MLP = ToExpression[ context <> "MLP"],
+        deathRate = ToExpression[ context <> "\[Delta]"],
+        contactRate = ToExpression[ context <> "\[Beta]"],
+        aip = ToExpression[ context <> "aip"],
+        lpcr = ToExpression[ context <> "lpcr"]
+      },
+
+        newlyInfectedTerm = contactRate[IP] / TP[t] * SP[t] * IP[t];
+
+        lsEquations = {
+          SP'[t] == -newlyInfectedTerm - deathRate[TP] * SP[t],
+          IP'[t] == newlyInfectedTerm - (1 / aip) * IP[t] - deathRate[IP] * IP[t],
+          RP'[t] == (1 / aip) * IP[t] - deathRate[TP] * RP[t],
+          MLP'[t] == lpcr[IP] * (TP[t] - RP[t] - SP[t])
+        };
+
+        Which[
+          tpRepr == "SumSubstitution",
+          lsEquations = lsEquations /. TP[t] -> ( SP[t] + IP[t] + RP[t] ),
+
+          tpRepr == "AlgebraicEquation",
+          lsEquations = Append[lsEquations, TP[t] == SP[t] + IP[t] + RP[t] ]
+        ];
+
+        <| "Stocks" -> SIRStocks[t, context], "Rates" -> SIRRates[t, context], "Equations" -> lsEquations |>
+      ]
+    ];
+
+SIRModel[___] :=
+    Block[{},
+      Message[SIRModel::"nargs"];
+      $Failed
+    ];
+
+(***********************************************************)
+(* SI2R                                                    *)
+(***********************************************************)
+
+Clear[SI2RStocks];
+SI2RStocks[t_Symbol, context_ : "Global`"] :=
     With[{
       TP = ToExpression[ context <> "TP"],
       SP = ToExpression[ context <> "SP"],
@@ -88,7 +196,7 @@ SIRStocks[t_Symbol, context_ : "Global`"] :=
         MLP[t] -> "Money of lost productivity"|>
     ];
 
-SIRRates[t_Symbol, context_ : "Global`" ] :=
+SI2RRates[t_Symbol, context_ : "Global`" ] :=
     With[{
       TP = ToExpression[ context <> "TP"],
       SP = ToExpression[ context <> "SP"],
@@ -113,9 +221,29 @@ SIRRates[t_Symbol, context_ : "Global`" ] :=
         lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
       |>];
 
-Clear[SIRModel];
-SIRModel[t_Symbol, context_ : "Global`" ] :=
-    Block[{newlyInfectedTerm, lsEquations},
+
+Clear[SI2RModel];
+
+SyntaxInformation[SI2RModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SI2RModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+SI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+Options[SI2RModel] = { "TotalPopulationRepresentation" -> None };
+
+SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{tpRepr, newlyInfectedTerm, lsEquations},
+
+      tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SIRModel::"ntpval"];
+        $Failed
+      ];
+
       With[{
         TP = ToExpression[ context <> "TP"],
         SP = ToExpression[ context <> "SP"],
@@ -139,10 +267,23 @@ SIRModel[t_Symbol, context_ : "Global`" ] :=
           MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
         };
 
-        <| "Stocks" -> SIRStocks[t, context], "Rates" -> SIRRates[t, context], "Equations" -> lsEquations |>
+        Which[
+          tpRepr == "SumSubstitution",
+          lsEquations = lsEquations /. TP[t] -> ( SP[t] + INSP[t] + ISSP[t] + RP[t] ),
+
+          tpRepr == "AlgebraicEquation",
+          lsEquations = Append[lsEquations, TP[t] == SP[t] + INSP[t] + ISSP[t] + RP[t] ]
+        ];
+
+        <| "Stocks" -> SI2RStocks[t, context], "Rates" -> SI2RRates[t, context], "Equations" -> lsEquations |>
       ]
     ];
 
+SI2RModel[___] :=
+    Block[{},
+      Message[SI2RModel::"nargs"];
+      $Failed
+    ];
 
 End[]; (* `Private` *)
 
