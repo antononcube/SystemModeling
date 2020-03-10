@@ -88,7 +88,7 @@ that correspond to the descriptions d.";
 GetRatesSymbols::usage = "GetRatesSymbols[m_Association, d_String] get rates symbols in the model m \
 that correspond to the descriptions d.";
 
-ToGeoCompartmentsModel::usage = "ToGeoCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
+ToSiteCompartmentsModel::usage = "ToSiteCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
 
 SetInitialConditions::usage = "SetInitialConditions[ m_Association, ics_Associations] changes the initial
@@ -267,31 +267,31 @@ GetRateSymbols[model_Association, descr_String] :=
 (*matMigration - time depedent*)
 (*matMigration -  *)
 
-Clear[ToGeoCompartmentsModel];
+Clear[ToSiteCompartmentsModel];
 
-ToGeoCompartmentsModel::"nargs" = "The first argument is expected to be a single cell model association. \
+ToSiteCompartmentsModel::"nargs" = "The first argument is expected to be a single cell model association. \
 The second argument is expected to be a square matrix. \
 The third optional argument is expected to be list of ID's with length that corresponds to number of rows of the first argument.";
 
-ToGeoCompartmentsModel::"nmgrpop" = "The values of the option \"MigratingPopulations\" is expected to be
+ToSiteCompartmentsModel::"nmgrpop" = "The values of the option \"MigratingPopulations\" is expected to be
 a subset of `1` or one of Automatic, All, or None.";
 
-Options[ToGeoCompartmentsModel] = {"MigratingPopulations" -> Automatic};
+Options[ToSiteCompartmentsModel] = {"MigratingPopulations" -> Automatic};
 
-ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : OptionsPattern[] ] :=
+ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : OptionsPattern[] ] :=
     Block[{ids},
       ids = Range @ Dimensions[matMigration][[1]];
-      ToGeoCompartmentsModel[model, matMigration, ids, opts]
+      ToSiteCompartmentsModel[model, matMigration, ids, opts]
     ] /; (Equal @@ Dimensions[matMigration]);
 
 (*ToGeoCompartmentsModel[matMigration_?SSparseMatrixQ] :=*)
 (*    Block[{},*)
 (*    ];*)
 
-ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
+ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
     Block[{allPops, migrPops, coreModel, eqs, newTerms},
 
-      migrPops = OptionValue[ToGeoCompartmentsModel, "MigratingPopulations"];
+      migrPops = OptionValue[ToSiteCompartmentsModel, "MigratingPopulations"];
 
       allPops = Values @ Select[ model["Stocks"], StringMatchQ[#, __ ~~ "Population" ~~ EndOfString ]& ];
       allPops = Complement[allPops, {"Total Population"} ];
@@ -310,7 +310,7 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
         migrPops = Union[migrPops],
 
         True,
-        Message[ToGeoCompartmentsModel::"nmgrpop", ToString[InputForm[allPops]] ];
+        Message[ToSiteCompartmentsModel::"nmgrpop", ToString[InputForm[allPops]] ];
         Return[$Failed]
       ];
 
@@ -339,9 +339,9 @@ ToGeoCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, o
 
     ] /; Dimensions[matMigration][[1]] == Dimensions[matMigration][[2]] == Length[cellIDs];
 
-ToGeoCompartmentsModel[___] :=
+ToSiteCompartmentsModel[___] :=
     Block[{},
-      Message[ToGeoCompartmentsModel::"nargs"];
+      Message[ToSiteCompartmentsModel::"nargs"];
       $Failed
     ];
 
