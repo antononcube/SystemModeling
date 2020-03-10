@@ -76,17 +76,17 @@ specified with nt to the right hand side of the equations eqs.";
 MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
 the migration terms for the total populations TPs and populations Ps.";
 
-GetPopulations::usage = "GetPopulations[m_Association, d_String] get populations in the model m \
+GetPopulations::usage = "GetPopulations[m_Association, d:(_String | _StringExpression)] get populations
+in the model m that correspond to the descriptions d.";
+
+GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d:(_String | _StringExpression)] get
+population symbols in the model m that correspond to the descriptions d.";
+
+GetRates::usage = "GetRates[m_Association, d:(_String | _StringExpression)] get rates in the model m \
 that correspond to the descriptions d.";
 
-GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d_String] get population symbols in the model m \
-that correspond to the descriptions d.";
-
-GetRates::usage = "GetRates[m_Association, d_String] get rates in the model m \
-that correspond to the descriptions d.";
-
-GetRatesSymbols::usage = "GetRatesSymbols[m_Association, d_String] get rates symbols in the model m \
-that correspond to the descriptions d.";
+GetRatesSymbols::usage = "GetRatesSymbols[m_Association, d:(_String | _StringExpression)] get rates symbols in
+the model m that correspond to the descriptions d.";
 
 ToSiteCompartmentsModel::usage = "ToSiteCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
@@ -233,10 +233,10 @@ AddTermsToEquations[___] := $Failed;
 
 Clear[GetPopulations, GetPopulationSymbols];
 
-GetPopulations[model_Association, descr_String] :=
-    Keys[Select[model["Stocks"], # == descr &]];
+GetPopulations[model_Association, descr : (_String | _StringExpression)] :=
+    Keys[Select[model["Stocks"], StringMatchQ[#, descr]&]];
 
-GetPopulationSymbols[model_Association, descr_String] :=
+GetPopulationSymbols[model_Association, descr : (_String | _StringExpression)] :=
     Join[
       Cases[GetPopulations[model, descr], p_Symbol[id_][_] :> p[id] ],
       Cases[GetPopulations[model, descr], p_Symbol[_] :> p ]
@@ -249,10 +249,10 @@ GetPopulationSymbols[model_Association, descr_String] :=
 
 Clear[GetRates, GetRateSymbols];
 
-GetRates[model_Association, descr_String] :=
+GetRates[model_Association, descr : (_String | _StringExpression)] :=
     Keys[Select[model["Rates"], # == descr &]];
 
-GetRateSymbols[model_Association, descr_String] :=
+GetRateSymbols[model_Association, descr : (_String | _StringExpression)] :=
     Join[
       Cases[GetRates[model, descr], p_Symbol[id_][_] :> p[id] ],
       Cases[GetRates[model, descr], p_Symbol[_] :> p ]
