@@ -7,11 +7,11 @@ March 2020
 
 ## Introduction
 
-The [compartmental epidemiology SEIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) is on of the simplest model to initiate the model(s) described and worked with in the notebook ["Simple Coronavirus propagation dynamics model"](Simple-Coronavirus-propagation-dynamics-model.nb).
+The primary purpose of this notebook is to give a “stencil workflow” for simulations using the packages in the project ["Coronavirus simulation dynamics"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics), [AAr1].
 
-The primary purpose of this notebook is to give a “stencil workflow” for simulations using the packages in project ["Coronavirus simulation dynamics"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics), [AAr1].
-
-The model in this notebook -- SEI2R -- differs from the classical SEIR model with the following elements:
+The model in this notebook -- SEI2R -- differs from 
+[the classical SEIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) 
+with the following elements:
 
 1. Two separate infected populations: one is "severely symptomatic", the other is "normally symptomatic"
 
