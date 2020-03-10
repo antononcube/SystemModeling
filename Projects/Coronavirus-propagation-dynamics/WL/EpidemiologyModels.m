@@ -149,7 +149,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + IP[t] + RP[t] ),
 
           tpRepr == "AlgebraicEquation",
-          lsEquations = Append[lsEquations, TP[t] == SP[t] + IP[t] + RP[t] ]
+          lsEquations = Append[lsEquations, TP[t] == Max[ 0, SP[t] + IP[t] + RP[t] ] ]
         ];
 
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
@@ -211,15 +211,17 @@ The second optional argument is expected to be context string.";
 SI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
+Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False, "BirthsTerm" -> False };
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SI2RModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SI2RModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[ SI2RModel, "BirthsTerm" ] ];
 
       tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -268,7 +270,12 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
 
         lsEquations = {
-          SP'[t] == -newlyInfectedTerm - deathRate[TP] * SP[t],
+
+          If[ birthsTermQ,
+            SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
+            (* ELSE *)
+            SP'[t] == - newlyInfectedTerm - deathRate[TP] * SP[t]
+          ],
           INSP'[t] == (1 - sspf[SP]) * newlyInfectedTerm - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
           ISSP'[t] == sspf[SP] * newlyInfectedTerm - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
@@ -280,7 +287,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + INSP[t] + ISSP[t] + RP[t] ),
 
           tpRepr == "AlgebraicEquation",
-          lsEquations = Append[lsEquations, TP[t] == SP[t] + INSP[t] + ISSP[t] + RP[t] ]
+          lsEquations = Append[lsEquations, TP[t] == Max[ 0, SP[t] + INSP[t] + ISSP[t] + RP[t] ] ]
         ];
 
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
@@ -346,15 +353,17 @@ The second optional argument is expected to be context string.";
 SEI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False  };
+Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False, "BirthsTerm" -> False };
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addRateRulesQ, addInitialConditionsQ, tpRepr,
+    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, tpRepr,
       newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2RModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SEI2RModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEI2RModel, "BirthsTerm"] ];
 
       tpRepr = OptionValue[ SEI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -407,7 +416,11 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
 
         lsEquations = {
-          SP'[t] == -newlyInfectedTerm - deathRate[TP] * SP[t],
+          If[ birthsTermQ,
+            SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
+            (* ELSE *)
+            SP'[t] == - newlyInfectedTerm - deathRate[TP] * SP[t]
+          ],
           EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
           INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
           ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
@@ -420,7 +433,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] ),
 
           tpRepr == "AlgebraicEquation",
-          lsEquations = Append[lsEquations, TP[t] == SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] ]
+          lsEquations = Append[lsEquations, TP[t] == Max[ 0, SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] ] ]
         ];
 
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
