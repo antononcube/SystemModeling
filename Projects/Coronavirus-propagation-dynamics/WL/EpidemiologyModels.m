@@ -68,6 +68,8 @@ using the time variable var with symbols in the context con.";
 SEI2RModel::usage = "SEI2RModel[var, con] generates SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
+ModelGridTableForm::usage = "Displays the model legibly.";
+
 Begin["`Private`"];
 
 
@@ -468,6 +470,31 @@ SEI2RModel[___] :=
     Block[{},
       Message[SEI2RModel::"nargs"];
       $Failed
+    ];
+
+
+(***********************************************************)
+(* ModelGridTableForm                                      *)
+(***********************************************************)
+
+Clear[ModelGridTableForm];
+
+ModelGridTableForm[model_Association] :=
+    Block[{aTHeadings},
+
+      aTHeadings = <|
+        "Stocks" -> {"Symbol", "Description"},
+        "Rates" -> {"Symbol", "Description"},
+        "Equations" -> {"Equation"},
+        "RateRules" -> {"Symbol", "Value"},
+        "InitialConditions" -> {"Equation"}
+      |>;
+
+      Association @
+          KeyValueMap[
+            #1 -> ResourceFunction["GridTableForm"][ If[AssociationQ[#2], List @@@ Normal[#2], List /@ #2], TableHeadings -> aTHeadings[#1] ]&,
+            model
+          ]
     ];
 
 
