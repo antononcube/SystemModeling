@@ -60,7 +60,9 @@ If[Length[DownValues[EpidemiologyModels`SIRModel]] == 0,
 BeginPackage["EpidemiologyModelModifications`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-AddCellIdentifier::usage = "AddCellIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
+AddModelIdentifier::usage = "AddModelIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
+
+JoinModels::usage = "JoinModels[m1_Association, ..] or JoinModels[ {_Association ..} ] joins models.";
 
 MakeCoreMultiCellModel::usage = "MakeCoreMultiCellModel[coreModel_, n_Integer | ids_List, t_Symbol, context_] \
 makes core multi-cell model.";
@@ -80,11 +82,20 @@ that correspond to the descriptions d.";
 GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d_String] get population symbols in the model m \
 that correspond to the descriptions d.";
 
+GetRates::usage = "GetRates[m_Association, d_String] get rates in the model m \
+that correspond to the descriptions d.";
+
+GetRatesSymbols::usage = "GetRatesSymbols[m_Association, d_String] get rates symbols in the model m \
+that correspond to the descriptions d.";
+
 ToGeoCompartmentsModel::usage = "ToGeoCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
 
 SetInitialConditions::usage = "SetInitialConditions[ m_Association, ics_Associations] changes the initial
 conditions of the model m according to the rules ics.";
+
+SetRateRules::usage = "SetRateRules[ m_Association, rrs_Associations] changes the rate rules
+of the model m according to the rules rrs.";
 
 Begin["`Private`"];
 
@@ -92,9 +103,9 @@ Begin["`Private`"];
 (* Add ID                                                  *)
 (***********************************************************)
 
-Clear[AddCellIdentifier];
+Clear[AddModelIdentifier];
 
-AddCellIdentifier[ model_Association, id_ ] :=
+AddModelIdentifier[ model_Association, id_ ] :=
     Block[{modelSymbols, rules},
       modelSymbols = Union @ Cases[ Normal /@ Values[ KeyTake[model, {"Stocks", "Rates"}]], HoldPattern[ (x_Symbol | x_[args__]) -> descr_String ] :> x , Infinity ];
 
@@ -107,6 +118,25 @@ AddCellIdentifier[ model_Association, id_ ] :=
       Association @ KeyValueMap[ #1 -> If[ AssociationQ[#2], Association[ Normal[#2] /. rules], #2 /. rules ] &, model ]
     ];
 
+(***********************************************************)
+(* MakeCoreMultiCellModel                                  *)
+(***********************************************************)
+
+Clear[JoinModels];
+
+JoinModels::"nargs" = "The arguments are expected to be valid model associations.";
+
+JoinModels[ m1_Association, args__ ] :=
+    JoinModels[ {m1, args} ];
+
+JoinModels[ models : {_Association..} ] :=
+    MapThread[Join, models];
+
+JoinModels[___] :=
+    Block[{},
+      Message[JoinModels::"nargs"];
+      $Failed
+    ];
 
 (***********************************************************)
 (* MakeCoreMultiCellModel                                  *)
@@ -123,10 +153,10 @@ MakeCoreMultiCellModel[model : (_Symbol | _Association), n_Integer, args___] :=
     MakeCoreMultiCellModel[model, Range[n], args];
 
 MakeCoreMultiCellModel[model_Symbol, cellIDs_List, t_Symbol, context_ : "Global`"] :=
-    MapThread[Join, Map[AddCellIdentifier[model[t, context], #] &, cellIDs]];
+    MapThread[Join, Map[AddModelIdentifier[model[t, context], #] &, cellIDs]];
 
 MakeCoreMultiCellModel[model_Association, cellIDs_List, args___] :=
-    MapThread[Join, Map[AddCellIdentifier[model, #] &, cellIDs]];
+    MapThread[Join, Map[AddModelIdentifier[model, #] &, cellIDs]];
 
 MakeCoreMultiCellModel[___] :=
     Block[{},
@@ -198,7 +228,7 @@ AddTermsToEquations[___] := $Failed;
 
 
 (***********************************************************)
-(* GeoCompartmentsModel                                    *)
+(* Get populations symbols                                 *)
 (***********************************************************)
 
 Clear[GetPopulations, GetPopulationSymbols];
@@ -207,8 +237,31 @@ GetPopulations[model_Association, descr_String] :=
     Keys[Select[model["Stocks"], # == descr &]];
 
 GetPopulationSymbols[model_Association, descr_String] :=
-    Cases[GetPopulations[model, descr], p_[id_][_] :> p[id]];
+    Join[
+      Cases[GetPopulations[model, descr], p_Symbol[id_][_] :> p[id] ],
+      Cases[GetPopulations[model, descr], p_Symbol[_] :> p ]
+    ];
 
+
+(***********************************************************)
+(* Get rates symbols                                       *)
+(***********************************************************)
+
+Clear[GetRates, GetRateSymbols];
+
+GetRates[model_Association, descr_String] :=
+    Keys[Select[model["Rates"], # == descr &]];
+
+GetRateSymbols[model_Association, descr_String] :=
+    Join[
+      Cases[GetRates[model, descr], p_Symbol[id_][_] :> p[id] ],
+      Cases[GetRates[model, descr], p_Symbol[_] :> p ]
+    ];
+
+
+(***********************************************************)
+(* GeoCompartmentsModel                                    *)
+(***********************************************************)
 
 (*matMigration - constanst matrix*)
 (*matMigration - time depedent*)
@@ -300,7 +353,7 @@ ToGeoCompartmentsModel[___] :=
 Clear[SetInitialConditions];
 
 SetInitialConditions::"nargs" = "The first argument is expected to be a model association. \
-The second argument is expected to be a an associations of initial condition rules.";
+The second argument is expected to be an associations of initial condition rules.";
 
 SetInitialConditions::"ninit" = "The model does not have initial conditions.";
 
@@ -331,6 +384,37 @@ SetInitialConditions[model_Association, aInitConds_Association] :=
 SetInitialConditions[___] :=
     Block[{},
       Message[SetInitialConditions::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* Rate rules setter                                       *)
+(***********************************************************)
+
+Clear[SetRateRules];
+
+SetRateRules::"nargs" = "The first argument is expected to be a model association. \
+The second argument is expected to be an association of rate rules.";
+
+SetRateRules::"nrrs" = "The model does not have rate rules.";
+
+SetRateRules[model_Association, aRateRules_Association] :=
+    Block[{lsRateRules},
+
+      If[ !KeyExistsQ[model, "RateRules"],
+        Message[SetRateRules::"nrrs"];
+        Return[$Failed]
+      ];
+
+      lsRateRules = Join[ model["RateRules"], aRateRules ] ;
+
+      Join[model, <|"RateRules" -> lsRateRules|>]
+    ];
+
+SetRateRules[___] :=
+    Block[{},
+      Message[SetRateRules::"nargs"];
       $Failed
     ];
 
