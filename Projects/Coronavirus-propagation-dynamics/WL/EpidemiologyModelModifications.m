@@ -180,7 +180,7 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
               Association[
                 Table[
                   Ps[[i]] ->
-                      Table[Ps[[j]] / TPs[[j]] * mat[[j, i]] - Ps[[i]] / TPs[[i]] * mat[[i, j]], {j, n}], {i, n}]];
+                      Table[ Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ], {j, n}], {i, n}]];
 
       res = AssociationThread[ Keys[res] /. p_[id_][__] :> p[id], Values[res]];
 
