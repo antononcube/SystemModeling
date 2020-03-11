@@ -1,10 +1,10 @@
 #+TITLE: Coronavirus propagation work plan
-#+AUTHOR: Anton Antonov 
+#+AUTHOR: Anton Antonov
 #+EMAIL: antononcube@gmail.com
-#+TODO: TODO ONGOING MAYBE | DONE CANCELED 
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED
 #+OPTIONS: toc:1 num:0
 
-* Documents [20%] [1/5]
+* TODO Documents [20%] [1/5]
 ** TODO README [66%] [2/3]
 - [-] Diagramns
   - [X] Two types of infected populations and economics
@@ -51,7 +51,7 @@
   - [X] GitHub
   - [X] Community
   - [X] WordPress
-** TODO Simple economics model [0%] [0/6]
+** TODO Simple economics model: SEI2R-Econ [0%] [0/6]
 - [ ] Introduction
 - [ ] Getting the core, simple model
 - [ ] The economical parts of the model
@@ -61,22 +61,39 @@
   - [ ] GitHub
   - [ ] Community
   - [ ] WordPress
-* TODO Packages
-** TODO Simple epidemiology models [75%] [3/4] 
+* TODO Packages [0%] [0/4]
+** TODO Epidemiology models [50%] [3/6]
 - [X] SIR
 - [X] SI2R
 - [X] SEI2R
 - [ ] SEI2R-Econ
-** TODO Epidemiology models modifications [80%] [4/5]
+- [ ] Mutating Coronaviruses
+- [ ] Age compartments
+** TODO Epidemiology models modifications [50%] [4/8]
 - [X] Add model ID
 - [X] Additional model manipulation facilitation functions
 - [X] Multi-site compartments extension
 - [X] Model tabulation
-- [ ] Economics extension
+- [ ] Automatic Economics extension
+- [ ] Automatic Mutations extension
+- [ ] Automatic Age compartments extension
+** MAYBE Software monad
+** MAYBE Conversational agent
 * TODO Unit tests [0%] [0/4]
 ** TODO Epidemiology models
 ** TODO Core epidemiology models modification functions
 ** TODO Multi-site compartments model modification
 ** TODO Multi-site propagation tests
+* TODO Applications [25%] [1/4]
+** DONE Basic workflow stencil notebook
+** TODO Economics considerations
+** TODO SEI2R multi-site compartments examples [66%] [2/3]
+- [X] ~GridGraph~
+- [X] ~RandomGraph~
+- [ ] Large USA cities / airports
+** TODO SEI2R-Econ multi-site compartments examples [66%] [2/3]
+- [X] ~GridGraph~
+- [X] ~RandomGraph~
+- [ ] Large USA cities / airports
 
 
