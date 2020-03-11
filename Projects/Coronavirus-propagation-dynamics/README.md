@@ -12,13 +12,35 @@ The following mind-map illustrates the scope of the considered model:
 
 ![Coronavirus-propagation-modeling-mind-map](./Diagrams/Coronavirus-propagation-modeling-mind-map.png)
 
+## Work plan
+
+The work plan and its completion state can be found 
+[here](./org/Coronavirus-propagation-work-plan.org).
+
+ 
 ## Data analysis
 
 In order to build or confirm certain modeling conjectures and assumptions certain data analysis is required.
 
 (TBD...)
 
-## First simple model
+## Simple epidemiology models
+
+A small, lightweight software framework for retrieval of the basic 
+[compartmental epidemiology models](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology).
+
+The framework consists of two packages:
+
+- [EpidemiologyModels.m](./WL/EpidemiologyModels.m), and
+
+- [EpidemiologyModelModifications.m](./WL/EpidemiologyModelModifications.m).
+
+See the document 
+["Basic experiments workflow for simple epidemiological models"](./Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md)
+for the envisioned general workflow, interactive interfaces, and ad-hoc calibration.   
+
+
+## The SEI2R-Econ model
 
 Generally speaking, the 
 [System dynamics](https://en.wikipedia.org/wiki/System_dynamics) 
