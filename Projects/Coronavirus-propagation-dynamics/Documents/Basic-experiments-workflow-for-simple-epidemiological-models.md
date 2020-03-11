@@ -391,8 +391,11 @@ DynamicModule[{aincp = 6, aip = 32, criap = 0.8, ndays = 90,
 
 Basic reproduction number:
 
-![0pjoj62fu3zg9](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0pjoj62fu3zg9.png)
-
+```mathematica
+Block[{aincp = 6, aip = 32, criap = 0.8, ndays = 90, padOffset = -14, population = 75000, \[Mu] = \[Mu][TP] /. modelSI2R["RateRules"]}, 
+   (1/(aincp*(\[Mu] + 1/aincp)))*(criap/(1/aip))
+]
+```
 ```
 (*25.5966*)
 ```
@@ -431,8 +434,11 @@ DynamicModule[{aincp = 5, aip = 26, criap = 2.3, ndays = 90,
 
 Basic reproduction number:
 
-![1xzqtpgrnjyax](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1xzqtpgrnjyax.png)
-
+```mathematica
+Block[{aincp = 5, aip = 26, criap = 2.3, ndays = 90, padOffset = -14, population = 75000, \[Mu] = \[Mu][TP] /. modelSI2R["RateRules"]}, 
+ criap/((aincp*(\[Mu] + 1/aincp))/aip)
+]
+```
 ```
 (*59.7934*)
 ```
