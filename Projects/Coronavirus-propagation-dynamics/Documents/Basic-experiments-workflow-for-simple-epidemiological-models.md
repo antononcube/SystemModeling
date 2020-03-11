@@ -1,17 +1,15 @@
 # Basic experiments workflow for simple epidemiological models
 
-Anton Antonov   
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)   
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
-March 2020   
+Anton Antonov  
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)  
+March 2020  
 
 ## Introduction
 
 The primary purpose of this notebook is to give a “stencil workflow” for simulations using the packages in the project ["Coronavirus simulation dynamics"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics), [AAr1].
 
-The model in this notebook -- SEI2R -- differs from 
-[the classical SEIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) 
-with the following elements:
+The model in this notebook -- SEI2R -- differs from [the classical SEIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) with the following elements:
 
 1. Two separate infected populations: one is "severely symptomatic", the other is "normally symptomatic"
 
@@ -56,8 +54,11 @@ with the following elements:
 The epidemiological models framework used in this notebook is implemented in the packages [AAp1, AAp2]; the interactive plots functions are from the package [AAp3].
 
 ```mathematica
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"]
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
+master/Projects/Coronavirus-propagation-dynamics/WL/\
+EpidemiologyModelModifications.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
+master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
 ```
 
 ## Getting the model code
@@ -65,7 +66,9 @@ Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/S
 Here we take the SEI2R model implemented in the package ["EpidemiologyModels.m"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), [AAp1]:
 
 ```mathematica
-modelSI2R = SEI2RModel[t, "InitialConditions" -> True, "RateRules" -> True];
+modelSI2R = 
+  SEI2RModel[t, "InitialConditions" -> True, 
+   "RateRules" -> True];
 ```
 
 We can show a tabulated visualization of the model using the function ModelGridTableForm from [AAp1]:
@@ -74,7 +77,7 @@ We can show a tabulated visualization of the model using the function ModelGridT
 ModelGridTableForm[modelSI2R]
 ```
 
-![1u6lfnlv3qxsh](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1u6lfnlv3qxsh.png)
+![0ce5juav8jq3j](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0ce5juav8jq3j.png)
 
 ## Model extensions and new models
 
@@ -94,7 +97,7 @@ Here are the equations of SEI2R (from [AAp1]):
 ModelGridTableForm[KeyTake[modelSI2R, "Equations"]]
 ```
 
-![12bo5eg7y5c1q](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/12bo5eg7y5c1q.png)
+![1s7f291uic6xd](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1s7f291uic6xd.png)
 
 Here we find the position of the equation that corresponds to “Susceptible Population”:
 
@@ -114,7 +117,7 @@ birthTerm =
   GetRates[modelSI2R, 
     "Population death rate"][[1]]
 
-(*TP[t] \[Delta][TP]*)
+(*TP[t] \[Mu][TP]*)
 ```
 
 Here we add the births term to the equations of new model
@@ -134,7 +137,7 @@ Here we display the equations of the new model:
 ModelGridTableForm[KeyTake[modelSI2RNew, "Equations"]]
 ```
 
-![0rxy8ty35r1dh](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0rxy8ty35r1dh.png)
+![1o2fwon3gfhel](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1o2fwon3gfhel.png)
 
 ### Adding infected deceased population equation
 
@@ -142,7 +145,7 @@ Here we add new population, equation, and initial condition that allow for track
 
 ```mathematica
 AppendTo[modelSI2R["Equations"], 
-  IDP'[t] == \[Delta][INSP]*INSP[t] + \[Delta][ISSP]*ISSP[t]];
+  IDP'[t] == \[Mu][INSP]*INSP[t] + \[Mu][ISSP]*ISSP[t]];
 AppendTo[modelSI2R["Stocks"], 
   IDP[t] -> "Infected Deceased Population"];
 AppendTo[modelSI2R["InitialConditions"], IDP[0] == 0];
@@ -154,7 +157,7 @@ Here is how the model looks like:
 ModelGridTableForm[KeyTake[modelSI2R, "Equations"]]
 ```
 
-![0i0u2gp5km6fm](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0i0u2gp5km6fm.png)
+![0qk5d8mdnhvu2](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0qk5d8mdnhvu2.png)
 
 ## Parameters and actual simulation equations code
 
@@ -185,7 +188,7 @@ lsActualEquations =
 ResourceFunction["GridTableForm"][List /@ lsActualEquations]
 ```
 
-![06mtrramm4ib2](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/06mtrramm4ib2.png)
+![0dz5k6hwx6os4](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0dz5k6hwx6os4.png)
 
 ## Simulation
 
@@ -198,7 +201,7 @@ aSol =
     Head /@ Keys[modelSI2R["Stocks"]], {t, 0, 365}, lsFocusParams]
 ```
 
-![0s7mfcnfxyolf](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0s7mfcnfxyolf.png)
+![0d6wh46looawc](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0d6wh46looawc.png)
 
 (The advantage having parametrized solutions is that we can quickly compute simulation results with new parameter values without solving model’s system of ODE’s; see the interfaces below.)
 
@@ -271,7 +274,7 @@ Manipulate[
  ControlPlacement -> Left, ContinuousAction -> False]
 ```
 
-![17s77ts4kafl0](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/17s77ts4kafl0.png)
+![0uhcbh5jg8g3a](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0uhcbh5jg8g3a.png)
 
 ## Calibration over real data
 
@@ -306,9 +309,9 @@ aRealData = <|"RecoveredCases" -> {28, 28, 31,
 
 The total population in Hubei is
 
-![1q3rbjd1plccq](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1q3rbjd1plccq.png)
+![1kt1ikvs8tzqt](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1kt1ikvs8tzqt.png)
 
-![0nwv1uqpib018](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0nwv1uqpib018.png)
+![1cpkt5fvgh8hu](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1cpkt5fvgh8hu.png)
 
 But we have to use a fraction of that population in order to produce good fits. That can be justified with the conjecture that the citizens of Hubei are spread out and it is mostly one city (Wuhan) where the outbreak is.
 
@@ -381,7 +384,7 @@ Manipulate[
  ControlPlacement -> Left, ContinuousAction -> False]
 ```
 
-![12twa2skb7i4g](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/12twa2skb7i4g.png)
+![0s4dnliwjni2v](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0s4dnliwjni2v.png)
 
 ### Maybe good enough parameters
 
@@ -415,7 +418,15 @@ DynamicModule[{aincp = 6, aip = 32, criap = 0.8, ndays = 90,
      Round[aip + padOffset]], PlotStyle -> {Blue, Black, Red}]]]]
 ```
 
-![0fmrv3bfm7jdi](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0fmrv3bfm7jdi.png)
+![1v43idv1zv24j](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1v43idv1zv24j.png)
+
+Basic reproduction number:
+
+![0pjoj62fu3zg9](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0pjoj62fu3zg9.png)
+
+```
+(*25.5966*)
+```
 
 ```mathematica
 DynamicModule[{aincp = 5, aip = 26, criap = 2.3, ndays = 90, 
@@ -447,7 +458,15 @@ DynamicModule[{aincp = 5, aip = 26, criap = 2.3, ndays = 90,
      Round[aip + padOffset]], PlotStyle -> {Blue, Black, Red}]]]]
 ```
 
-![1u56zty2emum6](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1u56zty2emum6.png)
+![0upbzla7bc2ok](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/0upbzla7bc2ok.png)
+
+Basic reproduction number:
+
+![1xzqtpgrnjyax](./Diagrams/Basic-experiments-workflow-for-simple-epidemiological-models/1xzqtpgrnjyax.png)
+
+```
+(*59.7934*)
+```
 
 ## References
 
@@ -472,4 +491,3 @@ DynamicModule[{aincp = 5, aip = 26, criap = 2.3, ndays = 90,
 [AAp2] Anton Antonov, ["Epidemiology models modifications Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
 [AAp3] Anton Antonov, ["System dynamics interactive interfaces functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
-
