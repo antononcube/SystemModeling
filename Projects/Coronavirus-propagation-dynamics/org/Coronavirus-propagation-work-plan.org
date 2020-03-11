@@ -1,0 +1,82 @@
+#+TITLE: Coronavirus propagation work plan
+#+AUTHOR: Anton Antonov 
+#+EMAIL: antononcube@gmail.com
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED 
+#+OPTIONS: toc:1 num:0
+
+* Documents [20%] [1/5]
+** TODO README [66%] [2/3]
+- [-] Diagramns
+  - [X] Two types of infected populations and economics
+  - [ ] Model progression
+- [X] Mind-maps
+- [X] Interactive interface teaser
+- [ ] Summary of the current work.
+** TODO Coronavirus propagation modeling considerations [14%] [1/7]
+- [ ] Definitions
+- [X] Summary of the SARS-CoV-19 and COVID-19
+- [ ] Breakdown
+- [ ] Data analysis
+- [ ] Modeling approach
+- [-] References
+  - [X] Articles
+  - [ ] Data
+  - [ ] Repositories & packages
+- [ ] Publish
+  - [ ] Preliminary version at GitHub
+  - [ ] Full version at GitHub
+  - [ ] WordPress ?
+** DONE Basic experiments workflow for simple epidemiological models [100%] [8/8]
+- [X] Introduction
+- [X] Getting the SEI2R model
+- [X] Modifying SEI2R
+  - [X] Adding births terms
+  - [X] Adding deaths monitoring stock
+- [X] Parameterized simulation solutions
+- [X] Interactive interface for experiments
+- [X] Get real data
+- [X] Interactive interface of fitting
+- [X] Publish
+  - [X] GitHub
+  - [X] Community
+  - [X] WordPress
+** TODO Scaling of epidemiology models with multi-site compartments [0%] [0/5]
+- [ ] Introduction
+- [ ] Getting the core, simple model
+- [ ] Two node graph example
+- [ ] Random graph example
+- [ ] Grid graph example
+  - [ ] Animation(s)
+- [X] Publish
+  - [X] GitHub
+  - [X] Community
+  - [X] WordPress
+** TODO Simple economics model [0%] [0/6]
+- [ ] Introduction
+- [ ] Getting the core, simple model
+- [ ] The economical parts of the model
+- [ ] Interactive interfaces
+- [ ] Scenario discussions
+- [ ] Publish
+  - [ ] GitHub
+  - [ ] Community
+  - [ ] WordPress
+* TODO Packages
+** TODO Simple epidemiology models [75%] [3/4] 
+- [X] SIR
+- [X] SI2R
+- [X] SEI2R
+- [ ] SEI2R-Econ
+** TODO Epidemiology models modifications [80%] [4/5]
+- [X] Add model ID
+- [X] Additional model manipulation facilitation functions
+- [X] Multi-site compartments extension
+- [X] Model tabulation
+- [ ] Economics extension
+* TODO Unit tests [0%] [0/4]
+** TODO Epidemiology models
+** TODO Core epidemiology models modification functions
+** TODO Multi-site compartments model modification
+** TODO Multi-site propagation tests
+
+
