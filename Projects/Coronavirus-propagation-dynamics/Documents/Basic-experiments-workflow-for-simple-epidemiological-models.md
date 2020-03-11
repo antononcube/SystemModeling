@@ -54,11 +54,8 @@ The model in this notebook -- SEI2R -- differs from [the classical SEIR model](h
 The epidemiological models framework used in this notebook is implemented in the packages [AAp1, AAp2]; the interactive plots functions are from the package [AAp3].
 
 ```mathematica
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Projects/Coronavirus-propagation-dynamics/WL/\
-EpidemiologyModelModifications.m"]
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
 ```
 
 ## Getting the model code
@@ -66,12 +63,10 @@ master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
 Here we take the SEI2R model implemented in the package ["EpidemiologyModels.m"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), [AAp1]:
 
 ```mathematica
-modelSI2R = 
-  SEI2RModel[t, "InitialConditions" -> True, 
-   "RateRules" -> True];
+modelSI2R = SEI2RModel[t, "InitialConditions" -> True, "RateRules" -> True];
 ```
 
-We can show a tabulated visualization of the model using the function ModelGridTableForm from [AAp1]:
+We can show a tabulated visualization of the model using the function `ModelGridTableForm` from [AAp1]:
 
 ```mathematica
 ModelGridTableForm[modelSI2R]
@@ -102,8 +97,7 @@ ModelGridTableForm[KeyTake[modelSI2R, "Equations"]]
 Here we find the position of the equation that corresponds to “Susceptible Population”:
 
 ```mathematica
-pos = EquationPosition[modelSI2R["Equations"], 
-  First@GetPopulationSymbols[modelSI2R, "Susceptible Population"]]
+pos = EquationPosition[modelSI2R["Equations"], First@GetPopulationSymbols[modelSI2R, "Susceptible Population"]]
 
 (*1*)
 ```
@@ -111,11 +105,7 @@ pos = EquationPosition[modelSI2R["Equations"],
 Here we make the births term using a birth rate that is the same as the death rate:
 
 ```mathematica
-birthTerm = 
- GetPopulations[modelSI2R, 
-    "Total Population"][[1]]*
-  GetRates[modelSI2R, 
-    "Population death rate"][[1]]
+birthTerm = GetPopulations[modelSI2R, "Total Population"][[1]] * GetRates[modelSI2R, "Population death rate"][[1]]
 
 (*TP[t] \[Mu][TP]*)
 ```
@@ -192,7 +182,7 @@ ResourceFunction["GridTableForm"][List /@ lsActualEquations]
 
 ## Simulation
 
-Straightforward simulation for one year with using ParametricNDSolve :
+Straightforward simulation for one year with using `ParametricNDSolve` :
 
 ```mathematica
 aSol =
@@ -208,9 +198,7 @@ aSol =
 ## Interactive interface
 
 ```mathematica
-opts = {PlotRange -> All, PlotLegends -> None, 
-   PlotTheme -> "Detailed", PerformanceGoal -> "Speed", 
-   ImageSize -> 300};
+opts = {PlotRange -> All, PlotLegends -> None, PlotTheme -> "Detailed", PerformanceGoal -> "Speed", ImageSize -> 300};
 lsPopulationKeys = GetPopulationSymbols[modelSI2R, __ ~~ "Population"];
 lsEconKeys = {MLP};
 Manipulate[
@@ -247,28 +235,17 @@ Manipulate[
    nPlotColumns, Dividers -> All, 
    FrameStyle -> GrayLevel[0.8]]
   ],
- {{aincp, 12., "Average incubation period (days)"}, 1, 60., 1, 
-  Appearance -> {"Open"}},
- {{aip, 21., "Average infectious period (days)"}, 1, 100., 1, 
-  Appearance -> {"Open"}},
- {{spf, 0.2, "Severely symptomatic population fraction"}, 0, 1, 0.025,
-   Appearance -> {"Open"}},
- {{crisp, 6, 
-   "Contact rate of the infected severely symptomatic population"}, 0,
-   30, 0.1, Appearance -> {"Open"}},
- {{criap, 3, 
-   "Contact rate of the infected normally symptomatic population"}, 0,
-   30, 0.1, Appearance -> {"Open"}},
- {{ndays, 90, "Number of days"}, 1, 365, 1, 
-  Appearance -> {"Open"}},
+ {{aincp, 12., "Average incubation period (days)"}, 1, 60., 1, Appearance -> {"Open"}},
+ {{aip, 21., "Average infectious period (days)"}, 1, 100., 1, Appearance -> {"Open"}},
+ {{spf, 0.2, "Severely symptomatic population fraction"}, 0, 1, 0.025, Appearance -> {"Open"}},
+ {{crisp, 6, "Contact rate of the infected severely symptomatic population"}, 0, 30, 0.1, Appearance -> {"Open"}},
+ {{criap, 3, "Contact rate of the infected normally symptomatic population"}, 0, 30, 0.1, Appearance -> {"Open"}},
+ {{ndays, 90, "Number of days"}, 1, 365, 1, Appearance -> {"Open"}},
  {{popTogetherQ, True, "Plot populations together"}, {False, True}},
- {{popDerivativesQ, False, "Plot populations derivatives"}, {False, 
-   True}},
+ {{popDerivativesQ, False, "Plot populations derivatives"}, {False, True}},
  {{popLogPlotQ, False, "LogPlot populations"}, {False, True}},
- {{econTogetherQ, False, "Plot economics functions together"}, {False,
-    True}},
- {{econDerivativesQ, False, 
-   "Plot economics functions derivatives"}, {False, True}},
+ {{econTogetherQ, False, "Plot economics functions together"}, {False, True}},
+ {{econDerivativesQ, False, "Plot economics functions derivatives"}, {False, True}},
  {{econLogPlotQ, False, "LogPlot economics functions"}, {False, True}},
  {{nPlotColumns, 1, "Number of plot columns"}, Range[5]},
  ControlPlacement -> Left, ContinuousAction -> False]
@@ -289,12 +266,13 @@ In this section we just attempt to calibrate SEI2R over real data taken from [WR
 Here is COVID-19 data taken from [WRI1] for the Chinese province Hubei:
 
 ```mathematica
-aRealData = <|"RecoveredCases" -> {28, 28, 31, 
+aRealData = <|
+     "RecoveredCases" -> {28, 28, 31, 
      32, 42, 45, 80, 88, 90, 141, 168, 295, 386, 522, 633, 817, 1115, 
      1439, 1795, 2222, 2639, 2686, 3459, 4774, 5623, 6639, 7862, 9128,
-      10337, 11788, 11881, 15299, 15343, 16748, 18971, 20969, 23383, 
-     26403, 28993, 31536, 33934, 36208, 38557, 40592, 42033, 43500, 
-     45235}, "Deaths" -> {17, 17, 24, 40, 52, 76, 125, 125, 162, 
+     10337, 11788, 11881, 15299, 15343, 16748, 18971, 20969, 23383, 
+     26403, 28993, 31536, 33934, 36208, 38557, 40592, 42033, 43500, 45235}, 
+    "Deaths" -> {17, 17, 24, 40, 52, 76, 125, 125, 162, 
      204, 249, 350, 414, 479, 549, 618, 699, 780, 871, 974, 1068, 
      1068, 1310, 1457, 1596, 1696, 1789, 1921, 2029, 2144, 2144, 2346,
       2346, 2495, 2563, 2615, 2641, 2682, 2727, 2761, 2803, 2835, 
@@ -334,9 +312,7 @@ PadRealData[aData : Association[ (_String -> _?VectorQ) ..],
 ```
 
 ```mathematica
-opts = {PlotRange -> All, PlotLegends -> None, 
-   PlotTheme -> "Detailed", PerformanceGoal -> "Speed", 
-   ImageSize -> 300};
+opts = {PlotRange -> All, PlotLegends -> None, PlotTheme -> "Detailed", PerformanceGoal -> "Speed", ImageSize -> 300};
 Manipulate[
  DynamicModule[{modelSI2R = modelSI2R, lsActualEquations, aSol, 
    lsPopulationPlots, lsEconPlots, lsRestPlots},
@@ -368,19 +344,12 @@ Manipulate[
     PadRealData[aRealData, Round[aincp + padOffset], 
      Round[aip + padOffset]], PlotStyle -> {Blue, Black, Red}]]
   ],
- {{population, 58160000/600, "Population"}, 58160000/1000, 58160000, 
-  10000, Appearance -> {"Open"}},
- {{padOffset, 0, "real data padding offset"}, -100, 100, 1, 
-  Appearance -> {"Open"}},
- {{aincp, 6, "Average incubation period (days)"}, 1, 60, 1, 
-  Appearance -> {"Open"}},
- {{aip, 32, "Average infectious period (days)"}, 1, 100, 1, 
-  Appearance -> {"Open"}},
- {{criap, 0.8, 
-   "Contact rate of the infected normally symptomatic population"}, 0,
-   30, 0.1, Appearance -> {"Open"}},
- {{ndays, 90, "Number of days"}, 1, 365, 1, 
-  Appearance -> {"Open"}},
+ {{population, 58160000/600, "Population"}, 58160000/1000, 58160000, 10000, Appearance -> {"Open"}},
+ {{padOffset, 0, "real data padding offset"}, -100, 100, 1, Appearance -> {"Open"}},
+ {{aincp, 6, "Average incubation period (days)"}, 1, 60, 1, Appearance -> {"Open"}},
+ {{aip, 32, "Average infectious period (days)"}, 1, 100, 1, Appearance -> {"Open"}},
+ {{criap, 0.8, "Contact rate of the infected normally symptomatic population"}, 0, 30, 0.1, Appearance -> {"Open"}},
+ {{ndays, 90, "Number of days"}, 1, 365, 1, Appearance -> {"Open"}},
  ControlPlacement -> Left, ContinuousAction -> False]
 ```
 
