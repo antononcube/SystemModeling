@@ -54,7 +54,7 @@ Clear[ParametricSolutionsPlots];
 Options[ParametricSolutionsPlots] =
     Join[{"LogPlot" -> False, "Together" -> False, "Derivatives" -> False, "DerivativePrefix" -> "\[CapitalDelta]"}, Options[Plot]];
 
-ParametricSolutionsPlots[aStocks_Association, aSol_Association, params_List, tmax_?NumberQ, opts : OptionsPattern[]] :=
+ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None ), tmax_?NumberQ, opts : OptionsPattern[]] :=
     Block[{logPlotQ, togetherQ, derivativesQ, derivativesPrefix, plotFunc = Plot, dfunc = Identity, dprefix = "", stockRules},
 
       logPlotQ = TrueQ[OptionValue[ParametricSolutionsPlots, "LogPlot"]];
@@ -63,14 +63,20 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params_List, tma
       derivativesPrefix = OptionValue[ParametricSolutionsPlots, "DerivativePrefix"];
 
       stockRules = Normal[aStocks];
-      stockRules[[All,1]] = stockRules[[All,1]] /. x_Symbol[v_Symbol] :> x["t"];
+      stockRules[[All, 1]] = stockRules[[All, 1]] /. {x_Symbol[id_][v_Symbol] :> x[id]["t"], x_Symbol[v_Symbol] :> x["t"]};
 
       If[logPlotQ, plotFunc = LogPlot];
       If[derivativesQ, dfunc = D[#, t]&; dprefix = derivativesPrefix];
 
       If[togetherQ,
         List@plotFunc[
-          Evaluate[Map[dfunc[#[Sequence @@ params][t]] &, Values[aSol]]], {t, 0, tmax},
+          Evaluate[
+            If[ Length[params] == 0 || TrueQ[params === None],
+              Map[dfunc[#[t]] &, Values[aSol]],
+              Map[dfunc[#[Sequence @@ params][t]] &, Values[aSol]]
+            ]
+          ],
+          {t, 0, tmax},
           PlotLegends -> Map[Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] &, Keys[aSol]],
           Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]
         ],
@@ -79,9 +85,13 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params_List, tma
           plotFunc[#2, {t, 0, tmax},
             PlotLabel -> Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}],
             Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]] &,
-          Map[dfunc[#[Sequence @@ params][t]] &, aSol]]
+          If[ Length[params] == 0 || TrueQ[params === None],
+            Map[dfunc[#[t]] &, aSol],
+            Map[dfunc[#[Sequence @@ params][t]] &, aSol]
+          ]
+        ]
       ]
-      
+
     ];
 
 End[]; (* `Private` *)
