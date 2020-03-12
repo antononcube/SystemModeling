@@ -76,13 +76,34 @@ EvaluateSolutionsOverGraph::"ncs" = "The value of the option \"ColorScheme\" is 
 
 EvaluateSolutionsOverGraph::"nnsf" = "The value of the option \"NodeSizeFactor\" is expected to be a positive number.";
 
-EvaluateSolutionsOverGraph::"nmt" = "The value of the fifth argument (min time) is expected to be smaller or equal \
-to the value of the sixth argument (max time).";
+EvaluateSolutionsOverGraph::"ntr" = "The fifth argument is expected to be a valid time range specification.";
 
 Options[EvaluateSolutionsOverGraph] = Join[{"ColorScheme" -> "TemperatureMap", "NodeSizeFactor" -> 1}, Options[GraphPlot]];
 
-EvaluateSolutionsOverGraph[gr_Graph, model_Association, stockNames_ : (_String | {_String ..}), aSol_Association,
-  minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ),
+EvaluateSolutionsOverGraph[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  maxTimeArg : (Automatic | _?NumberQ),
+  opts : OptionsPattern[]] :=
+      EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {1, maxTimeArg, 1}, opts];
+
+EvaluateSolutionsOverGraph[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)},
+  opts : OptionsPattern[]] :=
+      EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}, opts];
+
+EvaluateSolutionsOverGraph[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ },
   opts : OptionsPattern[]] :=
 
     Block[{cf, nodeSizeFactor, maxTime = maxTimeArg, stockSymbols, vf, maxStockValue},
@@ -104,12 +125,12 @@ EvaluateSolutionsOverGraph[gr_Graph, model_Association, stockNames_ : (_String |
         maxTime = Max[Flatten[aSol[[1]]["Domain"]]]
       ];
 
-      If[ minTime > maxTime,
-        Message[EvaluateSolutionsOverGraph::"nmt"];
+      If[ step ==0 || (step > 0 && minTime > maxTime) || (step < 0 && minTime < maxTime),
+        Message[EvaluateSolutionsOverGraph::"ntr"];
         Return[$Failed]
       ];
 
-      stockSymbols = Union[Cases[GetStockSymbols[model, stockNames], p_[id_] :> p]];
+      stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
       maxStockValue = Max[Map[#[maxTime] &, aSol]];
 
@@ -120,8 +141,7 @@ EvaluateSolutionsOverGraph[gr_Graph, model_Association, stockNames_ : (_String |
           };
 
       Table[GraphPlot[gr, VertexShapeFunction -> vf[t],
-        FilterRules[{opts}, Options[GraphPlot]]], {t,
-        Range[minTime, maxTime, 1]}]
+        FilterRules[{opts}, Options[GraphPlot]]], {t, Range[minTime, maxTime, step]}]
     ];
 
 End[]; (* `Private` *)
