@@ -34,12 +34,12 @@
 
 (* :Title: EpidemiologyModelModifications *)
 (* :Context: EpidemiologyModelModifications` *)
-(* :Author: antonov *)
+(* :Author: Anton Antonov *)
 (* :Date: 2020-03-08 *)
 
-(* :Package Version: 0.1 *)
+(* :Package Version: 0.3 *)
 (* :Mathematica Version: 12.0 *)
-(* :Copyright: (c) 2020 antonov *)
+(* :Copyright: (c) 2020 Anton Antonov *)
 (* :Keywords: *)
 (* :Discussion: *)
 
@@ -104,6 +104,8 @@ SetRateRules::usage = "SetRateRules[ m_Association, rrs_Associations] changes th
 of the model m according to the rules rrs.";
 
 Begin["`Private`"];
+
+Needs["EpidemiologyModels`"];
 
 (***********************************************************)
 (* Add ID                                                  *)
