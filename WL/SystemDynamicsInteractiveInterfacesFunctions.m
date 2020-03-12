@@ -54,7 +54,7 @@ Clear[ParametricSolutionsPlots];
 Options[ParametricSolutionsPlots] =
     Join[{"LogPlot" -> False, "Together" -> False, "Derivatives" -> False, "DerivativePrefix" -> "\[CapitalDelta]"}, Options[Plot]];
 
-ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None ), tmax_?NumberQ, opts : OptionsPattern[]] :=
+ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumberQ, opts : OptionsPattern[]] :=
     Block[{logPlotQ, togetherQ, derivativesQ, derivativesPrefix, plotFunc = Plot, dfunc = Identity, dprefix = "", stockRules},
 
       logPlotQ = TrueQ[OptionValue[ParametricSolutionsPlots, "LogPlot"]];
@@ -77,13 +77,13 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List 
             ]
           ],
           {t, 0, tmax},
-          PlotLegends -> Map[Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] &, Keys[aSol]],
+          PlotLegends -> Map[ If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ] &, Keys[aSol]],
           Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]
         ],
         (*ELSE*)
         KeyValueMap[
           plotFunc[#2, {t, 0, tmax},
-            PlotLabel -> Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}],
+            PlotLabel -> If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ],
             Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]] &,
           If[ Length[params] == 0 || TrueQ[params === None],
             Map[dfunc[#[t]] &, aSol],
