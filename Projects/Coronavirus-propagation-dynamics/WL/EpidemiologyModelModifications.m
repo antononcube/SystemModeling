@@ -250,7 +250,7 @@ GetPopulationSymbols[model_Association, descr : (_String | _StringExpression)] :
 Clear[GetRates, GetRateSymbols];
 
 GetRates[model_Association, descr : (_String | _StringExpression)] :=
-    Keys[Select[model["Rates"], # == descr &]];
+    Keys[Select[model["Rates"], StringMatchQ[#, descr]&]];
 
 GetRateSymbols[model_Association, descr : (_String | _StringExpression)] :=
     Join[
