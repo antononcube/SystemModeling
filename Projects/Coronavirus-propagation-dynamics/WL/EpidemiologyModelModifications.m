@@ -76,11 +76,17 @@ specified with nt to the right hand side of the equations eqs.";
 MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
 the migration terms for the total populations TPs and populations Ps.";
 
-GetPopulations::usage = "GetPopulations[m_Association, d:(_String | _StringExpression)] get populations
+GetStocks::usage = "GetStocks[m_Association, d:(_String | _StringExpression)] get stocks
 in the model m that correspond to the descriptions d.";
 
+GetStockSymbols::usage = "GetStockSymbols[m_Association, d:(_String | _StringExpression)] get
+stock symbols in the model m that correspond to the descriptions d.";
+
+GetPopulations::usage = "GetPopulations[m_Association, d:(_String | _StringExpression)] get populations
+in the model m that correspond to the descriptions d. A synonym of GetStocks.";
+
 GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d:(_String | _StringExpression)] get
-population symbols in the model m that correspond to the descriptions d.";
+population symbols in the model m that correspond to the descriptions d. A synonym of GetStockSymbols.";
 
 GetRates::usage = "GetRates[m_Association, d:(_String | _StringExpression)] get rates in the model m \
 that correspond to the descriptions d.";
@@ -228,20 +234,24 @@ AddTermsToEquations[___] := $Failed;
 
 
 (***********************************************************)
-(* Get populations symbols                                 *)
+(* Get stocks symbols                                      *)
 (***********************************************************)
+
+Clear[GetStocks, GetStockSymbols];
+
+GetStocks[model_Association, descr : (_String | _StringExpression)] :=
+    Keys[Select[model["Stocks"], StringMatchQ[#, descr]&]];
+
+GetStockSymbols[model_Association, descr : (_String | _StringExpression)] :=
+    Join[
+      Cases[GetStocks[model, descr], p_Symbol[id_][_] :> p[id] ],
+      Cases[GetStocks[model, descr], p_Symbol[_] :> p ]
+    ];
 
 Clear[GetPopulations, GetPopulationSymbols];
 
-GetPopulations[model_Association, descr : (_String | _StringExpression)] :=
-    Keys[Select[model["Stocks"], StringMatchQ[#, descr]&]];
-
-GetPopulationSymbols[model_Association, descr : (_String | _StringExpression)] :=
-    Join[
-      Cases[GetPopulations[model, descr], p_Symbol[id_][_] :> p[id] ],
-      Cases[GetPopulations[model, descr], p_Symbol[_] :> p ]
-    ];
-
+GetPopulations = GetStocks;
+GetPopulationSymbols = GetStockSymbols;
 
 (***********************************************************)
 (* Get rates symbols                                       *)
@@ -327,8 +337,8 @@ ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, 
             newTerms =
                 MakeMigrationTerms[
                   matMigration,
-                  GetPopulations[coreModel, "Total Population"],
-                  GetPopulations[coreModel, #2]
+                  GetStocks[coreModel, "Total Population"],
+                  GetStocks[coreModel, #2]
                 ];
             AddTermsToEquations[#1, newTerms])&,
             eqs,
