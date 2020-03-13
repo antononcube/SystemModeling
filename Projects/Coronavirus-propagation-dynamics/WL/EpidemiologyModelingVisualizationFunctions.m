@@ -60,6 +60,9 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 BeginPackage["EpidemiologyVisualizationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
+EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[gr, model, stockNames, aSol, timeRange] \
+evaluates the solutions aSol for each vertex of gr over the specified time range timeRange.";
+
 EvaluateSolutionsOverGraph::usage = "EvaluateSolutionsOverGraph[gr, model, stockNames, aSol, timeRange, opts] \
 makes a sequence of graph plots of the graph gr with the graph nodes colored according solution functions aSol.";
 
@@ -68,6 +71,59 @@ MakeVertexShapeFunction::usage = "MakeVertexShapeFunction makes a vertex shape f
 Begin["`Private`"];
 
 Needs["EpidemiologyModelModifications`"];
+
+(**************************************************************)
+(* EvaluateSolutionsOverGraphVertexes                         *)
+(**************************************************************)
+
+Clear[EvaluateSolutionsOverGraphVertexes];
+
+EvaluateSolutionsOverGraphVertexes::"ntr" = "The fifth argument is expected to be a valid time range specification.";
+
+EvaluateSolutionsOverGraphVertexes[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  maxTimeArg : (Automatic | _?NumberQ) ] :=
+    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {1, maxTimeArg, 1}];
+
+EvaluateSolutionsOverGraphVertexes[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)} ] :=
+    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}, opts];
+
+EvaluateSolutionsOverGraphVertexes[
+  gr_Graph,
+  model_Association,
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSol_Association,
+  { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ } ] :=
+
+    Block[{maxTime = maxTimeArg, stockSymbols, stockValues},
+
+
+      If[TrueQ[maxTime === Automatic],
+        (* Assuming all solution functions have the same domain. *)
+        maxTime = Max[Flatten[aSol[[1]]["Domain"]]]
+      ];
+
+      If[ step == 0 || (step > 0 && minTime > maxTime) || (step < 0 && minTime < maxTime),
+        Message[EvaluateSolutionsOverGraph::"ntr"];
+        Return[$Failed]
+      ];
+
+      stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
+
+      stockValues = Map[ #[ Range[minTime, maxTime, step] ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
+
+      stockValues = GroupBy[ Normal[stockValues], #[[1, 1]]&, Total @ #[[All, 2]] & ];
+
+      stockValues
+    ];
 
 
 (**************************************************************)
@@ -86,7 +142,7 @@ EvaluateSolutionsOverGraph::"ntr" = "The fifth argument is expected to be a vali
 
 Options[EvaluateSolutionsOverGraph] =
     Join[
-      {"ColorScheme" -> "TemperatureMap", "NodeSizeFactor" -> 1, "TimePlotLabels" -> True, "Normalization" -> Automatic },
+      {"ColorScheme" -> "TemperatureMap", "NodeSizeFactor" -> 1, "TimePlotLabels" -> True, "Normalization" -> Automatic, "Legended" -> False },
       Options[GraphPlot]
     ];
 
@@ -116,7 +172,8 @@ EvaluateSolutionsOverGraph[
   { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ },
   opts : OptionsPattern[]] :=
 
-    Block[{cf, nodeSizeFactor, timeLabelsQ, normalization, maxTime = maxTimeArg, expected, stockSymbols, vf, maxStockValue},
+    Block[{cf, nodeSizeFactor, timeLabelsQ, normalization, legendedQ, maxTime = maxTimeArg, expected,
+      stockSymbols, vf, stockValues, maxStockValue, res},
 
       cf = OptionValue[EvaluateSolutionsOverGraph, "ColorScheme"];
       If[! StringQ[cf],
@@ -139,6 +196,8 @@ EvaluateSolutionsOverGraph[
         Return[$Failed]
       ];
 
+      legendedQ = TrueQ[ OptionValue[EvaluateSolutionsOverGraph, "Legended"] ];
+
       If[TrueQ[maxTime === Automatic],
         (* Assuming all solution functions have the same domain. *)
         maxTime = Max[Flatten[aSol[[1]]["Domain"]]]
@@ -151,11 +210,11 @@ EvaluateSolutionsOverGraph[
 
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
-      maxStockValue = Map[ #[ Range[minTime, maxTime, step] ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
+      stockValues = EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTime, step} ];
 
       If[ MemberQ[ {Automatic, "Global" }, normalization],
 
-        maxStockValue = Max[maxStockValue];
+        maxStockValue = Max[Values[stockValues]];
 
         vf[time_][{xc_, yc_}, name_, {w_, h_}] :=
             {
@@ -164,7 +223,7 @@ EvaluateSolutionsOverGraph[
             },
         (* ELSE *)
 
-        maxStockValue = Max /@ GroupBy[ Normal[maxStockValue], #[[1, 1]]&, Total @ #[[All, 2]] & ];
+        maxStockValue = Max /@ stockValues;
 
         vf[time_][{xc_, yc_}, name_, {w_, h_}] :=
             {
@@ -173,8 +232,17 @@ EvaluateSolutionsOverGraph[
             }
       ];
 
-      Table[
-        GraphPlot[gr, VertexShapeFunction -> vf[t], FilterRules[ Join[ If[timeLabelsQ, {PlotLabel -> t}, {}], {opts} ], Options[GraphPlot]]], {t, Range[minTime, maxTime, step]}]
+      res =
+          Table[
+            GraphPlot[gr, VertexShapeFunction -> vf[t], FilterRules[ Join[ If[timeLabelsQ, {PlotLabel -> t}, {}], {opts} ], Options[GraphPlot]]],
+            {t, Range[minTime, maxTime, step]}
+          ];
+
+      If[ legendedQ,
+        Legended[ res, BarLegend[{cf, MinMax[stockValues]}]],
+        (*ELSE*)
+        res
+      ]
     ];
 
 
