@@ -122,7 +122,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               SP[t] -> "Susceptible Population",
               IP[t] -> "Infected Population",
               RP[t] -> "Recovered Population",
-              MLP[t] -> "Money of lost productivity"|>;
+              MLP[t] -> "Money of Lost Productivity"|>;
 
         (* Rates  *)
         aRates =
@@ -251,7 +251,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               INSP[t] -> "Infected Normally Symptomatic Population",
               ISSP[t] -> "Infected Severely Symptomatic Population",
               RP[t] -> "Recovered Population",
-              MLP[t] -> "Money of lost productivity"|>;
+              MLP[t] -> "Money of Lost Productivity"|>;
 
         (* Rates  *)
         aRates =
@@ -396,7 +396,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               INSP[t] -> "Infected Normally Symptomatic Population",
               ISSP[t] -> "Infected Severely Symptomatic Population",
               RP[t] -> "Recovered Population",
-              MLP[t] -> "Money of lost productivity"|>;
+              MLP[t] -> "Money of Lost Productivity"|>;
 
         (* Rates  *)
         aRates =
