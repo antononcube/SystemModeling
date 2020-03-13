@@ -60,11 +60,13 @@ If[Length[DownValues[EpidemiologyModels`SIRModel]] == 0,
 BeginPackage["EpidemiologyModelModifications`"];
 (* Exported symbols added here with SymbolName::usage *)
 
+(*AddDeceasedPopulation::usage "AddDeceasedPopulation[model] add a deceased equation and stock to the model argument.";*)
+
 AddModelIdentifier::usage = "AddModelIdentifier[m, id] adds a specified identifier id to all stocks and rates on the model m.";
 
 JoinModels::usage = "JoinModels[m1_Association, ..] or JoinModels[ {_Association ..} ] joins models.";
 
-MakeCoreMultiCellModel::usage = "MakeCoreMultiCellModel[coreModel_, n_Integer | ids_List, t_Symbol, context_] \
+MakeCoreMultiSiteModel::usage = "MakeCoreMultiSiteModel[coreModel_, n_Integer | ids_List, t_Symbol, context_] \
 makes core multi-cell model.";
 
 EquationPosition::usage = "EquationPosition[eqs:{_Equal..}, lhs_] finds the element of eqs that has \
@@ -126,8 +128,14 @@ AddModelIdentifier[ model_Association, id_ ] :=
       Association @ KeyValueMap[ #1 -> If[ AssociationQ[#2], Association[ Normal[#2] /. rules], #2 /. rules ] &, model ]
     ];
 
+
 (***********************************************************)
-(* MakeCoreMultiCellModel                                  *)
+(* Add ID                                                  *)
+(***********************************************************)
+
+
+(***********************************************************)
+(* JoinModels                                              *)
 (***********************************************************)
 
 Clear[JoinModels];
@@ -150,25 +158,25 @@ JoinModels[___] :=
 (* MakeCoreMultiCellModel                                  *)
 (***********************************************************)
 
-Clear[MakeCoreMultiCellModel];
+Clear[MakeCoreMultiSiteModel];
 
-MakeCoreMultiCellModel::"nargs" = "The first argument is expected to be a model association or a model making function. \
+MakeCoreMultiSiteModel::"nargs" = "The first argument is expected to be a model association or a model making function. \
 The second argument is expected to be an integer or a list of ID's. \
 If the first argument is model making function the third argument is expected to be a time variable, \
 and the fourth (optional) argument is expected to be a context.";
 
-MakeCoreMultiCellModel[model : (_Symbol | _Association), n_Integer, args___] :=
-    MakeCoreMultiCellModel[model, Range[n], args];
+MakeCoreMultiSiteModel[model : (_Symbol | _Association), n_Integer, args___] :=
+    MakeCoreMultiSiteModel[model, Range[n], args];
 
-MakeCoreMultiCellModel[model_Symbol, cellIDs_List, t_Symbol, context_ : "Global`"] :=
+MakeCoreMultiSiteModel[model_Symbol, cellIDs_List, t_Symbol, context_ : "Global`"] :=
     MapThread[Join, Map[AddModelIdentifier[model[t, context], #] &, cellIDs]];
 
-MakeCoreMultiCellModel[model_Association, cellIDs_List, args___] :=
+MakeCoreMultiSiteModel[model_Association, cellIDs_List, args___] :=
     MapThread[Join, Map[AddModelIdentifier[model, #] &, cellIDs]];
 
-MakeCoreMultiCellModel[___] :=
+MakeCoreMultiSiteModel[___] :=
     Block[{},
-      Message[MakeCoreMultiCellModel::"nargs"];
+      Message[MakeCoreMultiSiteModel::"nargs"];
       $Failed
     ];
 
@@ -215,6 +223,7 @@ EquationPosition[equations : {_Equal ..}, lhsSpec_] :=
 
 EquationPosition[___] := $Failed;
 
+
 (***********************************************************)
 (* Add terms to equation                                   *)
 (***********************************************************)
@@ -254,6 +263,7 @@ Clear[GetPopulations, GetPopulationSymbols];
 
 GetPopulations = GetStocks;
 GetPopulationSymbols = GetStockSymbols;
+
 
 (***********************************************************)
 (* Get rates symbols                                       *)
@@ -326,7 +336,7 @@ ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, 
         Return[$Failed]
       ];
 
-      coreModel = MakeCoreMultiCellModel[model, cellIDs];
+      coreModel = MakeCoreMultiSiteModel[model, cellIDs];
 
       If[ Length[migrPops] == 0,
         Return[coreModel]
