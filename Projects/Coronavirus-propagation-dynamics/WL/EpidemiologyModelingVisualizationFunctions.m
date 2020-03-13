@@ -60,11 +60,15 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 BeginPackage["EpidemiologyVisualizationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-EvaluateSolutionsOverGraph::usage = "EvaluateSolutionsOverGraph";
+EvaluateSolutionsOverGraph::usage = "EvaluateSolutionsOverGraph[gr, model, stockNames, aSol, timeRange, opts] \
+makes a sequence of graph plots of the graph gr with the graph nodes colored according solution functions aSol.";
+
+MakeVertexShapeFunction::usage = "MakeVertexShapeFunction makes a vertex shape function.";
 
 Begin["`Private`"];
 
 Needs["EpidemiologyModelModifications`"];
+
 
 (**************************************************************)
 (* EvaluateSolutionsOverGraph                                 *)
@@ -76,37 +80,43 @@ EvaluateSolutionsOverGraph::"ncs" = "The value of the option \"ColorScheme\" is 
 
 EvaluateSolutionsOverGraph::"nnsf" = "The value of the option \"NodeSizeFactor\" is expected to be a positive number.";
 
+EvaluateSolutionsOverGraph::"nnorm" = "The value of the option \"Normalization\" is expected to be one of `1`.";
+
 EvaluateSolutionsOverGraph::"ntr" = "The fifth argument is expected to be a valid time range specification.";
 
-Options[EvaluateSolutionsOverGraph] = Join[{"ColorScheme" -> "TemperatureMap", "NodeSizeFactor" -> 1}, Options[GraphPlot]];
+Options[EvaluateSolutionsOverGraph] =
+    Join[
+      {"ColorScheme" -> "TemperatureMap", "NodeSizeFactor" -> 1, "TimePlotLabels" -> True, "Normalization" -> Automatic },
+      Options[GraphPlot]
+    ];
 
 EvaluateSolutionsOverGraph[
   gr_Graph,
   model_Association,
-  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   maxTimeArg : (Automatic | _?NumberQ),
   opts : OptionsPattern[]] :=
-      EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {1, maxTimeArg, 1}, opts];
+    EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {1, maxTimeArg, 1}, opts];
 
 EvaluateSolutionsOverGraph[
   gr_Graph,
   model_Association,
-  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)},
   opts : OptionsPattern[]] :=
-      EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}, opts];
+    EvaluateSolutionsOverGraph[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}, opts];
 
 EvaluateSolutionsOverGraph[
   gr_Graph,
   model_Association,
-  stockNames_ : ( (_String |  _StringExpression) | { (_String | _StringExpression) ..} ),
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ },
   opts : OptionsPattern[]] :=
 
-    Block[{cf, nodeSizeFactor, maxTime = maxTimeArg, stockSymbols, vf, maxStockValue},
+    Block[{cf, nodeSizeFactor, timeLabelsQ, normalization, maxTime = maxTimeArg, expected, stockSymbols, vf, maxStockValue},
 
       cf = OptionValue[EvaluateSolutionsOverGraph, "ColorScheme"];
       If[! StringQ[cf],
@@ -120,29 +130,74 @@ EvaluateSolutionsOverGraph[
         Return[$Failed]
       ];
 
+      timeLabelsQ = TrueQ[ OptionValue[EvaluateSolutionsOverGraph, "TimePlotLabels"] ];
+
+      normalization = OptionValue[EvaluateSolutionsOverGraph, "Normalization"];
+      expected = {Automatic, "Global", "ByVertex", "byNode"};
+      If[ ! MemberQ[ expected, normalization ] ,
+        Message[EvaluateSolutionsOverGraph::"nnorm", ToString[InputForm[expected]] ];
+        Return[$Failed]
+      ];
+
       If[TrueQ[maxTime === Automatic],
         (* Assuming all solution functions have the same domain. *)
         maxTime = Max[Flatten[aSol[[1]]["Domain"]]]
       ];
 
-      If[ step ==0 || (step > 0 && minTime > maxTime) || (step < 0 && minTime < maxTime),
+      If[ step == 0 || (step > 0 && minTime > maxTime) || (step < 0 && minTime < maxTime),
         Message[EvaluateSolutionsOverGraph::"ntr"];
         Return[$Failed]
       ];
 
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
-      maxStockValue = Max[Map[#[maxTime] &, aSol]];
+      maxStockValue = Map[ #[ Range[minTime, maxTime, step] ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
 
-      vf[time_][{xc_, yc_}, name_, {w_, h_}] :=
-          {
-            ColorData[cf, "ColorFunction"][Total@Rescale[Map[aSol[#[name]][time] &, stockSymbols], {0, maxStockValue}, {0, 1}]],
-            Rectangle[{xc - nodeSizeFactor * w, yc - nodeSizeFactor * h}, {xc + nodeSizeFactor * w, yc + nodeSizeFactor * h}]
-          };
+      If[ MemberQ[ {Automatic, "Global" }, normalization],
 
-      Table[GraphPlot[gr, VertexShapeFunction -> vf[t],
-        FilterRules[{opts}, Options[GraphPlot]]], {t, Range[minTime, maxTime, step]}]
+        maxStockValue = Max[maxStockValue];
+
+        vf[time_][{xc_, yc_}, name_, {w_, h_}] :=
+            {
+              ColorData[cf, "ColorFunction"][Total@Rescale[Map[aSol[#[name]][time] &, stockSymbols], {0, maxStockValue}, {0, 1}]],
+              Rectangle[{xc - nodeSizeFactor * w, yc - nodeSizeFactor * h}, {xc + nodeSizeFactor * w, yc + nodeSizeFactor * h}]
+            },
+        (* ELSE *)
+
+        maxStockValue = Max /@ GroupBy[ Normal[maxStockValue], #[[1, 1]]&, Total @ #[[All, 2]] & ];
+
+        vf[time_][{xc_, yc_}, name_, {w_, h_}] :=
+            {
+              ColorData[cf, "ColorFunction"][Total@Rescale[Map[aSol[#[name]][time] &, stockSymbols], {0, maxStockValue[name]}, {0, 1}]],
+              Rectangle[{xc - nodeSizeFactor * w, yc - nodeSizeFactor * h}, {xc + nodeSizeFactor * w, yc + nodeSizeFactor * h}]
+            }
+      ];
+
+      Table[
+        GraphPlot[gr, VertexShapeFunction -> vf[t], FilterRules[ Join[ If[timeLabelsQ, {PlotLabel -> t}, {}], {opts} ], Options[GraphPlot]]], {t, Range[minTime, maxTime, step]}]
     ];
+
+
+(**************************************************************)
+(* MakeVertexShapeFunction                                    *)
+(**************************************************************)
+
+Clear[MakeVertexShapeFunction];
+
+SetAttributes[MakeVertexShapeFunction, HoldAll];
+
+MakeVertexShapeFunction[vfName_Symbol, stockArg_Symbol, timeArg_, aSolArg_, maxPopulationArg_, colorScheme_, factorArg_] :=
+    With[{vf = vfName, stock = stockArg, aSol = HoldForm[aSolArg],
+      time = timeArg, maxPopulation = maxPopulationArg,
+      factor = factorArg, cf = colorScheme},
+      vf[{xc_, yc_}, name_, {w_, h_}] := {
+        ColorData[cf, "ColorFunction"][
+          Rescale[aSol[[1]][stock[name]][time], {0, maxPopulation}, {0, 1}]],
+        Rectangle[{xc - factor w, yc - factor h}, {xc + factor w, yc + factor h}]
+      };
+    ];
+
+MakeVertexShapeFunction[___] := $Failed;
 
 End[]; (* `Private` *)
 
