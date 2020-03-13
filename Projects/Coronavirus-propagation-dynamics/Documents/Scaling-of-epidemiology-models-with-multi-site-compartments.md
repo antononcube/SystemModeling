@@ -115,6 +115,10 @@ Here is a visual aid:
 
 1. Visualize the results.
 
+### Precaution
+
+Care should be taken when specifying the initial conditions of MSEMEA’s system of ODE’s (sites’ populations) and the traveling patterns matrix. For example, the simulations can “blow up” if the traveling patterns matrix values are too large. As it was indicated above, the package [AAp3] puts some safe-guards, but in our experiments with random graphs and random traveling patterns matrices occasionally we still get “wild” results.
+
 ### Analogy with Large scale air-pollution modeling
 
 There is strong analogy between be MSEMEA and Eulerian models of Large Scale Air-Pollution Modeling (LSAPM), [AA3, ZZ1].
@@ -130,7 +134,9 @@ Similarly to the so called “rotational test” used in LSAPM to evaluate numer
 Here is the SEI2R model from the package [AAp1]:
 
 ```mathematica
-model1 = SEI2RModel[t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation"];
+model1 = SEI2RModel[t, "InitialConditions" -> True, 
+   "RateRules" -> True, 
+   "TotalPopulationRepresentation" -> "AlgebraicEquation"];
 ModelGridTableForm[model1]
 ```
 
@@ -157,7 +163,8 @@ Assume we have two sites and the following graph and matrix describe the traveli
 Here is the graph:
 
 ```mathematica
-gr = CompleteGraph[2, DirectedEdges -> True, GraphLayout -> "SpringElectricalEmbedding"]
+gr = CompleteGraph[2, DirectedEdges -> True, 
+  GraphLayout -> "SpringElectricalEmbedding"]
 ```
 
 ![1h55ex7r0lsa8](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1h55ex7r0lsa8.png)
@@ -166,7 +173,9 @@ And here is the traveling patterns matrix:
 
 ```mathematica
 SeedRandom[44];
-matTravel = AdjacencyMatrix[gr]* RandomInteger[{100, 1000}, {VertexCount[gr], VertexCount[gr]}];
+matTravel = 
+  AdjacencyMatrix[gr]*
+   RandomInteger[{100, 1000}, {VertexCount[gr], VertexCount[gr]}];
 MatrixForm[matTravel]
 ```
 
@@ -177,7 +186,9 @@ Note that there are much more travelers from 1 to 2 than from 2 to 1.
 Here we obtain the core, single-site model (as shown in the section above):
 
 ```mathematica
-model1 = SEI2RModel[t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation"];
+model1 = SEI2RModel[t, "InitialConditions" -> True, 
+   "RateRules" -> True, 
+   "TotalPopulationRepresentation" -> "AlgebraicEquation"];
 ```
 
 Make the multi-site compartments model with SEI2R and the two-node travel matrix using the function ToSiteCompartmentsModel of [AAp2]:
@@ -202,7 +213,8 @@ GetPopulationSymbols[modelBig, __ ~~ __]
 From the symbolic form of the multi-model equations derive the specific equations with the adopted rate values:
 
 ```mathematica
-ModelGridTableForm[ KeyTake[modelBig, {"Equations"}] //. modelBig["RateRules"]]
+ModelGridTableForm[
+ KeyTake[modelBig, {"Equations"}] //. modelBig["RateRules"]]
 ```
 
 ![0o9vfzbvvr19d](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0o9vfzbvvr19d.png)
@@ -249,7 +261,11 @@ Display the solutions for each site separately:
 
 ```mathematica
 ParametricSolutionsPlots[modelBig["Stocks"], #, None, maxTime, 
-   "Together" -> True, PlotTheme -> "Detailed", ImageSize -> Medium] & /@ GroupBy[Normal@aSol, #[[1, 1]] &, Association]
+   "Together" -> True, PlotTheme -> "Detailed", 
+   ImageSize -> Medium] & /@ 
+ GroupBy[Normal@
+   aSol, #[[1, 1]] &, 
+  Association]
 ```
 
 ![0pnyvg2f0ksqf](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0pnyvg2f0ksqf.png)
@@ -262,10 +278,7 @@ Instead of using constant traveling patterns matrices we can use matrices with t
 
 ```mathematica
 SeedRandom[232]
-matTravel2 = 
-  matTravel*
-   Table[Abs[Sin[RandomReal[{0.01, 0.1}] t]], VertexCount[gr], 
-    VertexCount[gr]];
+matTravel2 = matTravel*Table[Abs[Sin[RandomReal[{0.01, 0.1}] t]], VertexCount[gr], VertexCount[gr]];
 MatrixForm[matTravel2]
 ```
 
@@ -274,8 +287,7 @@ MatrixForm[matTravel2]
 Here are the corresponding number of traveling people functions:
 
 ```mathematica
-Plot[Evaluate[DeleteCases[Flatten@Normal@matTravel2, 0]], {t, 0, 120},
-  PlotTheme -> "Detailed"]
+Plot[Evaluate[DeleteCases[Flatten@Normal@matTravel2, 0]], {t, 0, 120}, PlotTheme -> "Detailed"]
 ```
 
 ![0vl90riu7nx2r](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0vl90riu7nx2r.png)
@@ -322,7 +334,7 @@ grGrid = GridGraph[{m, n}, DirectedEdges -> True,
   VertexLabels -> Automatic, ImageSize -> Large]
 ```
 
-![1bazkyup5ov68](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1bazkyup5ov68.png)
+![0mjvsbfj4hghw](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0mjvsbfj4hghw.png)
 
 Note that:
 
@@ -337,19 +349,14 @@ Note that:
 Here we make a constant traveling matrix and summarize it:
 
 ```mathematica
-matGridTravel = 
-  AdjacencyMatrix[grGrid]*
-   ConstantArray[1000, {VertexCount[grGrid], VertexCount[grGrid]}];
-{ResourceFunction["RecordsSummary"][Flatten[matGridTravel], 
-   "All elements"][[1]], 
- ResourceFunction["RecordsSummary"][
-   Select[Flatten[matGridTravel], # > 0 &], 
-   "Non-zero elements"][[1]], 
+matGridTravel = AdjacencyMatrix[grGrid]*ConstantArray[1000, {VertexCount[grGrid], VertexCount[grGrid]}];
+{ResourceFunction["RecordsSummary"][Flatten[matGridTravel], "All elements"][[1]], 
+ ResourceFunction["RecordsSummary"][Select[Flatten[matGridTravel], # > 0 &], "Non-zero elements"][[1]], 
  MatrixPlot[matGridTravel]}
 
 ```
 
-![16smf5ri4v4dh](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/16smf5ri4v4dh.png)
+![126ekwkzi1x0p](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/126ekwkzi1x0p.png)
 
 Here we scale the SEI2R model with the grid graph constant traveling matrix:
 
@@ -361,9 +368,7 @@ model1 = SEI2RModel[t, "InitialConditions" -> True,
 ```
 
 ```mathematica
-modelGrid = 
-  ToSiteCompartmentsModel[model1, matGridTravel, 
-   "MigratingPopulations" -> Automatic];
+modelGrid = ToSiteCompartmentsModel[model1, matGridTravel, "MigratingPopulations" -> Automatic];
 ```
 
 Change the initial conditions in the following way: 
@@ -420,7 +425,7 @@ AbsoluteTiming[
       ];
  ]
 
-(*{1.55931, Null}*)
+(*{1.93566, Null}*)
 ```
 
 Randomly sample the graph sites and display the solutions separately for each site in the sample:
@@ -437,7 +442,7 @@ Multicolumn[
  3]
 ```
 
-![152mizwyjg1y1](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/152mizwyjg1y1.png)
+![14x18t0qgpi30](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/14x18t0qgpi30.png)
 
 Display solutions of the first and last site:
 
@@ -453,7 +458,7 @@ Multicolumn[
  3]
 ```
 
-![0mcuamrnnmp89](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0mcuamrnnmp89.png)
+![0yp3gfspsqpc1](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0yp3gfspsqpc1.png)
 
 As expected from the graph structure, we can see in the first site plot that its total population is decreasing -- nobody is traveling to the first site. Similarly, we can see in the last site plot that its total population is increasing -- nobody leaves the last site.
 
@@ -464,48 +469,57 @@ We can visualize the spatial-temporal evolution of model’s populations using s
 Here is a sub-sequence for the total populations:
 
 ```mathematica
-Legended[EvaluateSolutionsOverGraph[grGrid, modelGrid, 
-  "Total Population", aSolGrid, {1, maxTime, 12}, 
-  "NodeSizeFactor" -> 5, "ColorScheme" -> "TemperatureMap", 
-  VertexLabels -> None, ImageSize -> 200], 
- BarLegend["TemperatureMap"]]
+EvaluateSolutionsOverGraph[grGrid, modelGrid, "Total Population", \
+aSolGrid, {1, maxTime, 12}, "NodeSizeFactor" -> 5, 
+ "ColorScheme" -> "TemperatureMap", "Legended" -> True, 
+ VertexLabels -> None, ImageSize -> 200]
 ```
 
-![15h3gu0dw2a1z](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/15h3gu0dw2a1z.png)
+![1icj2m8tnzcgi](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1icj2m8tnzcgi.png)
 
 Here is a sub-sequence for the sum of the infected populations:
 
 ```mathematica
-Legended[EvaluateSolutionsOverGraph[grGrid, 
-  modelGrid, {"Infected Normally Symptomatic Population", 
-   "Infected Severely Symptomatic Population"}, 
-  aSolGrid, {1, maxTime, 12}, "NodeSizeFactor" -> 5, 
-  "ColorScheme" -> "TemperatureMap", VertexLabels -> None, 
-  ImageSize -> 200], BarLegend["TemperatureMap"]]
+EvaluateSolutionsOverGraph[grGrid, modelGrid, {"Infected Normally \
+Symptomatic Population", 
+  "Infected Severely Symptomatic Population"}, aSolGrid, {1, maxTime, 
+  12}, "NodeSizeFactor" -> 5, 
+ "ColorScheme" -> "TemperatureMap", "Legended" -> True, 
+ VertexLabels -> None, ImageSize -> 200]
 ```
 
-![08rqrqjwfn46j](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/08rqrqjwfn46j.png)
+![0a0wwlva73t7y](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0a0wwlva73t7y.png)
 
 Here is a sub-sequence for the recovered population:
 
 ```mathematica
-Legended[EvaluateSolutionsOverGraph[grGrid, modelGrid, 
-  "Recovered Population", aSolGrid, {1, maxTime, 12}, 
-  "NodeSizeFactor" -> 5, "ColorScheme" -> "TemperatureMap", 
-  VertexLabels -> None, ImageSize -> 200], 
- BarLegend["TemperatureMap"]]
+EvaluateSolutionsOverGraph[grGrid, modelGrid, "Recovered Population", \
+aSolGrid, {1, maxTime, 12}, "NodeSizeFactor" -> 5, 
+ "ColorScheme" -> "TemperatureMap", "Legended" -> True, 
+ VertexLabels -> None, ImageSize -> 200]
 ```
 
-![1344ekzacba1f](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1344ekzacba1f.png)
+![0ikvkjqx60l4t](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0ikvkjqx60l4t.png)
 
 Here is an animation of the sum of the infected populations:
 
 ```mathematica
-ListAnimate[
- EvaluateSolutionsOverGraph[grGrid, modelGrid, {"Infected Normally Symptomatic Population", "Infected Severely Symptomatic Population"}, aSolGrid, {1, maxTime, 4}, "NodeSizeFactor" -> 6, "ColorScheme" -> "TemperatureMap", ImageSize -> 400]]
+Block[{stocks = {"Infected Normally Symptomatic Population", 
+    "Infected Severely Symptomatic Population"}, 
+  colorScheme = "TemperatureMap", timeStep = 4},
+ Legended[
+  ListAnimate[
+   EvaluateSolutionsOverGraph[grGrid, modelGrid, stocks, 
+    aSolGrid, {1, maxTime, timeStep}, "NodeSizeFactor" -> 6, 
+    "ColorScheme" -> colorScheme, ImageSize -> 400]], 
+  BarLegend[{colorScheme, 
+    MinMax[EvaluateSolutionsOverGraphVertexes[grGrid, modelGrid, 
+      stocks, aSolGrid, {1, maxTime, timeStep}]]}]
+  ]
+ ]
 ```
 
-![1ge88zevpctdy](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1ge88zevpctdy.png)
+![1r9mcihe67izw](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1r9mcihe67izw.png)
 
 ### Interactive interface
 
@@ -590,7 +604,7 @@ Manipulate[
    "GreenBrownTerrain", "Rainbow", "TemperatureMap"}}]
 ```
 
-![0zsz4bzhmppqx](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0zsz4bzhmppqx.png)
+![0nrwr8t06rnwj](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0nrwr8t06rnwj.png)
 
 ### Observations
 
@@ -622,7 +636,10 @@ In this section we apply the model extension and simulation over a random graph 
 
 ```mathematica
 SeedRandom[84];
-grRandom = RandomGraph[{20, 100}, DirectedEdges -> True, GraphLayout -> "SpringElectricalEmbedding", VertexLabels -> "Name"]
+grRandom = 
+ RandomGraph[{20, 100}, DirectedEdges -> True, 
+  GraphLayout -> "SpringElectricalEmbedding", 
+  VertexLabels -> "Name"]
 ```
 
 ![18b56gmcwpbg8](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/18b56gmcwpbg8.png)
@@ -762,10 +779,15 @@ As in the previous section we can visualize the spatial-temporal evolution of mo
 Legended[EvaluateSolutionsOverGraph[grRandom, 
   modelRandom, {"Recovered Population"}, aSolRandom, {1, maxTime, 24},
    "NodeSizeFactor" -> 4, "ColorScheme" -> "TemperatureMap",
-   "Normalization" -> "Global"], BarLegend["TemperatureMap"]]
+   "Normalization" -> "Global"], 
+ BarLegend[{"TemperatureMap", {0, 
+    Max[Values[
+      EvaluateSolutionsOverGraphVertexes[grRandom, 
+       modelRandom, {"Recovered Population"}, 
+       aSolRandom, {1, maxTime, 24}]]]}}]]
 ```
 
-![1tfilpnmndxiu](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1tfilpnmndxiu.png)
+![08g3ofuqztba4](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/08g3ofuqztba4.png)
 
 ## Money from lost productivity
 
@@ -820,7 +842,7 @@ There are multiple ways to extend the presented algorithm, MSEMEA. Here are a fe
 
 1. Apply MSEMEA together with single site models that have large economics parts
 
-1. Do real data simulations related to the spread of [COVID-19.](https://en.wikipedia.org/wiki/Coronavirus_disease_2019)
+1. Do real data simulations related to the spread of [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019).
 
 ## References
 
@@ -851,3 +873,4 @@ There are multiple ways to extend the presented algorithm, MSEMEA. Here are a fe
 [AAp3] Anton Antonov, ["Epidemiology modeling visualization functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelingVisualizationFunctions.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
 [AAp4] Anton Antonov, ["System dynamics interactive interfaces functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
