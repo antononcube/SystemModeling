@@ -94,7 +94,7 @@ EvaluateSolutionsOverGraphVertexes[
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)} ] :=
-    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}, opts];
+    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}];
 
 EvaluateSolutionsOverGraphVertexes[
   gr_Graph,
