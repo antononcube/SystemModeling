@@ -253,9 +253,14 @@ EvaluateSolutionsOverGraph[
             {t, Range[minTime, maxTime, step]}
           ];
 
-      If[ legendedQ,
+      Which[
+        legendedQ && MemberQ[ {Automatic, "Global" }, normalization],
         Legended[ res, BarLegend[{cf, MinMax[stockValues]}]],
-        (*ELSE*)
+
+        legendedQ,
+        Legended[ res, BarLegend[cf]],
+
+        True,
         res
       ]
     ];
