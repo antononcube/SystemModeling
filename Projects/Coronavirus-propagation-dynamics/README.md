@@ -17,6 +17,11 @@ The following mind-map illustrates the scope of the considered model:
 The work plan and its completion state can be found 
 [here](./org/Coronavirus-propagation-work-plan.org).
 
+The following graph shows the development plan:
+ 
+ ![Coronavirus-propagation-modeling-development-plan-graph](./Diagrams/Coronavirus-propagation-modeling-development-plan-graph.png)
+ 
+*(The check marks indicate complication the triangles indicate current focus.)*
  
 ## Data analysis
 
