@@ -171,11 +171,160 @@ VerificationTest[
 (* Generate SI2R model                                     *)
 (***********************************************************)
 
+VerificationTest[
+  ShortModelQ[ SI2RModel[t] ]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-1"
+];
+
+
+VerificationTest[
+  ShortModelQ[ SI2RModel[t, "MyPrivate`Context1`"] ]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-2"
+];
+
+
+VerificationTest[
+  LongModelQ[ SI2RModel[t, "InitialConditions" -> True, "RateRules" -> True ] ]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-3"
+];
+
+
+VerificationTest[
+  And @@
+      Map[
+        LongModelQ[ SI2RModel[t, "TotalPopulationRepresentation" -> #, "InitialConditions" -> True, "RateRules" -> True ] ]&,
+        { Constant, "AlgebraicEquation", "SumSubstitution" }
+      ]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-TotalPopulationRepresentation-1"
+];
+
+
+VerificationTest[
+  model = SI2RModel[t, "TotalPopulationRepresentation" -> Constant, "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      ! MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[Keys[model["RateRules"]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-TotalPopulationRepresentation-Constant-1"
+];
+
+
+VerificationTest[
+  model = SI2RModel[t, "TotalPopulationRepresentation" -> "AlgebraicEquation", "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      MemberQ[model["Equations"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]] /. t -> 0]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-TotalPopulationRepresentation-AlgebraicEquation-1"
+];
+
+
+VerificationTest[
+  model = SI2RModel[t, "TotalPopulationRepresentation" -> "SumSubstitution", "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      ! MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[Keys[model["RateRules"]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-TotalPopulationRepresentation-SumSubstitution-1"
+];
+
 
 (***********************************************************)
 (* Generate SEI2R model                                    *)
 (***********************************************************)
 
+VerificationTest[
+  ShortModelQ[ SEI2RModel[t] ]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-1"
+];
+
+
+VerificationTest[
+  ShortModelQ[ SEI2RModel[t, "MyPrivate`Context1`"] ]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-2"
+];
+
+
+VerificationTest[
+  LongModelQ[ SEI2RModel[t, "InitialConditions" -> True, "RateRules" -> True ] ]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-3"
+];
+
+
+VerificationTest[
+  And @@
+      Map[
+        LongModelQ[ SEI2RModel[t, "TotalPopulationRepresentation" -> #, "InitialConditions" -> True, "RateRules" -> True ] ]&,
+        { Constant, "AlgebraicEquation", "SumSubstitution" }
+      ]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-TotalPopulationRepresentation-1"
+];
+
+
+VerificationTest[
+  model = SEI2RModel[t, "TotalPopulationRepresentation" -> Constant, "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      ! MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[Keys[model["RateRules"]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-TotalPopulationRepresentation-Constant-1"
+];
+
+
+VerificationTest[
+  model = SEI2RModel[t, "TotalPopulationRepresentation" -> "AlgebraicEquation", "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      MemberQ[model["Equations"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]] /. t -> 0]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-TotalPopulationRepresentation-AlgebraicEquation-1"
+];
+
+
+VerificationTest[
+  model = SEI2RModel[t, "TotalPopulationRepresentation" -> "SumSubstitution", "InitialConditions" -> True, "RateRules" -> True ];
+  LongModelQ[model] &&
+      ! MemberQ[model["InitialConditions"][[All, 1]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]] &&
+      MemberQ[Keys[model["RateRules"]], Keys[Select[model["Stocks"], # == "Total Population" &]][[1]]]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-TotalPopulationRepresentation-SumSubstitution-1"
+];
 
 
 (***********************************************************)
