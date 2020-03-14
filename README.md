@@ -19,6 +19,14 @@ The projects are put in separate folders. Generally each project folder has dedi
 The universal code (packages) are put in the (top-level) repository folders. 
 See [WL](./WL).
 
+## Projects
+
+- [Coronavirus propagation dynamics](./Projects/Coronavirus-propagation-dynamics)
+
+- [Pets retail dynamics](./Projects/Pets-retail-dynamics)
+
+- [Large Scale Air Pollution Simulations](Projects/Large-scale-air-pollution-modeling)
+
 ## Presentations 
 
 Individual presentations have sub-folders in the folder 
