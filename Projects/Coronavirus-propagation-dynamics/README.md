@@ -12,22 +12,14 @@ The following mind-map illustrates the scope of the considered model:
 
 ![Coronavirus-propagation-modeling-mind-map](./Diagrams/Coronavirus-propagation-modeling-mind-map.png)
 
-## Work plan
 
-The work plan and its completion state can be found 
-[here](./org/Coronavirus-propagation-work-plan.org).
-
-The following graph shows the development plan:
- 
- ![Coronavirus-propagation-modeling-development-plan-graph](./Diagrams/Coronavirus-propagation-modeling-development-plan-graph.png)
- 
-*(The check marks indicate complication the triangles indicate current focus.)*
- 
 ## Data analysis
 
 In order to build or confirm certain modeling conjectures and assumptions certain data analysis is required.
 
-(TBD...)
+A fair amount of links to data and data analysis can be found here:
+
+["Resources For Novel Coronavirus COVID-19"](https://community.wolfram.com/groups/-/m/t/1872608), \[WRI1\].
 
 ## Simple epidemiology models
 
@@ -72,15 +64,42 @@ Here is "a teaser" of how the simple model interactive interface looks like:
 
 ![Coronavirus-propagation-interactive-modeling-teaser](./Diagrams/Coronavirus-propagation-interactive-modeling-teaser-2.png)
 
-## Model extensions plan
+## Work plan
 
-TBD...
+The work plan and its completion state can be found 
+[here](./org/Coronavirus-propagation-work-plan.org).
+
+### Model extensions plan
+
+The following graph shows the development plan:
+ 
+ ![Coronavirus-propagation-modeling-development-plan-graph](./Diagrams/Coronavirus-propagation-modeling-development-plan-graph.png)
+ 
+*(The check marks indicate completion; the triangles indicate current focus.)*
  
 
 ## Calibration
 
-TBD...
+Calibration issues are (briefly) discussed in
+["Basic experiments workflow for simple epidemiological models"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md), 
+\[AA2\].
 
 ## References
 
-\[1\] https://www.cdc.gov/coronavirus/2019-ncov .
+\[CDC1\] https://www.cdc.gov/coronavirus/2019-ncov .
+
+\[WRI1\] Wolfram Research, Inc.
+["Resources For Novel Coronavirus COVID-19"](https://community.wolfram.com/groups/-/m/t/1872608), 
+(2020)
+[Community.wolfram.com](https://community.wolfram.com/). 
+
+\[AA1\] Anton Antonov, 
+["Coronavirus propagation modeling considerations"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-considerations.md), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+\[AA2\] Anton Antonov, 
+["Basic experiments workflow for simple epidemiological models"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
