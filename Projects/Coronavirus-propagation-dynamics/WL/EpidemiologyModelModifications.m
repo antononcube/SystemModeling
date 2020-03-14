@@ -196,7 +196,24 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
               Association[
                 Table[
                   Ps[[i]] ->
-                      Table[ Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ], {j, n}], {i, n}]];
+                      Table[
+                        Which[
+
+                          TrueQ[mat[[j, i]] == 0] && TrueQ[mat[[i, j]] == 0],
+                          0,
+
+                          TrueQ[mat[[j, i]] == 0],
+                          - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ],
+
+                          TrueQ[mat[[i, j]] == 0],
+                          Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ],
+
+                          True,
+                          Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ]
+                        ],
+                        {j, n}],
+                  {i, n}]
+              ];
 
       res = AssociationThread[ Keys[res] /. p_[id_][__] :> p[id], Values[res]];
 
