@@ -80,6 +80,8 @@ Clear[EvaluateSolutionsOverGraphVertexes];
 
 EvaluateSolutionsOverGraphVertexes::"ntr" = "The fifth argument is expected to be a valid time range specification.";
 
+EvaluateSolutionsOverGraphVertexes::"nst" = "No model stocks are found with the specification given as the third argument.";
+
 EvaluateSolutionsOverGraphVertexes[
   gr_Graph,
   model_Association,
@@ -118,6 +120,11 @@ EvaluateSolutionsOverGraphVertexes[
 
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
+      If[ Length[stockSymbols] == 0,
+        Message[EvaluateSolutionsOverGraphVertexes::"nst"];
+        Return[$Failed]
+      ];
+
       stockValues = Map[ #[ Range[minTime, maxTime, step] ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
 
       stockValues = GroupBy[ Normal[stockValues], #[[1, 1]]&, Total @ #[[All, 2]] & ];
@@ -139,6 +146,8 @@ EvaluateSolutionsOverGraph::"nnsf" = "The value of the option \"NodeSizeFactor\"
 EvaluateSolutionsOverGraph::"nnorm" = "The value of the option \"Normalization\" is expected to be one of `1`.";
 
 EvaluateSolutionsOverGraph::"ntr" = "The fifth argument is expected to be a valid time range specification.";
+
+EvaluateSolutionsOverGraph::"nst" = "No model stocks are found with the specification given as the third argument.";
 
 Options[EvaluateSolutionsOverGraph] =
     Join[
@@ -210,6 +219,12 @@ EvaluateSolutionsOverGraph[
 
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
+      If[ Length[stockSymbols] == 0,
+        Message[EvaluateSolutionsOverGraph::"nst"];
+        Return[$Failed]
+      ];
+
+      (* Some of the work above is repeated in EvaluateSolutionsOverGraphVertexes. *)
       stockValues = EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTime, step} ];
 
       If[ MemberQ[ {Automatic, "Global" }, normalization],
