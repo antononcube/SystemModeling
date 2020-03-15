@@ -56,8 +56,18 @@
 
 *)
 
+
+(**************************************************************)
+(* Package definition                                         *)
+(**************************************************************)
+
 BeginPackage["EpidemiologyModels`"];
 (* Exported symbols added here with SymbolName::usage *)
+
+EpidemiologyModelQ::usage = "Is the argument an association with stocks, rates, and equations?";
+
+EpidemiologyFullModelQ::usage = "Is the argument an association with \
+stocks, rates, equations, initial conditions, and rate rules ?";
 
 SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
@@ -68,9 +78,34 @@ using the time variable var with symbols in the context con.";
 SEI2RModel::usage = "SEI2RModel[var, con] generates SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
+SEI2REconModel::usage = "SEI2REconModel[var, con] generates economics SEI2R model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
 ModelGridTableForm::usage = "Displays the model legibly.";
 
 Begin["`Private`"];
+
+(***********************************************************)
+(* EpidemiologyModelQ                                      *)
+(***********************************************************)
+
+Clear[EpidemiologyModelQ];
+EpidemiologyModelQ[model_] :=
+    AssociationQ[model] &&
+        Length[ Intersection[ Keys[model], { "Stocks", "Rates", "Equations" } ] ] == 3 &&
+        AssociationQ[model["Stocks"]] &&
+        AssociationQ[model["Rates"]] &&
+        MatchQ[model["Equations"], { _Equal .. }];
+
+Clear[EpidemiologyFullModelQ];
+EpidemiologyFullModelQ[model_] :=
+    AssociationQ[model] &&
+        Sort[Keys[model]] == Sort[{ "Stocks", "Rates", "Equations", "InitialConditions", "RateRules" }] &&
+        AssociationQ[model["Stocks"]] &&
+        AssociationQ[model["Rates"]] &&
+        MatchQ[model["Equations"], { _Equal .. }] &&
+        AssociationQ[model["RateRules"]] &&
+        MatchQ[model["InitialConditions"], { _Equal .. }];
 
 
 (***********************************************************)
@@ -484,6 +519,168 @@ SEI2RModel[___] :=
       Message[SEI2RModel::"nargs"];
       $Failed
     ];
+
+
+(***********************************************************)
+(* SEI2REconModel                                          *)
+(***********************************************************)
+
+Clear[SEI2REconModel];
+
+SyntaxInformation[SEI2REconModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SEI2REconModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+Options[SEI2REconModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
+
+SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
+      aNewStocks, aNewRates, lsNewEquations, model, newModel,
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, pos},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEI2REconModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SEI2REconModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEI2REconModel, "BirthsTerm"] ];
+
+      tpRepr = OptionValue[ SEI2REconModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SEI2REconModel::"ntpval"];
+        $Failed
+      ];
+
+      model = SEI2RModel[ t, context, FilterRules[ {opts}, Options[SEI2RModel] ] ];
+
+      newModel = model;
+
+      With[{
+        (* standard *)
+        TP = ToExpression[ context <> "TP"],
+        SP = ToExpression[ context <> "SP"],
+        EP = ToExpression[ context <> "EP"],
+        INSP = ToExpression[ context <> "INSP"],
+        ISSP = ToExpression[ context <> "ISSP"],
+        RP = ToExpression[ context <> "RP"],
+        MLP = ToExpression[ context <> "MLP"],
+        deathRate = ToExpression[ context <> "\[Mu]"],
+        sspf = ToExpression[ context <> "sspf"],
+        contactRate = ToExpression[ context <> "\[Beta]"],
+        aip = ToExpression[ context <> "aip"],
+        aincp = ToExpression[ context <> "aincp"],
+        lpcr = ToExpression[ context <> "lpcr"],
+        (* new *)
+        HP = ToExpression[ context <> "HP"],
+        MSD = ToExpression[ context <> "MSD"],
+        HBD = ToExpression[ context <> "HBD"],
+        H = ToExpression[ context <> "H"],
+        MMSP = ToExpression[ context <> "MMSP"],
+        MHS = ToExpression[ context <> "MHS"],
+        bkh = ToExpression[ context <> "bkh"],
+        msdr = ToExpression[ context <> "msdr"],
+        nhbr = ToExpression[ context <> "nhbr"],
+        hscr = ToExpression[ context <> "hscr"],
+        hpmscr = ToExpression[ context <> "hpmscr"],
+        upmscr = ToExpression[ context <> "upmscr"],
+        mspcr = ToExpression[ context <> "mspcr"]
+      },
+
+        (* Stocks *)
+        aNewStocks = <|
+          H[t] -> "Hospital",
+          HP[t] -> "Hospitalized Population",
+          MSD[t] -> "Medical Supplies Demand",
+          MMSP[t] -> "Money for Medical Supplies Production",
+          MHS[t] -> "Money for Hospital Services" |>;
+
+        newModel["Stocks"] = Join[ newModel["Stocks"], aNewStocks ];
+
+        (* New Rates *)
+        aNewRates = <|
+          deathRate[HP] -> "Hospitalized Population death rate",
+          msdr[MMSP] -> "Medical supplies delivery rate (delay factor)",
+          bkh[H] -> "Bed capacity per hospital",
+          contactRate[HP] -> "Contact rate for the hospitalized population",
+          nhbr[TP] -> "Number of hospital beds rate (per person)",
+          hscr[ISSP, INSP] -> "Hospital services cost rate (per bed per day)",
+          hpmscr[ISSP, INSP] -> "Hospitalized population medical supplies consumption rate (per day)",
+          upmscr[ISSP, INSP] -> "Un-hospitalized population medical supplies consumption rate (units per day)",
+          mspcr[ISSP, INSP] -> "Medical supplies production cost rate (per unit)"
+        |>;
+
+        newModel["Rates"] = Join[ newModel["Rates"], aNewStocks ];
+
+        (* New and changed Equations *)
+
+        newBySeverelyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * Max[ISSP[t] - HP[t], 0] + contactRate[HP] / TP[t] * SP[t] * HP[t];
+        newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
+        newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
+
+        totalNumberOfBedsTerm = nhbr[TP] * TP[t];
+
+        lsNewEquations = {
+          If[ birthsTermQ,
+            SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
+            (* ELSE *)
+            SP'[t] == - newlyInfectedTerm - deathRate[TP] * SP[t]
+          ],
+          EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
+          INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          HP'[t] == Piecewise[{{Min[totalNumberOfBedsTerm - HP[t], sspf[SP] * newlyInfectedTerm], HP[t] < totalNumberOfBedsTerm}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
+          RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
+          MSD'[t] == hpmscr[ISSP, INSP] * HP[t] + upmscr[ISSP, INSP] * (INSP[t] + ISSP[t] - HP[t]),
+          MHS'[t] == hscr[ISSP, INSP] * HP[t],
+          MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
+          MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
+        };
+
+
+        pos = Position[ model["Equations"], #]& /@ lsNewEquations[[All, 1]];
+        pos = Flatten @ Map[ If[ Length[#] == 0, {}, First @ Flatten @ # ]&, pos ];
+        newModel["Equations"] = Join[ Delete[newModel["Equations"], List /@ pos], lsNewEquations ];
+
+        (* New Initial conditions *)
+        If[ KeyExistsQ[model, "InitialConditions"],
+          newModel["InitialConditions"] =
+              Join[
+                newModel["InitialConditions"],
+                {
+                  HP[0] == 0,
+                  MSD[0] == 0,
+                  MHS[0] == 0,
+                  MMSP[0] == 0}
+              ];
+        ];
+
+        (* New Rate Rules *)
+        If[ KeyExistsQ[model, "RateRules"],
+          newModel["RateRules"] =
+              Join[
+                newModel["RateRules"],
+                <|
+                  deathRate[HP] -> 0.25 * deathRate[ISSP],
+                  contactRate[HP] -> 0.1 * contactRate[ISSP],
+                  nhbr[TP] -> 2.9 / 1000,
+                  hscr[ISSP, INSP] -> 600,
+                  hpmscr[ISSP, INSP] -> 4,
+                  upmscr[ISSP, INSP] -> 2,
+                  mspcr[ISSP, INSP] -> 120|>
+              ];
+        ];
+
+        newModel
+      ]
+    ];
+
+SEI2REconModel[___] :=
+    Block[{},
+      Message[SEI2REconModel::"nargs"];
+      $Failed
+    ];
+
 
 
 (***********************************************************)
