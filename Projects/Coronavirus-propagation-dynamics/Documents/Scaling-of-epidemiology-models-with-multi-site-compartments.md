@@ -92,7 +92,7 @@ The transformed systems of ODE’s of the sites are joined into one “big” sy
 
 ### Steps of MSEMEA 
 
-The MSEMEA derives a compartmental model that combines (i) a graph representation of multi-site traveling patterns with (ii) a single-site compartmental epidemiological model.
+MSEMEA derives a compartmental model that combines (i) a graph representation of multi-site traveling patterns with (ii) a single-site compartmental epidemiological model.
 
 Here is a visual aid for the algorithm steps below:
 
@@ -172,8 +172,7 @@ Assume we have two sites and the following graph and matrix describe the traveli
 Here is the graph:
 
 ```mathematica
-gr = CompleteGraph[2, DirectedEdges -> True, 
-  GraphLayout -> "SpringElectricalEmbedding"]
+gr = CompleteGraph[2, DirectedEdges -> True, GraphLayout -> "SpringElectricalEmbedding"]
 ```
 
 ![0vgm31o9drq4f](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0vgm31o9drq4f.png)
@@ -182,9 +181,7 @@ And here is the traveling patterns matrix:
 
 ```mathematica
 SeedRandom[44];
-matTravel = 
-  AdjacencyMatrix[gr]*
-   RandomInteger[{100, 1000}, {VertexCount[gr], VertexCount[gr]}];
+matTravel = AdjacencyMatrix[gr]*RandomInteger[{100, 1000}, {VertexCount[gr], VertexCount[gr]}];
 MatrixForm[matTravel]
 ```
 
@@ -205,9 +202,7 @@ Make the multi-site compartments model with SEI2R and the two-node travel matrix
 ```mathematica
 modelBig = 
   ToSiteCompartmentsModel[model1, matTravel, 
-   "MigratingPopulations" -> {"Susceptible Population", 
-     "Exposed Population", "Infected Normally Symptomatic Population",
-      "Recovered Population"}];
+   "MigratingPopulations" -> {"Susceptible Population", "Exposed Population", "Infected Normally Symptomatic Population","Recovered Population"}];
 ```
 
 Show the unique stocks in the multi-site model:
@@ -271,10 +266,7 @@ Display the solutions for each site separately:
 ```mathematica
 ParametricSolutionsPlots[modelBig["Stocks"], #, None, maxTime, 
    "Together" -> True, PlotTheme -> "Detailed", 
-   ImageSize -> Medium] & /@ 
- GroupBy[Normal@
-   aSol, #[[1, 1]] &, 
-  Association]
+   ImageSize -> Medium] & /@ GroupBy[Normal@aSol, #[[1, 1]] &, Association]
 ```
 
 ![1o9362wmczxo6](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/1o9362wmczxo6.png)
@@ -287,10 +279,7 @@ Instead of using constant traveling patterns matrices we can use matrices with t
 
 ```mathematica
 SeedRandom[232]
-matTravel2 = 
-  matTravel*
-   Table[Abs[Sin[RandomReal[{0.01, 0.1}] t]], VertexCount[gr], 
-    VertexCount[gr]];
+matTravel2 = matTravel*Table[Abs[Sin[RandomReal[{0.01, 0.1}] t]], VertexCount[gr], VertexCount[gr]];
 MatrixForm[matTravel2]
 ```
 
@@ -310,9 +299,7 @@ Here we scale the SIR model, solve the obtained system of ODE’s, and plot the 
 ```mathematica
 modelBig = 
   ToSiteCompartmentsModel[model1, matTravel2, 
-   "MigratingPopulations" -> {"Susceptible Population", 
-     "Exposed Population", "Infected Normally Symptomatic Population",
-      "Recovered Population"}];
+   "MigratingPopulations" -> {"Susceptible Population", "Exposed Population", "Infected Normally Symptomatic Population","Recovered Population"}];
 aSol = Association@First@
     NDSolve[
      Join[modelBig["Equations"] //. modelBig["RateRules"], 
@@ -322,12 +309,8 @@ aSol = Association@First@
      ];
 ParametricSolutionsPlots[modelBig["Stocks"], #, None, 120, 
     "Together" -> True, PlotTheme -> "Detailed", 
-    ImageSize -> 
-     Medium][[1]] & /@ 
- GroupBy[Normal@
-   KeySelect[
-    aSol, ! MemberQ[{MLP}, Head[#]] &], #[[1, 
-    1]] &, Association]
+    ImageSize -> Medium][[1]] & /@ 
+ GroupBy[Normal@KeySelect[aSol, ! MemberQ[{MLP}, Head[#]] &], #[[1, 1]] &, Association]
 ```
 
 ![0trv1vnslv1rm](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0trv1vnslv1rm.png)
@@ -342,9 +325,7 @@ Here we create a grid graph with directed edges:
 
 ```mathematica
 {m, n} = {7, 12};
-grGrid = GridGraph[{m, n}, DirectedEdges -> True, 
-  GraphLayout -> "SpringEmbedding", 
-  VertexLabels -> Automatic, ImageSize -> Large]
+grGrid = GridGraph[{m, n}, DirectedEdges -> True, GraphLayout -> "SpringEmbedding", VertexLabels -> Automatic, ImageSize -> Large]
 ```
 
 ![0l2m5npcrlnvw](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0l2m5npcrlnvw.png)
@@ -362,16 +343,10 @@ Note that:
 Here we make a constant traveling matrix and summarize it:
 
 ```mathematica
-matGridTravel = 
-  AdjacencyMatrix[grGrid]*
-   ConstantArray[1000, {VertexCount[grGrid], VertexCount[grGrid]}];
-{ResourceFunction["RecordsSummary"][Flatten[matGridTravel], 
-   "All elements"][[1]], 
- ResourceFunction["RecordsSummary"][
-   Select[Flatten[matGridTravel], # > 0 &], 
-   "Non-zero elements"][[1]], 
+matGridTravel = AdjacencyMatrix[grGrid]*ConstantArray[1000, {VertexCount[grGrid], VertexCount[grGrid]}];
+{ResourceFunction["RecordsSummary"][Flatten[matGridTravel], "All elements"][[1]], 
+ ResourceFunction["RecordsSummary"][Select[Flatten[matGridTravel], # > 0 &], "Non-zero elements"][[1]], 
  MatrixPlot[matGridTravel]}
-
 ```
 
 ![0d4ocoa6gibfj](./Diagrams/Scaling-of-epidemiology-models-with-multi-site-compartments/0d4ocoa6gibfj.png)
@@ -386,9 +361,7 @@ model1 = SEI2RModel[t, "InitialConditions" -> True,
 ```
 
 ```mathematica
-modelGrid = 
-  ToSiteCompartmentsModel[model1, matGridTravel, 
-   "MigratingPopulations" -> Automatic];
+modelGrid = ToSiteCompartmentsModel[model1, matGridTravel, "MigratingPopulations" -> Automatic];
 ```
 
 Change the initial conditions in the following way: 
