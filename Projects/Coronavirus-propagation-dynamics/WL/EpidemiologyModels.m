@@ -78,7 +78,7 @@ using the time variable var with symbols in the context con.";
 SEI2RModel::usage = "SEI2RModel[var, con] generates SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
-SEI2REconModel::usage = "SEI2REconModel[var, con] generates economics SEI2R model stocks, rates, and equations \
+SEI2HREconModel::usage = "SEI2HREconModel[var, con] generates economics SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
 ModelGridTableForm::usage = "Displays the model legibly.";
@@ -522,33 +522,33 @@ SEI2RModel[___] :=
 
 
 (***********************************************************)
-(* SEI2REconModel                                          *)
+(* SEI2HREconModel                                          *)
 (***********************************************************)
 
-Clear[SEI2REconModel];
+Clear[SEI2HREconModel];
 
-SyntaxInformation[SEI2REconModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+SyntaxInformation[SEI2HREconModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-SEI2REconModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+SEI2HREconModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
 The second optional argument is expected to be context string.";
 
-Options[SEI2REconModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
+Options[SEI2HREconModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
 
-SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
       newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, pos},
 
-      addInitialConditionsQ = TrueQ[ OptionValue[ SEI2REconModel, "InitialConditions" ] ];
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
 
-      addRateRulesQ = TrueQ[ OptionValue[ SEI2REconModel, "RateRules" ] ];
+      addRateRulesQ = TrueQ[ OptionValue[ SEI2HREconModel, "RateRules" ] ];
 
-      birthsTermQ = TrueQ[ OptionValue[SEI2REconModel, "BirthsTerm"] ];
+      birthsTermQ = TrueQ[ OptionValue[SEI2HREconModel, "BirthsTerm"] ];
 
-      tpRepr = OptionValue[ SEI2REconModel, "TotalPopulationRepresentation" ];
+      tpRepr = OptionValue[ SEI2HREconModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
       If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
-        Message[SEI2REconModel::"ntpval"];
+        Message[SEI2HREconModel::"ntpval"];
         $Failed
       ];
 
@@ -573,6 +573,8 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
         lpcr = ToExpression[ context <> "lpcr"],
         (* new *)
         HP = ToExpression[ context <> "HP"],
+        DIP = ToExpression[ context <> "DIP"],
+        HB = ToExpression[ context <> "HB"],
         MSD = ToExpression[ context <> "MSD"],
         HBD = ToExpression[ context <> "HBD"],
         H = ToExpression[ context <> "H"],
@@ -580,8 +582,10 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
         MHS = ToExpression[ context <> "MHS"],
         bkh = ToExpression[ context <> "bkh"],
         msdr = ToExpression[ context <> "msdr"],
+        nahb = ToExpression[ context <> "nahb"],
         nhbr = ToExpression[ context <> "nhbr"],
         hscr = ToExpression[ context <> "hscr"],
+        nhbcr = ToExpression[ context <> "nhbcr"],
         hpmscr = ToExpression[ context <> "hpmscr"],
         upmscr = ToExpression[ context <> "upmscr"],
         mspcr = ToExpression[ context <> "mspcr"]
@@ -591,7 +595,10 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
         aNewStocks = <|
           H[t] -> "Hospital",
           HP[t] -> "Hospitalized Population",
+          DIP[t] -> "Deceased Infected Population",
           MSD[t] -> "Medical Supplies Demand",
+          HBD[t] -> "Hospital Beds Demand",
+          HB[t] -> "Hospital Beds",
           MMSP[t] -> "Money for Medical Supplies Production",
           MHS[t] -> "Money for Hospital Services" |>;
 
@@ -603,8 +610,10 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
           msdr[MMSP] -> "Medical supplies delivery rate (delay factor)",
           bkh[H] -> "Bed capacity per hospital",
           contactRate[HP] -> "Contact rate for the hospitalized population",
-          nhbr[TP] -> "Number of hospital beds rate (per person)",
+          nahb -> "Number of available hospital beds",
+          nhbr[ISSP, INSP] -> "New hospital beds rate",
           hscr[ISSP, INSP] -> "Hospital services cost rate (per bed per day)",
+          nhbcr[ISSP, INSP] -> "Number of hospital beds change rate (per day)",
           hpmscr[ISSP, INSP] -> "Hospitalized population medical supplies consumption rate (per day)",
           upmscr[ISSP, INSP] -> "Un-hospitalized population medical supplies consumption rate (units per day)",
           mspcr[ISSP, INSP] -> "Medical supplies production cost rate (per unit)"
@@ -618,7 +627,7 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
         newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
         newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
 
-        totalNumberOfBedsTerm = nhbr[TP] * TP[t];
+        totalNumberOfBedsTerm = nhbr[ISSP, INSP] * nahb;
 
         lsNewEquations = {
           If[ birthsTermQ,
@@ -629,12 +638,14 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
           EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
           INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
           ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
-          HP'[t] == Piecewise[{{Min[totalNumberOfBedsTerm - HP[t], sspf[SP] * newlyInfectedTerm], HP[t] < totalNumberOfBedsTerm}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
+          HP'[t] == Piecewise[{{Min[HB[t] - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < HB[t]}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
+          DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
+          HB'[t] == nhbcr[ISSP, INSP],
           MSD'[t] == hpmscr[ISSP, INSP] * HP[t] + upmscr[ISSP, INSP] * (INSP[t] + ISSP[t] - HP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
-          MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
+          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
         };
 
 
@@ -649,6 +660,8 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
                 newModel["InitialConditions"],
                 {
                   HP[0] == 0,
+                  DIP[0] == 0,
+                  HB[0] == nhbr[TP] * (TP[0] /. newModel["RateRules"]),
                   MSD[0] == 0,
                   MHS[0] == 0,
                   MMSP[0] == 0}
@@ -664,6 +677,7 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
                   deathRate[HP] -> 0.25 * deathRate[ISSP],
                   contactRate[HP] -> 0.1 * contactRate[ISSP],
                   nhbr[TP] -> 2.9 / 1000,
+                  nhbcr[ISSP, INSP] -> 0,
                   hscr[ISSP, INSP] -> 600,
                   hpmscr[ISSP, INSP] -> 4,
                   upmscr[ISSP, INSP] -> 2,
@@ -675,9 +689,9 @@ SEI2REconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] 
       ]
     ];
 
-SEI2REconModel[___] :=
+SEI2HREconModel[___] :=
     Block[{},
-      Message[SEI2REconModel::"nargs"];
+      Message[SEI2HREconModel::"nargs"];
       $Failed
     ];
 
