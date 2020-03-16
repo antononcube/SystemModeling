@@ -26,18 +26,20 @@ A fair amount of links to data and data analysis can be found here:
 A small, lightweight software framework for retrieval of the basic 
 [compartmental epidemiology models](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology).
 
-The framework consists of two packages:
+The framework consists of the packages:
 
-- [EpidemiologyModels.m](./WL/EpidemiologyModels.m), and
+- [EpidemiologyModels.m](./WL/EpidemiologyModels.m),
 
-- [EpidemiologyModelModifications.m](./WL/EpidemiologyModelModifications.m).
+- [EpidemiologyModelModifications.m](./WL/EpidemiologyModelModifications.m),
+
+- [EpidemiologyModelingVisualizationFunctions.m](./WL/EpidemiologyModelingVisualizationFunctions.m).
 
 See the document 
 ["Basic experiments workflow for simple epidemiological models"](./Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md)
 for the envisioned general workflow, interactive interfaces, and ad-hoc calibration.   
 
 
-## The SEI2R-Econ model
+## The SEI2HR-Econ model
 
 Generally speaking, the 
 [System dynamics](https://en.wikipedia.org/wiki/System_dynamics) 
@@ -45,13 +47,13 @@ methodology is used.
 
 The first model uses a lot of simplifying assumptions and deals only with:
 
-- four types of populations (meaning no age is included),
+- eight types of populations (no age is included),
 
 - available hospital beds,
 
-- medical suppliers, and
+- medical supplies, and
 
-- delivery of medical supplies.
+- related costs.
 
 Nevertheless, that simple model provides certain insights and it is a good starting point for multiple types of
 model extensions. 
