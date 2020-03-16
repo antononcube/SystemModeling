@@ -86,6 +86,12 @@ Calibration issues are (briefly) discussed in
 ["Basic experiments workflow for simple epidemiological models"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md), 
 \[AA2\].
 
+## Videos
+
+- ["COVID19 Epidemic Modeling: Compartmental Models"](https://www.twitch.tv/videos/566141765), based on \[AA2\].
+
+- ["Scaling of Epidemiology Models with Multi-site Compartments"](https://www.twitch.tv/videos/566703353), based on \[AA3\].
+
 ## References
 
 \[CDC1\] https://www.cdc.gov/coronavirus/2019-ncov .
@@ -102,6 +108,11 @@ Calibration issues are (briefly) discussed in
 
 \[AA2\] Anton Antonov, 
 ["Basic experiments workflow for simple epidemiological models"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-simple-epidemiological-models.md), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+\[AA3\] Anton Antonov, 
+["Scaling of Epidemiology Models with Multi-site Compartments"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Scaling-of-epidemiology-models-with-multi-site-compartments.md),
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
