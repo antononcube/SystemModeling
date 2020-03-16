@@ -4,11 +4,11 @@
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED
 #+OPTIONS: toc:1 num:0
 
-* TODO Documents [20%] [1/5]
-** TODO README [66%] [2/3]
-- [-] Diagramns
+* TODO Documents [40%] [2/5]
+** TODO README [75%] [3/4]
+- [X] Diagrams
   - [X] Two types of infected populations and economics
-  - [ ] Model progression
+  - [X] Model progression
 - [X] Mind-maps
 - [X] Interactive interface teaser
 - [ ] Summary of the current work.
@@ -22,8 +22,8 @@
   - [X] Articles
   - [ ] Data
   - [ ] Repositories & packages
-- [ ] Publish
-  - [ ] Preliminary version at GitHub
+- [-] Publish
+  - [X] Preliminary version at GitHub
   - [ ] Full version at GitHub
   - [ ] WordPress ?
 ** DONE Basic experiments workflow for simple epidemiological models [100%] [8/8]
@@ -40,18 +40,23 @@
   - [X] GitHub
   - [X] Community
   - [X] WordPress
-** TODO Scaling of epidemiology models with multi-site compartments [0%] [0/5]
-- [ ] Introduction
-- [ ] Getting the core, simple model
-- [ ] Two node graph example
-- [ ] Random graph example
-- [ ] Grid graph example
-  - [ ] Animation(s)
+** DONE [#A] Scaling of epidemiology models with multi-site compartments [100%] [7/7]
+- [X] Introduction
+- [X] Theoretical descriptions
+- [X] Getting the core, simple model
+- [X] Two node graph example
+- [X] Grid graph example
+  - [X] General workflow
+  - [X] Graph sequences
+  - [X] Animation(s)
+- [X] Random graph example
+  - [X] General workflow
+  - [X] Graph sequences
 - [X] Publish
   - [X] GitHub
   - [X] Community
   - [X] WordPress
-** TODO Simple economics model: SEI2R-Econ [0%] [0/6]
+** TODO [#A] Simple economics model: SEI2HR-Econ [0%] [0/6]
 - [ ] Introduction
 - [ ] Getting the core, simple model
 - [ ] The economical parts of the model
@@ -61,15 +66,15 @@
   - [ ] GitHub
   - [ ] Community
   - [ ] WordPress
-* TODO Packages [0%] [0/4]
-** TODO Epidemiology models [50%] [3/6]
+* TODO Packages [0%] [0/5]
+** TODO [#A] Epidemiology models [50%] [3/6]
 - [X] SIR
 - [X] SI2R
 - [X] SEI2R
-- [ ] SEI2R-Econ
+- [ ] SEI2HR-Econ
 - [ ] Mutating Coronaviruses
 - [ ] Age compartments
-** TODO Epidemiology models modifications [50%] [4/8]
+** TODO [#A] Epidemiology models modifications [50%] [4/8]
 - [X] Add model ID
 - [X] Additional model manipulation facilitation functions
 - [X] Multi-site compartments extension
@@ -77,21 +82,34 @@
 - [ ] Automatic Economics extension
 - [ ] Automatic Mutations extension
 - [ ] Automatic Age compartments extension
-** MAYBE Software monad
-** MAYBE Conversational agent
+** TODO Epidemiology modeling visualization functions [%] [/]
+- [X] Evaluation of solutions over graphs.
+  - [X] Core algorithm
+  - [X] Option "Normalization".
+  - [X] Option "Legended".
+- [X] Evaluation of solutions over graph vertexes.
+  - [X] Core algorithm.
+  - [X] Related refactoring.
+** MAYBE [#C] Software monad
+** MAYBE [#C] Conversational agent
 * TODO Unit tests [0%] [0/4]
-** TODO Epidemiology models
-** TODO Core epidemiology models modification functions
-** TODO Multi-site compartments model modification
-** TODO Multi-site propagation tests
+** TODO [#A] Epidemiology models [60%] [3/5]
+- [X] ~SIRModel~
+- [X] ~SI2RModel~
+- [X] ~SEI2RModel~
+- [ ] ~SEI2HREconModel~
+- [ ] ~ModelGridTableForm~
+** TODO [#B] Core epidemiology models modification functions
+** TODO [#B] Multi-site compartments model modification
+** TODO [#A] Multi-site propagation tests
 * TODO Applications [25%] [1/4]
-** DONE Basic workflow stencil notebook
+** DONE [#A] Basic workflow stencil notebook
 ** TODO Economics considerations
-** TODO SEI2R multi-site compartments examples [66%] [2/3]
+** TODO [#A] SEI2R multi-site compartments examples [66%] [2/3]
 - [X] ~GridGraph~
 - [X] ~RandomGraph~
 - [ ] Large USA cities / airports
-** TODO SEI2R-Econ multi-site compartments examples [66%] [2/3]
+** TODO [#A] SEI2HR-Econ multi-site compartments examples [66%] [2/3]
 - [X] ~GridGraph~
 - [X] ~RandomGraph~
 - [ ] Large USA cities / airports
