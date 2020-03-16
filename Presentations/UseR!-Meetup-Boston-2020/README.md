@@ -1,6 +1,11 @@
 # Coronavirus propagation modeling
-***useR! Meetup Boston, April 2020***   
+***useR! Meetup Boston, April 2020*** CANCELLED
 ***Extended abstract***
+
+*The Boston useR! Meetup in event in April 2020 was cancelled due to COVID-19.*
+
+*The presentation materials are reused for the Orlando Machine Learning and Data Science Meetup (OMLDS)* 
+*online session "Coronavirus propagation modeling"(https://www.meetup.com/Orlando-MLDS/events/269445903).*
 
 ## In brief
 
