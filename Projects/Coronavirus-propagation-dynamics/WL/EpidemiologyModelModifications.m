@@ -396,26 +396,30 @@ The second argument is expected to be an associations of initial condition rules
 
 SetInitialConditions::"ninit" = "The model does not have initial conditions.";
 
+SetInitialConditions[model_Association, lsInitConds : { _Equal .. } ] :=
+    SetInitialConditions[ model, Association @ ReplaceAll[ lsInitConds, Equal[x_, y_] :> Rule[x, y] ] ];
+
 SetInitialConditions[model_Association, aInitConds_Association] :=
     Block[{lsInitConds, pos},
 
       If[ !KeyExistsQ[model, "InitialConditions"],
-        Message[SetInitialConditions::"ninit"];
-        Return[$Failed]
+
+        lsInitConds = KeyValueMap[ Equal[#1, #2]&, aInitConds],
+        (* ELSE *)
+
+        lsInitConds = model["InitialConditions"];
+
+        lsInitConds =
+            Fold[
+              Function[{ics, icRule},
+                pos = EquationPosition[lsInitConds, icRule[[1]]];
+                If[IntegerQ[pos],
+                  ReplacePart[ics, pos -> icRule[[1]] == icRule[[2]]]
+                ]],
+              lsInitConds,
+              Normal[aInitConds]
+            ]
       ];
-
-      lsInitConds = model["InitialConditions"];
-
-      lsInitConds =
-          Fold[
-            Function[{ics, icRule},
-              pos = EquationPosition[lsInitConds, icRule[[1]]];
-              If[IntegerQ[pos],
-                ReplacePart[ics, pos -> icRule[[1]] == icRule[[2]]]
-              ]],
-            lsInitConds,
-            Normal[aInitConds]
-          ];
 
       Join[model, <|"InitialConditions" -> lsInitConds|>]
     ];
@@ -442,11 +446,10 @@ SetRateRules[model_Association, aRateRules_Association] :=
     Block[{lsRateRules},
 
       If[ !KeyExistsQ[model, "RateRules"],
-        Message[SetRateRules::"nrrs"];
-        Return[$Failed]
+        lsRateRules = aRateRules,
+        (* ELSE *)
+        lsRateRules = Join[ model["RateRules"], aRateRules ]
       ];
-
-      lsRateRules = Join[ model["RateRules"], aRateRules ] ;
 
       Join[model, <|"RateRules" -> lsRateRules|>]
     ];
