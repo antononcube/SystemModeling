@@ -676,7 +676,12 @@ Clear[ModelGridTableForm];
 
 SyntaxInformation[ModelGridTableForm] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ModelGridTableForm] = { "Tooltips" -> False };
+Options[ModelGridTableForm] =
+    Join[
+      { "Tooltips" -> True },
+      Options[ResourceFunction["GridTableForm"]],
+      Options[Tooltip]
+    ];
 
 ModelGridTableForm::"nargs" = "The first argument is expected to be an association; (an epidemiology model).";
 
@@ -694,7 +699,7 @@ ModelGridTableForm[modelArg_?EpidemiologyModelQ, opts : OptionsPattern[] ] :=
       |>;
 
       If[tooltipsQ,
-        aTooltipRules = KeyValueMap[ #1 -> Tooltip[#1, #2]&, Join[ model["Stocks"], model["Rates"] ] ];
+        aTooltipRules = KeyValueMap[ #1 -> Tooltip[ #1, #2, FilterRules[{opts}, Options[Tooltip]] ]&, Join[ model["Stocks"], model["Rates"] ] ];
 
         model["Equations"] = model["Equations"] /. aTooltipRules;
 
@@ -706,7 +711,12 @@ ModelGridTableForm[modelArg_?EpidemiologyModelQ, opts : OptionsPattern[] ] :=
 
       Association @
           KeyValueMap[
-            #1 -> ResourceFunction["GridTableForm"][ If[AssociationQ[#2], List @@@ Normal[#2], List /@ #2], TableHeadings -> aTHeadings[#1] ]&,
+            #1 ->
+                ResourceFunction["GridTableForm"][
+                  If[AssociationQ[#2], List @@@ Normal[#2], List /@ #2],
+                  TableHeadings -> aTHeadings[#1],
+                  FilterRules[{opts}, Options[ResourceFunction["GridTableForm"]]]
+                ]&,
             If[ tooltipsQ,
               model /. aTooltipRules,
               (*ELSE*)
