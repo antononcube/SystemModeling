@@ -674,8 +674,16 @@ SEI2HRModel[___] :=
 
 Clear[ModelGridTableForm];
 
-ModelGridTableForm[model_Association] :=
-    Block[{aTHeadings},
+SyntaxInformation[ModelGridTableForm] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+
+Options[ModelGridTableForm] = { "Tooltips" -> False };
+
+ModelGridTableForm::"nargs" = "The first argument is expected to be an association; (an epidemiology model).";
+
+ModelGridTableForm[modelArg_?EpidemiologyModelQ, opts : OptionsPattern[] ] :=
+    Block[{model = modelArg, tooltipsQ, aTHeadings, aTooltipRules},
+
+      tooltipsQ = TrueQ[ OptionValue[ModelGridTableForm, "Tooltips"] ];
 
       aTHeadings = <|
         "Stocks" -> {"Symbol", "Description"},
@@ -685,11 +693,32 @@ ModelGridTableForm[model_Association] :=
         "InitialConditions" -> {"Equation"}
       |>;
 
+      If[tooltipsQ,
+        aTooltipRules = KeyValueMap[ #1 -> Tooltip[#1, #2]&, Join[ model["Stocks"], model["Rates"] ] ];
+
+        model["Equations"] = model["Equations"] /. aTooltipRules;
+
+        If[ EpidemiologyFullModelQ[model],
+          model["InitialConditions"] = model["InitialConditions"] /. aTooltipRules;
+          model["RateRules"] = KeyMap[ # /. aTooltipRules &, model["RateRules"]];
+        ]
+      ];
+
       Association @
           KeyValueMap[
             #1 -> ResourceFunction["GridTableForm"][ If[AssociationQ[#2], List @@@ Normal[#2], List /@ #2], TableHeadings -> aTHeadings[#1] ]&,
-            model
+            If[ tooltipsQ,
+              model /. aTooltipRules,
+              (*ELSE*)
+              model
+            ]
           ]
+    ];
+
+ModelGridTableForm[___] :=
+    Block[{},
+      Message[ModelGridTableForm::"nargs"];
+      $Failed
     ];
 
 
