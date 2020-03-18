@@ -92,6 +92,11 @@ Calibration issues are (briefly) discussed in
 
 - ["Scaling of Epidemiology Models with Multi-site Compartments"](https://www.twitch.tv/videos/566703353), based on \[AA3\].
 
+- ["Simple Economic Extension of Compartmental Epidemiological Models"](https://www.twitch.tv/videos/569280246).
+
+- ["Geo-spatial-temporal COVID-19 Simulations and Visualizations Over USA"](https://www.twitch.tv/videos/569303364), based on \[AA3\]
+
+
 ## References
 
 \[CDC1\] https://www.cdc.gov/coronavirus/2019-ncov .
