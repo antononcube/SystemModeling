@@ -16,15 +16,41 @@
   1) Title:
      - "Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany"
   2) What is the challenge or need?
-     - 
+     - How can we predict the propagation of COVID-19 in Germany and
+       the effects of different related (govermental) policies?
+     - We are both interest in estimating the infected / deceased /
+       recovered people and economy effects of different quarantine programs.
   3) Who it helps?
      - Decision makers at government level.
+     - Decision makers at healthcare provider (hospitals) level.
   4) Who is effected by it?
+     - General population.
+     - Medical personnel.
+     - Decision makers at state or municipality levels.
   5) Choice of topics
+     - [ ] Kommunikation & Informationsvermittlung an B�rger*innen
+     - [ ] Medizinische Versorgung
+     - [ ] Schutz von Risikogruppen
+     - [X] Pr�vention von Verbreitung des COVID-19
+     - [ ] Deutsche Wirtschaft: Krisenmanagement f�r Unternehmen & Selbstst�ndige
+     - [ ] Solidarit�t und Zusammenhalt
+     - [X] Leben in (Selbst-)Quarant�ne
+     - [ ] Andere
   6) How would you formulate challenge?
+     - Make a prototype of Geo-spatial-temporal model for the propagation of
+       infectious disease over Germany.
+     - The model should have features that allow the evaluation of effects on both human population and economy.
+     - Using the model simulate different COVID-19 scenarios.
   7) Is there already some concepts / prototypes developed?
+     - There are multiple implementation and documentation for the
+       approach we want to take and develop. See the GitHub
+       repository:
+       - [[https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics][Coronavirus-propagation-dynamics]].
   8) What is your role?
+     - Hacker / developer.
   9) Who are the most important stakeholders?
+     - Governmental decision makers.
+     - Healthcare providers decision managers.
   10) Names and email
 * TODO Conceptual modeling  [0%] [0/3]
 ** Anton SEI2HR [60%] [3/5]
@@ -34,7 +60,7 @@
 - [ ] Documentation
 - [X] Presentation
   - Wolfram-U session / movie.
-** Anton Economics extension of SEI2HR 
+** Anton Economics extension of SEI2HR [20%] [2/5]
 - [X] Develop
 - [ ] Implement in GitHub
 - [ ] Unit tests
@@ -60,6 +86,9 @@
 *** TODO Isolation of age groups
 *** TODO Borders and travel restrictions
 *** TODO State-specific quarantines
+* TODO Calibration [0%] [0/2]
+** TODO Single-site model calibrations
+** TODO Multi-site model calibratrions
 * TODO Economic extension(s) [%] [/]
 ** TODO Census data
 - Needed to evaluate the costs of people not working.
