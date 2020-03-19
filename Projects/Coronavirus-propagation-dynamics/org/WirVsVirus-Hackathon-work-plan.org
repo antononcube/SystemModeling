@@ -7,42 +7,43 @@
 * Introduction
 - This org-mode file has a work plan for the [[https://wirvsvirushackathon.org][WirVsVirus Hackathon]] :
   https://wirvsvirushackathon.org .
-* TODO Registration [0%] [0/2]
+* TODO Registration [50%] [1/2]
 - [-] Names and emails.
-  - [X] Anton
+  - [ ] Anton
   - [X] Balint
   - [ ] Diego
-- [ ] Idea description entering 
+- [X] Idea description entering 
   1) Title:
      - "Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany"
   2) What is the challenge or need?
      - How can we predict the propagation of COVID-19 in Germany and
-       the effects of different related (govermental) policies?
-     - We are both interest in estimating the infected / deceased /
-       recovered people and economy effects of different quarantine programs.
+       the effects of different related (governmental) policies?
+     - We want to estimate (i) the infected / deceased /
+       recovered people and (ii) the economy effects of different quarantine programs.
   3) Who it helps?
      - Decision makers at government level.
      - Decision makers at healthcare provider (hospitals) level.
-  4) Who is effected by it?
+     - Corporate decision makers.
+  4) Choice of topics
+     - [ ] Kommunikation & Informationsvermittlung an Bürger*innen
+     - [X] Medizinische Versorgung
+     - [ ] Schutz von Risikogruppen
+     - [X] Prävention von Verbreitung des COVID-19
+     - [X] Deutsche Wirtschaft: Krisenmanagement für Unternehmen & Selbstständige
+     - [ ] Solidarität und Zusammenhalt
+     - [ ] Leben in (Selbst-)Quarantäne
+     - [ ] Andere
+  5) Who is effected by it?
      - General population.
      - Medical personnel.
      - Decision makers at state or municipality levels.
-  5) Choice of topics
-     - [ ] Kommunikation & Informationsvermittlung an Bï¿½rger*innen
-     - [ ] Medizinische Versorgung
-     - [ ] Schutz von Risikogruppen
-     - [X] Prï¿½vention von Verbreitung des COVID-19
-     - [ ] Deutsche Wirtschaft: Krisenmanagement fï¿½r Unternehmen & Selbststï¿½ndige
-     - [ ] Solidaritï¿½t und Zusammenhalt
-     - [X] Leben in (Selbst-)Quarantï¿½ne
-     - [ ] Andere
   6) How would you formulate challenge?
-     - Make a prototype of Geo-spatial-temporal model for the propagation of
+     - Make a prototype of a Geo-spatial-temporal model for the propagation of
        infectious disease over Germany.
      - The model should have features that allow the evaluation of effects on both human population and economy.
-     - Using the model simulate different COVID-19 scenarios.
+     - Make simulations of different COVID-19 scenarios.
   7) Is there already some concepts / prototypes developed?
-     - There are multiple implementation and documentation for the
+     - There are multiple implementations and documentation for the
        approach we want to take and develop. See the GitHub
        repository:
        - [[https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics][Coronavirus-propagation-dynamics]].
@@ -50,7 +51,8 @@
      - Hacker / developer.
   9) Who are the most important stakeholders?
      - Governmental decision makers.
-     - Healthcare providers decision managers.
+     - Healthcare providers managers.
+     - Commercial companies decision makers.
   10) Names and email
 * TODO Conceptual modeling  [0%] [0/3]
 ** Anton SEI2HR [60%] [3/5]
