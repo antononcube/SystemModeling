@@ -1,0 +1,67 @@
+#+TITLE: WirVsVirus Hackaton work plan
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@gmail.com
+#+TODO: TODO ONGOING MAYBE Anton Balint Diego | DONE CANCELED
+#+OPTIONS: tic:1 numb:0
+
+* Introduction
+- This org-mode file has a work plan for the [[https://wirvsvirushackathon.org][WirVsVirus Hackathon]] :
+  https://wirvsvirushackathon.org .
+* TODO Registration [0%] [0/2]
+- [-] Names and emails.
+  - [X] Anton
+  - [X] Balint
+  - [ ] Diego
+- [ ] Idea description entering 
+  1) Title:
+     - "Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany"
+  2) What is the challenge or need?
+     - 
+  3) Who it helps?
+     - Decision makers at government level.
+  4) Who is effected by it?
+  5) Choice of topics
+  6) How would you formulate challenge?
+  7) Is there already some concepts / prototypes developed?
+  8) What is your role?
+  9) Who are the most important stakeholders?
+  10) Names and email
+* TODO Conceptual modeling  [0%] [0/3]
+** Anton SEI2HR [60%] [3/5]
+- [X] Develop
+- [X] Implement in GitHub
+- [ ] Unit tests
+- [ ] Documentation
+- [X] Presentation
+  - Wolfram-U session / movie.
+** Anton Economics extension of SEI2HR 
+- [X] Develop
+- [ ] Implement in GitHub
+- [ ] Unit tests
+- [ ] Documentation
+- [X] Presentation
+  - Wolfram-U session / movie.
+** MAYBE Age and demographic core models
+- This is a must model, but not likely to be done during the hackathon. 
+* TODO Application of the "COVID-19 propagation over USA" model to Germany [0%] [0/3]
+** Description
+- Basically we want to replicate Diego's work over Germany.
+  - Here is a link to the related WL-notebook:
+    - [[https://www.wolframcloud.com/obj/dzviovich/Published/Geo-spatial-temporal%20COVID-19%20simulations%20and%20visualizations%20over%20USA.nb][Geo-spatial-temporal COVID-19 simulations and visualizations over USA.nb]]
+** TODO Data gathering [0%] [0/3]
+*** Balint Municipalities
+*** TODO Road network and throughput
+** TODO Patient-0 propagation simulations
+- [ ] Initial Geo-spatial-temporal simulation of COVID-19 propagation over Germany.
+- [ ] Over German states and/or municipalities.
+** TODO Scenario simulations [%] [.]
+*** TODO Quarantines start points and durations
+- Basic quarantine scenarios.
+*** TODO Isolation of age groups
+*** TODO Borders and travel restrictions
+*** TODO State-specific quarantines
+* TODO Economic extension(s) [%] [/]
+** TODO Census data
+- Needed to evaluate the costs of people not working.
+** TODO Apply the  
+* MAYBE Comprehensive economic model
