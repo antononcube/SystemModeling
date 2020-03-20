@@ -76,23 +76,34 @@
 - Basically we want to replicate Diego's work over Germany.
   - Here is a link to the related WL-notebook:
     - [[https://www.wolframcloud.com/obj/dzviovich/Published/Geo-spatial-temporal%20COVID-19%20simulations%20and%20visualizations%20over%20USA.nb][Geo-spatial-temporal COVID-19 simulations and visualizations over USA.nb]]
-** TODO Data gathering [0%] [0/3]
+** TODO Data gathering [0%] [0/2]
 *** Balint Municipalities
-*** TODO Road network and throughput
+*** Diego Road network and throughput
 ** TODO Patient-0 propagation simulations
 - [ ] Initial Geo-spatial-temporal simulation of COVID-19 propagation over Germany.
 - [ ] Over German states and/or municipalities.
 ** TODO Scenario simulations [%] [.]
-*** TODO Quarantines start points and durations
+*** TODO Quarantines 
 - Basic quarantine scenarios.
+  - Different start point and duration.
+- Comprehensive quarantine scenarios.
+  - Per state.
+  - Per industry.
 *** TODO Isolation of age groups
 *** TODO Borders and travel restrictions
 *** TODO State-specific quarantines
 * TODO Calibration [0%] [0/2]
-** TODO Single-site model calibrations
-** TODO Multi-site model calibratrions
-* TODO Economic extension(s) [%] [/]
+** Balint Single-site model calibrations
+** Diego Multi-site model calibratrions
+* TODO Economic extension(s) [0%] [0/2]
 ** TODO Census data
 - Needed to evaluate the costs of people not working.
-** TODO Apply the  
+- Different age groups.
+- Different industry / occupation tiers.
+** TODO Add limited resources
+- What limited resources should we consider?
+- So far the models have only hospital beds and medical supplies as
+  limited resources.
 * MAYBE Comprehensive economic model
+** MAYBE Apply the economic model with the multi-site model
+** MAYBE Scenario play-outs
