@@ -180,6 +180,9 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         };
 
         Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsEquations = lsEquations /. TP[t] -> TP[0],
+
           tpRepr == "SumSubstitution",
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + IP[t] + RP[t] ),
 
@@ -191,7 +194,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Rate Rules *)
         aRateRules =
-            <| TP[t] -> 100000,
+            <| TP[0] -> 100000,
               deathRate[TP] -> (800 / 10^5) / 365,
               deathRate[IP] -> 0.035 / aip,
               contactRate[IP] -> 6,
@@ -202,15 +205,15 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         (* Initial conditions *)
         aInitialConditions =
             {
-              SP[0] == (TP[t] /. aRateRules) - 1,
+              SP[0] == (TP[0] /. aRateRules) - 1,
               IP[0] == 1,
               RP[0] == 0,
               MLP[0] == 0};
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
-          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
-          aRateRules = KeyDrop[aRateRules, TP[t]]
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[0] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[0]]
         ];
 
         If[ addRateRulesQ,
@@ -318,6 +321,9 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         };
 
         Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsEquations = lsEquations /. TP[t] -> TP[0],
+
           tpRepr == "SumSubstitution",
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + INSP[t] + ISSP[t] + RP[t] ),
 
@@ -329,7 +335,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Rate Rules *)
         aRateRules =
-            <| TP[t] -> 100000,
+            <| TP[0] -> 100000,
               deathRate[TP] -> (800 / 10^5) / 365,
               deathRate[ISSP] -> 0.035 / aip,
               deathRate[INSP] -> 0.01 / aip,
@@ -343,7 +349,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         (* Initial conditions *)
         aInitialConditions =
             {
-              SP[0] == (TP[t] /. aRateRules) - 2,
+              SP[0] == (TP[0] /. aRateRules) - 2,
               ISSP[0] == 1,
               INSP[0] == 1,
               RP[0] == 0,
@@ -351,8 +357,8 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
-          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
-          aRateRules = KeyDrop[aRateRules, TP[t]]
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[0] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[0]]
         ];
 
         If[ addRateRulesQ,
@@ -464,6 +470,9 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         };
 
         Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsEquations = lsEquations /. TP[t] -> TP[0],
+
           tpRepr == "SumSubstitution",
           lsEquations = lsEquations /. TP[t] -> ( SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] ),
 
@@ -475,7 +484,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Rate Rules *)
         aRateRules =
-            <| TP[t] -> 100000,
+            <| TP[0] -> 100000,
               deathRate[TP] -> (800 / 10^5) / 365,
               deathRate[ISSP] -> 0.035 / aip,
               deathRate[INSP] -> 0.01 / aip,
@@ -489,7 +498,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Initial conditions *)
         aInitialConditions = {
-          SP[0] == (TP[t] /. aRateRules) - 2,
+          SP[0] == (TP[0] /. aRateRules) - 2,
           EP[0] == 0,
           ISSP[0] == 1,
           INSP[0] == 1,
@@ -498,8 +507,8 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
-          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[t] /. aRateRules)];
-          aRateRules = KeyDrop[aRateRules, TP[t]]
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[0] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[0]]
         ];
 
         If[ addRateRulesQ,
@@ -625,6 +634,13 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
         };
 
+        Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsNewEquations = lsNewEquations /. TP[t] -> TP[0],
+
+          tpRepr == "SumSubstitution",
+          lsNewEquations = lsNewEquations /. TP[t] -> ( SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] )
+        ];
 
         pos = Position[ model["Equations"], #]& /@ lsNewEquations[[All, 1]];
         pos = Flatten @ Map[ If[ Length[#] == 0, {}, First @ Flatten @ # ]&, pos ];
