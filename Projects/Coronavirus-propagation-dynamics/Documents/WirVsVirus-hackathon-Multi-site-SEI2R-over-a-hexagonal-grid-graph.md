@@ -232,7 +232,7 @@ SeedRandom[232];
 RandomSample[dsCityRecords, 4]
 ```
 
-![0xpfw8w1yc61r](img/0xpfw8w1yc61r.png)
+![0xpfw8w1yc61r](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0xpfw8w1yc61r.png)
 
 ## Simple data analysis
 
@@ -242,7 +242,7 @@ Summary of the data:
 ResourceFunction["RecordsSummary"][dsCityRecords]
 ```
 
-![0edws5iqoilre](img/0edws5iqoilre.png)
+![0edws5iqoilre](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0edws5iqoilre.png)
 
 We can see that $\approx 20$% of the cities correspond to $\approx 80$% of the population.
 
@@ -251,7 +251,7 @@ ResourceFunction["ParetoPrinciplePlot"][
  Normal[dsCityRecords[All, "Population"]]]
 ```
 
-![1mw9hzr4pb6bi](img/1mw9hzr4pb6bi.png)
+![1mw9hzr4pb6bi](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1mw9hzr4pb6bi.png)
 
 ## Make the hexagon cells graph
 
@@ -272,7 +272,7 @@ grHist = GeoHistogram[aCoordsToPopulations, cellRadius,
 If[TrueQ[renderGraphPlotsQ], grHist]
 ```
 
-![0yq3hnb4b7pjx](img/0yq3hnb4b7pjx.png)
+![0yq3hnb4b7pjx](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0yq3hnb4b7pjx.png)
 
 ### Extract histogram cells (bins)
 
@@ -321,7 +321,7 @@ If[TrueQ[renderGraphPlotsQ],
  ]
 ```
 
-![0vou8cc6ekx82](img/0vou8cc6ekx82.png)
+![0vou8cc6ekx82](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0vou8cc6ekx82.png)
 
 ### Compute Nearest Neighbors graph
 
@@ -333,7 +333,7 @@ nc = Nearest[Values[aCells] -> Keys[aCells],
        "Center"]] &)]
 ```
 
-![14q4els5zuwd2](img/14q4els5zuwd2.png)
+![14q4els5zuwd2](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/14q4els5zuwd2.png)
 
 ```mathematica
 lsDistances = 
@@ -342,7 +342,7 @@ lsDistances =
 ResourceFunction["RecordsSummary"][lsDistances]
 ```
 
-![04dbdi7xkst0c](img/04dbdi7xkst0c.png)
+![04dbdi7xkst0c](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/04dbdi7xkst0c.png)
 
 Identify outlier(s) and drop them:
 
@@ -386,7 +386,7 @@ If[TrueQ[renderGraphPlotsQ],
  ]
 ```
 
-![196gh7308mnkw](img/196gh7308mnkw.png)
+![196gh7308mnkw](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/196gh7308mnkw.png)
 
 ## Assign traffic
 
@@ -404,7 +404,7 @@ grHexagonCells =
 If[TrueQ[renderGraphPlotsQ], grHexagonCells]
 ```
 
-![06mxkletvfwyb](img/06mxkletvfwyb.png)
+![06mxkletvfwyb](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/06mxkletvfwyb.png)
 
 Here is the corresponding, heuristic traveling patterns matrix:
 
@@ -417,7 +417,7 @@ matHexagonCellsTraffic =
    EdgeList[grHexagonCells]]]
 ```
 
-![0xackkzn1ctje](img/0xackkzn1ctje.png)
+![0xackkzn1ctje](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0xackkzn1ctje.png)
 
 Here we make the traveling patterns matrix time-dependent in order to be able to simulate quarantine scenarios:
 
@@ -444,7 +444,7 @@ Block[{matTravel = Normal[matHexagonCellsTraffic] /. t -> 1.0},
  ]
 ```
 
-![0lyaokwj92mx3](img/0lyaokwj92mx3.png)
+![0lyaokwj92mx3](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0lyaokwj92mx3.png)
 
 ## Initial infected population
 
@@ -608,7 +608,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![0vx7782caocz3](img/0vx7782caocz3.png)
+![0vx7782caocz3](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0vx7782caocz3.png)
 
 Display solutions of the first and last site:
 
@@ -628,7 +628,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![19u0a911l8upe](img/19u0a911l8upe.png)
+![19u0a911l8upe](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19u0a911l8upe.png)
 
 As expected from the graph structure, we can see in the first site plot that its total population is decreasing -- nobody is traveling to the first site. Similarly, we can see in the last site plot that its total population is increasing -- nobody leaves the last site.
 
@@ -721,7 +721,7 @@ ResourceFunction["RecordsSummary"][
  Thread -> True]
 ```
 
-![17w8kdvkcme40](img/17w8kdvkcme40.png)
+![17w8kdvkcme40](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/17w8kdvkcme40.png)
 
 ### Infected Population
 
@@ -738,7 +738,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![15e3jv8hgd7dl](img/15e3jv8hgd7dl.png)
+![15e3jv8hgd7dl](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/15e3jv8hgd7dl.png)
 
 Total (of all sites) profile: 
 
@@ -754,7 +754,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![028ra0l91cf8s](img/028ra0l91cf8s.png)
+![028ra0l91cf8s](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/028ra0l91cf8s.png)
 
 ### Recovered Population
 
@@ -771,7 +771,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![0n85uaj7rrjmz](img/0n85uaj7rrjmz.png)
+![0n85uaj7rrjmz](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0n85uaj7rrjmz.png)
 
 ### Deceased Infected Population
 
@@ -790,13 +790,13 @@ If[TrueQ[renderSolultionsPlotsQ] &&
  ]
 ```
 
-![07zxtfzrckzsh](img/07zxtfzrckzsh.png)
+![07zxtfzrckzsh](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/07zxtfzrckzsh.png)
 
 Ratio of Total of the Deceased Infected and Total Population:
 
-![1hov12cbfynej](img/1hov12cbfynej.png)
+![1hov12cbfynej](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1hov12cbfynej.png)
 
-![0lt2cktidnwk6](img/0lt2cktidnwk6.png)
+![0lt2cktidnwk6](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0lt2cktidnwk6.png)
 
 ### Hospitalized Population
 
@@ -815,7 +815,7 @@ If[TrueQ[renderSolultionsPlotsQ] &&
  ]
 ```
 
-![03pfejxkf9ebu](img/03pfejxkf9ebu.png)
+![03pfejxkf9ebu](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/03pfejxkf9ebu.png)
 
 ## Export
 
