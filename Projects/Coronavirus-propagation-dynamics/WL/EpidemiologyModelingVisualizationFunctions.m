@@ -68,6 +68,9 @@ makes a sequence of graph plots of the graph gr with the graph nodes colored acc
 
 MakeVertexShapeFunction::usage = "MakeVertexShapeFunction makes a vertex shape function.";
 
+ConvertSolutions::usage = "ConvertSolutions[ aSolEvals, type] converts an association of solution evaluations into
+a dataset.";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModelModifications`"];
@@ -279,13 +282,48 @@ MakeVertexShapeFunction[vfName_Symbol, stockArg_Symbol, timeArg_, aSolArg_, maxP
       time = timeArg, maxPopulation = maxPopulationArg,
       factor = factorArg, cf = colorScheme},
       vf[{xc_, yc_}, name_, {w_, h_}] := {
-        ColorData[cf, "ColorFunction"][
-          Rescale[aSol[[1]][stock[name]][time], {0, maxPopulation}, {0, 1}]],
+        ColorData[cf, "ColorFunction"][Rescale[aSol[[1]][stock[name]][time], {0, maxPopulation}, {0, 1}]],
         Rectangle[{xc - factor w, yc - factor h}, {xc + factor w, yc + factor h}]
       };
     ];
 
 MakeVertexShapeFunction[___] := $Failed;
+
+
+(**************************************************************)
+(* ConvertSolutions                                           *)
+(**************************************************************)
+
+Clear[ConvertSolutions];
+
+ConvertSolutions::"ntype" = "Unknown conversation type.";
+
+ConvertSolutions[ aStockSolutionValues : Association[(_String -> Association[(_ -> _?VectorQ) ..]) ..], type_String : "Dataset" ] :=
+    Block[{res},
+
+      res =
+          Join @@
+              KeyValueMap[
+                Function[{k, v},
+                  Join @@ KeyValueMap[ Thread[{k, #1, Range[Length[#2]], #2 }]&, v]
+                ],
+                aStockSolutionValues
+              ];
+
+      Which[
+        type == "Dataset",
+        Dataset[Dataset[res][All, AssociationThread[#, {"Stock", "Node", "Time", "Value"}]& ]],
+
+        type == "Array",
+        res,
+
+        True,
+        Message[ConvertSolutions::"ntype"];
+        $Failed
+      ]
+
+    ];
+
 
 End[]; (* `Private` *)
 
