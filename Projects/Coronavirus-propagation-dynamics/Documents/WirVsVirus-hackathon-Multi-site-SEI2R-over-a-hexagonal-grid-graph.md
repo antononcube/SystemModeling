@@ -44,33 +44,39 @@ Also, we can have “entry nodes” — international airports or train stations
 
 ## *ToDo list*
 
-- Implement global quarantine scenarios.
+- [X] Implement global quarantine scenarios.
 
     - This includes the specification of parameters for quarantine start and quarantine duration.
 
-- Expose/assign SEI2R/SEI2HR parameters in the section “Parameters”.
+- [ ] Expose/assign SEI2R/SEI2HR parameters in the section “Parameters”.
 
     - *Fundamental*: contact rates, incubation period, infectious period.
 
     - *Additional*: number of hospital beds per 1000 people, births inclusion.
 
-- Experiment with other single-site models. For example, SEI2HR.
+- [ ] Experiment with other single-site models. 
+  
+   - [X] SEI2HR
+   
+   - [ ] SEI2HR-Econ
 
-- Implement site-dependent quarantine scenarios.
+- [ ] Implement site-dependent quarantine scenarios.
 
-- Implement “injection” of infected people in arbitrary time and location.
+- [ ] Implement “injection” of infected people in arbitrary time and location.
 
     - This requires handling of relevant parameters.
 
     - Ideally the location is given with Geo-coordinates.
 
-- General explanations.
+- [ ] General explanations.
 
-    - How is this notebook used with better data?
+    - [ ] How is this notebook used with better data?
 
-    - The place of this notebook in the big picture strategy for Virus-Econ model. (For the hackathon.)
+    - [ ] The place of this notebook in the big picture strategy for Virus-Econ model. (For the hackathon.)
 
-- Discussion of different experimental results. (Probably best to be in a separate notebook.)
+- [ ] Discussion of different experimental results. 
+
+   - (Probably best to be in a separate notebook.)
 
 ## Parameters
 
