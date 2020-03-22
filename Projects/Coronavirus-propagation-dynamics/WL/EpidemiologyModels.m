@@ -594,7 +594,8 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         aNewStocks = <|
           HP[t] -> "Hospitalized Population",
           DIP[t] -> "Deceased Infected Population",
-          HB[t] -> "Hospital Beds"|>;
+          HB[t] -> "Hospital Beds",
+          MHS[t] -> "Money for Hospital Services"|>;
 
         newModel["Stocks"] = Join[ newModel["Stocks"], aNewStocks ];
 
