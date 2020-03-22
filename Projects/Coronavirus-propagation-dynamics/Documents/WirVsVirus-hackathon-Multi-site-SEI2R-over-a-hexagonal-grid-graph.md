@@ -2,9 +2,9 @@
 
 **Version 0.7**
 
-Anton Antonov
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
+Anton Antonov   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)  
 March 2020
 
 ## Introduction
@@ -882,6 +882,12 @@ If[TrueQ[exportSolutionsQ],
 
 ### Project management files
 
-[AAo1] Anton Antonov, [WirVsVirus-Hackathon-work-plan.org](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-Hackathon-work-plan.org), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[AAo1] Anton Antonov, 
+[WirVsVirus-Hackathon-work-plan.org](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-Hackathon-work-plan.org), 
+(2020), 
+[SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
-[AAo2] Anton Antonov, WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map, (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[AAo2] Anton Antonov, 
+[WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map.pdf), 
+(2020), 
+[SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
