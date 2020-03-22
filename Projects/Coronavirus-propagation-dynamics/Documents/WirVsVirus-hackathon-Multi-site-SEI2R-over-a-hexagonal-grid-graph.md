@@ -200,17 +200,10 @@ renderSolutionAnimationQ = False;
 The epidemiological models framework used in this notebook is implemented with the packages [AAp1, AAp2, AA3]; the interactive plots functions are from the package [AAp4].
 
 ```mathematica
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Projects/Coronavirus-propagation-dynamics/WL/\
-EpidemiologyModels.m"]
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Projects/Coronavirus-propagation-dynamics/WL/\
-EpidemiologyModelModifications.m"]
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Projects/Coronavirus-propagation-dynamics/WL/\
-EpidemiologyModelingVisualizationFunctions.m"]
-Import["https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelingVisualizationFunctions.m"]
+Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m"]
 ```
 
 ## Ingest data
@@ -219,9 +212,7 @@ The data was previously ingested in a separate notebook. Here we ingest it direc
 
 ```mathematica
 dsCityRecords = 
-  ResourceFunction["ImportCSVToDataset"][
-   "https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Data/dfGermanyCityRecords.csv"];
+  ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfGermanyCityRecords.csv"];
 Dimensions[dsCityRecords]
 
 (*{12538, 6}*)
@@ -247,8 +238,7 @@ ResourceFunction["RecordsSummary"][dsCityRecords]
 We can see that $\approx 20$% of the cities correspond to $\approx 80$% of the population.
 
 ```mathematica
-ResourceFunction["ParetoPrinciplePlot"][
- Normal[dsCityRecords[All, "Population"]]]
+ResourceFunction["ParetoPrinciplePlot"][Normal[dsCityRecords[All, "Population"]]]
 ```
 
 ![1mw9hzr4pb6bi](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1mw9hzr4pb6bi.png)
@@ -328,17 +318,13 @@ If[TrueQ[renderGraphPlotsQ],
 Create a function to find the nearest large cities to a given position in the U.S.:
 
 ```mathematica
-nc = Nearest[Values[aCells] -> Keys[aCells], 
-  DistanceFunction -> (EuclideanDistance[#1["Center"], #2[
-       "Center"]] &)]
+nc = Nearest[Values[aCells] -> Keys[aCells], DistanceFunction -> (EuclideanDistance[#1["Center"], #2["Center"]] &)]
 ```
 
 ![14q4els5zuwd2](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/14q4els5zuwd2.png)
 
 ```mathematica
-lsDistances = 
-  Select[Flatten@
-    DistanceMatrix[Values[#["Center"] & /@ aCells]], # > 0 &];
+lsDistances = Select[Flatten@DistanceMatrix[Values[#["Center"] & /@ aCells]], # > 0 &];
 ResourceFunction["RecordsSummary"][lsDistances]
 ```
 
@@ -362,16 +348,14 @@ Re-assign ID’s:
 
 ```mathematica
 aCells = AssociationThread[Range[Length[aCells]], Values[aCells]];
-aCells = Association@
-   KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
+aCells = Association@KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
 ```
 
 ```mathematica
 grHexagonCellsNetwork = 
   NearestNeighborGraph[
    Keys[aCells], {7, Min[lsDistances]/Cos[\[Pi]/6.]}, 
-   DistanceFunction -> (EuclideanDistance[aCells[#1]["Center"], 
-       aCells[#2]["Center"]] &), 
+   DistanceFunction -> (EuclideanDistance[aCells[#1]["Center"], aCells[#2]["Center"]] &), 
    VertexCoordinates -> KeyValueMap[#1 -> #2["Center"] &, aCells], 
    VertexLabels -> "Name", ImageSize -> Large];
 ```
@@ -380,8 +364,7 @@ Verification plot:
 
 ```mathematica
 If[TrueQ[renderGraphPlotsQ],
- Show[Graphics[{FaceForm[GrayLevel[0.9]], EdgeForm[Red], 
-    Values[#["Cell"] & /@ aCells]}], grHexagonCellsNetwork, 
+ Show[Graphics[{FaceForm[GrayLevel[0.9]], EdgeForm[Red],  Values[#["Cell"] & /@ aCells]}], grHexagonCellsNetwork, 
   ImageSize -> Large]
  ]
 ```
