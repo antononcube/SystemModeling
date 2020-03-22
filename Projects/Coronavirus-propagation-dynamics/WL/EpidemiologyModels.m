@@ -630,7 +630,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           HP'[t] == Piecewise[{{Min[HB[t] - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < HB[t]}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
-          HB'[t] == nhbcr[ISSP, INSP],
+          HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
         };
@@ -669,7 +669,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                   deathRate[HP] -> 0.25 * deathRate[ISSP],
                   contactRate[HP] -> 0.1 * contactRate[ISSP],
                   nhbr[TP] -> 2.9 / 1000,
-                  nhbcr[ISSP, INSP] -> 0,
+                  nhbcr[ISSP, INSP] -> 1,
                   hscr[ISSP, INSP] -> 600|>
               ];
         ];
