@@ -393,11 +393,7 @@ Here is the corresponding, heuristic traveling patterns matrix:
 
 ```mathematica
 matHexagonCellsTraffic = 
- SparseArray[
-  Map[(List @@ #) -> 
-     trafficFraction*
-      Mean[Map[aCells[#]["Population"] &, List @@ #]] &, 
-   EdgeList[grHexagonCells]]]
+ SparseArray[ Map[(List @@ #) -> trafficFraction*Mean[Map[aCells[#]["Population"] &, List @@ #]] &, EdgeList[grHexagonCells]]]
 ```
 
 ![0xackkzn1ctje](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0xackkzn1ctje.png)
@@ -408,21 +404,16 @@ Here we make the traveling patterns matrix time-dependent in order to be able to
 If[quarantineStart < maxTime && quarantineTrafficFractionFactor != 1,
  matHexagonCellsTraffic = 
    matHexagonCellsTraffic*
-    Piecewise[{{1, 
-       t < quarantineStart}, {quarantineTrafficFractionFactor, 
-       quarantineStart <= t <= quarantineStart + quarantineDuration}},
-      1];
- ]
+    Piecewise[{{1, t < quarantineStart}, {quarantineTrafficFractionFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1];
+]
 ```
 
 Here we make a constant traveling matrix and summarize it:
 
 ```mathematica
 Block[{matTravel = Normal[matHexagonCellsTraffic] /. t -> 1.0},
- {ResourceFunction["RecordsSummary"][Flatten[matTravel], 
-    "All elements"][[1]], 
-  ResourceFunction["RecordsSummary"][
-    Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], 
+ {ResourceFunction["RecordsSummary"][Flatten[matTravel], "All elements"][[1]], 
+  ResourceFunction["RecordsSummary"][ Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], 
   MatrixPlot[matTravel, ImageSize -> Medium]}
  ]
 ```
@@ -439,8 +430,7 @@ Find bottom graph nodes (to be used in the initial conditions below):
 If[TrueQ[lsPatientZeroNodeInds === Automatic] || ! 
    VectorQ[lsPatientZeroNodeInds, IntegerQ],
  lsPatientZeroNodeInds = 
-  RandomSample[Keys[TakeSmallest[#["Center"][[2]] & /@ aCells, 8]], 
-   2]
+  RandomSample[Keys[TakeSmallest[#["Center"][[2]] & /@ aCells, 8]], 2]
  ]
 
 (*{65, 78}*)
@@ -463,15 +453,9 @@ Quarantine scenarios functions:
 model1 =
   SetRateRules[model1,
    <|\[Beta][ISSP] -> 
-     0.56*Piecewise[{{1, 
-         t < quarantineStart}, {quarantineContactRateFactor, 
-         quarantineStart <= t <= 
-          quarantineStart + quarantineDuration}}, 1],
+     0.56*Piecewise[{{1, t < quarantineStart}, {quarantineContactRateFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1],
     \[Beta][INSP] -> 
-     0.56*Piecewise[{{1, 
-         t < quarantineStart}, {quarantineContactRateFactor, 
-         quarantineStart <= t <= 
-          quarantineStart + quarantineDuration}}, 1]|>];
+     0.56*Piecewise[{{1, t < quarantineStart}, {quarantineContactRateFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1]|>];
 ```
 
 Number of beds per 1000 people:
@@ -489,8 +473,7 @@ Here we scale the SEI2R model with the grid graph constant traveling matrix:
 ```mathematica
 AbsoluteTiming[
  modelHexGermany = 
-   ToSiteCompartmentsModel[model1, matHexagonCellsTraffic, 
-    "MigratingPopulations" -> Automatic];
+   ToSiteCompartmentsModel[model1, matHexagonCellsTraffic, "MigratingPopulations" -> Automatic];
  ]
 
 (*{1.25226, Null}*)
@@ -555,8 +538,7 @@ AbsoluteTiming[
      NDSolve[
       Join[
        modelHexGermany["Equations"] //. modelHexGermany["RateRules"], 
-       modelHexGermany["InitialConditions"] //. 
-        modelHexGermany["RateRules"]],
+       modelHexGermany["InitialConditions"] //. modelHexGermany["RateRules"]],
       GetStockSymbols[modelHexGermany, __ ~~ __],
       {t, 0, maxTime}
       ];
@@ -715,8 +697,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ListLinePlot[#, PlotTheme -> "Detailed", PlotRange -> All] & /@ 
   RandomSample[
    EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
-    modelHexGermany, {"Infected Normally Symptomatic Population", 
-     "Infected Severely Symptomatic Population"}, 
+    modelHexGermany, {"Infected Normally Symptomatic Population", "Infected Severely Symptomatic Population"}, 
     aSolHexGermany, {1, maxTime, 4}], 12]
  ]
 ```
@@ -730,8 +711,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ListLinePlot[
   Total[Values[
     EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
-     modelHexGermany, {"Infected Normally Symptomatic Population", 
-      "Infected Severely Symptomatic Population"}, 
+     modelHexGermany, {"Infected Normally Symptomatic Population", "Infected Severely Symptomatic Population"}, 
      aSolHexGermany, {1, maxTime, 1}]]], PlotTheme -> "Detailed", 
   PlotRange -> All]
  ]
@@ -817,9 +797,7 @@ AbsoluteTiming[
  aSolData = 
    Association@
     Map[# -> 
-       Round[EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
-         modelHexGermany, #, aSolHexGermany, {1, maxTime, 1}], 
-        0.001] &, Union[Values[modelHexGermany["Stocks"]]]];
+       Round[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelHexGermany, #, aSolHexGermany, {1, maxTime, 1}], 0.001] &, Union[Values[modelHexGermany["Stocks"]]]];
  ]
 
 (*{1.08641, Null}*)
@@ -856,8 +834,7 @@ aParams = <|
    "quarantineStart" -> quarantineStart,
    "quarantineDuration" -> quarantineDuration,
    "quarantineContactRateFactor" -> quarantineContactRateFactor,
-   "quarantineTrafficFractionFactor" -> 
-    quarantineTrafficFractionFactor,
+   "quarantineTrafficFractionFactor" -> quarantineTrafficFractionFactor,
    "exportFileNamePrefix" -> exportFileNamePrefix
    |>;
 dsParams = List @@@ Normal[aParams];
@@ -866,13 +843,10 @@ dsParams = List @@@ Normal[aParams];
 ```mathematica
 If[TrueQ[exportSolutionsQ],
  Export[FileNameJoin[{NotebookDirectory[], 
-    StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, 
-     ".csv"]}], Prepend[dsParams, {"Parameter", "Value"}], "CSV"];
+    StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, ".csv"]}], Prepend[dsParams, {"Parameter", "Value"}], "CSV"];
  Export[FileNameJoin[{NotebookDirectory[], 
-    StringJoin[exportFileNamePrefix, "GSTEM-Solutions-", timeStamp, 
-     ".csv"]}], 
-  Prepend[dsSolData, {"Stock", "Node", "Time", "Value"}], "CSV"];
- ]
+    StringJoin[exportFileNamePrefix, "GSTEM-Solutions-", timeStamp, ".csv"]}], Prepend[dsSolData, {"Stock", "Node", "Time", "Value"}], "CSV"];
+]
 ```
 
 ## References
