@@ -669,7 +669,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                   deathRate[HP] -> 0.25 * deathRate[ISSP],
                   contactRate[HP] -> 0.1 * contactRate[ISSP],
                   nhbr[TP] -> 2.9 / 1000,
-                  nhbcr[ISSP, INSP] -> 1,
+                  nhbcr[ISSP, INSP] -> 0,
                   hscr[ISSP, INSP] -> 600|>
               ];
         ];
