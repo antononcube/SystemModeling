@@ -5,7 +5,7 @@
 Anton Antonov  
 [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)  
-March 2020  
+March 2020
 
 ## Introduction
 
@@ -66,7 +66,7 @@ Also, we can have “entry nodes” — international airports or train stations
 
 #### SEI2HR (includes hospitalization population and parameters)
 
-#### SEI2HR-**Econ** (economics extensions: medical supplies production and delivery...)
+#### SEI2HR-Econ (economics extensions: medical supplies production and delivery...)
 
 ### Future plans
 
@@ -113,7 +113,7 @@ In this section we specify the parameters for the computations.
 Cell radius for the hexagonal grid:
 
 ```mathematica
-cellRadius = Quantity[75, "Kilometers"];
+cellRadius = Quantity[70, "Kilometers"];
 ```
 
 Traffic factor for the traveling matrix:
@@ -212,7 +212,9 @@ The data was previously ingested in a separate notebook. Here we ingest it direc
 
 ```mathematica
 dsCityRecords = 
-  ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfGermanyCityRecords.csv"];
+  ResourceFunction["ImportCSVToDataset"][
+   "https://raw.githubusercontent.com/antononcube/SystemModeling/\
+master/Data/dfGermanyCityRecords.csv"];
 Dimensions[dsCityRecords]
 
 (*{12538, 6}*)
@@ -223,7 +225,7 @@ SeedRandom[232];
 RandomSample[dsCityRecords, 4]
 ```
 
-![0xpfw8w1yc61r](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0xpfw8w1yc61r.png)
+![19xhf8xldc3z4](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19xhf8xldc3z4.png)
 
 ## Simple data analysis
 
@@ -233,15 +235,16 @@ Summary of the data:
 ResourceFunction["RecordsSummary"][dsCityRecords]
 ```
 
-![0edws5iqoilre](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0edws5iqoilre.png)
+![19iq0xr8umcb8](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19iq0xr8umcb8.png)
 
 We can see that $\approx 20$% of the cities correspond to $\approx 80$% of the population.
 
 ```mathematica
-ResourceFunction["ParetoPrinciplePlot"][Normal[dsCityRecords[All, "Population"]]]
+ResourceFunction["ParetoPrinciplePlot"][
+ Normal[dsCityRecords[All, "Population"]]]
 ```
 
-![1mw9hzr4pb6bi](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1mw9hzr4pb6bi.png)
+![1xjx25i61r4ti](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1xjx25i61r4ti.png)
 
 ## Make the hexagon cells graph
 
@@ -262,7 +265,7 @@ grHist = GeoHistogram[aCoordsToPopulations, cellRadius,
 If[TrueQ[renderGraphPlotsQ], grHist]
 ```
 
-![0yq3hnb4b7pjx](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0yq3hnb4b7pjx.png)
+![1ow1gn08jgpw4](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1ow1gn08jgpw4.png)
 
 ### Extract histogram cells (bins)
 
@@ -271,7 +274,7 @@ Count[grHist[[1]],
  Tooltip[h_Polygon /; MatrixQ[h[[1]]], 
   pop_ /; NumberQ[pop] && pop > 3], \[Infinity]]
 
-(*133*)
+(*146*)
 ```
 
 ```mathematica
@@ -282,7 +285,7 @@ lsCells =
      "Population" -> pop|>, \[Infinity]];
 Length[lsCells]
 
-(*133*)
+(*146*)
 ```
 
 ```mathematica
@@ -311,24 +314,28 @@ If[TrueQ[renderGraphPlotsQ],
  ]
 ```
 
-![0vou8cc6ekx82](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0vou8cc6ekx82.png)
+![01semdts7njfo](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/01semdts7njfo.png)
 
 ### Compute Nearest Neighbors graph
 
 Create a function to find the nearest large cities to a given position in the U.S.:
 
 ```mathematica
-nc = Nearest[Values[aCells] -> Keys[aCells], DistanceFunction -> (EuclideanDistance[#1["Center"], #2["Center"]] &)]
+nc = Nearest[Values[aCells] -> Keys[aCells], 
+  DistanceFunction -> (EuclideanDistance[#1["Center"], #2[
+       "Center"]] &)]
 ```
 
-![14q4els5zuwd2](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/14q4els5zuwd2.png)
+![044jcq18b3plg](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/044jcq18b3plg.png)
 
 ```mathematica
-lsDistances = Select[Flatten@DistanceMatrix[Values[#["Center"] & /@ aCells]], # > 0 &];
+lsDistances = 
+  Select[Flatten@
+    DistanceMatrix[Values[#["Center"] & /@ aCells]], # > 0 &];
 ResourceFunction["RecordsSummary"][lsDistances]
 ```
 
-![04dbdi7xkst0c](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/04dbdi7xkst0c.png)
+![1auzw1ee76i3o](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1auzw1ee76i3o.png)
 
 Identify outlier(s) and drop them:
 
@@ -348,14 +355,16 @@ Re-assign ID’s:
 
 ```mathematica
 aCells = AssociationThread[Range[Length[aCells]], Values[aCells]];
-aCells = Association@KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
+aCells = Association@
+   KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
 ```
 
 ```mathematica
 grHexagonCellsNetwork = 
   NearestNeighborGraph[
    Keys[aCells], {7, Min[lsDistances]/Cos[\[Pi]/6.]}, 
-   DistanceFunction -> (EuclideanDistance[aCells[#1]["Center"], aCells[#2]["Center"]] &), 
+   DistanceFunction -> (EuclideanDistance[aCells[#1]["Center"], 
+       aCells[#2]["Center"]] &), 
    VertexCoordinates -> KeyValueMap[#1 -> #2["Center"] &, aCells], 
    VertexLabels -> "Name", ImageSize -> Large];
 ```
@@ -364,12 +373,13 @@ Verification plot:
 
 ```mathematica
 If[TrueQ[renderGraphPlotsQ],
- Show[Graphics[{FaceForm[GrayLevel[0.9]], EdgeForm[Red],  Values[#["Cell"] & /@ aCells]}], grHexagonCellsNetwork, 
+ Show[Graphics[{FaceForm[GrayLevel[0.9]], EdgeForm[Red], 
+    Values[#["Cell"] & /@ aCells]}], grHexagonCellsNetwork, 
   ImageSize -> Large]
  ]
 ```
 
-![196gh7308mnkw](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/196gh7308mnkw.png)
+![1j1orka2nwbbc](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1j1orka2nwbbc.png)
 
 ## Assign traffic
 
@@ -387,16 +397,20 @@ grHexagonCells =
 If[TrueQ[renderGraphPlotsQ], grHexagonCells]
 ```
 
-![06mxkletvfwyb](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/06mxkletvfwyb.png)
+![0h7dxtrikfnup](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0h7dxtrikfnup.png)
 
 Here is the corresponding, heuristic traveling patterns matrix:
 
 ```mathematica
 matHexagonCellsTraffic = 
- SparseArray[ Map[(List @@ #) -> trafficFraction*Mean[Map[aCells[#]["Population"] &, List @@ #]] &, EdgeList[grHexagonCells]]]
+ SparseArray[
+  Map[(List @@ #) -> 
+     trafficFraction*
+      Mean[Map[aCells[#]["Population"] &, List @@ #]] &, 
+   EdgeList[grHexagonCells]]]
 ```
 
-![0xackkzn1ctje](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0xackkzn1ctje.png)
+![19we436v76pai](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19we436v76pai.png)
 
 Here we make the traveling patterns matrix time-dependent in order to be able to simulate quarantine scenarios:
 
@@ -404,21 +418,26 @@ Here we make the traveling patterns matrix time-dependent in order to be able to
 If[quarantineStart < maxTime && quarantineTrafficFractionFactor != 1,
  matHexagonCellsTraffic = 
    matHexagonCellsTraffic*
-    Piecewise[{{1, t < quarantineStart}, {quarantineTrafficFractionFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1];
-]
+    Piecewise[{{1, 
+       t < quarantineStart}, {quarantineTrafficFractionFactor, 
+       quarantineStart <= t <= quarantineStart + quarantineDuration}},
+      1];
+ ]
 ```
 
 Here we make a constant traveling matrix and summarize it:
 
 ```mathematica
 Block[{matTravel = Normal[matHexagonCellsTraffic] /. t -> 1.0},
- {ResourceFunction["RecordsSummary"][Flatten[matTravel], "All elements"][[1]], 
-  ResourceFunction["RecordsSummary"][ Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], 
+ {ResourceFunction["RecordsSummary"][Flatten[matTravel], 
+    "All elements"][[1]], 
+  ResourceFunction["RecordsSummary"][
+    Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], 
   MatrixPlot[matTravel, ImageSize -> Medium]}
  ]
 ```
 
-![0lyaokwj92mx3](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0lyaokwj92mx3.png)
+![0fsu0ctrj7wd4](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0fsu0ctrj7wd4.png)
 
 ## Initial infected population
 
@@ -430,10 +449,11 @@ Find bottom graph nodes (to be used in the initial conditions below):
 If[TrueQ[lsPatientZeroNodeInds === Automatic] || ! 
    VectorQ[lsPatientZeroNodeInds, IntegerQ],
  lsPatientZeroNodeInds = 
-  RandomSample[Keys[TakeSmallest[#["Center"][[2]] & /@ aCells, 8]], 2]
+  RandomSample[Keys[TakeSmallest[#["Center"][[2]] & /@ aCells, 8]], 
+   2]
  ]
 
-(*{65, 78}*)
+(*{28, 43}*)
 ```
 
 ## Single-site “seed” model 
@@ -453,9 +473,15 @@ Quarantine scenarios functions:
 model1 =
   SetRateRules[model1,
    <|\[Beta][ISSP] -> 
-     0.56*Piecewise[{{1, t < quarantineStart}, {quarantineContactRateFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1],
+     0.56*Piecewise[{{1, 
+         t < quarantineStart}, {quarantineContactRateFactor, 
+         quarantineStart <= t <= 
+          quarantineStart + quarantineDuration}}, 1],
     \[Beta][INSP] -> 
-     0.56*Piecewise[{{1, t < quarantineStart}, {quarantineContactRateFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1]|>];
+     0.56*Piecewise[{{1, 
+         t < quarantineStart}, {quarantineContactRateFactor, 
+         quarantineStart <= t <= 
+          quarantineStart + quarantineDuration}}, 1]|>];
 ```
 
 Number of beds per 1000 people:
@@ -473,10 +499,11 @@ Here we scale the SEI2R model with the grid graph constant traveling matrix:
 ```mathematica
 AbsoluteTiming[
  modelHexGermany = 
-   ToSiteCompartmentsModel[model1, matHexagonCellsTraffic, "MigratingPopulations" -> Automatic];
+   ToSiteCompartmentsModel[model1, matHexagonCellsTraffic, 
+    "MigratingPopulations" -> Automatic];
  ]
 
-(*{1.25226, Null}*)
+(*{1.38025, Null}*)
 ```
 
 Change the initial conditions in the following way: 
@@ -527,7 +554,7 @@ AbsoluteTiming[
     ];
  ]
 
-(*{0.245838, Null}*)
+(*{0.280438, Null}*)
 ```
 
 Solve the system of ODE’s of the scaled model:
@@ -538,13 +565,14 @@ AbsoluteTiming[
      NDSolve[
       Join[
        modelHexGermany["Equations"] //. modelHexGermany["RateRules"], 
-       modelHexGermany["InitialConditions"] //. modelHexGermany["RateRules"]],
+       modelHexGermany["InitialConditions"] //. 
+        modelHexGermany["RateRules"]],
       GetStockSymbols[modelHexGermany, __ ~~ __],
       {t, 0, maxTime}
       ];
  ]
 
-(*{28.5311, Null}*)
+(*{29.2704, Null}*)
 ```
 
 Number of solutions:
@@ -552,7 +580,7 @@ Number of solutions:
 ```mathematica
 aSolHexGermany // Length
 
-(*1452*)
+(*1595*)
 ```
 
 Randomly sample the graph sites and display the solutions separately for each site in the sample:
@@ -573,7 +601,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![0vx7782caocz3](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0vx7782caocz3.png)
+![14dr29hxcqjhq](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/14dr29hxcqjhq.png)
 
 Display solutions of the first and last site:
 
@@ -593,7 +621,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![19u0a911l8upe](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19u0a911l8upe.png)
+![114k7ipl7w8e6](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/114k7ipl7w8e6.png)
 
 As expected from the graph structure, we can see in the first site plot that its total population is decreasing -- nobody is traveling to the first site. Similarly, we can see in the last site plot that its total population is increasing -- nobody leaves the last site.
 
@@ -686,7 +714,7 @@ ResourceFunction["RecordsSummary"][
  Thread -> True]
 ```
 
-![17w8kdvkcme40](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/17w8kdvkcme40.png)
+![02haalcvorfi4](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/02haalcvorfi4.png)
 
 ### Infected Population
 
@@ -697,12 +725,13 @@ If[TrueQ[renderSolultionsPlotsQ],
  ListLinePlot[#, PlotTheme -> "Detailed", PlotRange -> All] & /@ 
   RandomSample[
    EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
-    modelHexGermany, {"Infected Normally Symptomatic Population", "Infected Severely Symptomatic Population"}, 
+    modelHexGermany, {"Infected Normally Symptomatic Population", 
+     "Infected Severely Symptomatic Population"}, 
     aSolHexGermany, {1, maxTime, 4}], 12]
  ]
 ```
 
-![15e3jv8hgd7dl](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/15e3jv8hgd7dl.png)
+![0newysb1db5st](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0newysb1db5st.png)
 
 Total (of all sites) profile: 
 
@@ -711,13 +740,14 @@ If[TrueQ[renderSolultionsPlotsQ],
  ListLinePlot[
   Total[Values[
     EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
-     modelHexGermany, {"Infected Normally Symptomatic Population", "Infected Severely Symptomatic Population"}, 
+     modelHexGermany, {"Infected Normally Symptomatic Population", 
+      "Infected Severely Symptomatic Population"}, 
      aSolHexGermany, {1, maxTime, 1}]]], PlotTheme -> "Detailed", 
   PlotRange -> All]
  ]
 ```
 
-![028ra0l91cf8s](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/028ra0l91cf8s.png)
+![02y5goicmgcle](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/02y5goicmgcle.png)
 
 ### Recovered Population
 
@@ -734,7 +764,7 @@ If[TrueQ[renderSolultionsPlotsQ],
  ]
 ```
 
-![0n85uaj7rrjmz](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0n85uaj7rrjmz.png)
+![1clov0ewto134](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1clov0ewto134.png)
 
 ### Deceased Infected Population
 
@@ -753,13 +783,28 @@ If[TrueQ[renderSolultionsPlotsQ] &&
  ]
 ```
 
-![07zxtfzrckzsh](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/07zxtfzrckzsh.png)
+![1hb9vcaf6ppni](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1hb9vcaf6ppni.png)
 
 Ratio of Total of the Deceased Infected and Total Population:
 
-![1hov12cbfynej](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1hov12cbfynej.png)
+```mathematica
+If[TrueQ[renderSolultionsPlotsQ] && 
+  MemberQ[Union[Values[modelHexGermany["Stocks"]]], 
+   "Deceased Infected Population"],
+ ListLinePlot[
+  Total[Values[
+     EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
+      modelHexGermany, "Deceased Infected Population", 
+      aSolHexGermany, {1, maxTime, 1}]]]/
+   Total[Values[
+     EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
+      modelHexGermany, "Total Population", 
+      aSolHexGermany, {1, maxTime, 1}]]],
+  PlotTheme -> "Detailed", PlotRange -> All]
+ ]
+```
 
-![0lt2cktidnwk6](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/0lt2cktidnwk6.png)
+![1wn8op2bdrk0p](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/1wn8op2bdrk0p.png)
 
 ### Hospitalized Population
 
@@ -778,7 +823,7 @@ If[TrueQ[renderSolultionsPlotsQ] &&
  ]
 ```
 
-![03pfejxkf9ebu](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/03pfejxkf9ebu.png)
+![19m7nrzlhqbuj](./Diagrams/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph/19m7nrzlhqbuj.png)
 
 ## Export
 
@@ -797,27 +842,28 @@ AbsoluteTiming[
  aSolData = 
    Association@
     Map[# -> 
-       Round[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelHexGermany, #, aSolHexGermany, {1, maxTime, 1}], 0.001] &, Union[Values[modelHexGermany["Stocks"]]]];
+       Round[EvaluateSolutionsOverGraphVertexes[grHexagonCells, 
+         modelHexGermany, #, aSolHexGermany, {1, maxTime, 1}], 
+        0.001] &, Union[Values[modelHexGermany["Stocks"]]]];
  ]
 
-(*{1.08641, Null}*)
+(*{1.09704, Null}*)
 ```
 
 ```mathematica
 dsSolData = ConvertSolutions[aSolData, "Array"];
 RandomSample[dsSolData, 4]
 
-(*{{"Total Population", 72, 353, 
-  591838.}, {"Infected Severely Symptomatic Population", 97, 165, 
-  103258.}, {"Total Population", 72, 14, 
-  601322.}, {"Infected Normally Symptomatic Population", 61, 213, 
-  125450.}}*)
+(*{{"Total Population", 49, 117, 
+  392752.}, {"Money of Lost Productivity", 44, 3, 
+  58.177}, {"Deceased Infected Population", 115, 186, 
+  4704.57}, {"Recovered Population", 14, 11, 0.}}*)
 ```
 
 ```mathematica
 timeStamp = StringReplace[DateString["ISODateTime"], ":" -> "."]
 
-(*"2020-03-22T18.50.27"*)
+(*"2020-03-23T15.31.47"*)
 ```
 
 ```mathematica
@@ -834,7 +880,8 @@ aParams = <|
    "quarantineStart" -> quarantineStart,
    "quarantineDuration" -> quarantineDuration,
    "quarantineContactRateFactor" -> quarantineContactRateFactor,
-   "quarantineTrafficFractionFactor" -> quarantineTrafficFractionFactor,
+   "quarantineTrafficFractionFactor" -> 
+    quarantineTrafficFractionFactor,
    "exportFileNamePrefix" -> exportFileNamePrefix
    |>;
 dsParams = List @@@ Normal[aParams];
@@ -843,10 +890,13 @@ dsParams = List @@@ Normal[aParams];
 ```mathematica
 If[TrueQ[exportSolutionsQ],
  Export[FileNameJoin[{NotebookDirectory[], 
-    StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, ".csv"]}], Prepend[dsParams, {"Parameter", "Value"}], "CSV"];
+    StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, 
+     ".csv"]}], Prepend[dsParams, {"Parameter", "Value"}], "CSV"];
  Export[FileNameJoin[{NotebookDirectory[], 
-    StringJoin[exportFileNamePrefix, "GSTEM-Solutions-", timeStamp, ".csv"]}], Prepend[dsSolData, {"Stock", "Node", "Time", "Value"}], "CSV"];
-]
+    StringJoin[exportFileNamePrefix, "GSTEM-Solutions-", timeStamp, 
+     ".csv"]}], 
+  Prepend[dsSolData, {"Stock", "Node", "Time", "Value"}], "CSV"];
+ ]
 ```
 
 ## References
