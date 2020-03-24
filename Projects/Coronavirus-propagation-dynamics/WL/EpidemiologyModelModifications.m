@@ -105,6 +105,8 @@ conditions of the model m according to the rules ics.";
 SetRateRules::usage = "SetRateRules[ m_Association, rrs_Associations] changes the rate rules
 of the model m according to the rules rrs.";
 
+ToAssociation::usage = "ToAssociation[ eqs : { _Equal..} ] converts a list equations into an association.";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
@@ -130,11 +132,6 @@ AddModelIdentifier[ model_Association, id_ ] :=
 
 
 (***********************************************************)
-(* Add ID                                                  *)
-(***********************************************************)
-
-
-(***********************************************************)
 (* JoinModels                                              *)
 (***********************************************************)
 
@@ -153,6 +150,7 @@ JoinModels[___] :=
       Message[JoinModels::"nargs"];
       $Failed
     ];
+
 
 (***********************************************************)
 (* MakeCoreMultiCellModel                                  *)
@@ -473,6 +471,25 @@ SetRateRules[___] :=
       Message[SetRateRules::"nargs"];
       $Failed
     ];
+
+
+(***********************************************************)
+(* Add ID                                                  *)
+(***********************************************************)
+
+Clear[ToAssociation];
+
+ToAssociation::"nargs" = "The first argument is expected to be a list of equations.";
+
+(*ToAssociation[ eqs:{ _Equal ..} ] := Association@ToRules[And @@ eqs];*)
+ToAssociation[ eqs:{ _Equal ..} ] := Association[ Rule @@@ eqs ];
+
+ToAssociation[___] :=
+    Block[{},
+      Message[ToAssociation::"nargs"];
+      $Failed
+    ];
+
 
 End[]; (* `Private` *)
 
