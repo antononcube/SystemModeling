@@ -45,7 +45,8 @@
 BeginPackage["SystemDynamicsInteractiveInterfacesFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-ParametricSolutionsPlots::usage = "Uses Plot over an association of parametrized functions.";
+ParametricSolutionsPlots::usage = "ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumberQ, opts : OptionsPattern[]] \
+uses Plot over an association of parametrized functions aSol for the stocks aStocks with function parameters params for time range {0, tmax}.";
 
 Begin["`Private`"];
 
