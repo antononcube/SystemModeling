@@ -93,7 +93,7 @@ population symbols in the model m that correspond to the descriptions d. A synon
 GetRates::usage = "GetRates[m_Association, d:(_String | _StringExpression)] get rates in the model m \
 that correspond to the descriptions d.";
 
-GetRatesSymbols::usage = "GetRatesSymbols[m_Association, d:(_String | _StringExpression)] get rates symbols in
+GetRateSymbols::usage = "GetRateSymbols[m_Association, d:(_String | _StringExpression)] get rates symbols in
 the model m that correspond to the descriptions d.";
 
 ToSiteCompartmentsModel::usage = "ToSiteCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
@@ -260,26 +260,63 @@ AddTermsToEquations[___] := $Failed;
 
 
 (***********************************************************)
+(* Get model entity symbols                                *)
+(***********************************************************)
+
+Clear[RetrieveModelEntities];
+
+SyntaxInformation[RetrieveModelEntities] = { "ArgumentsPattern" -> { _, _, _., OptionsPattern[] } };
+
+Options[RetrieveModelEntities] = Options[StringMatchQ];
+
+RetrieveModelEntities[model_Association, key_, opts : OptionsPattern[]] :=
+    RetrieveModelEntities[model, key, __ ~~ __, opts];
+
+RetrieveModelEntities[model_Association, key_, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    Keys[Select[model[key], StringMatchQ[#, descr, opts]&]];
+
+
+Clear[RetrieveModelEntitySymbols];
+
+SyntaxInformation[RetrieveModelEntitySymbols] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+Options[RetrieveModelEntitySymbols] = Options[RetrieveModelEntities];
+
+RetrieveModelEntitySymbols[model_Association, key_, opts : OptionsPattern[] ] :=
+    RetrieveModelEntitySymbols[model, key, __ ~~ __, opts];
+
+RetrieveModelEntitySymbols[model_Association, key_, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    Join[
+      Cases[RetrieveModelEntities[model, key, descr, opts], p_Symbol[id_][_] :> p[id] ],
+      Cases[RetrieveModelEntities[model, key, descr, opts], p_Symbol[_] :> p ]
+    ];
+
+
+(***********************************************************)
 (* Get stocks symbols                                      *)
 (***********************************************************)
 
 Clear[GetStocks];
 
-GetStocks[model_Association] := GetStocks[model, __ ~~ __];
+SyntaxInformation[GetStocks] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetStocks[model_Association, descr : (_String | _StringExpression)] :=
-    Keys[Select[model["Stocks"], StringMatchQ[#, descr]&]];
+Options[GetStocks] = Options[StringMatchQ];
+
+GetStocks[ model_Association, opts : OptionsPattern[] ] := GetStocks[ model, __ ~~ __, opts ];
+
+GetStocks[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    RetrieveModelEntities[ model, "Stocks", descr, opts];
 
 
 Clear[GetStockSymbols];
 
-GetStockSymbols[model_Association] := GetStockSymbols[model, __ ~~ __];
+SyntaxInformation[GetStockSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetStockSymbols[model_Association, descr : (_String | _StringExpression)] :=
-    Join[
-      Cases[GetStocks[model, descr], p_Symbol[id_][_] :> p[id] ],
-      Cases[GetStocks[model, descr], p_Symbol[_] :> p ]
-    ];
+GetStockSymbols[ model_Association, opts : OptionsPattern[] ] := GetStockSymbols[ model, __ ~~ __, opts ];
+
+GetStockSymbols[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    RetrieveModelEntitySymbols[ model, "Stocks", descr, opts];
+
 
 Clear[GetPopulations, GetPopulationSymbols];
 
@@ -293,21 +330,24 @@ GetPopulationSymbols = GetStockSymbols;
 
 Clear[GetRates];
 
-GetRates[model_Association] := GetRates[model, __ ~~ __];
+SyntaxInformation[GetRates] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetRates[model_Association, descr : (_String | _StringExpression)] :=
-    Keys[Select[model["Rates"], StringMatchQ[#, descr]&]];
+Options[GetRates] = Options[StringMatchQ];
+
+GetRates[ model_Association, opts : OptionsPattern[] ] := GetRates[ model, __ ~~ __, opts ];
+
+GetRates[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    RetrieveModelEntities[ model, "Rates", descr, opts];
 
 
 Clear[GetRateSymbols];
 
-GetRateSymbols[model_Association] := GetRateSymbols[model, __ ~~ __];
+SyntaxInformation[GetRateSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetRateSymbols[model_Association, descr : (_String | _StringExpression)] :=
-    Join[
-      Cases[GetRates[model, descr], p_Symbol[id_][_] :> p[id] ],
-      Cases[GetRates[model, descr], p_Symbol[_] :> p ]
-    ];
+GetRateSymbols[ model_Association, opts : OptionsPattern[] ] := GetRateSymbols[ model, __ ~~ __, opts ];
+
+GetRateSymbols[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+    RetrieveModelEntitySymbols[ model, "Rates", descr, opts];
 
 
 (***********************************************************)
@@ -482,7 +522,7 @@ Clear[ToAssociation];
 ToAssociation::"nargs" = "The first argument is expected to be a list of equations.";
 
 (*ToAssociation[ eqs:{ _Equal ..} ] := Association@ToRules[And @@ eqs];*)
-ToAssociation[ eqs:{ _Equal ..} ] := Association[ Rule @@@ eqs ];
+ToAssociation[ eqs : { _Equal ..} ] := Association[ Rule @@@ eqs ];
 
 ToAssociation[___] :=
     Block[{},
