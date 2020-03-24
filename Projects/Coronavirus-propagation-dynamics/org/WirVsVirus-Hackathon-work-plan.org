@@ -1,4 +1,4 @@
-#+TITLE: WirVsVirus Hackaton work plan
+#+TITLE: WirVsVirus Hackathon work plan
 #+AUTHOR: Anton Antonov
 #+EMAIL: antononcube@gmail.com
 #+TODO: TODO ONGOING MAYBE Anton Balint Diego | DONE CANCELED
@@ -7,71 +7,70 @@
 * Introduction
 - This org-mode file has a work plan for the [[https://wirvsvirushackathon.org][WirVsVirus Hackathon]] :
   https://wirvsvirushackathon.org .
-* TODO Registration [50%] [1/2]
-- [-] Names and emails.
-  - [ ] Anton
+* DONE Registration [100%] [2/2]
+  - [X] Anton
   - [X] Balint
-  - [ ] Diego
-- [X] Idea description entering 
-  1) Title:
-     - "Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany"
-  2) What is the challenge or need?
-     - How can we predict the propagation of COVID-19 in Germany and
-       the effects of different related (governmental) policies?
-     - We want to estimate (i) the infected / deceased /
-       recovered people and (ii) the economy effects of different quarantine programs.
-  3) Who it helps?
-     - Decision makers at government level.
-     - Decision makers at healthcare provider (hospitals) level.
-     - Corporate decision makers.
-  4) Choice of topics
-     - [ ] Kommunikation & Informationsvermittlung an Bürger*innen
-     - [X] Medizinische Versorgung
-     - [ ] Schutz von Risikogruppen
-     - [X] Prävention von Verbreitung des COVID-19
-     - [X] Deutsche Wirtschaft: Krisenmanagement für Unternehmen & Selbstständige
-     - [ ] Solidarität und Zusammenhalt
-     - [ ] Leben in (Selbst-)Quarantäne
-     - [ ] Andere
-  5) Who is effected by it?
-     - General population.
-     - Medical personnel.
-     - Decision makers at state or municipality levels.
-  6) How would you formulate challenge?
-     - Make a prototype of a Geo-spatial-temporal model for the propagation of
-       infectious disease over Germany.
-     - The model should have features that allow the evaluation of effects on both human population and economy.
-     - Make simulations of different COVID-19 scenarios.
-  7) Is there already some concepts / prototypes developed?
-     - There are multiple implementations and documentation for the
-       approach we want to take and develop. See the GitHub
-       repository:
-       - [[https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics][Coronavirus-propagation-dynamics]].
-  8) What is your role?
-     - Hacker / developer.
-  9) Who are the most important stakeholders?
-     - Governmental decision makers.
-     - Healthcare providers managers.
-     - Commercial companies decision makers.
-  10) Names and email
-* TODO Conceptual modeling  [0%] [0/3]
-** Anton SEI2HR [60%] [3/5]
+  - [C] Diego
+* DONE Idea description entering
+ 1) Title:
+	- "Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany"
+ 2) What is the challenge or need?
+	- How can we predict the propagation of COVID-19 in Germany and
+	  the effects of different related (governmental) policies?
+	- We want to estimate (i) the infected / deceased /
+	  recovered people and (ii) the economy effects of different quarantine programs.
+ 3) Who it helps?
+	- Decision makers at government level.
+	- Decision makers at healthcare provider (hospitals) level.
+	- Corporate decision makers.
+ 4) Choice of topics
+	- [ ] Kommunikation & Informationsvermittlung an Bürger*innen
+	- [X] Medizinische Versorgung
+	- [ ] Schutz von Risikogruppen
+	- [X] Prävention von Verbreitung des COVID-19
+	- [X] Deutsche Wirtschaft: Krisenmanagement für Unternehmen & Selbstständige
+	- [ ] Solidarität und Zusammenhalt
+	- [ ] Leben in (Selbst-)Quarantäne
+	- [ ] Andere
+ 5) Who is effected by it?
+	- General population.
+	- Medical personnel.
+	- Decision makers at state or municipality levels.
+ 6) How would you formulate challenge?
+	- Make a prototype of a Geo-spatial-temporal model for the propagation of
+	  infectious disease over Germany.
+	- The model should have features that allow the evaluation of effects on both human population and economy.
+	- Make simulations of different COVID-19 scenarios.
+ 7) Is there already some concepts / prototypes developed?
+	- There are multiple implementations and documentation for the
+	  approach we want to take and develop. See the GitHub
+	  repository:
+	  - [[https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics][Coronavirus-propagation-dynamics]].
+ 8) What is your role?
+	- Hacker / developer.
+ 9) Who are the most important stakeholders?
+	- Governmental decision makers.
+	- Healthcare providers managers.
+	- Commercial companies decision makers.
+ 10) Names and email
+* TODO Conceptual modeling  [33%] [1/3]
+** TODO SEI2HR [60%] [3/5]
 - [X] Develop
 - [X] Implement in GitHub
 - [ ] Unit tests
 - [ ] Documentation
 - [X] Presentation
   - Wolfram-U session / movie.
-** Anton Economics extension of SEI2HR [20%] [2/5]
+** Anton Economics extension of SEI2HR [60%] [3/5]
 - [X] Develop
-- [ ] Implement in GitHub
+- [X] Implement in GitHub
 - [ ] Unit tests
 - [ ] Documentation
 - [X] Presentation
   - Wolfram-U session / movie.
-** MAYBE Age and demographic core models
+** CANCELED Age and demographic core models
 - This is a must model, but not likely to be done during the hackathon. 
-* TODO Application of the "COVID-19 propagation over USA" model to Germany [0%] [0/3]
+* DONE Application of the "COVID-19 propagation over USA" model to Germany [0%] [0/3]
 ** Description
 - Basically we want to replicate Diego's work over Germany.
   - Here is a link to the related WL-notebook:
@@ -79,11 +78,11 @@
 ** TODO Data gathering [0%] [0/2]
 *** Balint Municipalities
 *** Diego Road network and throughput
-** TODO Patient-0 propagation simulations
-- [ ] Initial Geo-spatial-temporal simulation of COVID-19 propagation over Germany.
-- [ ] Over German states and/or municipalities.
-** TODO Scenario simulations [%] [.]
-*** TODO Quarantines 
+** Anton Patient-0 propagation simulations
+- [X] Initial Geo-spatial-temporal simulation of COVID-19 propagation over Germany.
+- [X] Over German states and/or municipalities.
+** TODO Scenario simulations [25%] [.]
+*** DONE Quarantines 
 - Basic quarantine scenarios.
   - Different start point and duration.
 - Comprehensive quarantine scenarios.
@@ -92,10 +91,11 @@
 *** TODO Isolation of age groups
 *** TODO Borders and travel restrictions
 *** TODO State-specific quarantines
-* TODO Calibration [0%] [0/2]
+* CANCELED Calibration [0%] [0/2]
 ** Balint Single-site model calibrations
 ** Diego Multi-site model calibratrions
-* TODO Economic extension(s) [0%] [0/2]
+* TODO Economic extension(s) [33%] [1/3]
+** DONE Using SEI2RH-Econ 
 ** TODO Census data
 - Needed to evaluate the costs of people not working.
 - Different age groups.
@@ -104,6 +104,6 @@
 - What limited resources should we consider?
 - So far the models have only hospital beds and medical supplies as
   limited resources.
-* MAYBE Comprehensive economic model
+* CANCELED Comprehensive economic model
 ** MAYBE Apply the economic model with the multi-site model
 ** MAYBE Scenario play-outs
