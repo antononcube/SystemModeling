@@ -1,0 +1,120 @@
+---
+title: "GSTEM Solutions Visualizations"
+author: Anton Antonov
+date: 2020-03-22
+output: html_notebook
+---
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+# Read data
+
+```{r}
+dataDirName <- "~/MathFiles/WirVsVirus Hackathon"
+```
+
+## Parameters
+
+```{r}
+lsFileNames <- list.files( path = dataDirName, pattern = "WirVsVirus-GSTEM-Parameters-.*", full.names = FALSE )
+lsFullFileNames <- list.files( path = dataDirName, pattern = "WirVsVirus-GSTEM-Parameters-.*", full.names = TRUE )
+```
+
+```{r}
+dfParameters <- 
+  purrr::map2_df( lsFileNames, lsFullFileNames, function(x,y) {
+    res <- read.csv( file = y, stringsAsFactors = FALSE ) 
+    cbind( FileName = x, res, stringsAsFactors = FALSE )
+  })
+```
+
+
+```{r}
+summary(as.data.frame(unclass(dfParameters)), maxsum = 12)
+```
+## Solutions
+
+```{r}
+lsFileNames <- list.files( path = dataDirName, pattern = "WirVsVirus-GSTEM-Solutions-.*", full.names = FALSE )
+lsFullFileNames <- list.files( path = dataDirName, pattern = "WirVsVirus-GSTEM-Solutions-.*", full.names = TRUE )
+```
+
+```{r}
+lsFileNames
+```
+
+```{r}
+dfSolutions <- 
+  purrr::map2_df( lsFileNames, lsFullFileNames, function(x,y) {
+    res <- read.csv( file = y, stringsAsFactors = FALSE ) 
+    cbind( FileName = x, res, stringsAsFactors = FALSE )
+  })
+```
+
+
+```{r}
+summary(as.data.frame(unclass(dfSolutions)), maxsum = 12)
+```
+
+```{r}
+View(dfSolutions)
+```
+
+# Plots
+
+```{r}
+dfQuery <- 
+  dfSolutions %>% 
+  dplyr::group_by( FileName, Stock, Time ) %>% 
+  dplyr::summarise( TotalValue = sum(Value) ) %>% 
+  dplyr::arrange( FileName, Stock, Time )
+dfQuery
+```
+
+### Together
+
+```{r, fig.width=8}
+ggplot(dfQuery %>% dplyr::filter( !grepl( "Money", Stock ) ) ) +
+  geom_line( aes(x = Time, y = TotalValue, color = Stock ) ) +
+  facet_wrap( ~FileName, ncol = 2, scales = "free" )
+```
+
+```{r, eval=FALSE, fig.width=8}
+ggplot(dfQuery %>% dplyr::filter( !grepl( "Money", Stock ) ) ) +
+  geom_line( aes(x = Time, y = TotalValue, color = FileName ) ) +
+  facet_wrap( ~Stock, ncol = 2, scales = "free" )
+```
+
+### Separated 
+
+```{r, fig.width=8}
+ggplot(dfQuery %>% dplyr::filter( grepl( lsFileNames[[length(lsFileNames)]], FileName ) ) ) +
+  geom_line( aes(x = Time, y = TotalValue, color = Stock ) ) +
+  facet_wrap( ~ FileName + Stock, ncol = 2, scales = "free" )
+```
+
+## Differences
+
+```{r}
+fileName1 <- lsFileNames[[length(lsFileNames)-1]]
+fileName2 <- lsFileNames[[length(lsFileNames)]]
+dfQuery2 <- 
+  dfQuery %>% 
+  dplyr::filter( FileName == fileName1 ) %>% 
+  dplyr::inner_join( dfQuery %>% dplyr::filter( FileName == fileName2 ), by = c("Stock", "Time") )%>% 
+  dplyr::mutate( TotalValue = TotalValue.x - TotalValue.y ) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select( Stock, Time, TotalValue )
+dfQuery2
+```
+
+```{r, fig.width=8}
+ggplot(dfQuery2 %>% dplyr::filter( !grepl( "Money", Stock ) ) ) +
+  geom_line( aes(x = Time, y = TotalValue, color = Stock ) ) +
+  facet_wrap( ~Stock, ncol = 2, scales = "free" )
+```
+
