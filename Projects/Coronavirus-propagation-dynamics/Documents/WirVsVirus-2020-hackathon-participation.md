@@ -7,9 +7,13 @@ March 2020
 
 ## Introduction
 
-Last weekend -- 2020-03-20 ÷ 2020-03-22 -- I participated in [the (Germany-centric) hackathon WirVsVirus](https://wirvsvirushackathon.org). (I friend of mine who lives in Germany asked me to team up and sign up.)
+Last weekend -- 2020-03-20 ÷ 2020-03-22 -- I participated in [the (Germany-centric) hackathon WirVsVirus](https://wirvsvirushackathon.org). 
+(I friend of mine who lives in Germany asked me to team up and sign up. Participated together with Balint Badonfai and Diego Zviovich.)
 
-[Our idea proposal](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-Hackathon-work-plan.org) was accepted, [listed in the dedicated overview table (see item 806)](https://airtable.com/shrs71ccUVKyvLlUA/tbl6Br4W3IyPGk1jt/viw7AlEju6qFtXJqL?blocks=hide). The title of our hackathon project is:
+[Our idea proposal](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-Hackathon-work-plan.org) 
+was accepted, 
+[listed in the dedicated overview table (see item 806)](https://airtable.com/shrs71ccUVKyvLlUA/tbl6Br4W3IyPGk1jt/viw7AlEju6qFtXJqL?blocks=hide). 
+The title of our hackathon project is:
 
 **“Geo-spatial-temporal Economic Model for COVID-19 Propagation and Management in Germany”**
 
@@ -22,7 +26,8 @@ wirtschaftsmodell-fur-covid-19"]
 
 ![13dzfagts8105](./Diagrams/WirVsVirus-2020-hackathon-participation/13dzfagts8105.png)
 
-Multiple people helped with the discussion of ideas, directions where to find data, with actual data gathering, and related documented analysis. Of course, just discussing the proposed solutions was already a great help!
+Multiple people helped with the discussion of ideas, directions where to find data, with actual data gathering, and related documented analysis. 
+Of course, just discussing the proposed solutions was already a great help!
 
 ## What was accomplished
 
@@ -68,7 +73,8 @@ We considered a fair amount of other data. But because of the time limitations o
 
 ### Single-site models
 
-During the development phase I used the model SEI2R, but since we wanted to have a “geo-spatial-temporal epidemiological economics model” I productized the implementation of SEI2HR-Econ, [AAp1].
+During the development phase I used the model SEI2R, but since we wanted to have a 
+“geo-spatial-temporal epidemiological economics model” I productized the implementation of SEI2HR-Econ, [AAp1].
 
 Here are the stocks, rates, and equations of SEI2HR-Econ:
 
@@ -80,7 +86,9 @@ Magnify[ModelGridTableForm[SEI2HREconModel[t]], 0.85]
 
 ### Multi-site SEI2R (SEI2HR-Econ) over a hexagonal grid graph
 
-I managed to follow through with a large part of [the work plan for the hackathon](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map.pdf) and make multi-site scaled model that “follows the money”, [[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. Here is a diagram that shows the travelling patterns graph and solutions at one of the nodes:
+I managed to follow through with a large part of 
+[the work plan for the hackathon](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/org/WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map.pdf) 
+and make multi-site scaled model that “follows the money”, [[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. Here is a diagram that shows the travelling patterns graph and solutions at one of the nodes:
 
 ![1vnygv6t7chgg](./Diagrams/WirVsVirus-2020-hackathon-participation/1vnygv6t7chgg.png)
 
@@ -88,9 +96,12 @@ Here is an interactive interface for studying and investigating the solution res
 
 ![1pgmngb4uyuzb](./Diagrams/WirVsVirus-2020-hackathon-participation/1pgmngb4uyuzb.png)
 
-For more details see the notebook [[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. Different parameters can be set in the “Parameters” section. Especially of interest are the quarantine related parameters: start, duration, effect on contact rates and traffic patterns.
+For more details see the notebook 
+[[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. 
+Different parameters can be set in the “Parameters” section. Especially of interest are the quarantine related parameters: start, duration, effect on contact rates and traffic patterns.
 
-I also put simulations results code and programmed visualization routines in R, [AA2]. (In order other members of team to be able to explore the results.)
+I also put simulations results code and programmed visualization routines in R, [AA2]. 
+(In order other members of team to be able to explore the results.)
 
 ## References
 
