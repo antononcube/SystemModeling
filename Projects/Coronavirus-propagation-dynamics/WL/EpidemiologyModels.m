@@ -553,7 +553,7 @@ Options[SEI2HRModel] = Options[SEI2RModel];
 SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
-      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, pos},
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HRModel, "InitialConditions" ] ];
 
@@ -622,8 +622,6 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         newBySeverelyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * Max[ISSP[t] - HP[t], 0] + contactRate[HP] / TP[t] * SP[t] * HP[t];
         newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
         newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
-
-        totalNumberOfBedsTerm = nhbr[TP];
 
         lsNewEquations = {
           If[ birthsTermQ,
@@ -711,7 +709,7 @@ Options[SEI2HREconModel] = Options[SEI2RModel];
 SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
-      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, usableHospitalBeds,
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, usableHospitalBeds,
       eqMSD0, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
@@ -752,14 +750,10 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         DIP = ToExpression[ context <> "DIP"],
         HB = ToExpression[ context <> "HB"],
         MSD = ToExpression[ context <> "MSD"],
-        HBD = ToExpression[ context <> "HBD"],
-        H = ToExpression[ context <> "H"],
         MMSP = ToExpression[ context <> "MMSP"],
         MHS = ToExpression[ context <> "MHS"],
         MS = ToExpression[ context <> "MS"],
         HMS = ToExpression[ context <> "HMS"],
-        bkh = ToExpression[ context <> "bkh"],
-        nahb = ToExpression[ context <> "nahb"],
         nhbr = ToExpression[ context <> "nhbr"],
         hscr = ToExpression[ context <> "hscr"],
         nhbcr = ToExpression[ context <> "nhbcr"],
@@ -788,13 +782,11 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         (* New Rates *)
         aNewRates = <|
           deathRate[HP] -> "Hospitalized Population death rate",
-          msdr[MMSP] -> "Medical supplies delivery rate (delay factor)",
-          bkh[H] -> "Bed capacity per hospital",
           contactRate[HP] -> "Contact rate for the hospitalized population",
-          nahb -> "Number of available hospital beds",
-          nhbr[ISSP, INSP] -> "New hospital beds rate",
+          nhbr[TP] -> "Number of hospital beds rate (number of beds per person)",
           hscr[ISSP, INSP] -> "Hospital services cost rate (per bed per day)",
           nhbcr[ISSP, INSP] -> "Number of hospital beds change rate (per day)",
+          contactRate[HP] -> "Contact rate for the hospitalized population",
           hpmscr[ISSP, INSP] -> "Hospitalized population medical supplies consumption rate (per day)",
           upmscr[ISSP, INSP] -> "Un-hospitalized population medical supplies consumption rate (units per day)",
           mspr[ISSP, INSP] -> "Medical supplies production rate (units per pay)",
@@ -816,8 +808,6 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
         newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
 
-        totalNumberOfBedsTerm = nhbr[ISSP, INSP] * nahb;
-
         usableHospitalBeds = Min[HB[t], HMS[t] / mscr[ISSP]];
 
         lsNewEquations = {
@@ -832,7 +822,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           HP'[t] == Piecewise[{{Min[usableHospitalBeds - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < usableHospitalBeds}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
-          HB'[t] == nhbcr[ISSP, INSP],
+          HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]),
           MS'[t] == mspr[HB] * ((capacity[MS] - MS[t]) / capacity[MS]) - Min[MS[t], (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t])],
           MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
