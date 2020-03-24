@@ -78,7 +78,10 @@ using the time variable var with symbols in the context con.";
 SEI2RModel::usage = "SEI2RModel[var, con] generates SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
-SEI2HRModel::usage = "SEI2HRModel[var, con] generates economics SEI2R model stocks, rates, and equations \
+SEI2HRModel::usage = "SEI2HRModel[var, con] generates hospitalization SEI2R model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
+SEI2HREconModel::usage = "SEI2HREconModel[var, con] generates economics SEI2HR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
 ModelGridTableForm::usage = "Displays the model legibly.";
@@ -541,7 +544,11 @@ SyntaxInformation[SEI2HRModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern
 SEI2HRModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
 The second optional argument is expected to be context string.";
 
-Options[SEI2HRModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
+SEI2HRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+
+Options[SEI2HRModel] = Options[SEI2RModel];
 
 SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
@@ -696,12 +703,16 @@ SyntaxInformation[SEI2HREconModel] = { "ArgumentsPattern" -> { _, _., OptionsPat
 SEI2HREconModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
 The second optional argument is expected to be context string.";
 
-Options[SEI2HREconModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
+SEI2HREconModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+Options[SEI2HREconModel] = Options[SEI2RModel];
 
 SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
-      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, usableHospitalBeds, pos},
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, usableHospitalBeds,
+      eqMSD0, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
 
@@ -766,7 +777,6 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           HP[t] -> "Hospitalized Population",
           DIP[t] -> "Deceased Infected Population",
           MSD[t] -> "Medical Supplies Demand",
-          HBD[t] -> "Hospital Beds Demand",
           HB[t] -> "Hospital Beds",
           MMSP[t] -> "Money for Medical Supplies Production",
           MHS[t] -> "Money for Hospital Services",
@@ -844,6 +854,11 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
 
         (* New Initial conditions *)
         If[ KeyExistsQ[model, "InitialConditions"],
+
+          eqMSD0 = Cases[newModel["Equations"], MSD[t] == _ ][[1]];
+          eqMSD0 = eqMSD0 /. t -> 0 ;
+          eqMSD0 = eqMSD0[[1]] == ( eqMSD0[[2]] /. Association[ Rule @@@ newModel["InitialConditions"] ] );
+
           newModel["InitialConditions"] =
               Join[
                 newModel["InitialConditions"],
@@ -851,7 +866,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
                   HP[0] == 0,
                   DIP[0] == 0,
                   HB[0] == nhbr[TP] * (TP[0] /. newModel["RateRules"]),
-                  MSD[0] == 0,
+                  eqMSD0, (* MSD[0] == 0, *)
                   MHS[0] == 0,
                   MMSP[0] == 0,
                   HMS[0] == (capacity[HMS] //. Prepend[ newModel["RateRules"], HB[0] -> (nhbr[TP] * TP[0] /. newModel["RateRules"]) ] ),
