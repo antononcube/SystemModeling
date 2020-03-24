@@ -1,4 +1,4 @@
-# WirVsVirus hackathon participation
+# WirVsVirus 2020 hackathon participation
 
 Anton Antonov  
 [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
