@@ -265,10 +265,17 @@ AddTermsToEquations[___] := $Failed;
 (* Get stocks symbols                                      *)
 (***********************************************************)
 
-Clear[GetStocks, GetStockSymbols];
+Clear[GetStocks];
+
+GetStocks[model_Association] := GetStocks[model, __ ~~ __];
 
 GetStocks[model_Association, descr : (_String | _StringExpression)] :=
     Keys[Select[model["Stocks"], StringMatchQ[#, descr]&]];
+
+
+Clear[GetStockSymbols];
+
+GetStockSymbols[model_Association] := GetStockSymbols[model, __ ~~ __];
 
 GetStockSymbols[model_Association, descr : (_String | _StringExpression)] :=
     Join[
@@ -286,10 +293,17 @@ GetPopulationSymbols = GetStockSymbols;
 (* Get rates symbols                                       *)
 (***********************************************************)
 
-Clear[GetRates, GetRateSymbols];
+Clear[GetRates];
+
+GetRates[model_Association] := GetRates[model, __ ~~ __];
 
 GetRates[model_Association, descr : (_String | _StringExpression)] :=
     Keys[Select[model["Rates"], StringMatchQ[#, descr]&]];
+
+
+Clear[GetRateSymbols];
+
+GetRateSymbols[model_Association] := GetRateSymbols[model, __ ~~ __];
 
 GetRateSymbols[model_Association, descr : (_String | _StringExpression)] :=
     Join[
