@@ -67,12 +67,52 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 BeginPackage["EpidemiologyModelingSimulationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
+ModelNDSolveEquations::usage = "ModelNDSolveEquations[model] combines the model equations and initial conditions
+into a list equations to be give to NDSolve.";
+
 ModelNDSolve::usage = "ModelNDSolve[model, {t, maxTime}, opts] simulates the model from 0 to maxTime using NDSolve";
 
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
 Needs["EpidemiologyModelModifications`"];
+
+
+(***********************************************************)
+(* ModelNDSolveEquations                                   *)
+(***********************************************************)
+
+Clear[ModelNDSolveEquations];
+
+SyntaxInformation[ModelNDSolveEquations] = { "ArgumentsPattern" -> { _ } };
+
+ModelNDSolveEquations::"nargs" = "The first argument is expected to be a model.";
+
+ModelNDSolveEquations[ model_ ] :=
+    Block[{lsActualEquations, lsInitialConditions},
+
+      lsInitialConditions =
+          Thread[
+            Equal[
+              model["InitialConditions"][[All, 1]],
+              model["InitialConditions"][[All, 2]] //. Join[ToAssociation[model["InitialConditions"]], model["RateRules"]]
+            ]
+          ];
+
+      lsActualEquations =
+          Join[
+            model["Equations"] //. Join[Association[ Rule @@@ model["InitialConditions"] ], model["RateRules"]],
+            lsInitialConditions
+          ];
+
+      lsActualEquations
+    ];
+
+ModelNDSolveEquations[___] :=
+    Block[{},
+      Message[ModelNDSolveEquations::"nargs"];
+      $Failed
+    ];
 
 
 (***********************************************************)
@@ -93,11 +133,7 @@ ModelNDSolve[ model_?EpidemiologyFullModelQ, {var_, maxTime_?NumericQ}, opts : O
 ModelNDSolve[ model_?EpidemiologyFullModelQ, {var_, 0, maxTime_?NumericQ}, opts : OptionsPattern[] ] :=
     Block[{lsActualEquations},
 
-      lsActualEquations =
-          Join[
-            model["Equations"] //. Join[Association[ Rule @@@ model["InitialConditions"] ], model["RateRules"]],
-            model["InitialConditions"] //. model["RateRules"]
-          ];
+      lsActualEquations = ModelNDSolveEquations[ model ];
 
       NDSolve[lsActualEquations, GetStockSymbols[model], {var, 0, maxTime}, FilterRules[{opts}, NDSolve] ]
 
