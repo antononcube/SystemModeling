@@ -686,6 +686,217 @@ SEI2HRModel[___] :=
 
 
 (***********************************************************)
+(* SEI2HREconModel                                          *)
+(***********************************************************)
+
+Clear[SEI2HREconModel];
+
+SyntaxInformation[SEI2HREconModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SEI2HREconModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+Options[SEI2HREconModel] = Join[ { "PopulationToHospitalize" -> Automatic }, Options[SEI2RModel] ];
+
+SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
+      aNewStocks, aNewRates, lsNewEquations, model, newModel,
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, totalNumberOfBedsTerm, usableHospitalBeds, pos},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SEI2HREconModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEI2HREconModel, "BirthsTerm"] ];
+
+      tpRepr = OptionValue[ SEI2HREconModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SEI2HREconModel::"ntpval"];
+        $Failed
+      ];
+
+      model = SEI2RModel[ t, context, FilterRules[ {opts}, Options[SEI2RModel] ] ];
+
+      newModel = model;
+
+      With[{
+        (* standard *)
+        TP = ToExpression[ context <> "TP"],
+        SP = ToExpression[ context <> "SP"],
+        EP = ToExpression[ context <> "EP"],
+        INSP = ToExpression[ context <> "INSP"],
+        ISSP = ToExpression[ context <> "ISSP"],
+        RP = ToExpression[ context <> "RP"],
+        MLP = ToExpression[ context <> "MLP"],
+        deathRate = ToExpression[ context <> "\[Mu]"],
+        sspf = ToExpression[ context <> "sspf"],
+        contactRate = ToExpression[ context <> "\[Beta]"],
+        aip = ToExpression[ context <> "aip"],
+        aincp = ToExpression[ context <> "aincp"],
+        lpcr = ToExpression[ context <> "lpcr"],
+        capacity = ToExpression[ context <> "\[Kappa]"],
+        (* new *)
+        HP = ToExpression[ context <> "HP"],
+        DIP = ToExpression[ context <> "DIP"],
+        HB = ToExpression[ context <> "HB"],
+        MSD = ToExpression[ context <> "MSD"],
+        HBD = ToExpression[ context <> "HBD"],
+        H = ToExpression[ context <> "H"],
+        MMSP = ToExpression[ context <> "MMSP"],
+        MHS = ToExpression[ context <> "MHS"],
+        MS = ToExpression[ context <> "MS"],
+        HMS = ToExpression[ context <> "HMS"],
+        bkh = ToExpression[ context <> "bkh"],
+        nahb = ToExpression[ context <> "nahb"],
+        nhbr = ToExpression[ context <> "nhbr"],
+        hscr = ToExpression[ context <> "hscr"],
+        nhbcr = ToExpression[ context <> "nhbcr"],
+        hpmscr = ToExpression[ context <> "hpmscr"],
+        upmscr = ToExpression[ context <> "upmscr"],
+        mspr = ToExpression[ context <> "mspr"],
+        mspcr = ToExpression[ context <> "mspcr"],
+        mscr = ToExpression[ context <> "mscr"],
+        msdr = ToExpression[ context <> "msdr"],
+        msdp = ToExpression[ context <> "msdp"]
+      },
+
+        (* Stocks *)
+        aNewStocks = <|
+          HP[t] -> "Hospitalized Population",
+          DIP[t] -> "Deceased Infected Population",
+          MSD[t] -> "Medical Supplies Demand",
+          HBD[t] -> "Hospital Beds Demand",
+          HB[t] -> "Hospital Beds",
+          MMSP[t] -> "Money for Medical Supplies Production",
+          MHS[t] -> "Money for Hospital Services",
+          HMS[t] -> "Hospital Medical Supplies"|>;
+
+        newModel["Stocks"] = Join[ newModel["Stocks"], aNewStocks ];
+
+        (* New Rates *)
+        aNewRates = <|
+          deathRate[HP] -> "Hospitalized Population death rate",
+          msdr[MMSP] -> "Medical supplies delivery rate (delay factor)",
+          bkh[H] -> "Bed capacity per hospital",
+          contactRate[HP] -> "Contact rate for the hospitalized population",
+          nahb -> "Number of available hospital beds",
+          nhbr[ISSP, INSP] -> "New hospital beds rate",
+          hscr[ISSP, INSP] -> "Hospital services cost rate (per bed per day)",
+          nhbcr[ISSP, INSP] -> "Number of hospital beds change rate (per day)",
+          hpmscr[ISSP, INSP] -> "Hospitalized population medical supplies consumption rate (per day)",
+          upmscr[ISSP, INSP] -> "Un-hospitalized population medical supplies consumption rate (units per day)",
+          mspr[ISSP, INSP] -> "Medical supplies production rate (units per pay)",
+          mspcr[ISSP, INSP] -> "Medical supplies production cost rate (per unit)",
+          msdr[HB] -> "Medical supplies delivery rate (delay factor)",
+          msdp[HB] -> "Medical supplies delivery period (number of days)",
+          mscr[ISSP] -> "Medical supplies consumption rate (units per day per person)",
+          mscr[INSP] -> "Medical supplies consumption rate (units per day per person)",
+          mscr[TP] -> "Medical supplies consumption rate (units per day per person)",
+          capacity[HMS] -> "Capacity to store Hospital Medical Supplies",
+          capacity[MS] -> "Capacity to store produced Medical Supplies"
+        |>;
+
+        newModel["Rates"] = Join[ newModel["Rates"], aNewRates ];
+
+        (* New and changed Equations *)
+
+        newBySeverelyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * Max[ISSP[t] - HP[t], 0] + contactRate[HP] / TP[t] * SP[t] * HP[t];
+        newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
+        newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
+
+        totalNumberOfBedsTerm = nhbr[ISSP, INSP] * nahb;
+
+        usableHospitalBeds = Min[HB[t], HMS[t] / mscr[ISSP]];
+
+        lsNewEquations = {
+          If[ birthsTermQ,
+            SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
+            (* ELSE *)
+            SP'[t] == - newlyInfectedTerm - deathRate[TP] * SP[t]
+          ],
+          EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp)) * EP[t],
+          INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          HP'[t] == Piecewise[{{Min[usableHospitalBeds - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < usableHospitalBeds}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
+          RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
+          DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
+          HB'[t] == nhbcr[ISSP, INSP],
+          HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]),
+          MS'[t] == mspr[HB] * ((capacity[MS] - MS[t]) / capacity[MS]) - Min[MS[t], (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t])],
+          MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
+          MHS'[t] == hscr[ISSP, INSP] * HP[t],
+          MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
+          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
+        };
+
+        Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsNewEquations = lsNewEquations /. TP[t] -> TP[0],
+
+          tpRepr == "SumSubstitution",
+          lsNewEquations = lsNewEquations /. TP[t] -> ( SP[t] + EP[t] + INSP[t] + ISSP[t] + RP[t] )
+        ];
+
+        pos = Position[ model["Equations"], #]& /@ lsNewEquations[[All, 1]];
+        pos = Flatten @ Map[ If[ Length[#] == 0, {}, First @ Flatten @ # ]&, pos ];
+        newModel["Equations"] = Join[ Delete[newModel["Equations"], List /@ pos], lsNewEquations ];
+
+        (* New Initial conditions *)
+        If[ KeyExistsQ[model, "InitialConditions"],
+          newModel["InitialConditions"] =
+              Join[
+                newModel["InitialConditions"],
+                {
+                  HP[0] == 0,
+                  DIP[0] == 0,
+                  HB[0] == nhbr[TP] * (TP[0] /. newModel["RateRules"]),
+                  MSD[0] == 0,
+                  MHS[0] == 0,
+                  MMSP[0] == 0,
+                  HMS[0] == (capacity[HMS] //. Prepend[ newModel["RateRules"], HB[0] -> (nhbr[TP] * TP[0] /. newModel["RateRules"]) ] ),
+                  MS[0] == (capacity[MS] //. newModel["RateRules"])
+                }
+              ];
+        ];
+
+        (* New Rate Rules *)
+        If[ KeyExistsQ[model, "RateRules"],
+          newModel["RateRules"] =
+              Join[
+                newModel["RateRules"],
+                <|
+                  deathRate[HP] -> 0.25 * deathRate[ISSP],
+                  contactRate[HP] -> 0.1 * contactRate[ISSP],
+                  nhbr[TP] -> 2.9 / 1000,
+                  nhbcr[ISSP, INSP] -> 0,
+                  hscr[ISSP, INSP] -> 600,
+                  hpmscr[ISSP, INSP] -> 4,
+                  upmscr[ISSP, INSP] -> 2,
+                  mspcr[ISSP, INSP] -> 120,
+                  msdp[HB] -> 1.3,
+                  mspr[HB] -> 500 * nhbr[TP] * TP[0],
+                  mscr[ISSP] -> 3,
+                  mscr[INSP] -> 0.7,
+                  mscr[TP] -> 0.02,
+                  capacity[HMS] -> HB[0] * mscr[ISSP] * 2,
+                  capacity[MS] -> TP[0] * mscr[TP] * 2
+                |>
+              ];
+        ];
+
+        newModel
+      ]
+    ];
+
+SEI2HREconModel[___] :=
+    Block[{},
+      Message[SEI2HREconModel::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
 (* ModelGridTableForm                                      *)
 (***********************************************************)
 
