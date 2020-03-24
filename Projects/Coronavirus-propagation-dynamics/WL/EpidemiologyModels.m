@@ -776,6 +776,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         aNewStocks = <|
           HP[t] -> "Hospitalized Population",
           DIP[t] -> "Deceased Infected Population",
+          MS[t] -> "Medical Supplies",
           MSD[t] -> "Medical Supplies Demand",
           HB[t] -> "Hospital Beds",
           MMSP[t] -> "Money for Medical Supplies Production",
