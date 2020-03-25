@@ -100,7 +100,7 @@ For more details see the notebook
 [[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. 
 Different parameters can be set in the “Parameters” section. Especially of interest are the quarantine related parameters: start, duration, effect on contact rates and traffic patterns.
 
-I also put simulations results code and programmed visualization routines in R, [AA2]. 
+I also put in the notebook simulations results export code and programmed visualization routines in R, [AA2]. 
 (In order other members of team to be able to explore the results.)
 
 ## References
