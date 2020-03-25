@@ -20,11 +20,10 @@ The title of our hackathon project is:
 [Nearly a dozen of people enlisted to help](https://devpost.com/software/geo-raumlich-zeitliches-wirtschaftsmodell-fur-covid-19). (We communicated through Slack.)
 
 ```mathematica
-WebImage["https://devpost.com/software/geo-raumlich-zeitliches-\
-wirtschaftsmodell-fur-covid-19"]
+WebImage["https://devpost.com/software/geo-raumlich-zeitliches-wirtschaftsmodell-fur-covid-19"]
 ```
 
-![13dzfagts8105](./Diagrams/WirVsVirus-2020-hackathon-participation/13dzfagts8105.png)
+[![13dzfagts8105](./Diagrams/WirVsVirus-2020-hackathon-participation/13dzfagts8105.png)](../org/WirVsVirus-hackathon-Geo-spatial-temporal-model-mind-map.pdf)
 
 Multiple people helped with the discussion of ideas, directions where to find data, with actual data gathering, and related documented analysis. 
 Of course, just discussing the proposed solutions was already a great help!
@@ -46,10 +45,7 @@ I obtained Germany city data with Mathematica’s build-in functions and used it
 Here is the data:
 
 ```mathematica
-dsCityRecords = 
-  ResourceFunction["ImportCSVToDataset"][
-   "https://raw.githubusercontent.com/antononcube/SystemModeling/\
-master/Data/dfGermanyCityRecords.csv"];
+dsCityRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfGermanyCityRecords.csv"];
 Dimensions[dsCityRecords]
 
 (*{12538, 6}*)
@@ -58,13 +54,9 @@ Dimensions[dsCityRecords]
 Here is Geo-histogram of that data:
 
 ```mathematica
-aCoordsToPopulations = 
-  AssociationThread[
-   Values /@ Normal[dsCityRecords[All, {"Lat", "Lon"}]], 
-   Normal[dsCityRecords[All, "Population"]]];
-grHist = GeoHistogram[aCoordsToPopulations, cellRadius, 
-   ColorFunction -> (Opacity[#, Blue] &), PlotLegends -> Automatic];
-If[TrueQ[renderGraphPlotsQ], grHist]
+cellRadius = Quantity[70,"Kilometers"];
+aCoordsToPopulations = AssociationThread[Values /@ Normal[dsCityRecords[All, {"Lat", "Lon"}]], Normal[dsCityRecords[All, "Population"]]];
+GeoHistogram[aCoordsToPopulations, cellRadius, ColorFunction -> (Opacity[#, Blue] &), PlotLegends -> Automatic]
 ```
 
 ![0t08vw1kjdzbc](./Diagrams/WirVsVirus-2020-hackathon-participation/0t08vw1kjdzbc.png)
@@ -92,7 +84,7 @@ and make multi-site scaled model that “follows the money”, [[AA1](https://gi
 
 ![1vnygv6t7chgg](./Diagrams/WirVsVirus-2020-hackathon-participation/1vnygv6t7chgg.png)
 
-Here is an interactive interface for studying and investigating the solution results:
+Here is (a snapshot of) an interactive interface for studying and investigating the solution results:
 
 ![1pgmngb4uyuzb](./Diagrams/WirVsVirus-2020-hackathon-participation/1pgmngb4uyuzb.png)
 
@@ -100,7 +92,7 @@ For more details see the notebook
 [[AA1](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-SEI2R-over-a-hexagonal-grid-graph.md)]. 
 Different parameters can be set in the “Parameters” section. Especially of interest are the quarantine related parameters: start, duration, effect on contact rates and traffic patterns.
 
-I also put in the notebook simulations results export code and programmed visualization routines in R, [AA2]. 
+I also put in the notebook code for export of simulations results and programmed visualization routines in R, [AA2]. 
 (In order other members of team to be able to explore the results.)
 
 ## References
