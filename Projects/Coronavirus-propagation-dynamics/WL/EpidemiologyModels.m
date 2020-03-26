@@ -69,6 +69,10 @@ EpidemiologyModelQ::usage = "Is the argument an association with stocks, rates, 
 EpidemiologyFullModelQ::usage = "Is the argument an association with \
 stocks, rates, equations, initial conditions, and rate rules ?";
 
+MalariaModel::usage = "MalariaModel[var, con] generates malaria model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
+
 SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
@@ -109,6 +113,169 @@ EpidemiologyFullModelQ[model_] :=
         MatchQ[model["Equations"], { _Equal .. }] &&
         AssociationQ[model["RateRules"]] &&
         MatchQ[model["InitialConditions"], { _Equal .. }];
+
+
+(***********************************************************)
+(* RossMalaria                                             *)
+(***********************************************************)
+
+Clear[MalariaModel];
+
+SyntaxInformation[MalariaModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+MalariaModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+MalariaModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+Options[MalariaModel] = { "TotalPopulationRepresentation" -> "Constant", "InitialConditions" -> False, "RateRules" -> False, "Ross" -> False };
+
+MalariaModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{addInitialConditionsQ, addRateRulesQ, rossQ, tpRepr,
+      aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions,
+      newlyInfectedHumansTerm, newlyInfectedMosquitoesTerm},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ MalariaModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ MalariaModel, "RateRules" ] ];
+
+      rossQ = TrueQ[ OptionValue[ MalariaModel, "Ross" ] ];
+
+      tpRepr = OptionValue[ MalariaModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[MalariaModel::"ntpval"];
+        $Failed
+      ];
+
+      With[{
+        HP = ToExpression[ context <> "HP"],
+        MP = ToExpression[ context <> "MP"],
+        SHP = ToExpression[ context <> "SHP"],
+        SMP = ToExpression[ context <> "SMP"],
+        IHP = ToExpression[ context <> "IHP"],
+        IMP = ToExpression[ context <> "IMP"],
+        a = ToExpression[ context <> "a"],
+        b = ToExpression[ context <> "b"],
+        c = ToExpression[ context <> "c"],
+        m = ToExpression[ context <> "m"],
+        mls = ToExpression[ context <> "mls"],
+        aip = ToExpression[ context <> "aip"]
+      },
+
+        (* Stocks *)
+        aStocks =
+            <|
+              HP[t] -> "Human Population",
+              MP[t] -> "Mosquito Population",
+              SHP[t] -> "Susceptible Human Population",
+              SMP[t] -> "Susceptible Mosquito Population",
+              IHP[t] -> "Infected Human Population",
+              IMP[t] -> "Infected Mosquito Population"
+            |>;
+
+        (* Rates  *)
+        aRates =
+            <|
+              a -> "Number of bites per mosquito and time unit",
+              b -> "Probability that a bite generates a human infection",
+              c -> "Probability that a mosquito becomes infected",
+              (* c -> "Proportion of bites by which one susceptible mosquito becomes infected", *)
+              (* m -> "Ratio of the number of female mosquitoes to that of humans",*)
+              aip -> "Average human infectious period",
+              mls -> "Mosquito life span"
+            |>;
+
+        (* Equations  *)
+        If[ rossQ,
+          (* Ross definition *)
+          lsEquations = {
+            IHP'[t] == a * b * ( IMP[t] / HP[0] ) * ( HP[0] - IHP[t] ) - IHP[t] / aip,
+            IMP'[t] == a * c * ( IHP[t] / MP[0] ) * ( MP[0] - IMP[t] ) - IMP[t] / mls
+          },
+
+          (* ELSE *)
+
+          newlyInfectedHumansTerm = a * b * ( IMP[t] / HP[t] ) * ( HP[t] - IHP[t] );
+
+          newlyInfectedMosquitoesTerm = a * c * ( IHP[t] / MP[t] ) * ( MP[t] - IMP[t] );
+
+          lsEquations = {
+            SHP'[t] == - newlyInfectedHumansTerm,
+            IHP'[t] == newlyInfectedHumansTerm - IHP[t] / aip,
+            SMP'[t] == - newlyInfectedMosquitoesTerm,
+            IMP'[t] == newlyInfectedMosquitoesTerm - IMP[t] / mls
+          };
+
+          Which[
+            MemberQ[{Constant, "Constant"}, tpRepr],
+            lsEquations = lsEquations /. { MP[t] -> MP[0], HP[t] -> HP[0] },
+
+            tpRepr == "SumSubstitution",
+            lsEquations = lsEquations /. { HP[t] -> ( SHP[t] + IHP[t] ), MP[t] -> ( SMP[t] + IMP[t] ) },
+
+            tpRepr == "AlgebraicEquation",
+            lsEquations = Join[lsEquations, { HP[t] == Max[ 0, SHP[t] + IHP[t] ], MP[t] == Max[ 0, SMP[t] + IMP[t] ] } ]
+          ]
+
+        ];
+
+        aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
+
+        (* Rate Rules *)
+        aRateRules =
+            <|
+              HP[0] -> 100000,
+              MP[0] -> 1000000,
+              a -> 0.5,
+              b -> 0.35,
+              c -> 0.5,
+              aip -> 20,
+              mls -> 20
+            |>;
+
+        (* Initial conditions *)
+        If[ rossQ,
+          aInitialConditions =
+              {
+                IHP[0] == 1,
+                IMP[0] == 1
+              },
+          (* ELSE *)
+
+          aInitialConditions =
+              {
+                SHP[0] == (HP[0] /. aRateRules) - 1,
+                IHP[0] == 1,
+                SMP[0] == (MP[0] /. aRateRules) - 1,
+                IMP[0] == 1
+              }
+        ];
+
+        (* Result *)
+        If[ tpRepr == "AlgebraicEquation",
+          aInitialConditions = Append[aInitialConditions, TP[0] == (TP[0] /. aRateRules)];
+          aRateRules = KeyDrop[aRateRules, TP[0]]
+        ];
+
+        If[ addRateRulesQ,
+          aRes = Append[aRes, "RateRules" -> aRateRules]
+        ];
+
+        If[ addInitialConditionsQ,
+          aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
+        ];
+
+        aRes
+      ]
+    ];
+
+MalariaModel[___] :=
+    Block[{},
+      Message[MalariaModel::"nargs"];
+      $Failed
+    ];
 
 
 (***********************************************************)
