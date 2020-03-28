@@ -735,7 +735,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         $Failed
       ];
 
-      model = SEI2RModel[ t, context, FilterRules[ {opts}, Options[SEI2RModel] ] ];
+      model = SEI2RModel[ t, context, FilterRules[ Join[ {"InitialConditions" -> True, "RateRules" -> True}, {opts}], Options[SEI2RModel] ] ];
 
       newModel = model;
 
@@ -820,7 +820,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         newModel["Equations"] = Join[ Delete[newModel["Equations"], List /@ pos], lsNewEquations ];
 
         (* New Initial conditions *)
-        If[ KeyExistsQ[model, "InitialConditions"],
+        If[ addInitialConditionsQ,
           newModel["InitialConditions"] =
               Join[
                 newModel["InitialConditions"],
@@ -833,7 +833,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         ];
 
         (* New Rate Rules *)
-        If[ KeyExistsQ[model, "RateRules"],
+        If[ addRateRulesQ,
           newModel["RateRules"] =
               Join[
                 newModel["RateRules"],
@@ -892,7 +892,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         $Failed
       ];
 
-      model = SEI2RModel[ t, context, FilterRules[ {opts}, Options[SEI2RModel] ] ];
+      model = SEI2RModel[ t, context, FilterRules[ Join[ {"InitialConditions" -> True, "RateRules" -> True}, {opts}], Options[SEI2RModel] ] ];
 
       newModel = model;
 
@@ -1011,7 +1011,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         newModel["Equations"] = Join[ Delete[newModel["Equations"], List /@ pos], lsNewEquations ];
 
         (* New Initial conditions *)
-        If[ KeyExistsQ[model, "InitialConditions"],
+        If[ addInitialConditionsQ,
 
           eqMSD0 = Cases[newModel["Equations"], MSD[t] == _ ][[1]];
           eqMSD0 = eqMSD0 /. t -> 0 ;
@@ -1034,7 +1034,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         ];
 
         (* New Rate Rules *)
-        If[ KeyExistsQ[model, "RateRules"],
+        If[ addRateRulesQ,
           newModel["RateRules"] =
               Join[
                 newModel["RateRules"],
