@@ -1,0 +1,2233 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     97318,       2225]
+NotebookOptionsPosition[     86606,       2065]
+NotebookOutlinePosition[     87134,       2085]
+CellTagsIndexPosition[     87091,       2082]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Basic experiments workflow for simple epidemiological models", "Title",
+ CellChangeTimes->{{3.792342111416102*^9, 3.792342132076438*^9}, {
+   3.7925150456002827`*^9, 3.792515049933969*^9}, {3.792781806854546*^9, 
+   3.792781807394408*^9}, {3.792781922990713*^9, 3.7927819717599583`*^9}, {
+   3.7928604127184277`*^9, 3.792860454928172*^9}, {3.7928604874411163`*^9, 
+   3.79286051077357*^9}, 3.792860555021584*^9, {3.792860703850861*^9, 
+   3.792860729972866*^9}, {3.792860827803583*^9, 3.7928608677906723`*^9}, {
+   3.792860901178688*^9, 
+   3.792860903270631*^9}},ExpressionUUID->"56b9c06c-5cae-4e6a-b157-\
+77885527ef1d"],
+
+Cell[TextData[{
+ "Anton Antonov\n",
+ ButtonBox["MathematicaForPrediction at WordPress",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematicaforprediction.wordpress.com"], None},
+  ButtonNote->"https://mathematicaforprediction.wordpress.com"],
+ "\n",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "\nMarch 2020"
+}], "Text",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQA2IQvflC9cSe4teOqfWaU0G0nfrkm8uBNP/Kp3dB9Gz5
+/YKzK187Gi1wEAbRwv/ercqoe+2o0rBsNYhuMr+6A0QvaVy5G0TPUmqf2zn3
+teO6ib3zQLS3gvo6ED2t0wNM+z5fuK8XSD/48RBMvz+5/3M/kP6Z8QJMb+9Z
+0x6y77Wj1xXHDhBtc6teZO+J144sbn9EQfSm7S9Xh5167Wjhp7EGRAvPZf0Y
+f/G1o9DmvWD63nrOC9GXXzvGLCgA0z6dj+8X3X7t2GzE8QBET3PWTv5277Wj
+xAqGFBD91sLRSvDBa8dTW2+A6SKVqZfalN44PhPWvQyiz7ManjkPpBeWLgbT
+Z3a58h60eOO4YMdGMK2/yUZByvKNo5FCvhqIDq3cpnvR4Y3jOcmLYBoAPCu/
+DA==
+  "],ExpressionUUID->"c1b3408f-af72-406d-b006-736daf7480c7"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.792342164949574*^9, 
+  3.792342167807013*^9}},ExpressionUUID->"aa05628a-e574-4cbc-b357-\
+32c92d24cc82"],
+
+Cell[TextData[{
+ "The primary purpose of this notebook is to give a \
+\[OpenCurlyDoubleQuote]stencil workflow\[CloseCurlyDoubleQuote] for \
+simulations using the packages in the project ",
+ ButtonBox["\"Coronavirus simulation dynamics\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"],
+ ", [AAr1]."
+}], "Text",
+ CellChangeTimes->{{3.792515109898424*^9, 3.792515118613044*^9}, {
+  3.792515191120707*^9, 3.7925152040358553`*^9}, {3.79251524705715*^9, 
+  3.7925153823741827`*^9}, {3.7925154305557137`*^9, 3.7925154305563602`*^9}, {
+  3.792515515308333*^9, 3.792515535706978*^9}, {3.792782575311654*^9, 
+  3.792782738619061*^9}, {3.792861610019229*^9, 
+  3.792861612494361*^9}},ExpressionUUID->"2c5fc80c-5766-43a7-b782-\
+1bed4155f564"],
+
+Cell[TextData[{
+ "The model in this notebook -- SEI2R -- differs from ",
+ ButtonBox["the classical SEIR model",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+     None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+ " with the following elements:"
+}], "Text",
+ CellChangeTimes->{{3.7925156254102907`*^9, 3.792515639347432*^9}, {
+  3.792515684810227*^9, 3.7925158157510443`*^9}, {3.792515938918*^9, 
+  3.792515949788693*^9}, {3.792782527441436*^9, 3.792782553283967*^9}, {
+  3.792861591788129*^9, 
+  3.7928615917896967`*^9}},ExpressionUUID->"3ebdf831-b570-4fae-afc1-\
+a1363498d4b8"],
+
+Cell["\<\
+1. Two separate infected populations: one is \"severely symptomatic\", the \
+other is \"normally symptomatic\"\
+\>", "Text",
+ CellChangeTimes->{{3.7925156254102907`*^9, 3.792515639347432*^9}, {
+  3.792515684810227*^9, 3.7925158157510443`*^9}, {3.792515938918*^9, 
+  3.792515960948843*^9}},ExpressionUUID->"487165b3-40ba-4db1-ae04-\
+b05c7d060755"],
+
+Cell["\<\
+2. The monetary equivalent of lost productivity due to infected or died \
+people is tracked.\
+\>", "Text",
+ CellChangeTimes->{{3.7925156254102907`*^9, 3.792515639347432*^9}, {
+  3.792515684810227*^9, 3.7925158157510443`*^9}, {3.792515938918*^9, 
+  3.79251602014438*^9}},ExpressionUUID->"5d46aa8b-236a-4faf-b67f-\
+976a769eaf7f"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " We consider the coronavirus propagation models as instances of the more \
+general ",
+ ButtonBox["System Dynamics (SD)",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/System_dynamics"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/System_dynamics"],
+ " models."
+}], "Text",
+ CellChangeTimes->{{3.792515109898424*^9, 3.792515118613044*^9}, {
+  3.792515191120707*^9, 3.7925152040358553`*^9}, {3.79251524705715*^9, 
+  3.7925153823741827`*^9}, {3.7925154305557137`*^9, 3.7925154305563602`*^9}, {
+  3.792515515308333*^9, 3.792515581922345*^9}, {3.792518958995797*^9, 
+  3.792518960900881*^9}},ExpressionUUID->"f48da933-d85b-41e5-adec-\
+b87c39ed9956"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The SEI2R model is a modification of the classic epidemic model SEIR, \
+[Wk1]."
+}], "Text",
+ CellChangeTimes->{{3.792518963405654*^9, 3.7925189817661247`*^9}, {
+  3.792782489967183*^9, 3.792782518778687*^9}, {3.7927827402503557`*^9, 
+  3.792782740890593*^9}, {3.792850776745912*^9, 
+  3.792850781346298*^9}},ExpressionUUID->"099f5a26-905d-4e6a-bda9-\
+963a423668f0"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The interactive interfaces in the notebook can be used for attempts to \
+calibrate SEI2R with real data. (For example, data for the ",
+ ButtonBox["2019\[Dash]20 coronavirus outbreak",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/2019\[AHat]\.80\.9320_coronavirus_\
+outbreak"], None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/2019\[AHat]\.80\.9320_coronavirus_outbreak"],
+ ", [WRI1].)"
+}], "Text",
+ CellChangeTimes->{{3.792782742674221*^9, 3.792782753242861*^9}, {
+  3.792782786893561*^9, 3.792782809257972*^9}, {3.792848235042326*^9, 
+  3.792848254819931*^9}, {3.792850472491991*^9, 3.792850534595497*^9}, {
+  3.792850784417885*^9, 
+  3.792850792923223*^9}},ExpressionUUID->"60215d6d-f7b8-4589-8e8f-\
+a343e0573ac4"],
+
+Cell[CellGroupData[{
+
+Cell["Workflow", "Subsection",
+ CellChangeTimes->{{3.79285708199574*^9, 
+  3.7928570829968357`*^9}},ExpressionUUID->"cac4d57d-5034-420d-9ba3-\
+729c1fd68ef0"],
+
+Cell[CellGroupData[{
+
+Cell["Get one of the classical epidemiology models.", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571213112917`*^9}, {
+  3.792860609148979*^9, 
+  3.792860609151594*^9}},ExpressionUUID->"74b09f5f-f4bc-4938-abda-\
+cd5b17ffbf90"],
+
+Cell["Extend the equations of model if needed or desired.", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 
+  3.792857142536578*^9}},ExpressionUUID->"9a6d3e24-c239-483c-89f4-\
+b386a41373fd"],
+
+Cell["Set relevant initial conditions for the populations.", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 
+  3.792857299671691*^9}},ExpressionUUID->"6d49c4e5-6e77-404a-aa6b-\
+9e484a4cd2e1"],
+
+Cell["Pick model parameters to be adjust and \[OpenCurlyDoubleQuote]play \
+with.\[CloseCurlyDoubleQuote]", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 
+  3.792857369082789*^9}},ExpressionUUID->"950eb6ca-607b-49cf-b6b3-\
+ee95124e9981"],
+
+Cell["\<\
+Derive parametrized solutions of model\[CloseCurlyQuote]s system of equations \
+(ODE\[CloseCurlyQuote]s or DAE\[CloseCurlyQuote]s.)\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.7928574115655527`*^9}, {3.792857485022287*^9, 
+  3.7928574996693296`*^9}},ExpressionUUID->"df38ee71-295c-48bc-9b2f-\
+f725833a3887"],
+
+Cell["Using the parameters of the previous step.", "SubitemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857508559976*^9, 
+  3.792857508562132*^9}},ExpressionUUID->"c59f3d31-9363-4511-88ab-\
+b3c105d019a5"],
+
+Cell["\<\
+Using an interactive interface experiment with different values of the \
+parameters.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.792857537027987*^9}},ExpressionUUID->"d37ac270-1691-46b2-95ba-\
+eb9795e1d187"],
+
+Cell["In order to form \[OpenCurlyDoubleQuote]qualitative understanding.\
+\[CloseCurlyDoubleQuote]", "SubitemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 
+  3.792857728618475*^9}},ExpressionUUID->"ec530023-2af7-40ee-952c-\
+0d982da97dd1"],
+
+Cell["Get real life data.", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 3.7928577275112457`*^9}, {
+  3.792857903765048*^9, 
+  3.792857923725533*^9}},ExpressionUUID->"509026e5-95ff-4a2a-9472-\
+9b731b074026"],
+
+Cell["Say, for the 2019-20 coronavirus outbreak.", "SubitemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 3.7928577275112457`*^9}, {
+  3.792857903765048*^9, 
+  3.792857955808243*^9}},ExpressionUUID->"a634d783-21ed-44f4-b91f-\
+3f969b5f8fd1"],
+
+Cell[" Attempt manual or automatic calibration of the model.", "ItemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 3.7928577275112457`*^9}, {
+  3.792857903765048*^9, 3.7928579216074047`*^9}, {3.792857958687827*^9, 
+  3.792857987420952*^9}, {3.792858516825042*^9, 
+  3.79285851956916*^9}},ExpressionUUID->"1b235654-054c-4495-abda-\
+563e6c784f64"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+This step will most likely require additional data transformations and \
+programming.\
+\>", "SubitemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 3.7928577275112457`*^9}, {
+  3.792857903765048*^9, 3.7928579216074047`*^9}, {3.792857958687827*^9, 
+  3.7928580174813232`*^9}, {3.792858057458186*^9, 
+  3.792858103151428*^9}},ExpressionUUID->"f44a08b0-8ead-491d-9a4e-\
+14015f13bc1e"],
+
+Cell["Only manual calibration is shown in this notebook.", "SubitemNumbered",
+ CellChangeTimes->{{3.79285708613525*^9, 3.7928571421163683`*^9}, {
+  3.7928572473395853`*^9, 3.79285743680305*^9}, {3.792857510086946*^9, 
+  3.79285754807944*^9}, {3.79285771468336*^9, 3.7928577275112457`*^9}, {
+  3.792857903765048*^9, 3.7928579216074047`*^9}, {3.792857958687827*^9, 
+  3.7928580174813232`*^9}},ExpressionUUID->"4ce975e0-1f71-4bdc-8043-\
+15e6cd2a020d"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Load packages of the framework", "Section",
+ CellChangeTimes->{{3.792518631122363*^9, 3.792518632314425*^9}, {
+   3.79251869797108*^9, 3.792518702954979*^9}, 3.7925188493073883`*^9, {
+   3.7928585416869392`*^9, 
+   3.792858565954576*^9}},ExpressionUUID->"be7001c0-6e07-4f65-83d9-\
+70819c17a96f"],
+
+Cell["\<\
+The epidemiological models framework used in this notebook is implemented in \
+the packages [AAp1, AAp2]; the interactive plots functions are from the \
+package [AAp3].\
+\>", "Text",
+ CellChangeTimes->{{3.79251870512582*^9, 3.792518726321047*^9}, {
+  3.7927818458924522`*^9, 3.792781853474968*^9}, {3.792850811723103*^9, 
+  3.7928508968744907`*^9}},ExpressionUUID->"dfd94884-fe1d-4287-a3bc-\
+de3876166498"],
+
+Cell[BoxData[{
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m\>\"", 
+  "]"}], "\n", 
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m\
+\>\"", "]"}], "\n", 
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/\
+SystemDynamicsInteractiveInterfacesFunctions.m\>\"", "]"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.792518642298648*^9, 3.7925186708440228`*^9}, {
+   3.7927818399733677`*^9, 3.792781843894228*^9}, 3.792999552704763*^9, {
+   3.7932864559351873`*^9, 3.79328646031901*^9}},
+ CellLabel->
+  "In[103]:=",ExpressionUUID->"ffa8ba54-9bfc-4816-b4d3-b2e196b4ada7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Getting the model code", "Section",
+ CellChangeTimes->{{3.792781880015065*^9, 3.792781893177456*^9}, {
+  3.79278282415397*^9, 
+  3.792782827494809*^9}},ExpressionUUID->"10b18fc8-4ac8-4d9e-b124-\
+30c9e436940c"],
+
+Cell[TextData[{
+ "Here we take the SEI2R model implemented in the package ",
+ ButtonBox["\"EpidemiologyModels.m\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ ", [AAp1]:"
+}], "Text",
+ CellChangeTimes->{{3.79278197719385*^9, 3.79278202204557*^9}, {
+  3.792782295506195*^9, 3.792782295508007*^9}, {3.7928583169505177`*^9, 
+  3.792858317377633*^9}},ExpressionUUID->"27ba4a4a-f2de-4501-acee-\
+ad431378e4f9"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"modelSI2R", "=", 
+   RowBox[{"SEI2RModel", "[", 
+    RowBox[{"t", ",", 
+     RowBox[{"\"\<InitialConditions\>\"", "\[Rule]", "True"}], ",", " ", 
+     RowBox[{"\"\<RateRules\>\"", "\[Rule]", "True"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->
+  "In[106]:=",ExpressionUUID->"fb0bf635-0826-456b-91ff-129d1e919951"],
+
+Cell[TextData[{
+ "We can show a tabulated visualization of the model using the function ",
+ StyleBox["ModelGridTableForm", "Program"],
+ " from [AAp1]:"
+}], "Text",
+ CellChangeTimes->{{3.792859650214366*^9, 
+  3.79285970685928*^9}},ExpressionUUID->"f395aed8-d2ca-4a71-9547-\
+110fa069df44"],
+
+Cell[BoxData[
+ RowBox[{"ModelGridTableForm", "[", "modelSI2R", "]"}]], "Input",
+ CellLabel->
+  "In[107]:=",ExpressionUUID->"600920be-ec0e-42e3-b430-78147f52ba27"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Model extensions and new models", "Section",
+ CellChangeTimes->{{3.79283723490591*^9, 3.792837237920492*^9}, {
+  3.7928374374534283`*^9, 
+  3.792837439433682*^9}},ExpressionUUID->"e0a53abc-ba5f-4521-82c0-\
+12b32a123d7f"],
+
+Cell["\<\
+The framework implemented with the packages [AAp1, AAp2, AAp3] can be \
+utilized using custom made data structures that follow the structure of the \
+models in [AAp1].\
+\>", "Text",
+ CellChangeTimes->{{3.792837239755066*^9, 3.792837244400576*^9}, {
+  3.7928374235493526`*^9, 3.792837579204965*^9}, {3.792850935261223*^9, 
+  3.792850945025483*^9}, {3.7928584409504128`*^9, 
+  3.7928584544719343`*^9}},ExpressionUUID->"5b6009d6-daba-45ae-b0cc-\
+8b29d804a884"],
+
+Cell["\<\
+Of course, we can also just extend the models from [AAp1]. In this section we \
+show how SEI2R can be extended in two ways:\
+\>", "Text",
+ CellChangeTimes->{{3.792838223560741*^9, 3.792838317409375*^9}, {
+  3.792838380916833*^9, 3.792838431676458*^9}, {3.7928453091948833`*^9, 
+  3.792845315342003*^9}, {3.7928509500655813`*^9, 3.792850950178157*^9}, {
+  3.7928584735081873`*^9, 
+  3.792858477917412*^9}},ExpressionUUID->"e4aad10d-dba0-4788-83d7-\
+4e5cd1857146"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+By adding a birth rate added to the Susceptible Population equation (the \
+birth rate is not included by default)\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.792838223560741*^9, 3.792838317409375*^9}, {
+  3.792838380916833*^9, 3.792838431676458*^9}, {3.7928453091948833`*^9, 
+  3.792845353192539*^9}},ExpressionUUID->"9919e764-f504-4b55-a30e-\
+785a17fbbceb"],
+
+Cell["\<\
+By adding a new equation for the infected deceased population.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.792838223560741*^9, 3.792838317409375*^9}, {
+  3.792838380916833*^9, 3.792838431676458*^9}, {3.7928453091948833`*^9, 
+  3.792845371273184*^9}},ExpressionUUID->"7f889f38-618e-4c6e-a6a8-\
+5d347b99832b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Adding births term", "Subsection",
+ CellChangeTimes->{{3.792845278008844*^9, 
+  3.7928452887080393`*^9}},ExpressionUUID->"c5093dec-6393-4c93-926f-\
+81947a2215a8"],
+
+Cell["Here are the equations of SEI2R (from [AAp1]):", "Text",
+ CellChangeTimes->{{3.79284079966045*^9, 3.792840831003461*^9}, {
+  3.7928509558484364`*^9, 3.7928509559380407`*^9}, {3.792858485233157*^9, 
+  3.792858488630828*^9}},ExpressionUUID->"bffc7379-a476-4318-96b5-\
+7b47b3b3db48"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ModelGridTableForm", "[", "modelSI2R", "]"}], "[", 
+  "\"\<Equations\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.792859871018983*^9, 3.7928598906311626`*^9}, {
+  3.79440552483834*^9, 3.794405546435968*^9}},
+ CellLabel->
+  "In[108]:=",ExpressionUUID->"931099d6-8d5c-4a24-a69f-6ad99205e03b"],
+
+Cell["\<\
+Here we find the position of the equation that corresponds to \
+\[OpenCurlyDoubleQuote]Susceptible Population\[CloseCurlyDoubleQuote]:\
+\>", "Text",
+ CellChangeTimes->{{3.79283848761376*^9, 
+  3.792838526190728*^9}},ExpressionUUID->"c6de11c7-b660-4107-8f37-\
+cb8c55747123"],
+
+Cell[BoxData[
+ RowBox[{"pos", "=", 
+  RowBox[{"EquationPosition", "[", 
+   RowBox[{
+    RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], ",", 
+    RowBox[{"First", "@", 
+     RowBox[{"GetPopulationSymbols", "[", 
+      RowBox[{"modelSI2R", ",", "\"\<Susceptible Population\>\""}], "]"}]}]}],
+    "]"}]}]], "Input",
+ CellChangeTimes->{{3.792838369242427*^9, 3.7928383714784803`*^9}, {
+  3.792838477022161*^9, 3.79283848294555*^9}, {3.79283852821891*^9, 
+  3.79283853809006*^9}, {3.7928397648266573`*^9, 3.792839796695981*^9}},
+ CellLabel->
+  "In[109]:=",ExpressionUUID->"83e3fbfa-1591-41bd-96c5-784940e414ca"],
+
+Cell["\<\
+Here we make the births term using a birth rate that is the same as the death \
+rate:\
+\>", "Text",
+ CellChangeTimes->{{3.7928398011166*^9, 3.792839812467876*^9}, {
+   3.792840063020603*^9, 3.792840073094215*^9}, {3.792840398040084*^9, 
+   3.792840418166959*^9}, 
+   3.79284086119971*^9},ExpressionUUID->"7c415051-be47-408c-9174-\
+0f0a969a560a"],
+
+Cell[BoxData[
+ RowBox[{"birthTerm", "=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"GetPopulations", "[", 
+     RowBox[{"modelSI2R", ",", "\"\<Total Population\>\""}], "]"}], 
+    "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}], "*", 
+   RowBox[{
+    RowBox[{"GetRates", "[", 
+     RowBox[{"modelSI2R", ",", "\"\<Population death rate\>\""}], "]"}], 
+    "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]}]}]], "Input",
+ CellChangeTimes->{{3.792840298859*^9, 3.792840319436179*^9}, {
+  3.792840379624134*^9, 3.792840381919146*^9}, {3.7928405858421297`*^9, 
+  3.792840640058036*^9}},
+ CellLabel->
+  "In[110]:=",ExpressionUUID->"46ea3ad3-f56d-4bd5-b3b5-a1fcbf0cd23e"],
+
+Cell["Here we add the births term to the equations of new model", "Text",
+ CellChangeTimes->{{3.7928404280333147`*^9, 3.792840431838999*^9}, {
+  3.79284064858224*^9, 
+  3.7928406776175623`*^9}},ExpressionUUID->"17026b55-b942-470d-89f9-\
+39053ceb71b3"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"modelSI2RNew", "=", "modelSI2R"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"modelSI2RNew", "[", "\"\<Equations\>\"", "]"}], "=", 
+   RowBox[{"ReplacePart", "[", 
+    RowBox[{
+     RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], ",", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}], "\[Rule]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], 
+        "\[LeftDoubleBracket]", 
+        RowBox[{"1", ",", "2"}], "\[RightDoubleBracket]"}], "+", 
+       "birthTerm"}]}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7928398167154303`*^9, 3.792839829996299*^9}, {
+  3.79283999820898*^9, 3.792840296382503*^9}, {3.7928403271158*^9, 
+  3.7928403310136957`*^9}, {3.792840680583362*^9, 3.792840693650797*^9}},
+ CellLabel->
+  "In[111]:=",ExpressionUUID->"0c1cd911-3e94-4fd2-b6c2-a4d60840549b"],
+
+Cell["Here we display the equations of the new model:", "Text",
+ CellChangeTimes->{{3.792840696462644*^9, 
+  3.7928407064302673`*^9}},ExpressionUUID->"77aac5c0-d1a0-41d5-b7e3-\
+a2f1094290ab"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ModelGridTableForm", "[", "modelSI2RNew", "]"}], "[", 
+  "\"\<Equations\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.792840708660001*^9, 3.79284070896137*^9}, {
+  3.792859909495392*^9, 3.7928599132218933`*^9}, {3.79440555375152*^9, 
+  3.79440555784377*^9}},
+ CellLabel->
+  "In[113]:=",ExpressionUUID->"2d71f29e-3fe6-41fe-b40e-fc42d99ca0dc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Adding infected deceased population equation", "Subsection",
+ CellChangeTimes->{{3.792845128371345*^9, 3.792845150617879*^9}, {
+  3.792845394537952*^9, 
+  3.7928454025711203`*^9}},ExpressionUUID->"f4ab1445-134f-40e2-a20c-\
+60d8040325c3"],
+
+Cell["\<\
+Here we add new population, equation, and initial condition that allow for \
+tracking the deaths because of infection:  \
+\>", "Text",
+ CellChangeTimes->{{3.792845389667344*^9, 
+  3.792845463670454*^9}},ExpressionUUID->"a419a66d-ab9f-4502-b76a-\
+1ccadb4c5867"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{
+    RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"IDP", "'"}], "[", "t", "]"}], "\[Equal]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "INSP", "]"}], "*", 
+       RowBox[{"INSP", "[", "t", "]"}]}], "+", 
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "ISSP", "]"}], "*", 
+       RowBox[{"ISSP", "[", "t", "]"}]}]}]}]}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{
+    RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+    RowBox[{
+     RowBox[{"IDP", "[", "t", "]"}], "\[Rule]", 
+     "\"\<Infected Deceased Population\>\""}]}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{
+    RowBox[{"modelSI2R", "[", "\"\<InitialConditions\>\"", "]"}], ",", 
+    RowBox[{
+     RowBox[{"IDP", "[", "0", "]"}], "\[Equal]", "0"}]}], "]"}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.792784864635851*^9, 3.792784949997642*^9}, 
+   3.792785547139296*^9, {3.792845192329463*^9, 3.792845192969534*^9}, {
+   3.792845237305656*^9, 3.792845245113703*^9}, 3.792845466071227*^9, {
+   3.792876337354113*^9, 3.792876341424177*^9}},
+ CellLabel->
+  "In[114]:=",ExpressionUUID->"8e09e8f7-c69b-4fec-ad1a-fe3ca7bc7246"],
+
+Cell["Here is how the model looks like:", "Text",
+ CellChangeTimes->{{3.79284547250219*^9, 
+  3.792845483302416*^9}},ExpressionUUID->"d9da2dab-b8d4-4822-9de0-\
+beb2777470b5"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ModelGridTableForm", "[", "modelSI2R", "]"}], "[", 
+  "\"\<Equations\>\"", "]"}]], "Input",
+ CellChangeTimes->{
+  3.7928455125387373`*^9, 3.792859919958227*^9, {3.794405563122908*^9, 
+   3.794405567091364*^9}},
+ CellLabel->
+  "In[117]:=",ExpressionUUID->"750984c1-4d4b-4ceb-bef1-6a4b906120b6"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Parameters and actual simulation equations code", "Section",
+ CellChangeTimes->{{3.7927811232134533`*^9, 3.79278112749964*^9}, {
+  3.7927817799333563`*^9, 3.792781784691574*^9}, {3.792782250686778*^9, 
+  3.792782260451419*^9}, {3.7927824681435013`*^9, 3.792782468411478*^9}, {
+  3.792783085731715*^9, 
+  3.792783104744426*^9}},ExpressionUUID->"ccb69cc8-e8e8-4497-8983-\
+2d0dba786a50"],
+
+Cell["\<\
+Here are the parameters we want to experiment with (or do calibration with):\
+\>", "Text",
+ CellChangeTimes->{{3.792782885557115*^9, 
+  3.792782913850957*^9}},ExpressionUUID->"b5307425-bccf-474a-b08a-\
+64c00f80895a"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsFocusParams", "=", 
+   RowBox[{"{", 
+    RowBox[{"aincp", ",", "aip", ",", 
+     RowBox[{"sspf", "[", "SP", "]"}], ",", 
+     RowBox[{"\[Beta]", "[", "ISSP", "]"}], ",", 
+     RowBox[{"\[Beta]", "[", "INSP", "]"}]}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7927829200073223`*^9, 3.792782922638206*^9}, {
+  3.792848738501598*^9, 3.7928487400529203`*^9}},
+ CellLabel->
+  "In[118]:=",ExpressionUUID->"03bbb7aa-6994-4382-b9db-b7a9726cddb4"],
+
+Cell["Here we set custom rates and initial conditions:", "Text",
+ CellChangeTimes->{{3.7928417223874493`*^9, 
+  3.792841744259144*^9}},ExpressionUUID->"7acc112e-29a0-41b2-b0fc-\
+18699f2b76a2"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"population", "=", 
+   RowBox[{"58160000", "/", "400"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"modelSI2R", "=", 
+   RowBox[{"SetRateRules", "[", 
+    RowBox[{"modelSI2R", ",", 
+     RowBox[{"<|", 
+      RowBox[{
+       RowBox[{"TP", "[", "0", "]"}], "\[Rule]", "population"}], "|>"}]}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"modelSI2R", "=", 
+   RowBox[{"SetInitialConditions", "[", 
+    RowBox[{"modelSI2R", ",", 
+     RowBox[{"<|", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"SP", "[", "0", "]"}], "\[Rule]", 
+        RowBox[{"population", "-", "1"}]}], ",", 
+       RowBox[{
+        RowBox[{"ISSP", "[", "0", "]"}], "\[Rule]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"INSP", "[", "0", "]"}], "\[Rule]", "1"}]}], "|>"}]}], 
+    "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.792840997471833*^9, 3.7928410014208717`*^9}, {
+   3.7928412515120993`*^9, 3.792841338172965*^9}, {3.792841623513248*^9, 
+   3.792841624005987*^9}, 3.792841673104003*^9, {3.792842466685299*^9, 
+   3.792842493309701*^9}, {3.792842554897097*^9, 3.7928425660755167`*^9}, {
+   3.792842634422552*^9, 3.792842653500198*^9}, {3.794405856156514*^9, 
+   3.79440585654856*^9}},
+ CellLabel->
+  "In[119]:=",ExpressionUUID->"d3ebda44-60d5-47a5-8684-947193a35c3d"],
+
+Cell[TextData[{
+ "Here is the system of ODE\[CloseCurlyQuote]s we use with to do ",
+ StyleBox["parametrized",
+  FontSlant->"Italic"],
+ " simulations:"
+}], "Text",
+ CellChangeTimes->{{3.792782947793372*^9, 3.792782973825616*^9}, {
+  3.7927830226521187`*^9, 3.792783032912167*^9}, {3.7927831258393993`*^9, 
+  3.792783136661377*^9}},ExpressionUUID->"b5c0ce94-0ac0-4b2f-b0ad-\
+86de99d81f28"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsActualEquations", "=", 
+   RowBox[{"Join", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], "//.", 
+      RowBox[{"KeyDrop", "[", 
+       RowBox[{
+        RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}], ",", 
+        "lsFocusParams"}], "]"}]}], ",", 
+     RowBox[{"modelSI2R", "[", "\"\<InitialConditions\>\"", "]"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<GridTableForm\>\"", "]"}], "[", 
+  RowBox[{"List", "/@", "lsActualEquations"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.792781370593688*^9, 3.792781390023394*^9}, {
+  3.7927829817931423`*^9, 3.7927830097817163`*^9}},
+ CellLabel->
+  "In[122]:=",ExpressionUUID->"a5ee0204-cb4c-46e0-b135-5dc10f4c2f49"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Simulation", "Section",
+ CellChangeTimes->{{3.7927811232134533`*^9, 3.79278112749964*^9}, {
+  3.7927817799333563`*^9, 3.792781784691574*^9}, {3.792782250686778*^9, 
+  3.792782260451419*^9}, {3.7927824681435013`*^9, 
+  3.792782468411478*^9}},ExpressionUUID->"e7b3f9da-6cf7-465c-822a-\
+d7eccebed8f4"],
+
+Cell[TextData[{
+ "Straightforward simulation for one year with using ",
+ StyleBox["ParametricNDSolve", "Program"],
+ " :"
+}], "Text",
+ CellChangeTimes->{{3.792782841771414*^9, 
+  3.792782873496614*^9}},ExpressionUUID->"d4322644-3a24-490a-9d89-\
+ef7576ffccc9"],
+
+Cell[BoxData[
+ RowBox[{"aSol", "=", "\[IndentingNewLine]", 
+  RowBox[{"Association", "@", 
+   RowBox[{"Flatten", "@", "\[IndentingNewLine]", 
+    RowBox[{"ParametricNDSolve", "[", 
+     RowBox[{"lsActualEquations", ",", 
+      RowBox[{"Head", "/@", 
+       RowBox[{"Keys", "[", 
+        RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], "]"}]}], ",", 
+      RowBox[{"{", 
+       RowBox[{"t", ",", "0", ",", "365"}], "}"}], ",", "lsFocusParams"}], 
+     "]"}]}]}]}]], "Input",
+ CellChangeTimes->{{3.786316903262426*^9, 3.7863169734811277`*^9}, {
+   3.786317049414694*^9, 3.78631713801545*^9}, {3.786317170125654*^9, 
+   3.786317171341251*^9}, {3.78631721822897*^9, 3.7863172260388107`*^9}, {
+   3.786317257776497*^9, 3.786317267675886*^9}, {3.786317579857354*^9, 
+   3.786317587100259*^9}, {3.78631771545534*^9, 3.786317717006637*^9}, {
+   3.7863178231874437`*^9, 3.7863178266953793`*^9}, {3.7863178625068502`*^9, 
+   3.786317867320408*^9}, {3.786318118471575*^9, 3.786318122833959*^9}, {
+   3.786318247747398*^9, 3.786318249343207*^9}, {3.786318302895005*^9, 
+   3.7863183488188677`*^9}, {3.786318485069227*^9, 3.7863184998946877`*^9}, {
+   3.786318551500525*^9, 3.786318556102796*^9}, {3.786318800031804*^9, 
+   3.7863188166821404`*^9}, {3.786319912135104*^9, 3.786319912301959*^9}, {
+   3.7863203700386868`*^9, 3.7863203933146*^9}, {3.786320438583296*^9, 
+   3.786320442702189*^9}, {3.786320631752533*^9, 3.786320633854203*^9}, {
+   3.786320929679583*^9, 3.786320929873125*^9}, {3.786321017397238*^9, 
+   3.7863210182955933`*^9}, {3.7863213851774387`*^9, 3.786321411762323*^9}, {
+   3.786321669705655*^9, 3.7863217071663523`*^9}, {3.786322435235704*^9, 
+   3.786322437432716*^9}, {3.786323349728922*^9, 3.7863233540018387`*^9}, {
+   3.786323401322722*^9, 3.786323401525729*^9}, {3.7863248813985977`*^9, 
+   3.786324930179571*^9}, {3.786325674321974*^9, 3.786325675235272*^9}, {
+   3.7863701591118593`*^9, 3.786370159437223*^9}, {3.786548850876053*^9, 
+   3.786548851845343*^9}, {3.786549176561618*^9, 3.7865491772010612`*^9}, {
+   3.786549298085902*^9, 3.786549301289637*^9}, {3.786549636649568*^9, 
+   3.78654963975179*^9}, {3.7865496699444637`*^9, 3.786549708963323*^9}, {
+   3.78654974800352*^9, 3.7865497504540453`*^9}, {3.786588245547654*^9, 
+   3.7865882529254723`*^9}, {3.786755036973909*^9, 3.7867551453891983`*^9}, {
+   3.786755221082431*^9, 3.786755228596093*^9}, {3.786755893831298*^9, 
+   3.786755896034431*^9}, {3.786756640888109*^9, 3.7867566794632187`*^9}, {
+   3.78675670957026*^9, 3.7867567258817244`*^9}, {3.786756821118629*^9, 
+   3.786756826986474*^9}, {3.786757795391692*^9, 3.7867577964710493`*^9}, {
+   3.786792236919899*^9, 3.786792238616351*^9}, 3.786792724131291*^9, {
+   3.7867928109714937`*^9, 3.786792813826539*^9}, {3.786810851941722*^9, 
+   3.7868108618568974`*^9}, {3.786811533778091*^9, 3.786811535552885*^9}, {
+   3.7868117540583353`*^9, 3.786811755359893*^9}, {3.787067108222567*^9, 
+   3.787067108765233*^9}, {3.787067743880206*^9, 3.7870677507634706`*^9}, {
+   3.787067887151634*^9, 3.7870679145325623`*^9}, {3.787068071980609*^9, 
+   3.787068072476891*^9}, {3.787068137243256*^9, 3.787068137584405*^9}, 
+   3.7871495015779543`*^9, {3.787151638934854*^9, 3.787151641946806*^9}, {
+   3.787153204936743*^9, 3.787153209747772*^9}, {3.787153265921918*^9, 
+   3.7871532728068857`*^9}, {3.7871533097769413`*^9, 
+   3.7871533100451736`*^9}, {3.7871534232247667`*^9, 3.787153423630227*^9}, 
+   3.787153464253841*^9, {3.787271547595359*^9, 3.787271582242962*^9}, {
+   3.7872718466138*^9, 3.787271862938999*^9}, {3.787273631772451*^9, 
+   3.787273633415929*^9}, 3.787273716373279*^9, {3.787327262410672*^9, 
+   3.787327262849859*^9}, {3.78733174280494*^9, 3.787331747249434*^9}, {
+   3.787331806154708*^9, 3.787331807907237*^9}, {3.7873321332998123`*^9, 
+   3.787332145485935*^9}, {3.78735635846045*^9, 3.787356384760757*^9}, {
+   3.7875002741900597`*^9, 3.787500274563574*^9}, {3.787501367309001*^9, 
+   3.787501367739503*^9}, {3.787504947643713*^9, 3.787504947799387*^9}, {
+   3.787932999392992*^9, 3.787933165330158*^9}, {3.7879332121319637`*^9, 
+   3.7879332386152782`*^9}, 3.787941235834676*^9, 3.787941321016114*^9, {
+   3.7879414282597103`*^9, 3.787941428701593*^9}, {3.7879431075826597`*^9, 
+   3.787943108008009*^9}, {3.7879433685629873`*^9, 3.7879433752895947`*^9}, {
+   3.787943847230296*^9, 3.787943868519953*^9}, 3.7879440241794357`*^9, 
+   3.78794418285363*^9, {3.787961512445311*^9, 3.787961512716276*^9}, {
+   3.787963513451579*^9, 3.787963513741569*^9}, {3.787963676343705*^9, 
+   3.787963679421777*^9}, {3.787964131053928*^9, 3.7879641394551353`*^9}, {
+   3.7879642206153717`*^9, 3.787964229457213*^9}, {3.787965053163312*^9, 
+   3.7879650750985823`*^9}, {3.787987508287719*^9, 3.787987509816074*^9}, {
+   3.787987640039134*^9, 3.7879876455269737`*^9}, {3.787987696976219*^9, 
+   3.787987697648828*^9}, 3.787987859980227*^9, {3.787998453450206*^9, 
+   3.7879984858139772`*^9}, {3.787998622711328*^9, 3.7879986509173117`*^9}, {
+   3.787998810026828*^9, 3.787998814299572*^9}, {3.78799901615248*^9, 
+   3.78799901664534*^9}, {3.788011569396737*^9, 3.7880115696551237`*^9}, {
+   3.7880116028083687`*^9, 3.788011604227702*^9}, {3.788014529586891*^9, 
+   3.788014529764153*^9}, {3.7880153240175953`*^9, 3.788015324376362*^9}, {
+   3.788015431660056*^9, 3.788015431904756*^9}, {3.788105198144033*^9, 
+   3.7881052188897943`*^9}, {3.7882764415439377`*^9, 3.788276442285069*^9}, {
+   3.792338930312811*^9, 3.792339007145792*^9}, {3.79234005161412*^9, 
+   3.792340064685316*^9}, {3.792340155375489*^9, 3.792340187492379*^9}, {
+   3.792340443853345*^9, 3.792340449155024*^9}, {3.792341044726254*^9, 
+   3.792341045240695*^9}, {3.792343694845417*^9, 3.792343700473075*^9}, {
+   3.792518587473897*^9, 3.7925185914766397`*^9}, {3.7925213729847193`*^9, 
+   3.792521374941101*^9}, {3.792781292170731*^9, 3.7927812928444138`*^9}, {
+   3.7928460287248077`*^9, 3.7928460636774807`*^9}},
+ CellLabel->
+  "In[124]:=",ExpressionUUID->"dec57ee7-ba0b-4b9b-ac61-82a254d7723f"],
+
+Cell["\<\
+(The advantage having parametrized solutions is that we can quickly compute \
+simulation results with new parameter values without solving model\
+\[CloseCurlyQuote]s system of ODE\[CloseCurlyQuote]s; see the interfaces \
+below.)\
+\>", "Text",
+ CellChangeTimes->{{3.792856370443706*^9, 3.792856375202304*^9}, {
+  3.792856456507905*^9, 3.7928564589665956`*^9}, {3.792856651957243*^9, 
+  3.792856782841503*^9}, {3.7928599458473873`*^9, 
+  3.792859947084577*^9}},ExpressionUUID->"40c3405e-3fd7-41b1-ad93-\
+27f5dd046abd"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Interactive interface", "Section",
+ CellChangeTimes->{{3.7927824736593933`*^9, 
+  3.792782476624091*^9}},ExpressionUUID->"7846ed5a-5d0a-4074-8e9b-\
+aa235745aad9"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"opts", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"PlotLegends", "\[Rule]", "None"}], ",", 
+     RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+     RowBox[{"PerformanceGoal", "\[Rule]", "\"\<Speed\>\""}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "300"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"lsPopulationKeys", "=", 
+   RowBox[{"GetPopulationSymbols", "[", 
+    RowBox[{"modelSI2R", ",", 
+     RowBox[{"__", "~~", "\"\<Population\>\""}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"lsEconKeys", "=", 
+   RowBox[{"{", "MLP", "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"DynamicModule", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"lsPopulationPlots", ",", "lsEconPlots", ",", "lsRestPlots"}], 
+      "}"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"lsPopulationPlots", "=", "\[IndentingNewLine]", 
+       RowBox[{"ParametricSolutionsPlots", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"KeyTake", "[", 
+          RowBox[{"aSol", ",", "lsPopulationKeys"}], "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{
+          "aincp", ",", "aip", ",", "spf", ",", "crisp", ",", "criap"}], 
+          "}"}], ",", "ndays", ",", "\[IndentingNewLine]", 
+         RowBox[{"\"\<LogPlot\>\"", "\[Rule]", "popLogPlotQ"}], ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "popTogetherQ"}], ",", 
+         RowBox[{"\"\<Derivatives\>\"", "\[Rule]", "popDerivativesQ"}], ",", 
+         RowBox[{
+         "\"\<DerivativePrefix\>\"", "\[Rule]", "\"\<\[CapitalDelta]\>\""}], 
+         ",", "opts"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      "\[IndentingNewLine]", 
+      RowBox[{"lsEconPlots", "=", "\[IndentingNewLine]", 
+       RowBox[{"ParametricSolutionsPlots", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"KeyTake", "[", 
+          RowBox[{"aSol", ",", "lsEconKeys"}], "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{
+          "aincp", ",", "aip", ",", "spf", ",", "crisp", ",", "criap"}], 
+          "}"}], ",", "ndays", ",", "\[IndentingNewLine]", 
+         RowBox[{"\"\<LogPlot\>\"", "\[Rule]", "econLogPlotQ"}], ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "econTogetherQ"}], ",", 
+         RowBox[{"\"\<Derivatives\>\"", "\[Rule]", "econDerivativesQ"}], ",", 
+         
+         RowBox[{
+         "\"\<DerivativePrefix\>\"", "\[Rule]", "\"\<\[CapitalDelta]\>\""}], 
+         ",", "opts"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      "\[IndentingNewLine]", 
+      RowBox[{"lsRestPlots", "=", "\[IndentingNewLine]", 
+       RowBox[{"ParametricSolutionsPlots", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"KeyDrop", "[", 
+          RowBox[{"aSol", ",", 
+           RowBox[{"Join", "[", 
+            RowBox[{"lsPopulationKeys", ",", "lsEconKeys"}], "]"}]}], "]"}], 
+         ",", "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{
+          "aincp", ",", "aip", ",", "spf", ",", "crisp", ",", "criap"}], 
+          "}"}], ",", "ndays", ",", "\[IndentingNewLine]", 
+         RowBox[{"\"\<LogPlot\>\"", "\[Rule]", "econLogPlotQ"}], ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "econTogetherQ"}], ",", 
+         RowBox[{"\"\<Derivatives\>\"", "\[Rule]", "econDerivativesQ"}], ",", 
+         
+         RowBox[{
+         "\"\<DerivativePrefix\>\"", "\[Rule]", "\"\<\[CapitalDelta]\>\""}], 
+         ",", "opts"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Multicolumn", "[", 
+       RowBox[{
+        RowBox[{"Join", "[", 
+         RowBox[{
+         "lsPopulationPlots", ",", "lsEconPlots", ",", "lsRestPlots"}], "]"}],
+         ",", "nPlotColumns", ",", 
+        RowBox[{"Dividers", "\[Rule]", "All"}], ",", 
+        RowBox[{"FrameStyle", "\[Rule]", 
+         RowBox[{"GrayLevel", "[", "0.8", "]"}]}]}], "]"}]}]}], 
+    "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "aincp", ",", "6.", ",", "\"\<Average incubation period (days)\>\""}], 
+      "}"}], ",", "1", ",", "60.", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "aip", ",", "32.", ",", "\"\<Average infectious period (days)\>\""}], 
+      "}"}], ",", "1", ",", "100.", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "spf", ",", "0.2", ",", 
+       "\"\<Severely symptomatic population fraction\>\""}], "}"}], ",", "0", 
+     ",", "1", ",", "0.025", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "crisp", ",", "0.56", ",", 
+       "\"\<Contact rate of the infected severely symptomatic \
+population\>\""}], "}"}], ",", "0", ",", "20", ",", "0.01", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "criap", ",", "0.56", ",", 
+       "\"\<Contact rate of the infected normally symptomatic \
+population\>\""}], "}"}], ",", "0", ",", "20", ",", "0.01", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"ndays", ",", "160", ",", "\"\<Number of days\>\""}], "}"}], 
+     ",", "1", ",", "365", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "popTogetherQ", ",", "True", ",", "\"\<Plot populations together\>\""}],
+       "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "popDerivativesQ", ",", "False", ",", 
+       "\"\<Plot populations derivatives\>\""}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "popLogPlotQ", ",", "False", ",", "\"\<LogPlot populations\>\""}], 
+      "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "econTogetherQ", ",", "False", ",", 
+       "\"\<Plot economics functions together\>\""}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "econDerivativesQ", ",", "False", ",", 
+       "\"\<Plot economics functions derivatives\>\""}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "econLogPlotQ", ",", "False", ",", 
+       "\"\<LogPlot economics functions\>\""}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"False", ",", "True"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "nPlotColumns", ",", "1", ",", "\"\<Number of plot columns\>\""}], 
+      "}"}], ",", 
+     RowBox[{"Range", "[", "5", "]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"ControlPlacement", "\[Rule]", "Left"}], ",", 
+   RowBox[{"ContinuousAction", "\[Rule]", "False"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.786317238125729*^9, 3.7863172448803053`*^9}, {
+   3.786317305823036*^9, 3.78631742738162*^9}, {3.7863174591434803`*^9, 
+   3.7863174710329447`*^9}, {3.7863177602630157`*^9, 3.7863177665402184`*^9}, 
+   3.786318439978745*^9, 3.786318474335602*^9, 3.786318595635326*^9, 
+   3.7863186886099987`*^9, {3.786318973575309*^9, 3.78631897913483*^9}, {
+   3.7863192960522013`*^9, 3.7863193520896606`*^9}, {3.78632045214303*^9, 
+   3.786320515851375*^9}, {3.786320548951707*^9, 3.786320608254611*^9}, 
+   3.786320716973219*^9, {3.786320747618629*^9, 3.78632078936588*^9}, {
+   3.7863209231138277`*^9, 3.7863209233444147`*^9}, {3.786321063354065*^9, 
+   3.786321063823612*^9}, {3.7863212618845663`*^9, 3.78632126276233*^9}, {
+   3.786321726238051*^9, 3.7863217271097517`*^9}, {3.78632228824187*^9, 
+   3.786322300343925*^9}, {3.786322445978818*^9, 3.786322489110881*^9}, {
+   3.786322706804262*^9, 3.786322733501684*^9}, {3.7863227654301157`*^9, 
+   3.7863227695107727`*^9}, {3.786323789700986*^9, 3.78632380666453*^9}, {
+   3.786323871726573*^9, 3.7863238720086412`*^9}, {3.78632406961727*^9, 
+   3.786324070807716*^9}, {3.786324647439806*^9, 3.786324648944803*^9}, {
+   3.7863248014998913`*^9, 3.78632480579291*^9}, 3.78632483949166*^9, {
+   3.786370422850316*^9, 3.786370441179221*^9}, {3.786370523607484*^9, 
+   3.786370525157041*^9}, {3.786370570530699*^9, 3.786370673606064*^9}, {
+   3.786374148618553*^9, 3.786374241644977*^9}, {3.7863743609559717`*^9, 
+   3.786374361166888*^9}, {3.786381001681492*^9, 3.786381006216125*^9}, {
+   3.786548862175577*^9, 3.786548863305829*^9}, {3.786549167685629*^9, 
+   3.786549168612378*^9}, {3.786549307803813*^9, 3.7865493538855886`*^9}, {
+   3.786549836126419*^9, 3.786549865712524*^9}, {3.7867564875938873`*^9, 
+   3.78675656453445*^9}, {3.786756607565278*^9, 3.7867566079229097`*^9}, {
+   3.7867925577521553`*^9, 3.78679261832148*^9}, {3.786794241339982*^9, 
+   3.786794242462961*^9}, {3.786810270344038*^9, 3.78681028617314*^9}, {
+   3.786810542579221*^9, 3.786810543566774*^9}, {3.786810852009184*^9, 
+   3.786810861918651*^9}, {3.78681123463466*^9, 3.78681124289076*^9}, {
+   3.786811763483728*^9, 3.7868117861639633`*^9}, {3.7870671202706223`*^9, 
+   3.78706716080371*^9}, {3.787067311693521*^9, 3.787067312074051*^9}, {
+   3.787068090702633*^9, 3.787068091276505*^9}, {3.787068141990532*^9, 
+   3.787068146399663*^9}, {3.7870738473711643`*^9, 3.787073914759479*^9}, {
+   3.787151713207073*^9, 3.787151713454609*^9}, {3.787153279424542*^9, 
+   3.7871532799626226`*^9}, {3.787153314727811*^9, 3.787153314950966*^9}, {
+   3.7871533640356607`*^9, 3.7871533752955217`*^9}, 3.787153470036459*^9, {
+   3.787155281055571*^9, 3.787155288030821*^9}, {3.787156071642871*^9, 
+   3.787156186328278*^9}, {3.787273890381342*^9, 3.7872738904914103`*^9}, {
+   3.787274893549137*^9, 3.7872748949293633`*^9}, {3.787327417876851*^9, 
+   3.78732743026373*^9}, {3.787327476884872*^9, 3.7873274785692587`*^9}, {
+   3.787328383609994*^9, 3.7873283890435247`*^9}, {3.787328936726845*^9, 
+   3.787329013442053*^9}, {3.787329064023488*^9, 3.787329140479594*^9}, {
+   3.787330369395667*^9, 3.787330518033765*^9}, {3.7873559639606047`*^9, 
+   3.7873560113171053`*^9}, {3.78735604958642*^9, 3.787356076156808*^9}, {
+   3.7873561880659037`*^9, 3.787356218809911*^9}, {3.7873562510666122`*^9, 
+   3.78735630362477*^9}, {3.78735650973223*^9, 3.7873565182685537`*^9}, {
+   3.7875013748468847`*^9, 3.787501414829297*^9}, {3.787504869994722*^9, 
+   3.787504912890319*^9}, {3.788016149006979*^9, 3.78801617031537*^9}, {
+   3.7880162029395933`*^9, 3.788016207009506*^9}, {3.78801703767134*^9, 
+   3.7880170378863277`*^9}, 3.788497622332589*^9, {3.78849818633349*^9, 
+   3.78849823041328*^9}, {3.788498324182007*^9, 3.788498336026155*^9}, {
+   3.78854322537654*^9, 3.78854324907491*^9}, {3.788543313700819*^9, 
+   3.788543314132841*^9}, {3.788543450641032*^9, 3.788543514124896*^9}, {
+   3.788543981727172*^9, 3.788544060080567*^9}, {3.788544117065056*^9, 
+   3.788544143693222*^9}, {3.788544439383399*^9, 3.7885444406411324`*^9}, {
+   3.788551508962717*^9, 3.788551571896957*^9}, {3.788551617719614*^9, 
+   3.7885516339851637`*^9}, {3.788551724089517*^9, 3.788551726732849*^9}, {
+   3.7885518598112288`*^9, 3.788551882545281*^9}, {3.7885552485905313`*^9, 
+   3.788555290790285*^9}, {3.78855590930855*^9, 3.788555909315702*^9}, {
+   3.788555951312861*^9, 3.7885559661624413`*^9}, {3.788556022685916*^9, 
+   3.788556048277678*^9}, {3.788556609761383*^9, 3.78855661140443*^9}, {
+   3.7885632652501917`*^9, 3.7885632659339657`*^9}, {3.788563328080624*^9, 
+   3.788563385762018*^9}, {3.78856346424054*^9, 3.7885634956720552`*^9}, {
+   3.788564251507742*^9, 3.788564314407947*^9}, {3.788619666277625*^9, 
+   3.788619672286278*^9}, {3.788619916167513*^9, 3.788619919948606*^9}, {
+   3.7886199623735447`*^9, 3.7886199671309032`*^9}, {3.7886207821965303`*^9, 
+   3.788620782447179*^9}, {3.792339986534932*^9, 3.7923401914305696`*^9}, {
+   3.792340224711012*^9, 3.792340246669105*^9}, {3.792340307618897*^9, 
+   3.7923403104572763`*^9}, {3.7923403900543823`*^9, 3.792340391289946*^9}, {
+   3.792340464305459*^9, 3.7923406632749157`*^9}, {3.7923406983531437`*^9, 
+   3.7923408193605003`*^9}, {3.792340858851686*^9, 3.792340877716078*^9}, {
+   3.792341004743967*^9, 3.792341011852682*^9}, {3.792341084563244*^9, 
+   3.792341144254981*^9}, {3.792344112988242*^9, 3.79234411309833*^9}, {
+   3.792345507902218*^9, 3.792345678703079*^9}, {3.792345709888754*^9, 
+   3.7923457553491907`*^9}, {3.792345799551609*^9, 3.7923459978244457`*^9}, 
+   3.792346177592004*^9, {3.792346360698246*^9, 3.792346504644956*^9}, {
+   3.7923466797214737`*^9, 3.7923468010485783`*^9}, {3.792407360686906*^9, 
+   3.7924073620792007`*^9}, {3.792409001165797*^9, 3.792409025081437*^9}, {
+   3.792409075870474*^9, 3.792409094394063*^9}, 3.792414210709062*^9, {
+   3.792414269309236*^9, 3.792414280500248*^9}, {3.792414331724285*^9, 
+   3.792414335918174*^9}, {3.792417388251939*^9, 3.792417394169883*^9}, 
+   3.792432617000585*^9, 3.792432692853957*^9, {3.792441861005801*^9, 
+   3.792441861679482*^9}, {3.792443303379622*^9, 3.792443308936564*^9}, {
+   3.792443495105538*^9, 3.792443537958232*^9}, {3.79244357544234*^9, 
+   3.7924436487357388`*^9}, {3.792444205747911*^9, 3.792444206195497*^9}, {
+   3.792444265904039*^9, 3.792444267206521*^9}, {3.792448308403257*^9, 
+   3.79244831195823*^9}, {3.792448917939115*^9, 3.792448919173271*^9}, {
+   3.7924493327541637`*^9, 3.7924493450270157`*^9}, {3.792449414645301*^9, 
+   3.792449415396982*^9}, {3.792450245661256*^9, 3.7924502491921*^9}, {
+   3.792451564969988*^9, 3.792451608707293*^9}, {3.792451665081016*^9, 
+   3.7924516737355947`*^9}, {3.7925022126998177`*^9, 3.792502213276998*^9}, {
+   3.7925029420290213`*^9, 3.7925030719778976`*^9}, {3.792503103277059*^9, 
+   3.792503132829657*^9}, {3.792503170519659*^9, 3.792503274751156*^9}, {
+   3.7925033826541777`*^9, 3.792503389415659*^9}, {3.79250342286154*^9, 
+   3.792503423510808*^9}, {3.792503827160379*^9, 3.792503827630527*^9}, {
+   3.792503871676291*^9, 3.7925039113123827`*^9}, {3.792503964480145*^9, 
+   3.79250402746771*^9}, {3.792504177669862*^9, 3.792504181719342*^9}, {
+   3.792504319129912*^9, 3.792504378485444*^9}, {3.792504445640291*^9, 
+   3.7925045488960257`*^9}, {3.7925046277802353`*^9, 3.792504628273101*^9}, 
+   3.792507458337905*^9, {3.792507510773199*^9, 3.7925075136968412`*^9}, {
+   3.7925165600903683`*^9, 3.792516578511261*^9}, {3.7925211874041777`*^9, 
+   3.792521226575897*^9}, {3.7927800448409033`*^9, 3.7927800453103647`*^9}, {
+   3.7927810478636827`*^9, 3.7927810479735327`*^9}, {3.7927811932159023`*^9, 
+   3.7927812328099623`*^9}, {3.792781440448679*^9, 3.792781467968034*^9}, {
+   3.79284553045765*^9, 3.792845582139193*^9}, {3.792845625901553*^9, 
+   3.792845636860993*^9}, {3.792847132100815*^9, 3.7928471332567673`*^9}, {
+   3.792848748945051*^9, 3.7928487660691566`*^9}, {3.793286858658711*^9, 
+   3.793286896356415*^9}},
+ CellLabel->
+  "In[125]:=",ExpressionUUID->"c71658f0-c25f-4fe8-af4f-9d774b60c0b8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration over real data", "Section",
+ CellChangeTimes->{{3.792836669797282*^9, 3.792836672631938*^9}, {
+  3.792836712188122*^9, 3.7928367133171253`*^9}, {3.7928479392865267`*^9, 
+  3.792847947397829*^9}},ExpressionUUID->"7ba89030-1c5a-49ff-b067-\
+862afba5e33f"],
+
+Cell["\<\
+It is important to calibrate these kind of models with real data, or at least \
+to give a serious attempt to such a calibration. If the calibration is \
+\[OpenCurlyDoubleQuote]too hard\[CloseCurlyDoubleQuote] or \
+\[OpenCurlyDoubleQuote]impossible\[CloseCurlyDoubleQuote] that would indicate \
+that the model is not that adequate. (If adequate at all.)\
+\>", "Text",
+ CellChangeTimes->{{3.792847956071168*^9, 3.792848063263455*^9}, {
+  3.792850970361533*^9, 
+  3.792850995718958*^9}},ExpressionUUID->"438e0fd7-4db4-4963-9668-\
+a38387441706"],
+
+Cell["\<\
+The calibration efforts can be (semi-)automated using special model-to-data \
+goodness of fit functions and a minimization procedure. (See for example, \
+[AA2].)\
+\>", "Text",
+ CellChangeTimes->{{3.792836850237832*^9, 3.792836862186356*^9}, {
+  3.7928369823049192`*^9, 3.792836997233143*^9}, {3.792837114495236*^9, 
+  3.79283718046451*^9}, {3.792848072623601*^9, 
+  3.792848079328719*^9}},ExpressionUUID->"1b9f1d93-e3fb-42de-aeed-\
+9c47b2fe526c"],
+
+Cell["\<\
+In this section we just attempt to calibrate SEI2R over real data taken from \
+[WRI1] using a specialized interactive interface.\
+\>", "Text",
+ CellChangeTimes->{{3.792837185077977*^9, 3.792837213720962*^9}, {
+  3.7928422277699747`*^9, 3.79284223066047*^9}, {3.7928480943813477`*^9, 
+  3.7928480983414373`*^9}, {3.7928482868608847`*^9, 3.7928483290717173`*^9}, {
+  3.792851028300452*^9, 
+  3.792851028817021*^9}},ExpressionUUID->"f6ba4fb6-f20c-4ccd-b567-\
+4a964dcd19f0"],
+
+Cell[CellGroupData[{
+
+Cell["Real data", "Subsection",
+ CellChangeTimes->{{3.792848102335277*^9, 
+  3.792848107589003*^9}},ExpressionUUID->"41d2a16b-3cc0-4875-a88c-\
+38ca495b7ec3"],
+
+Cell["\<\
+Here is COVID-19 data taken from [WRI1] for the Chinese province Hubei:\
+\>", "Text",
+ CellChangeTimes->{{3.7928483332791452`*^9, 3.792848370825708*^9}, {
+  3.792850417896298*^9, 
+  3.7928504391473103`*^9}},ExpressionUUID->"239cb760-fab6-4770-8824-\
+9e09dabc55d8"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aRealData", "=", 
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{"\"\<RecoveredCases\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "28", ",", "28", ",", "31", ",", "32", ",", "42", ",", "45", ",", "80",
+         ",", "88", ",", "90", ",", "141", ",", "168", ",", "295", ",", "386",
+         ",", "522", ",", "633", ",", "817", ",", "1115", ",", "1439", ",", 
+        "1795", ",", "2222", ",", "2639", ",", "2686", ",", "3459", ",", 
+        "4774", ",", "5623", ",", "6639", ",", "7862", ",", "9128", ",", 
+        "10337", ",", "11788", ",", "11881", ",", "15299", ",", "15343", ",", 
+        "16748", ",", "18971", ",", "20969", ",", "23383", ",", "26403", ",", 
+        "28993", ",", "31536", ",", "33934", ",", "36208", ",", "38557", ",", 
+        "40592", ",", "42033", ",", "43500", ",", "45235"}], "}"}]}], ",", 
+     RowBox[{"\"\<Deaths\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "17", ",", "17", ",", "24", ",", "40", ",", "52", ",", "76", ",", 
+        "125", ",", "125", ",", "162", ",", "204", ",", "249", ",", "350", 
+        ",", "414", ",", "479", ",", "549", ",", "618", ",", "699", ",", 
+        "780", ",", "871", ",", "974", ",", "1068", ",", "1068", ",", "1310", 
+        ",", "1457", ",", "1596", ",", "1696", ",", "1789", ",", "1921", ",", 
+        "2029", ",", "2144", ",", "2144", ",", "2346", ",", "2346", ",", 
+        "2495", ",", "2563", ",", "2615", ",", "2641", ",", "2682", ",", 
+        "2727", ",", "2761", ",", "2803", ",", "2835", ",", "2871", ",", 
+        "2902", ",", "2931", ",", "2959", ",", "2986"}], "}"}]}], ",", 
+     RowBox[{"\"\<Infected\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "399", ",", "399", ",", "494", ",", "689", ",", "964", ",", "1302", 
+        ",", "3349", ",", "3341", ",", "4651", ",", "5461", ",", "6736", ",", 
+        "10532", ",", "12722", ",", "15677", ",", "18483", ",", "20677", ",", 
+        "23139", ",", "24881", ",", "26965", ",", "28532", ",", "29659", ",", 
+        "29612", ",", "43437", ",", "48175", ",", "49030", ",", "49847", ",", 
+        "50338", ",", "50633", ",", "49665", ",", "48510", ",", "48637", ",", 
+        "46439", ",", "46395", ",", "45044", ",", "43252", ",", "41603", ",", 
+        "39572", ",", "36829", ",", "34617", ",", "32610", ",", "30366", ",", 
+        "28174", ",", "25904", ",", "23972", ",", "22628", ",", "21207", ",", 
+        "19486"}], "}"}]}]}], "\[RightAssociation]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.792842729844638*^9, 3.79284274024264*^9}},
+ CellLabel->
+  "In[129]:=",ExpressionUUID->"51615ffd-bd9c-4552-83ff-5ae0a23ec137"],
+
+Cell["The total population in Hubei is", "Text",
+ CellChangeTimes->{{3.792848456274737*^9, 
+  3.792848470227968*^9}},ExpressionUUID->"9e9698b0-fdda-4d5c-9a04-\
+2de50faee3b2"],
+
+Cell[BoxData[
+ RowBox[{"EntityValue", "[", 
+  RowBox[{
+   TemplateBox[{"\"Hubei, China\"", 
+     RowBox[{"Entity", "[", 
+       RowBox[{"\"AdministrativeDivision\"", ",", 
+         RowBox[{"{", 
+           RowBox[{"\"Hubei\"", ",", "\"China\""}], "}"}]}], "]"}], 
+     "\"Entity[\\\"AdministrativeDivision\\\", {\\\"Hubei\\\", \
+\\\"China\\\"}]\"", "\"administrative division\""},
+    "Entity"], ",", "\"\<Population\>\""}], "]"}]], "Input",
+ CellChangeTimes->{{3.792841041684802*^9, 3.792841073253251*^9}},
+ CellLabel->
+  "In[130]:=",ExpressionUUID->"5a1807b2-0f65-42c4-a727-ce4f30c23f76"],
+
+Cell["\<\
+But we have to use a fraction of that population in order to produce good \
+fits. That can be justified with the conjecture that the citizens of Hubei \
+are spread out and it is mostly one city (Wuhan) where the outbreak is.\
+\>", "Text",
+ CellChangeTimes->{{3.792848473647402*^9, 3.792848495799355*^9}, {
+  3.792850084045699*^9, 3.792850122679521*^9}, {3.792850182080537*^9, 
+  3.7928502300852137`*^9}, {3.7928503983997517`*^9, 3.792850412776917*^9}, {
+  3.792851039662559*^9, 
+  3.792851098499206*^9}},ExpressionUUID->"8afbe022-5d0e-4e8c-a203-\
+b27a7e914ef5"],
+
+Cell["\<\
+The real data have to be padded with a certain number of 0\[CloseCurlyQuote]s \
+related to the infectious and incubation periods in order to make good fits. \
+Such padding is easy to justify: if we observe recovered people that means \
+that they passed through the incubation and infectious periods.\
+\>", "Text",
+ CellChangeTimes->{{3.7928484455441303`*^9, 3.792848447763997*^9}, {
+  3.792848515981455*^9, 3.792848706077091*^9}, {3.792851128686026*^9, 
+  3.792851164854032*^9}},ExpressionUUID->"75d0532b-f4a3-4be0-a265-\
+21ea6787672a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration interactive interface", "Subsection",
+ CellChangeTimes->{{3.7928481120988607`*^9, 
+  3.792848120437009*^9}},ExpressionUUID->"ad6b1ac0-8548-4c1b-9f9c-\
+46f6e3ea0db9"],
+
+Cell["\<\
+In this interface we put the Infected Severely Symptomatic Population (ISSP) \
+to zero. That way it is easier to compare the real data with the simulated \
+results (and pick parameter values that give close fits.)
+Also note that since SEI2R is simple in this interface the system is always \
+solved.\
+\>", "Text",
+ CellChangeTimes->{{3.792855641476424*^9, 3.792855703768517*^9}, {
+  3.792855744662578*^9, 3.792855747790085*^9}, {3.79285578480407*^9, 
+  3.792855833921876*^9}, {3.792855873432335*^9, 3.7928558919275417`*^9}, {
+  3.7928563248802834`*^9, 3.792856344590657*^9}, {3.792857028197557*^9, 
+  3.79285706431017*^9}, {3.792858133145442*^9, 3.792858137377821*^9}, {
+  3.792858207666234*^9, 
+  3.792858279891777*^9}},ExpressionUUID->"65516fc4-cf2f-41d2-b0c4-\
+54183653f776"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "PadRealData", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PadRealData", "[", 
+    RowBox[{
+     RowBox[{"aData", ":", 
+      RowBox[{"Association", "[", " ", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"_String", " ", "\[Rule]", " ", 
+          RowBox[{"_", "?", "VectorQ"}]}], ")"}], ".."}], "]"}]}], ",", 
+     RowBox[{"incubationPeriod_", "?", "IntegerQ"}], ",", 
+     RowBox[{"infectiousPeriod_", "?", "IntegerQ"}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Join", "[", 
+        RowBox[{
+         RowBox[{"ConstantArray", "[", 
+          RowBox[{"0", ",", 
+           RowBox[{"incubationPeriod", "+", "infectiousPeriod"}]}], "]"}], 
+         ",", "#"}], "]"}], "&"}], "/@", "aData"}]}], "\[IndentingNewLine]", 
+    "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.79284609289685*^9, 3.7928462958905478`*^9}, {
+  3.792846361955044*^9, 3.792846364881196*^9}, {3.7928487725930557`*^9, 
+  3.792848781012878*^9}},
+ CellLabel->
+  "In[131]:=",ExpressionUUID->"c72c4ccd-6c20-4d47-b316-ee4b2a822d87"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"opts", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"PlotLegends", "\[Rule]", "None"}], ",", 
+     RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+     RowBox[{"PerformanceGoal", "\[Rule]", "\"\<Speed\>\""}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "300"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"DynamicModule", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"modelSI2R", "=", "modelSI2R"}], ",", "lsActualEquations", ",",
+        "aSol", ",", "lsPopulationPlots", ",", "lsEconPlots", ",", 
+       "lsRestPlots"}], "}"}], ",", "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetRateRules", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"<|", 
+          RowBox[{
+           RowBox[{"TP", "[", "t", "]"}], "\[Rule]", "population"}], "|>"}]}],
+         "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetInitialConditions", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"<|", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"SP", "[", "0", "]"}], "\[Rule]", 
+            RowBox[{"population", "-", "1"}]}], ",", 
+           RowBox[{
+            RowBox[{"ISSP", "[", "0", "]"}], "\[Rule]", "0"}], ",", 
+           RowBox[{
+            RowBox[{"INSP", "[", "0", "]"}], "\[Rule]", "1"}]}], "|>"}]}], 
+        "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"lsActualEquations", "=", 
+       RowBox[{"Join", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], "//.", 
+          RowBox[{"KeyDrop", "[", 
+           RowBox[{
+            RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}], ",", 
+            "lsFocusParams"}], "]"}]}], ",", 
+         RowBox[{"modelSI2R", "[", "\"\<InitialConditions\>\"", "]"}]}], 
+        "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"aSol", "=", "\[IndentingNewLine]", 
+       RowBox[{"Association", "@", 
+        RowBox[{"Flatten", "@", "\[IndentingNewLine]", 
+         RowBox[{"ParametricNDSolve", "[", 
+          RowBox[{"lsActualEquations", ",", 
+           RowBox[{"{", 
+            RowBox[{"SP", ",", "EP", ",", "INSP", ",", "RP", ",", "IDP"}], 
+            "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"t", ",", "0", ",", "365"}], "}"}], ",", 
+           "lsFocusParams"}], "]"}]}]}]}], ";", "\[IndentingNewLine]", 
+      "\[IndentingNewLine]", 
+      RowBox[{"lsPopulationPlots", "=", "\[IndentingNewLine]", 
+       RowBox[{"ParametricSolutionsPlots", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"KeyTake", "[", 
+          RowBox[{"aSol", ",", 
+           RowBox[{"GetPopulationSymbols", "[", 
+            RowBox[{"modelSI2R", ",", 
+             RowBox[{"__", "~~", "\"\<Population\>\""}]}], "]"}]}], "]"}], 
+         ",", "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{"aincp", ",", "aip", ",", "0", ",", "criap", ",", "criap"}],
+           "}"}], ",", "ndays", ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "True"}], ",", "opts"}], 
+        "]"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"Show", "[", 
+       RowBox[{
+        RowBox[{
+        "lsPopulationPlots", "\[LeftDoubleBracket]", "1", 
+         "\[RightDoubleBracket]"}], ",", 
+        RowBox[{"ListPlot", "[", 
+         RowBox[{
+          RowBox[{"PadRealData", "[", 
+           RowBox[{"aRealData", ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aincp", "+", "padOffset"}], "]"}], ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aip", "+", "padOffset"}], "]"}]}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"Blue", ",", "Black", ",", "Red"}], "}"}]}]}], "]"}]}], 
+       "]"}]}]}], "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"population", ",", 
+       RowBox[{"58160000", "/", "600"}], ",", "\"\<Population\>\""}], "}"}], 
+     ",", 
+     RowBox[{"58160000", "/", "1000"}], ",", "58160000", ",", "10000", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "padOffset", ",", "0", ",", "\"\<real data padding offset\>\""}], "}"}],
+      ",", 
+     RowBox[{"-", "100"}], ",", "100", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "aincp", ",", "6", ",", "\"\<Average incubation period (days)\>\""}], 
+      "}"}], ",", "1", ",", "60", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "aip", ",", "32", ",", "\"\<Average infectious period (days)\>\""}], 
+      "}"}], ",", "1", ",", "100", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "criap", ",", "0.56", ",", 
+       "\"\<Contact rate of the infected normally symptomatic \
+population\>\""}], "}"}], ",", "0", ",", "20", ",", "0.01", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"ndays", ",", "90", ",", "\"\<Number of days\>\""}], "}"}], ",",
+      "1", ",", "365", ",", "1", ",", 
+     RowBox[{"Appearance", "\[Rule]", 
+      RowBox[{"{", "\"\<Open\>\"", "}"}]}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"ControlPlacement", "\[Rule]", "Left"}], ",", 
+   RowBox[{"ContinuousAction", "\[Rule]", "False"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7928465766650887`*^9, 3.792846870890375*^9}, {
+  3.792846915218013*^9, 3.792846924269504*^9}, {3.792847123773954*^9, 
+  3.792847125875984*^9}, {3.792847160095354*^9, 3.792847176089085*^9}, {
+  3.792847254670224*^9, 3.792847271883265*^9}, {3.7928475375126657`*^9, 
+  3.792847638445362*^9}, {3.7928478113907127`*^9, 3.7928478154238167`*^9}, {
+  3.792848785194571*^9, 3.792848811869033*^9}, {3.792850558606265*^9, 
+  3.7928505895419683`*^9}, {3.792850660149282*^9, 3.792850695284952*^9}, {
+  3.793287126502944*^9, 3.793287136175541*^9}},
+ CellLabel->
+  "In[133]:=",ExpressionUUID->"5e4f6d02-9af4-4705-bd95-c82cc5a0f771"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Maybe good enough parameters", "Subsection",
+ CellChangeTimes->{{3.792848147493863*^9, 
+  3.79284819104597*^9}},ExpressionUUID->"42e05e2e-c155-49f3-aef0-\
+9a69adaf512f"],
+
+Cell[BoxData[
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"aincp", "=", "6"}], ",", 
+     RowBox[{"aip", "=", "32"}], ",", 
+     RowBox[{"criap", "=", "0.8`"}], ",", 
+     RowBox[{"ndays", "=", "140"}], ",", 
+     RowBox[{"padOffset", "=", "4"}], ",", 
+     RowBox[{"population", "=", "82000"}]}], "}"}], ",", 
+   RowBox[{"DynamicModule", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"modelSI2R", "=", "modelSI2R"}], ",", "lsActualEquations", ",",
+        "aSol", ",", "lsPopulationPlots", ",", "lsEconPlots", ",", 
+       "lsRestPlots"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetRateRules", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"Association", "[", 
+          RowBox[{
+           RowBox[{"TP", "[", "t", "]"}], "\[Rule]", "population"}], "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetInitialConditions", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"Association", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"SP", "[", "0", "]"}], "\[Rule]", 
+            RowBox[{"population", "-", "1"}]}], ",", 
+           RowBox[{
+            RowBox[{"ISSP", "[", "0", "]"}], "\[Rule]", "0"}], ",", 
+           RowBox[{
+            RowBox[{"INSP", "[", "0", "]"}], "\[Rule]", "1"}]}], "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"lsActualEquations", "=", 
+       RowBox[{"Join", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], "//.", 
+          "\[VeryThinSpace]", 
+          RowBox[{"KeyDrop", "[", 
+           RowBox[{
+            RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}], ",", 
+            "lsFocusParams"}], "]"}]}], ",", 
+         RowBox[{"modelSI2R", "[", "\"\<InitialConditions\>\"", "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"aSol", "=", 
+       RowBox[{"Association", "[", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"ParametricNDSolve", "[", 
+          RowBox[{"lsActualEquations", ",", 
+           RowBox[{"{", 
+            RowBox[{"SP", ",", "EP", ",", "INSP", ",", "RP", ",", "IDP"}], 
+            "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"t", ",", "0", ",", "365"}], "}"}], ",", 
+           "lsFocusParams"}], "]"}], "]"}], "]"}]}], ";", 
+      RowBox[{"lsPopulationPlots", "=", 
+       RowBox[{"ParametricSolutionsPlots", "[", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         RowBox[{"KeyTake", "[", 
+          RowBox[{"aSol", ",", 
+           RowBox[{"GetPopulationSymbols", "[", 
+            RowBox[{"modelSI2R", ",", 
+             RowBox[{"__", "~~", "\"\<Population\>\""}]}], "]"}]}], "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"aincp", ",", "aip", ",", "0", ",", "criap", ",", "criap"}],
+           "}"}], ",", "ndays", ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "True"}], ",", "opts"}], 
+        "]"}]}], ";", 
+      RowBox[{"Show", "[", 
+       RowBox[{
+        RowBox[{
+        "lsPopulationPlots", "\[LeftDoubleBracket]", "1", 
+         "\[RightDoubleBracket]"}], ",", 
+        RowBox[{"ListPlot", "[", 
+         RowBox[{
+          RowBox[{"PadRealData", "[", 
+           RowBox[{"aRealData", ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aincp", "+", "padOffset"}], "]"}], ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aip", "+", "padOffset"}], "]"}]}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"Blue", ",", "Black", ",", "Red"}], "}"}]}]}], "]"}]}], 
+       "]"}]}]}], "]"}]}], "]"}]], "Input",
+ GeneratedCell->False,
+ CellAutoOverwrite->False,
+ CellChangeTimes->{
+  3.7928507278484*^9, {3.7944059139981833`*^9, 3.7944059747588167`*^9}},
+ CellLabel->
+  "In[135]:=",ExpressionUUID->"603e057e-8bba-4e73-ab7c-bd66dc3d9ff1"],
+
+Cell["Basic reproduction number:", "Text",
+ CellChangeTimes->{{3.7928764306038723`*^9, 
+  3.792876437083273*^9}},ExpressionUUID->"6af27dfc-f524-41a3-8d46-\
+1d9ecd780680"],
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"aincp", " ", "=", " ", "6"}], ",", " ", 
+     RowBox[{"aip", " ", "=", " ", "32"}], ",", " ", 
+     RowBox[{"criap", " ", "=", " ", "0.8"}], ",", " ", 
+     RowBox[{"ndays", " ", "=", " ", "90"}], ",", " ", 
+     RowBox[{"padOffset", " ", "=", " ", 
+      RowBox[{"-", "14"}]}], ",", " ", 
+     RowBox[{"population", " ", "=", " ", "75000"}], ",", " ", 
+     RowBox[{"\[Mu]", " ", "=", " ", 
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "TP", "]"}], " ", "/.", " ", 
+       RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}]}]}]}], "}"}], ",",
+    " ", "\n", "  ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"1", "/", 
+      RowBox[{"(", 
+       RowBox[{"aincp", "*", 
+        RowBox[{"(", 
+         RowBox[{"\[Mu]", " ", "+", " ", 
+          RowBox[{"1", "/", "aincp"}]}], ")"}]}], ")"}]}], ")"}], "*", 
+    RowBox[{"(", 
+     RowBox[{"criap", "/", 
+      RowBox[{"(", 
+       RowBox[{"1", "/", "aip"}], ")"}]}], ")"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7928667454178953`*^9, 3.792866914098031*^9}, {
+   3.79287639696801*^9, 3.7928764043238297`*^9}, 3.792911477538226*^9},
+ CellLabel->
+  "In[136]:=",ExpressionUUID->"26d670b4-e13a-499a-9d26-5c9c947a0d66"],
+
+Cell[BoxData[
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"aincp", "=", "5"}], ",", 
+     RowBox[{"aip", "=", "26"}], ",", 
+     RowBox[{"criap", "=", "2.3"}], ",", 
+     RowBox[{"ndays", "=", "90"}], ",", 
+     RowBox[{"padOffset", "=", 
+      RowBox[{"-", "8"}]}], ",", 
+     RowBox[{"population", "=", "75000"}]}], "}"}], ",", 
+   RowBox[{"DynamicModule", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"modelSI2R", "=", "modelSI2R"}], ",", "lsActualEquations", ",",
+        "aSol", ",", "lsPopulationPlots", ",", "lsEconPlots", ",", 
+       "lsRestPlots"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetRateRules", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"Association", "[", 
+          RowBox[{
+           RowBox[{"TP", "[", "t", "]"}], "\[Rule]", "population"}], "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"modelSI2R", "=", 
+       RowBox[{"SetInitialConditions", "[", 
+        RowBox[{"modelSI2R", ",", 
+         RowBox[{"Association", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"SP", "[", "0", "]"}], "\[Rule]", 
+            RowBox[{"population", "-", "1"}]}], ",", 
+           RowBox[{
+            RowBox[{"ISSP", "[", "0", "]"}], "\[Rule]", "0"}], ",", 
+           RowBox[{
+            RowBox[{"INSP", "[", "0", "]"}], "\[Rule]", "1"}]}], "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"lsActualEquations", "=", 
+       RowBox[{"Join", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"modelSI2R", "[", "\"\<Equations\>\"", "]"}], "//.", 
+          "\[VeryThinSpace]", 
+          RowBox[{"KeyDrop", "[", 
+           RowBox[{
+            RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}], ",", 
+            "lsFocusParams"}], "]"}]}], ",", 
+         RowBox[{"modelSI2R", "[", "\"\<InitialConditions\>\"", "]"}]}], 
+        "]"}]}], ";", 
+      RowBox[{"aSol", "=", 
+       RowBox[{"Association", "[", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"ParametricNDSolve", "[", 
+          RowBox[{"lsActualEquations", ",", 
+           RowBox[{"{", 
+            RowBox[{"SP", ",", "EP", ",", "INSP", ",", "RP", ",", "IDP"}], 
+            "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"t", ",", "0", ",", "365"}], "}"}], ",", 
+           "lsFocusParams"}], "]"}], "]"}], "]"}]}], ";", 
+      RowBox[{"lsPopulationPlots", "=", 
+       RowBox[{"ParametricSolutionsPlots", "[", 
+        RowBox[{
+         RowBox[{"modelSI2R", "[", "\"\<Stocks\>\"", "]"}], ",", 
+         RowBox[{"KeyTake", "[", 
+          RowBox[{"aSol", ",", 
+           RowBox[{"GetPopulationSymbols", "[", 
+            RowBox[{"modelSI2R", ",", 
+             RowBox[{"__", "~~", "\"\<Population\>\""}]}], "]"}]}], "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"aincp", ",", "aip", ",", "0", ",", "criap", ",", "criap"}],
+           "}"}], ",", "ndays", ",", 
+         RowBox[{"\"\<Together\>\"", "\[Rule]", "True"}], ",", "opts"}], 
+        "]"}]}], ";", 
+      RowBox[{"Show", "[", 
+       RowBox[{
+        RowBox[{
+        "lsPopulationPlots", "\[LeftDoubleBracket]", "1", 
+         "\[RightDoubleBracket]"}], ",", 
+        RowBox[{"ListPlot", "[", 
+         RowBox[{
+          RowBox[{"PadRealData", "[", 
+           RowBox[{"aRealData", ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aincp", "+", "padOffset"}], "]"}], ",", 
+            RowBox[{"Round", "[", 
+             RowBox[{"aip", "+", "padOffset"}], "]"}]}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"Blue", ",", "Black", ",", "Red"}], "}"}]}]}], "]"}]}], 
+       "]"}]}]}], "]"}]}], "]"}]], "Input",
+ GeneratedCell->False,
+ CellAutoOverwrite->False,
+ CellChangeTimes->{
+  3.7928507278484*^9, {3.792856804871909*^9, 3.792856908632489*^9}, {
+   3.794405889661421*^9, 3.794405904301731*^9}},
+ CellLabel->
+  "In[137]:=",ExpressionUUID->"58535676-cc60-47ac-a04e-fa7cc346f675"],
+
+Cell["Basic reproduction number:", "Text",
+ CellChangeTimes->{{3.7928764306038723`*^9, 
+  3.792876437083273*^9}},ExpressionUUID->"d8dd1b0b-9a05-4397-b56e-\
+94c4e9ecd27e"],
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"aincp", " ", "=", " ", "5"}], ",", " ", 
+     RowBox[{"aip", " ", "=", " ", "26"}], ",", " ", 
+     RowBox[{"criap", " ", "=", " ", "2.3"}], ",", " ", 
+     RowBox[{"ndays", " ", "=", " ", "90"}], ",", " ", 
+     RowBox[{"padOffset", " ", "=", " ", 
+      RowBox[{"-", "14"}]}], ",", " ", 
+     RowBox[{"population", " ", "=", " ", "75000"}], ",", " ", 
+     RowBox[{"\[Mu]", " ", "=", " ", 
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "TP", "]"}], " ", "/.", " ", 
+       RowBox[{"modelSI2R", "[", "\"\<RateRules\>\"", "]"}]}]}]}], "}"}], ",",
+    " ", "\n", "  ", 
+   RowBox[{"criap", "/", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"aincp", "*", 
+        RowBox[{"(", 
+         RowBox[{"\[Mu]", " ", "+", " ", 
+          RowBox[{"1", "/", "aincp"}]}], ")"}]}], ")"}], "/", "aip"}], 
+     ")"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7928667454178953`*^9, 3.792866872652894*^9}, {
+  3.7928764103334303`*^9, 3.792876416001482*^9}, {3.7929114173721457`*^9, 
+  3.792911422090184*^9}},
+ CellLabel->
+  "In[138]:=",ExpressionUUID->"563de00a-1c1a-497d-bb60-0ce54ba1f842"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.792516082684512*^9, 
+  3.7925160872408*^9}},ExpressionUUID->"234149cf-d716-4908-9272-1d42e3625346"],
+
+Cell[CellGroupData[{
+
+Cell["Articles", "Subsection",
+ CellChangeTimes->{{3.792792994376704*^9, 3.79279299708792*^9}, {
+  3.79283667507299*^9, 
+  3.7928366767192373`*^9}},ExpressionUUID->"2f8492ad-4031-479c-8fc8-\
+f20475111550"],
+
+Cell[TextData[{
+ "[Wk1] Wikipedia entry, ",
+ ButtonBox["\"Compartmental models in epidemiology\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+     None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925809029512987`*^9, 
+  3.792580956058198*^9}},ExpressionUUID->"84283069-fdbe-49c9-8b36-\
+b55726e681de"],
+
+Cell[TextData[{
+ "[HH1] Herbert W. Hethcote (2000). ",
+ ButtonBox["\"The Mathematics of Infectious Diseases\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["http://leonidzhukov.net/hse/2014/socialnetworks/papers/2000SiamRev.\
+pdf"], None},
+  ButtonNote->
+   "http://leonidzhukov.net/hse/2014/socialnetworks/papers/2000SiamRev.pdf"],
+ ". SIAM Review. 42 (4): 599\[Dash]653. Bibcode:2000SIAMR..42..599H. \
+doi:10.1137/s0036144500371907."
+}], "Text",
+ CellChangeTimes->{{3.792336502490754*^9, 3.792336535278623*^9}, {
+  3.792409361602792*^9, 
+  3.792409368869828*^9}},ExpressionUUID->"9919d887-708f-4cc8-a4ff-\
+f380d48e9ecb"],
+
+Cell[TextData[{
+ "[AA1] Anton Antonov, ",
+ ButtonBox["\"Coronavirus propagation modeling considerations\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-\
+considerations.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-\
+considerations.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.792580630613844*^9, 3.79258066346693*^9}, {
+  3.792580699618342*^9, 
+  3.792580699619379*^9}},ExpressionUUID->"9e3cb0e2-04cf-4553-9e55-\
+38db76b626c5"],
+
+Cell[TextData[{
+ "[AA2] Anton Antonov, ",
+ ButtonBox["Answer of \"Model calibration with phase space data\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematica.stackexchange.com/a/190295/34008"], None},
+  ButtonNote->"https://mathematica.stackexchange.com/a/190295/34008"],
+ ", (2019), ",
+ ButtonBox["Mathematica StackExchage",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematica.stackexchange.com"], None},
+  ButtonNote->"https://mathematica.stackexchange.com"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.792836760631132*^9, 
+  3.792836844502586*^9}},ExpressionUUID->"c991e8ef-578d-44f7-b667-\
+c9410aa23af4"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Repositories & packages", "Subsection",
+ CellChangeTimes->{{3.792792973327919*^9, 
+  3.7927929880315247`*^9}},ExpressionUUID->"746633a8-29ad-4a32-8864-\
+9fe5e5d1beb2"],
+
+Cell[TextData[{
+ "[WRI1] Wolfram Research, Inc., ",
+ ButtonBox["\"Epidemic Data for Novel Coronavirus COVID-19\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://www.wolframcloud.com/obj/resourcesystem/published/\
+DataRepository/resources/Epidemic-Data-for-Novel-Coronavirus-COVID-19"], None},
+  ButtonNote->
+   "https://www.wolframcloud.com/obj/resourcesystem/published/DataRepository/\
+resources/Epidemic-Data-for-Novel-Coronavirus-COVID-19"],
+ ", ",
+ ButtonBox["WolframCloud",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://www.wolframcloud.com"], None},
+  ButtonNote->"https://www.wolframcloud.com"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.79284700154799*^9, 3.792847018423129*^9}, {
+  3.792848397923408*^9, 
+  3.792848432986006*^9}},ExpressionUUID->"3153d429-3684-4b33-b126-\
+4d3ab661fea7"],
+
+Cell[TextData[{
+ "[AAr1] Anton Antonov, ",
+ ButtonBox["Coronavirus propagation dynamics project",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.788089798305283*^9, 3.788089800881453*^9}, {
+  3.7882595209218683`*^9, 3.788259579130772*^9}, {3.788259655834017*^9, 
+  3.7882596599065332`*^9}, {3.792335102609013*^9, 3.792335162932585*^9}, {
+  3.7925188075238953`*^9, 
+  3.792518811281426*^9}},ExpressionUUID->"e72b3569-613c-40d8-bf38-\
+89237f65ffec"],
+
+Cell[TextData[{
+ "[AAp1] Anton Antonov, ",
+ ButtonBox["\"Epidemiology models Mathematica package\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ ", (2020), ",
+ ButtonBox["SystemsModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+  3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.792782050096183*^9, 
+  3.792782085248444*^9}, {3.792793007922522*^9, 3.7927930082592697`*^9}, {
+  3.792850913255866*^9, 
+  3.792850913660157*^9}},ExpressionUUID->"a4455d89-83b0-4983-9e77-\
+e5fcf1ee90f9"],
+
+Cell[TextData[{
+ "[AAp2] Anton Antonov, ",
+ ButtonBox["\"Epidemiology models modifications Mathematica package\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"], None},
+  
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"],
+ ", (2020), ",
+ ButtonBox["SystemsModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+  3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.792782050096183*^9, 
+  3.792782085248444*^9}, {3.792782191837761*^9, 3.792782197033924*^9}, {
+  3.792782233165003*^9, 3.7927822331669693`*^9}, {3.792793010217144*^9, 
+  3.792793010914422*^9}, {3.7928509155729322`*^9, 
+  3.7928509156292143`*^9}},ExpressionUUID->"1203a485-b07f-4281-96a3-\
+f4eb803e66bb"],
+
+Cell[TextData[{
+ "[AAp3] Anton Antonov, ",
+ ButtonBox["\"System dynamics interactive interfaces functions Mathematica \
+package\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsInteractiveInterfacesFunctions.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsInteractiveInterfacesFunctions.m"],
+ ", (2020), ",
+ ButtonBox["SystemsModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+  3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.7928509175305853`*^9, 
+  3.792850918205223*^9}},ExpressionUUID->"a6b1fd79-e682-41cc-ac6b-\
+393f0956a83d"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1725, 1395},
+WindowMargins->{{Automatic, 849}, {Automatic, 0}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+PrintingOptions->{"PaperOrientation"->"Landscape",
+"PaperSize"->{1191, 842}},
+FrontEndVersion->"12.1 for Mac OS X x86 (64-bit) (March 13, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d61dccfb-e6b1-478f-a8ce-beee63cb354b"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 627, 9, 98, "Title",ExpressionUUID->"56b9c06c-5cae-4e6a-b157-77885527ef1d"],
+Cell[1210, 33, 1035, 24, 104, "Text",ExpressionUUID->"c1b3408f-af72-406d-b006-736daf7480c7"],
+Cell[CellGroupData[{
+Cell[2270, 61, 157, 3, 67, "Section",ExpressionUUID->"aa05628a-e574-4cbc-b357-32c92d24cc82"],
+Cell[2430, 66, 971, 20, 35, "Text",ExpressionUUID->"2c5fc80c-5766-43a7-b782-1bed4155f564"],
+Cell[3404, 88, 700, 16, 35, "Text",ExpressionUUID->"3ebdf831-b570-4fae-afc1-a1363498d4b8"],
+Cell[4107, 106, 356, 7, 35, "Text",ExpressionUUID->"487165b3-40ba-4db1-ae04-b05c7d060755"],
+Cell[4466, 115, 337, 7, 35, "Text",ExpressionUUID->"5d46aa8b-236a-4faf-b67f-976a769eaf7f"],
+Cell[4806, 124, 749, 17, 35, "Text",ExpressionUUID->"f48da933-d85b-41e5-adec-b87c39ed9956"],
+Cell[5558, 143, 428, 10, 35, "Text",ExpressionUUID->"099f5a26-905d-4e6a-bda9-963a423668f0"],
+Cell[5989, 155, 822, 19, 35, "Text",ExpressionUUID->"60215d6d-f7b8-4589-8e8f-a343e0573ac4"],
+Cell[CellGroupData[{
+Cell[6836, 178, 157, 3, 54, "Subsection",ExpressionUUID->"cac4d57d-5034-420d-9ba3-729c1fd68ef0"],
+Cell[CellGroupData[{
+Cell[7018, 185, 245, 4, 32, "ItemNumbered",ExpressionUUID->"74b09f5f-f4bc-4938-abda-cd5b17ffbf90"],
+Cell[7266, 191, 200, 3, 32, "ItemNumbered",ExpressionUUID->"9a6d3e24-c239-483c-89f4-b386a41373fd"],
+Cell[7469, 196, 254, 4, 32, "ItemNumbered",ExpressionUUID->"6d49c4e5-6e77-404a-aa6b-9e484a4cd2e1"],
+Cell[7726, 202, 300, 5, 32, "ItemNumbered",ExpressionUUID->"950eb6ca-607b-49cf-b6b3-ee95124e9981"],
+Cell[8029, 209, 391, 7, 32, "ItemNumbered",ExpressionUUID->"df38ee71-295c-48bc-9b2f-f725833a3887"],
+Cell[8423, 218, 292, 4, 26, "SubitemNumbered",ExpressionUUID->"c59f3d31-9363-4511-88ab-b3c105d019a5"],
+Cell[8718, 224, 339, 7, 32, "ItemNumbered",ExpressionUUID->"d37ac270-1691-46b2-95ba-eb9795e1d187"],
+Cell[9060, 233, 389, 6, 26, "SubitemNumbered",ExpressionUUID->"ec530023-2af7-40ee-952c-0d982da97dd1"],
+Cell[9452, 241, 364, 6, 32, "ItemNumbered",ExpressionUUID->"509026e5-95ff-4a2a-9472-9b731b074026"],
+Cell[9819, 249, 390, 6, 26, "SubitemNumbered",ExpressionUUID->"a634d783-21ed-44f4-b91f-3f969b5f8fd1"],
+Cell[10212, 257, 495, 7, 32, "ItemNumbered",ExpressionUUID->"1b235654-054c-4495-abda-563e6c784f64"],
+Cell[CellGroupData[{
+Cell[10732, 268, 540, 10, 26, "SubitemNumbered",ExpressionUUID->"f44a08b0-8ead-491d-9a4e-14015f13bc1e"],
+Cell[11275, 280, 448, 6, 26, "SubitemNumbered",ExpressionUUID->"4ce975e0-1f71-4bdc-8043-15e6cd2a020d"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11796, 294, 301, 5, 67, "Section",ExpressionUUID->"be7001c0-6e07-4f65-83d9-70819c17a96f"],
+Cell[12100, 301, 416, 8, 35, "Text",ExpressionUUID->"dfd94884-fe1d-4287-a3bc-de3876166498"],
+Cell[12519, 311, 886, 17, 89, "Input",ExpressionUUID->"ffa8ba54-9bfc-4816-b4d3-b2e196b4ada7",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13442, 333, 215, 4, 67, "Section",ExpressionUUID->"10b18fc8-4ac8-4d9e-b124-30c9e436940c"],
+Cell[13660, 339, 696, 15, 35, "Text",ExpressionUUID->"27ba4a4a-f2de-4501-acee-ad431378e4f9"],
+Cell[14359, 356, 349, 9, 30, "Input",ExpressionUUID->"fb0bf635-0826-456b-91ff-129d1e919951"],
+Cell[14711, 367, 288, 7, 35, "Text",ExpressionUUID->"f395aed8-d2ca-4a71-9547-110fa069df44"],
+Cell[15002, 376, 162, 3, 30, "Input",ExpressionUUID->"600920be-ec0e-42e3-b430-78147f52ba27"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15201, 384, 226, 4, 67, "Section",ExpressionUUID->"e0a53abc-ba5f-4521-82c0-12b32a123d7f"],
+Cell[15430, 390, 467, 9, 35, "Text",ExpressionUUID->"5b6009d6-daba-45ae-b0cc-8b29d804a884"],
+Cell[15900, 401, 472, 9, 35, "Text",ExpressionUUID->"e4aad10d-dba0-4788-83d7-4e5cd1857146"],
+Cell[CellGroupData[{
+Cell[16397, 414, 368, 7, 32, "ItemNumbered",ExpressionUUID->"9919e764-f504-4b55-a30e-785a17fbbceb"],
+Cell[16768, 423, 317, 6, 32, "ItemNumbered",ExpressionUUID->"7f889f38-618e-4c6e-a6a8-5d347b99832b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17122, 434, 168, 3, 54, "Subsection",ExpressionUUID->"c5093dec-6393-4c93-926f-81947a2215a8"],
+Cell[17293, 439, 286, 4, 35, "Text",ExpressionUUID->"bffc7379-a476-4318-96b5-7b47b3b3db48"],
+Cell[17582, 445, 325, 7, 30, "Input",ExpressionUUID->"931099d6-8d5c-4a24-a69f-6ad99205e03b"],
+Cell[17910, 454, 283, 6, 35, "Text",ExpressionUUID->"c6de11c7-b660-4107-8f37-cb8c55747123"],
+Cell[18196, 462, 613, 13, 30, "Input",ExpressionUUID->"83e3fbfa-1591-41bd-96c5-784940e414ca"],
+Cell[18812, 477, 355, 8, 35, "Text",ExpressionUUID->"7c415051-be47-408c-9174-0f0a969a560a"],
+Cell[19170, 487, 671, 15, 30, "Input",ExpressionUUID->"46ea3ad3-f56d-4bd5-b3b5-a1fcbf0cd23e"],
+Cell[19844, 504, 251, 4, 35, "Text",ExpressionUUID->"17026b55-b942-470d-89f9-39053ceb71b3"],
+Cell[20098, 510, 923, 22, 52, "Input",ExpressionUUID->"0c1cd911-3e94-4fd2-b6c2-a4d60840549b"],
+Cell[21024, 534, 191, 3, 35, "Text",ExpressionUUID->"77aac5c0-d1a0-41d5-b7e3-a2f1094290ab"],
+Cell[21218, 539, 375, 8, 30, "Input",ExpressionUUID->"2d71f29e-3fe6-41fe-b40e-fc42d99ca0dc"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21630, 552, 243, 4, 54, "Subsection",ExpressionUUID->"f4ab1445-134f-40e2-a20c-60d8040325c3"],
+Cell[21876, 558, 270, 6, 35, "Text",ExpressionUUID->"a419a66d-ab9f-4502-b76a-1ccadb4c5867"],
+Cell[22149, 566, 1281, 34, 73, "Input",ExpressionUUID->"8e09e8f7-c69b-4fec-ad1a-fe3ca7bc7246"],
+Cell[23433, 602, 174, 3, 35, "Text",ExpressionUUID->"d9da2dab-b8d4-4822-9de0-beb2777470b5"],
+Cell[23610, 607, 328, 8, 30, "Input",ExpressionUUID->"750984c1-4d4b-4ceb-bef1-6a4b906120b6"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23987, 621, 390, 6, 67, "Section",ExpressionUUID->"ccb69cc8-e8e8-4497-8983-2d0dba786a50"],
+Cell[24380, 629, 226, 5, 35, "Text",ExpressionUUID->"b5307425-bccf-474a-b08a-64c00f80895a"],
+Cell[24609, 636, 481, 11, 30, "Input",ExpressionUUID->"03bbb7aa-6994-4382-b9db-b7a9726cddb4"],
+Cell[25093, 649, 192, 3, 35, "Text",ExpressionUUID->"7acc112e-29a0-41b2-b0fc-18699f2b76a2"],
+Cell[25288, 654, 1300, 33, 73, "Input",ExpressionUUID->"d3ebda44-60d5-47a5-8684-947193a35c3d"],
+Cell[26591, 689, 387, 9, 35, "Text",ExpressionUUID->"b5c0ce94-0ac0-4b2f-b0ad-86de99d81f28"],
+Cell[26981, 700, 800, 19, 52, "Input",ExpressionUUID->"a5ee0204-cb4c-46e0-b135-5dc10f4c2f49"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27818, 724, 304, 5, 67, "Section",ExpressionUUID->"e7b3f9da-6cf7-465c-822a-d7eccebed8f4"],
+Cell[28125, 731, 258, 7, 35, "Text",ExpressionUUID->"d4322644-3a24-490a-9d89-ef7576ffccc9"],
+Cell[28386, 740, 5999, 87, 73, "Input",ExpressionUUID->"dec57ee7-ba0b-4b9b-ac61-82a254d7723f"],
+Cell[34388, 829, 526, 10, 35, "Text",ExpressionUUID->"40c3405e-3fd7-41b1-ad93-27f5dd046abd"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[34951, 844, 168, 3, 67, "Section",ExpressionUUID->"7846ed5a-5d0a-4074-8e9b-aa235745aad9"],
+Cell[35122, 849, 16457, 327, 913, "Input",ExpressionUUID->"c71658f0-c25f-4fe8-af4f-9d774b60c0b8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[51616, 1181, 270, 4, 67, "Section",ExpressionUUID->"7ba89030-1c5a-49ff-b067-862afba5e33f"],
+Cell[51889, 1187, 551, 10, 35, "Text",ExpressionUUID->"438e0fd7-4db4-4963-9668-a38387441706"],
+Cell[52443, 1199, 456, 9, 35, "Text",ExpressionUUID->"1b9f1d93-e3fb-42de-aeed-9c47b2fe526c"],
+Cell[52902, 1210, 480, 9, 35, "Text",ExpressionUUID->"f6ba4fb6-f20c-4ccd-b567-4a964dcd19f0"],
+Cell[CellGroupData[{
+Cell[53407, 1223, 157, 3, 54, "Subsection",ExpressionUUID->"41d2a16b-3cc0-4875-a88c-38ca495b7ec3"],
+Cell[53567, 1228, 274, 6, 35, "Text",ExpressionUUID->"239cb760-fab6-4770-8824-9e09dabc55d8"],
+Cell[53844, 1236, 2648, 44, 157, "Input",ExpressionUUID->"51615ffd-bd9c-4552-83ff-5ae0a23ec137"],
+Cell[56495, 1282, 174, 3, 35, "Text",ExpressionUUID->"9e9698b0-fdda-4d5c-9a04-2de50faee3b2"],
+Cell[56672, 1287, 590, 13, 40, "Input",ExpressionUUID->"5a1807b2-0f65-42c4-a727-ce4f30c23f76"],
+Cell[57265, 1302, 571, 10, 35, "Text",ExpressionUUID->"8afbe022-5d0e-4e8c-a203-b27a7e914ef5"],
+Cell[57839, 1314, 546, 9, 58, "Text",ExpressionUUID->"75d0532b-f4a3-4be0-a265-21ea6787672a"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[58422, 1328, 183, 3, 54, "Subsection",ExpressionUUID->"ad6b1ac0-8548-4c1b-9f9c-46f6e3ea0db9"],
+Cell[58608, 1333, 788, 14, 58, "Text",ExpressionUUID->"65516fc4-cf2f-41d2-b0c4-54183653f776"],
+Cell[59399, 1349, 1223, 32, 115, "Input",ExpressionUUID->"c72c4ccd-6c20-4d47-b316-ee4b2a822d87"],
+Cell[60625, 1383, 6886, 165, 556, "Input",ExpressionUUID->"5e4f6d02-9af4-4705-bd95-c82cc5a0f771"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[67548, 1553, 175, 3, 54, "Subsection",ExpressionUUID->"42e05e2e-c155-49f3-aef0-9a69adaf512f"],
+Cell[67726, 1558, 3901, 99, 157, "Input",ExpressionUUID->"603e057e-8bba-4e73-ab7c-bd66dc3d9ff1"],
+Cell[71630, 1659, 170, 3, 35, "Text",ExpressionUUID->"6af27dfc-f524-41a3-8d46-1d9ecd780680"],
+Cell[71803, 1664, 1260, 32, 52, "Input",ExpressionUUID->"26d670b4-e13a-499a-9d26-5c9c947a0d66"],
+Cell[73066, 1698, 3967, 101, 157, "Input",ExpressionUUID->"58535676-cc60-47ac-a04e-fa7cc346f675"],
+Cell[77036, 1801, 170, 3, 35, "Text",ExpressionUUID->"d8dd1b0b-9a05-4397-b56e-94c4e9ecd27e"],
+Cell[77209, 1806, 1189, 30, 52, "Input",ExpressionUUID->"563de00a-1c1a-497d-bb60-0ce54ba1f842"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[78447, 1842, 151, 2, 67, "Section",ExpressionUUID->"234149cf-d716-4908-9272-1d42e3625346"],
+Cell[CellGroupData[{
+Cell[78623, 1848, 205, 4, 54, "Subsection",ExpressionUUID->"2f8492ad-4031-479c-8fc8-f20475111550"],
+Cell[78831, 1854, 465, 13, 35, "Text",ExpressionUUID->"84283069-fdbe-49c9-8b36-b55726e681de"],
+Cell[79299, 1869, 628, 15, 35, "Text",ExpressionUUID->"9919d887-708f-4cc8-a4ff-f380d48e9ecb"],
+Cell[79930, 1886, 936, 23, 35, "Text",ExpressionUUID->"9e3cb0e2-04cf-4553-9e55-38db76b626c5"],
+Cell[80869, 1911, 646, 17, 35, "Text",ExpressionUUID->"c991e8ef-578d-44f7-b667-c9410aa23af4"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[81552, 1933, 173, 3, 54, "Subsection",ExpressionUUID->"746633a8-29ad-4a32-8864-9fe5e5d1beb2"],
+Cell[81728, 1938, 819, 21, 35, "Text",ExpressionUUID->"3153d429-3684-4b33-b126-4d3ab661fea7"],
+Cell[82550, 1961, 951, 23, 35, "Text",ExpressionUUID->"e72b3569-613c-40d8-bf38-89237f65ffec"],
+Cell[83504, 1986, 1005, 23, 35, "Text",ExpressionUUID->"a4455d89-83b0-4983-9e77-e5fcf1ee90f9"],
+Cell[84512, 2011, 1145, 25, 35, "Text",ExpressionUUID->"1203a485-b07f-4281-96a3-f4eb803e66bb"],
+Cell[85660, 2038, 906, 22, 35, "Text",ExpressionUUID->"a6b1fd79-e682-41cc-ac6b-393f0956a83d"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
