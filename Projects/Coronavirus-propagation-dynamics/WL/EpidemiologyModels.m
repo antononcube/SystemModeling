@@ -369,7 +369,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               deathRate[IP] -> 0.035 / aip,
               contactRate[IP] -> 6,
               aip -> 4 * 7,
-              lpcr[IP] -> 600
+              lpcr[IP] -> 1
             |>;
 
         (* Initial conditions *)
@@ -513,7 +513,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               contactRate[INSP] -> 3,
               aip -> 4 * 7,
               sspf[SP] -> 0.2,
-              lpcr[ISSP, INSP] -> 600
+              lpcr[ISSP, INSP] -> 1
             |>;
 
         (* Initial conditions *)
@@ -663,7 +663,7 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               aip -> 4 * 7,
               aincp -> 6,
               sspf[SP] -> 0.2,
-              lpcr[ISSP, INSP] -> 600
+              lpcr[ISSP, INSP] -> 1
             |>;
 
         (* Initial conditions *)
@@ -842,7 +842,7 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
                   contactRate[HP] -> 0.1 * contactRate[ISSP],
                   nhbr[TP] -> 2.9 / 1000,
                   nhbcr[ISSP, INSP] -> 0,
-                  hscr[ISSP, INSP] -> 600|>
+                  hscr[ISSP, INSP] -> 1|>
               ];
         ];
 
@@ -1043,10 +1043,10 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
                   contactRate[HP] -> 0.1 * contactRate[ISSP],
                   nhbr[TP] -> 2.9 / 1000,
                   nhbcr[ISSP, INSP] -> 0,
-                  hscr[ISSP, INSP] -> 600,
+                  hscr[ISSP, INSP] -> 1,
                   hpmscr[ISSP, INSP] -> 4,
                   upmscr[ISSP, INSP] -> 2,
-                  mspcr[ISSP, INSP] -> 120,
+                  mspcr[ISSP, INSP] -> 1,
                   msdp[HB] -> 1.3,
                   mspr[HB] -> 500 * nhbr[TP] * TP[0],
                   mscr[ISSP] -> 3,
