@@ -1,0 +1,54 @@
+#+TITLE: OMLDS March 2020 presentation plan
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@gmail.com
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED
+#+OPTIONS: tic:1 numb:0
+
+* Introduction
+** Who am I?
+- Degrees
+- Work experience
+- [[https://mathematicaforprediction.wordpress.com][WordPres Blog]]
+- [[https://www.github.com/antononcube][GitHub repository]]
+** Managing expectations
+- What you are not going to see or hear?
+- What is presentation tutorial about?
+- Tools used:
+  - System Dynamics
+  - Mathematica
+- *Not* about Data Science or Machine Learning or Statistics.
+- The most interesting model visuals are going to be presented first.
+- Goals 
+** Warm up 
+- COVID-19 in brief
+- "NY Times data visualization"
+- "Patient-0 SARS-CoV-2 propagation over USA"
+  - Propagation
+  - Quarantine scenarios
+* Concepts and methods
+** Methodologies to model epidemics
+*** System Dynamics
+- [[https://en.wikipedia.org/wiki/System_dynamics][Created at MIT in 50's]].
+- Equation Based Method 
+*** /Agent based simulations/ 
+*** /Cellular automata/
+** Basic definitions
+- [[https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-considerations.md][Coronavirus propagation modeling considerations]]
+- SIR model
+- SEI2R model
+** Basic workflows with more comprehensive models
+- SEI2HR model
+- SEI3HR-Econ model
+** Milti-site modeling
+- Grid graph
+- Random graph
+* Concrete examples 
+** Over USA
+- Data set-up
+- Scenarios
+- Explanations for hospitalized population
+- Visualization
+  - Tooltip graph-map
+  - 3D animations
+  - A 3D populations plot combined with a 2D tracking plot
+** MAYBE Over Germany
