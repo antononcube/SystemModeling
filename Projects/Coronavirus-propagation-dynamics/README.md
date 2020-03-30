@@ -99,12 +99,16 @@ Calibration issues are (briefly) discussed in
 
 ## References
 
+### General
+
 \[CDC1\] https://www.cdc.gov/coronavirus/2019-ncov .
 
 \[WRI1\] Wolfram Research, Inc.
 ["Resources For Novel Coronavirus COVID-19"](https://community.wolfram.com/groups/-/m/t/1872608), 
 (2020)
 [Community.wolfram.com](https://community.wolfram.com/). 
+
+### Articles
 
 \[AA1\] Anton Antonov, 
 ["Coronavirus propagation modeling considerations"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-considerations.md), 
@@ -121,3 +125,28 @@ Calibration issues are (briefly) discussed in
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
+### Videos
+
+[AAv1] Anton Antonov, 
+[COVID19 Epidemic Modeling: Compartmental Models](https://www.youtube.com/watch?v=LRs9rYCXIzs),
+(2020),
+[Wolfram YouTube channel](https://www.youtube.com/channel/UCJekgf6k62CQHdENWf2NgAQ)
+. 
+
+[AAv2] Anton Antonov, 
+[Scaling of Epidemiology Models with Multi-site Compartments](https://www.youtube.com/watch?v=b8oCNjRI0gY),
+(2020),
+[Wolfram YouTube channel](https://www.youtube.com/channel/UCJekgf6k62CQHdENWf2NgAQ)
+. 
+
+[AAv3] Anton Antonov, 
+[Simple Economic Extension of Compartmental Epidemiological Models](https://www.youtube.com/watch?v=C-sjXQiPE7s),
+(2020),
+[Wolfram YouTube channel](https://www.youtube.com/channel/UCJekgf6k62CQHdENWf2NgAQ)
+. 
+
+[DZv1] Diego Zviovich, 
+[Geo-spatial-temporal COVID-19 Simulations and Visualizations Over USA](https://www.youtube.com/watch?v=Kjk-sYlg-U0),
+(2020),
+[Wolfram YouTube channel](https://www.youtube.com/channel/UCJekgf6k62CQHdENWf2NgAQ)
+. 
