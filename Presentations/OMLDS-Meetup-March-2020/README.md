@@ -50,6 +50,12 @@ Here is a link to the video recording: https://youtu.be/odcoi9stYuY .
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
+\[AA4\] Anton Antonov,
+["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md),
+(2020),
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+
 
 ### Videos
 
