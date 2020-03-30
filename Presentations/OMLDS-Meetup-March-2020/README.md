@@ -17,8 +17,8 @@ Here is the (main) presentation mind-map:
 (Note that mind-map's PDF has hyperlinks.)
 
 The presentation was given online (because of COVID-19) using Zoom. 
-The [maximum number of people registered, 100;](https://www.meetup.com/Orlando-MLDS/events/269445903/);
-many were "first timers." Nearly 60 showed up (and stayed through-out.) 
+The [maximum number of people registered, 100](https://www.meetup.com/Orlando-MLDS/events/269445903/).
+(Many were "first timers.") Nearly 60 showed up (and stayed throughout.) 
 
 Here is a link to the video recording: https://youtu.be/odcoi9stYuY .
 
