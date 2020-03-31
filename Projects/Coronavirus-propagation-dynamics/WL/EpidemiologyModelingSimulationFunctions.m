@@ -76,8 +76,13 @@ into a list equations to be give to NDSolve.";
 
 ModelNDSolve::usage = "ModelNDSolve[model, {t, maxTime}, opts] simulates the model from 0 to maxTime using NDSolve";
 
-MakeHextilingGraph::usage = "MakeHextilingGraph[ aLonLatValue, cellRadius, opts] \
-makes a hexagonal tiling graph for specified data.";
+MakeHexGrid::usage = "MakeHexGrid[ coords_List, cellRadius_?NumberQ, range : ( Automatic | _?MatrixQ), opts___ ] \
+makes a hexagonal tiling grid for specified data.";
+
+ToGraph::usage = "ToGraph[ grid_Association ] makes a graph for a given grid.";
+
+AggregateForCellIDs::usage = "AggregateForCellIDs[ aGrid, aLonLatVal] aggregated the values of aLonLatVal around
+the ID's of aGrid[\"Cells\"].";
 
 Begin["`Private`"];
 
@@ -154,80 +159,59 @@ ModelNDSolve[___] :=
 
 
 (***********************************************************)
-(* MakeHextilingGraph                                       *)
+(* MakeHexGrid                                             *)
 (***********************************************************)
 
-Clear[MakeHextilingGraph];
+Clear[CellGridQ];
+CellGridQ[a_] := AssociationQ[a] && Length[ Intersection[ Keys[a], {"Cells", "AdjacencyMatrix", "Range", "CellRadius"} ] ] == 4;
 
-MakeHextilingGraph::"nbm" = "The value of the option \"BinMethod\" is expected to be one of \"HextileBins\" or \"GeoHistogram\".";
+Clear[MakeHexGrid];
 
-MakeHextilingGraph::"mr" = "If the value of the option \"BinMethod\" is `1` then the second argument is expected to be `2`.";
-
-Options[MakeHextilingGraph] :=
+Options[MakeHexGrid] :=
     Join[
-      {"BinMethod" -> "HextileBins", "RemoveLoneCells" -> False},
+      {"RemoveLoneCells" -> False},
       Options[HextileBins],
-      Options[GeoHistogram],
       Options[NearestNeighborGraph]
     ];
 
-MakeHextilingGraph[
-  aLonLatPopulation : Association[({_?NumberQ, _?NumberQ} -> _?NumberQ) ..],
-  cellRadius : (_?NumberQ | _Quantity),
-  opts : OptionsPattern[] ] :=
+MakeHexGridDataQ[d_] := MatrixQ[ d, NumberQ ];
 
-    Block[{binMethod, removeLoneCellsQ, grHist, aPolygonValues, lsCells, aCells,
-      nc, lsDistances, pos, grHexagonCellsNetwork, grHexagonCells},
+MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, opts : OptionsPattern[] ] :=
+    MakeHexGrid[ lsLonLat, cellRadius, Automatic, opts ];
 
-      binMethod = OptionValue[MakeHextilingGraph, "BinMethod"];
-      removeLoneCellsQ = TrueQ[OptionValue[MakeHextilingGraph, "RemoveLoneCells"]];
+MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, Automatic, opts : OptionsPattern[] ] :=
+    MakeHexGrid[ lsLonLat, cellRadius, MinMax /@ Transpose[lsLonLat], opts ];
 
-      Which[
-        ToLowerCase["HextileBins"] == ToLowerCase[binMethod] && NumberQ[cellRadius],
-        aPolygonValues = HextileBins[aLonLatPopulation, cellRadius, FilterRules[{opts}, Options[HextileBins]]],
+MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, range : { {_?NumberQ, _?NumberQ}, {_?NumberQ, _?NumberQ} }, opts : OptionsPattern[] ] :=
+    Block[{removeLoneCellsQ, aPolygonValues, lsCells, aCells,
+      nc, lsDistances, pos, grHexagonCellsNetwork, matHexGrid},
 
-        ToLowerCase["HextileBins"] == ToLowerCase[binMethod] && !NumberQ[cellRadius],
-        Message[MakeHextilingGraph::"mr", "\"HextileBins\"", "a number"];
-        Return[$Failed],
+      removeLoneCellsQ = TrueQ[OptionValue[MakeHexGrid, "RemoveLoneCells"]];
 
-        ToLowerCase["GeoHistogram"] == ToLowerCase[binMethod] && QuantityQ[cellRadius],
-        grHist = GeoHistogram[KeyMap[Reverse, aLonLatPopulation], cellRadius, Automatic, FilterRules[{opts}, Options[GeoHistogram]]];
-        aPolygonValues = Association@Cases[grHist[[1]], Tooltip[h_Polygon /; MatrixQ[h[[1]]], pop_ /; NumberQ[pop] && pop > 3] :> h -> pop, \[Infinity]],
-
-        ToLowerCase["GeoHistogram"] == ToLowerCase[binMethod] && !QuantityQ[cellRadius],
-        Message[MakeHextilingGraph::"mr", "\"GeoHistogram\"", "Quantity"];
-        Return[$Failed],
-
-        True,
-        Message[MakeHextilingGraph::"nbm"];
-        Return[$Failed]
-      ];
+      aPolygonValues = HextileBins[lsLonLat, cellRadius, range, FilterRules[{opts}, Options[HextileBins]]];
 
       (* Make cell objects *)
-
       lsCells = KeyValueMap[<|"Value" -> #2, "Cell" -> #1, "Center" -> Mean[PolygonCoordinates[#1]]|> &, aPolygonValues];
       lsCells = SortBy[lsCells, #["Center"] &];
       aCells = AssociationThread[Range[Length[lsCells]], lsCells];
       aCells = Association@KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
 
-      (* Create a function to find the nearest cesll to a given position *)
-
+      (* Create a function to find the nearest cell to a given position *)
       nc = Nearest[Values[aCells] -> Keys[aCells], DistanceFunction -> (EuclideanDistance[#1["Center"], #2["Center"]] &)];
 
       lsDistances = Select[Flatten@DistanceMatrix[Values[#["Center"] & /@ aCells]], # > 0 &];
 
-      (* identify outlier(s) and drop them *)
+      (* Identify outlier(s) and drop them *)
       If[removeLoneCellsQ,
         pos = Select[nc[#, {6, 1.1 * Min[lsDistances] / Cos[\[Pi] / 6.]}] & /@ aCells, Length[#] == 1 &];
         aCells = KeyDrop[aCells, Keys[pos]];
       ];
 
-      (* reassign cell ID's *)
-
+      (* Reassign cell ID's *)
       aCells = AssociationThread[Range[Length[aCells]], Values[aCells]];
       aCells = Association@KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
 
-      (* Make graph *)
+      (* Make neighbors graph *)
       grHexagonCellsNetwork =
           NearestNeighborGraph[
             Keys[aCells], {7, Min[lsDistances] / Cos[\[Pi] / 6.]},
@@ -236,19 +220,62 @@ MakeHextilingGraph[
             FilterRules[{opts}, Options[NearestNeighborGraph]]
           ];
 
-      grHexagonCells =
-          Graph[
-            DirectedEdge @@@
-                Join[
-                  EdgeList[grHexagonCellsNetwork],
-                  Reverse /@ EdgeList[grHexagonCellsNetwork]
-                ],
-            DirectedEdges -> True,
-            VertexCoordinates -> KeyValueMap[#1 -> #2["Center"] &, aCells],
-            FilterRules[{opts}, Options[Graph]]
-          ]
+      (* Make final graph matrix *)
+      matHexGrid =
+          SparseArray[
+            Thread[ Rule[ List @@@ Join[EdgeList[grHexagonCellsNetwork], Reverse /@ EdgeList[grHexagonCellsNetwork]], 1 ] ],
+            {Length[aCells], Length[aCells]}
+          ];
+
+      (* Result *)
+      <| "Cells" -> aCells, "AdjacencyMatrix" -> matHexGrid, "Range" -> range, "CellRadius" -> cellRadius |>
+
     ];
 
+
+(***********************************************************)
+(* ToGridGraph                                             *)
+(***********************************************************)
+
+Clear[ToGraph];
+
+Options[ToGraph] = Options[Graph];
+
+ToGraph[ aGrid_?CellGridQ, opts : OptionsPattern[] ] :=
+    AdjacencyGraph[
+      aGrid["AdjacencyMatrix"],
+      opts,
+      DirectedEdges -> True,
+      VertexCoordinates -> KeyValueMap[#1 -> #2["Center"] &, aGrid["Cells"]],
+      VertexLabels -> Placed[Automatic, Center],
+      VertexSize -> 0.6
+    ];
+
+
+(***********************************************************)
+(* AggregateForCellIDs                                     *)
+(***********************************************************)
+
+Clear[AggregateForCellIDs];
+
+Options[AggregateForCellIDs] = { "AggregationFunction" -> Total };
+
+AggregateForCellIDs[ aGrid_?CellGridQ, aLonLatPopulation : Association[ ( {_?NumberQ, _?NumberQ} -> _?AtomQ ) .. ], opts : OptionsPattern[] ] :=
+    Block[{nc, aDataIDs, aggrFunc},
+
+      aggrFunc = OptionValue[ AggregateForCellIDs, "AggregationFunction" ];
+
+      nc = Nearest[Values[#["Center"] & /@ aGrid["Cells"]] -> Keys[aGrid["Cells"]]];
+
+      aDataIDs = KeyValueMap[ First[nc[#1, 1]] -> #2 &, aLonLatPopulation ];
+
+      GroupBy[ aDataIDs, First, aggrFunc[ #[[All, 2]] ]& ]
+    ];
+
+
+(***********************************************************)
+(* ToGridGraph                                             *)
+(***********************************************************)
 
 End[]; (* `Private` *)
 
