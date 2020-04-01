@@ -6,11 +6,18 @@ More specifically the focus is on the propagation of
 and the economic impact of 
 [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019). 
 
-## The model
 
+
+## The model
+ 
 The following mind-map illustrates the scope of the considered model:
 
 ![Coronavirus-propagation-modeling-mind-map](./Diagrams/Coronavirus-propagation-modeling-mind-map.png)
+
+
+This diagram shows the "big picture" in which the considered model is a major part of:
+
+![BigPicture](./Diagrams/Model-development-and-decision-making.jpeg) 
 
 
 ## Data analysis
