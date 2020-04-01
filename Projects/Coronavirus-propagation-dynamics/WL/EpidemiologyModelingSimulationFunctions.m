@@ -258,6 +258,9 @@ ToGraph[ aGrid_?CellGridQ, opts : OptionsPattern[] ] :=
 
 Clear[AggregateForCellIDs];
 
+AggregateForCellIDs::"narg" = "The first argument is expected to be a grid object. \
+The second argument is expected to be an association with keys that are coordinates and values that are atoms.";
+
 Options[AggregateForCellIDs] = { "AggregationFunction" -> Total };
 
 AggregateForCellIDs[ aGrid_?CellGridQ, aLonLatPopulation : Association[ ( {_?NumberQ, _?NumberQ} -> _?AtomQ ) .. ], opts : OptionsPattern[] ] :=
@@ -272,10 +275,13 @@ AggregateForCellIDs[ aGrid_?CellGridQ, aLonLatPopulation : Association[ ( {_?Num
       GroupBy[ aDataIDs, First, aggrFunc[ #[[All, 2]] ]& ]
     ];
 
+AggregateForCellIDs[___] :=
+    Block[{},
+      Message[AggregateForCellIDs::"narg"];
+      $Failed
+    ];
 
-(***********************************************************)
-(* ToGridGraph                                             *)
-(***********************************************************)
+
 
 End[]; (* `Private` *)
 
