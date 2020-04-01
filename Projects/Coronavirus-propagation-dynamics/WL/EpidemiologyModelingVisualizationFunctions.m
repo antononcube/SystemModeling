@@ -71,8 +71,14 @@ MakeVertexShapeFunction::usage = "MakeVertexShapeFunction makes a vertex shape f
 ConvertSolutions::usage = "ConvertSolutions[ aSolEvals, type] converts an association of solution evaluations into
 a dataset.";
 
+PopulationStockPlots::usage = "PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_Association, stocksArg : (_String | {_String ..}), maxTime_?NumberQ, addOpts : OptionsPattern[]]";
+
+EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_Association, stock_String, maxTime_?NumberQ, opts : OptionsPattern[] ]";
+
+
 Begin["`Private`"];
 
+Needs["EpidemiologyModels`"];
 Needs["EpidemiologyModelModifications`"];
 
 (**************************************************************)
@@ -296,7 +302,7 @@ MakeVertexShapeFunction[___] := $Failed;
 
 Clear[ConvertSolutions];
 
-ConvertSolutions::"ntype" = "Unknown conversation type.";
+ConvertSolutions::"ntype" = "Unknown conversion type.";
 
 ConvertSolutions[ aStockSolutionValues : Association[(_String -> Association[(_ -> _?VectorQ) ..]) ..], type_String : "Dataset" ] :=
     Block[{res},
@@ -324,6 +330,84 @@ ConvertSolutions[ aStockSolutionValues : Association[(_String -> Association[(_ 
 
     ];
 
+
+(**************************************************************)
+(* PopulationStockPlots                                       *)
+(**************************************************************)
+
+Clear[PopulationStockPlots];
+
+PopulationStockPlots::"nst" = "At least one of the specified stocks is not known.";
+
+Options[PopulationStockPlots] = Options[EvaluateSolutionsOverGraphVertexes];
+
+PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stocksArg : (_String | {_String ..}), maxTime_?NumericQ, opts : OptionsPattern[]] :=
+    Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}, stocks = Flatten[{stocksArg}], vals},
+
+      lsLocalOpts = Join[{opts}, lsLocalOpts];
+
+      If[Apply[And, MemberQ[Union[Values[modelMultiSite["Stocks"]]], #] & /@ stocks],
+
+        vals = Total@Map[Total@Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}]] &, stocks];
+
+        Row[{
+          ListLinePlot[
+            vals,
+            lsLocalOpts,
+            PlotLabel -> StringRiffle[stocks, " + "]
+          ],
+          Spacer[10],
+          ListLinePlot[
+            vals / Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, "Total Population", aSolMultiSite, {1, maxTime, 1}]]],
+            lsLocalOpts,
+            PlotLabel -> Row[{"Ratio of", Spacer[2], StringRiffle[stocks, " + "], Spacer[2], "with Total Population"}]
+          ]
+        }],
+        (*ELSE*)
+        Message[PopulationStockPlots::"nst"];
+        $Failed
+      ]
+    ];
+
+PopulationStockPlots[___] := $Failed;
+
+(**************************************************************)
+(* EconomicsStockPlots                                        *)
+(**************************************************************)
+
+Clear[EconomicsStockPlots];
+
+EconomicsStockPlots::"nst" = "The specified stock is not known.";
+
+Options[EconomicsStockPlots] = Options[EvaluateSolutionsOverGraphVertexes];
+
+EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stock_String, maxTime_?NumericQ, opts : OptionsPattern[] ] :=
+    Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}},
+
+      lsLocalOpts = Join[{opts}, lsLocalOpts];
+
+      If[ MemberQ[Union[Values[modelMultiSite["Stocks"]]], stock],
+        Row[{
+          ListLinePlot[
+            Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            lsLocalOpts,
+            PlotLabel -> stock
+          ],
+          Spacer[10],
+          ListLinePlot[
+            Differences@Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            lsLocalOpts,
+            PlotLabel -> Row[{"\[CapitalDelta]", Spacer[1], stock}]
+          ]
+        }],
+        (* ELSE *)
+        Message[EconomicsStockPlots::"nst"];
+        $Failed
+      ]
+
+    ];
+
+EconomicsStockPlots[___] := $Failed;
 
 End[]; (* `Private` *)
 
