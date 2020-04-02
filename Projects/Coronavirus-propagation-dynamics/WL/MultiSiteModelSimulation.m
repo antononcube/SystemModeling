@@ -83,18 +83,18 @@ Clear[MultiSiteModelReadData];
 MultiSiteModelReadData[] :=
     Block[{dsUSACountyRecords, dsUSAAirportRecords, dsUSAAirportToAirportTravelers, dsNYDataCounties, dsNYDataCountiesLastDay},
 
-        dsUSACountyRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv"];
-        dsUSACountyRecords = dsUSACountyRecords[Select[#Lon > -130 &]];
+      dsUSACountyRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv"];
+      dsUSACountyRecords = dsUSACountyRecords[Select[#Lon > -130 &]];
 
-        dsUSAAirportRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportRecords.csv"];
+      dsUSAAirportRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportRecords.csv"];
 
-        dsUSAAirportToAirportTravelers = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportToAirportTravelers-2018.csv"];
+      dsUSAAirportToAirportTravelers = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportToAirportTravelers-2018.csv"];
 
-        dsNYDataCounties = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"];
+      dsNYDataCounties = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"];
 
-        dsNYDataCounties = dsNYDataCounties[All, AssociationThread[Capitalize /@ Keys[#], Values[#]] &];
-        dsNYDataCountiesLastDay = Dataset[Last[KeySort[GroupBy[Normal[dsNYDataCounties], #Date &]]]];
-        dsNYDataCountiesLastDay = Dataset[JoinAcross[Normal[dsNYDataCountiesLastDay], Normal[dsUSACountyRecords[All, {"FIPS", "Lat", "Lon", "Population"}]], Key["Fips"] -> Key["FIPS"]]];
+      dsNYDataCounties = dsNYDataCounties[All, AssociationThread[Capitalize /@ Keys[#], Values[#]] &];
+      dsNYDataCountiesLastDay = Dataset[Last[KeySort[GroupBy[Normal[dsNYDataCounties], #Date &]]]];
+      dsNYDataCountiesLastDay = Dataset[JoinAcross[Normal[dsNYDataCountiesLastDay], Normal[dsUSACountyRecords[All, {"FIPS", "Lat", "Lon", "Population"}]], Key["Fips"] -> Key["FIPS"]]];
 
 
       <|
@@ -153,6 +153,7 @@ MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Autom
       aSolMultiSite,
       aSolData,
       dsSolData,
+      aNodeToCoords,
       lsSolDataColumnNames,
       timeStamp,
       dsNYDataCountiesLastDay,
@@ -447,7 +448,9 @@ MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Autom
           ];
 
       dsSolData = ConvertSolutions[aSolData, "Array"];
-      lsSolDataColumnNames = {"Stock", "Node", "Time", "Value"};
+      aNodeToCoords = Map[#["Center"] &, aGrid["Cells"]];
+      dsSolData = Transpose[Join[Transpose[dsSolData], Transpose[aNodeToCoords[#] & /@ dsSolData[[All, 2]]]]];
+      lsSolDataColumnNames = {"Stock", "Node", "Time", "Value", "Lon", "Lat"};
       (*      ResourceFunction["GridTableForm"][RandomSample[dsSolData, 4], TableHeadings -> lsSolDataColumnNames]*)
 
       timeStamp = StringReplace[DateString["ISODateTime"], ":" -> "."];
