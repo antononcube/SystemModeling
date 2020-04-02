@@ -81,39 +81,52 @@ If[Length[DownValues[EpidemiologyModelingSimulationFunctions`AggregateForCellIDs
 Clear[MultiSiteModelReadData];
 
 MultiSiteModelReadData[] :=
-    Block[{},
+    Block[{dsUSACountyRecords, dsUSAAirportRecords, dsUSAAirportToAirportTravelers, dsNYDataCounties, dsNYDataCountiesLastDay},
 
-      If[! TrueQ[Head[dsUSCountyRecords] === Dataset],
-        dsUSCountyRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv"];
-      ];
+        dsUSACountyRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv"];
+        dsUSACountyRecords = dsUSACountyRecords[Select[#Lon > -130 &]];
 
-      If[! TrueQ[Head[dsUSAAirportToAirportTravelers] === Dataset],
+        dsUSAAirportRecords = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportRecords.csv"];
+
         dsUSAAirportToAirportTravelers = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportToAirportTravelers-2018.csv"];
-      ];
 
-      If[! TrueQ[Head[dsUSAAirportToAirportTravelers] === Dataset],
-        dsUSAAirportToAirportTravelers = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSAAirportToAirportTravelers-2018.csv"];
-      ];
-
-      If[! TrueQ[Head[dsNYDataCounties] === Dataset],
         dsNYDataCounties = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"];
+
         dsNYDataCounties = dsNYDataCounties[All, AssociationThread[Capitalize /@ Keys[#], Values[#]] &];
         dsNYDataCountiesLastDay = Dataset[Last[KeySort[GroupBy[Normal[dsNYDataCounties], #Date &]]]];
-        dsNYDataCountiesLastDay = Dataset[JoinAcross[Normal[dsNYDataCountiesLastDay], Normal[dsUSCountyRecords[All, {"FIPS", "Lat", "Lon", "Population"}]], Key["Fips"] -> Key["FIPS"]]];
-      ];
+        dsNYDataCountiesLastDay = Dataset[JoinAcross[Normal[dsNYDataCountiesLastDay], Normal[dsUSACountyRecords[All, {"FIPS", "Lat", "Lon", "Population"}]], Key["Fips"] -> Key["FIPS"]]];
 
+
+      <|
+        "CountyRecords" -> dsUSACountyRecords,
+        "AirportRecords" -> dsUSAAirportRecords,
+        "AirportToAirportTravelers" -> dsUSAAirportToAirportTravelers,
+        "CasesAndDeaths" -> dsNYDataCountiesLastDay
+      |>
     ];
 
 (**************************************************************)
 (* Functions definition                                       *)
 (**************************************************************)
 
-
 Clear[MultiSiteModelSimulation];
 
-MultiSiteModelSimulation[ aParams_Association ] :=
-    Block[{ aExportParams = aParams,
-      singleSiteModelFunc, maxTime, cellRadius, trafficFraction, includeBirthsTermQ, quarantineStart, quarantineDuration,
+SyntaxInformation[MultiSiteModelSimulation] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+MultiSiteModelSimulation::"ndata" = "The second argument is expected to be an association of with values that are
+datasets and the keys are `1`.";
+
+Options[MultiSiteModelSimulation] = { "ProgressFunction" -> Print };
+
+MultiSiteModelSimulation[ aParams_Association, opts : OptionsPattern[] ] :=
+    MultiSiteModelSimulation[ aParams, Automatic, opts];
+
+MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Automatic ), opts : OptionsPattern[] ] :=
+    Block[{ aData = aDataArg, ProgressFunc,
+      aExportParams = aParams, dsExportParams,
+      expectedDataKeys,
+      singleSiteModelFunc, maxTime, cellRadius, trafficFraction, includeBirthsTermQ, numberOfHospitalBedsPer1000,
+      quarantineStart, quarantineDuration,
       quarantineContactRateFactor, quarantineTrafficFractionFactor,
       quarantineAirlinePassengerFactor, exportFileNamePrefix, exportSolutionsQ,
       cellRadiusDegrees,
@@ -141,20 +154,27 @@ MultiSiteModelSimulation[ aParams_Association ] :=
       aSolData,
       dsSolData,
       lsSolDataColumnNames,
-      timeStamp
+      timeStamp,
+      dsNYDataCountiesLastDay,
+      dsUSAAirportRecords,
+      dsUSAAirportToAirportTravelers,
+      dsUSACountyRecords
     },
 
+      ProgressFunc = OptionValue[ MultiSiteModelSimulation, "ProgressFunction" ];
 
       (*-----------------------------------------------------*)
       (* Assign parameters                                   *)
       (*-----------------------------------------------------*)
 
-      {singleSiteModelFunc, maxTime, cellRadius, trafficFraction, includeBirthsTermQ, quarantineStart, quarantineDuration,
+      {singleSiteModelFunc, maxTime, cellRadius, trafficFraction, includeBirthsTermQ, numberOfHospitalBedsPer1000,
+        quarantineStart, quarantineDuration,
         quarantineContactRateFactor, quarantineTrafficFractionFactor,
         quarantineAirlinePassengerFactor, exportFileNamePrefix, exportSolutionsQ} =
           aParams /@
               {"singleSiteModelFunc", "maxTime", "cellRadius", "trafficFraction",
-                "includeBirthsTermQ", "quarantineStart", "quarantineDuration",
+                "includeBirthsTermQ", "numberOfHospitalBedsPer1000",
+                "quarantineStart", "quarantineDuration",
                 "quarantineContactRateFactor", "quarantineTrafficFractionFactor",
                 "quarantineAirlinePassengerFactor", "exportFileNamePrefix", "exportSolutionsQ"};
 
@@ -162,37 +182,55 @@ MultiSiteModelSimulation[ aParams_Association ] :=
       (* Read data                                           *)
       (*-----------------------------------------------------*)
 
-      Print[Style["\tRead data...", Bold, Purple]];
+      ProgressFunc[Style["\tRead data...", Bold, Purple]];
 
-      MultiSiteModelReadData[];
+      expectedDataKeys = { "CountyRecords", "AirportRecords", "AirportToAirportTravelers", "CasesAndDeaths"};
 
-      Print[Style["\tRead data DONE", Bold, Purple]];
+      Which[
+        TrueQ[ aData === Automatic ],
+        ProgressFunc["Reading default data:"];
+        ProgressFunc @
+            AbsoluteTiming[
+              aData = MultiSiteModelReadData[];
+            ],
+
+        ! Length[ Intersection[ Keys[aData], expectedDataKeys ] ] == 4,
+        Message[ MultiSiteModelSimulation::"ndata" ];
+        Return[$Failed]
+      ];
+
+      dsUSACountyRecords = aData["CountyRecords"];
+      dsUSAAirportRecords = aData["AirportRecords"];
+      dsUSAAirportToAirportTravelers = aData["AirportToAirportTravelers"];
+      dsNYDataCountiesLastDay = aData["CasesAndDeaths"];
+
+      ProgressFunc[Style["\tRead data DONE", Bold, Purple]];
 
       (*-----------------------------------------------------*)
       (* Simulation initialization                           *)
       (*-----------------------------------------------------*)
 
-      Print[Style["\tSimulation initialization...", Bold, Purple]];
+      ProgressFunc[Style["\tSimulation initialization...", Bold, Purple]];
 
       cellRadiusDegrees = QuantityMagnitude[cellRadius] / ((2 Pi * QuantityMagnitude[UnitConvert[Quantity[6378.14, "Kilometers"], "Miles"]]) / 360);
 
-      Print["Make hex-tiling grid object over USA county coordinates..."];
+      ProgressFunc["Make hex-tiling grid object over USA county coordinates..."];
 
-      aLonLatPopulation = Association@Map[Most[#] -> Last[#] &, Values /@ Normal[dsUSCountyRecords[All, {"Lon", "Lat", "Population"}]]];
-      Print["Length[aLonLatPopulation] = ", Length[aLonLatPopulation]];
+      aLonLatPopulation = Association@Map[Most[#] -> Last[#] &, Values /@ Normal[dsUSACountyRecords[All, {"Lon", "Lat", "Population"}]]];
+      ProgressFunc["Length[aLonLatPopulation] = ", Length[aLonLatPopulation]];
 
       aGrid = MakeHexGrid[Keys[aLonLatPopulation], cellRadiusDegrees];
 
-      Print[ Graphics[{FaceForm[LightBlue], EdgeForm[Red], Values[Map[#Cell &, aGrid["Cells"]]]}, Frame -> True] ];
+      ProgressFunc[ Graphics[{FaceForm[LightBlue], EdgeForm[Red], Values[Map[#Cell &, aGrid["Cells"]]]}, Frame -> True] ];
 
-      Print["Make airport-to-airport contingency matrix..."];
+      ProgressFunc["Make airport-to-airport contingency matrix..."];
 
       matAT = ResourceFunction["CrossTabulate"][dsUSAAirportToAirportTravelers, "Sparse" -> True];
       matAT = ToSSparseMatrix[matAT];
 
-      Print[MatrixPlot[matAT, ImageSize->Small]];
+      ProgressFunc[MatrixPlot[matAT, ImageSize -> Small]];
 
-      Print["Associate airports with cell ID's ..."];
+      ProgressFunc["Associate airports with cell ID's ..."];
 
       aAirportData = Association[{#Lon, #Lat} -> #FAACode & /@ Normal[dsUSAAirportRecords]];
 
@@ -200,7 +238,7 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
       aFAACodeToCellID = Association[Flatten[Thread[Reverse[#]] & /@ Normal[aCellIDToFAACode]]];
 
-      Print["Modify the airport - to - airport contingency matrix to cellID -to-cellID ..."];
+      ProgressFunc["Modify the airport - to - airport contingency matrix to cellID -to-cellID ..."];
 
       dsQuery = dsUSAAirportToAirportTravelers[All, Join[#, <|"From" -> aFAACodeToCellID[#From], "To" -> aFAACodeToCellID[#To]|>] &];
 
@@ -210,40 +248,39 @@ MultiSiteModelSimulation[ aParams_Association ] :=
       matAT = ImposeColumnNames[matAT, ToString /@ Range[Dimensions[aGrid["AdjacencyMatrix"]][[2]]]];
       matAT = ImposeRowNames[matAT, ToString /@ Range[Dimensions[aGrid["AdjacencyMatrix"]][[1]]]];
 
-      Print["Make grid ID's populations:"];
+      ProgressFunc["Make grid ID's populations:"];
 
-      aPopulations = Association@Map[{#Lon, #Lat} -> #Population &, Normal[dsUSCountyRecords]];
+      aPopulations = Association@Map[{#Lon, #Lat} -> #Population &, Normal[dsUSACountyRecords]];
 
       aICPopulations = KeySort[AggregateForCellIDs[aGrid, aPopulations]];
 
-      Print["Check aICPopulations has keys that correspond to the adjacency matrix:"];
+      ProgressFunc["Check aICPopulations has keys that correspond to the adjacency matrix:"];
 
-      Print[
+      ProgressFunc[
         Sort[Keys[aICPopulations]] == Range[Dimensions[aGrid["AdjacencyMatrix"]][[2]]]
       ];
 
-      Print["Ground traffic matrix..."];
+      ProgressFunc["Ground traffic matrix..."];
 
       (* Here we use a simple heuristic: the traffic between two nodes is a certain fraction of the sum of the populations at those two nodes.
       The traffic fraction can be constant or seasonal (time dependent). *)
 
-      Print["Here is the corresponding, heuristic traveling patterns matrix:"];
+      ProgressFunc["Here is the corresponding, heuristic traveling patterns matrix:"];
 
       matGroundTraffic = SparseArray[Map[(List @@ #) -> trafficFraction * Mean[Map[aICPopulations[#] &, List @@ #]] &, Most[ArrayRules[aGrid["AdjacencyMatrix"]]][[All, 1]]]];
 
-      Print["Here we make the traveling patterns matrix time-dependent in order to be able to simulate quarantine scenarios:"];
+      ProgressFunc["Here we make the traveling patterns matrix time-dependent in order to be able to simulate quarantine scenarios:"];
 
       If[quarantineStart < maxTime && quarantineTrafficFractionFactor != 1,
         matGroundTraffic = matGroundTraffic * Piecewise[{{1, t < quarantineStart}, {quarantineTrafficFractionFactor, quarantineStart <= t <= quarantineStart + quarantineDuration}}, 1];
       ];
 
-      Print["Here we make a constant traveling matrix and summarize it:"];
+      ProgressFunc["Here we make a constant traveling matrix and summarize it:"];
 
-      Print[
+      ProgressFunc[
         Block[{matTravel = Normal[matGroundTraffic] /. t -> 1.0},
           {ResourceFunction["RecordsSummary"][Flatten[matTravel], "All elements"][[1]],
-            ResourceFunction["RecordsSummary"][Select[Flatten[matTravel], # > 0 &],
-              "Non-zero elements"][[1]], MatrixPlot[matTravel, ImageSize -> Small]}
+            ResourceFunction["RecordsSummary"][Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], MatrixPlot[matTravel, ImageSize -> Small]}
         ]
       ];
 
@@ -263,12 +300,12 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
       (* Here we make a constant traveling matrix and summarize it : *)
 
-      Print @
+      ProgressFunc @
           Block[{matTravel = Normal[matHexagonCellsTraffic] /. t -> 1.0},
             {ResourceFunction["RecordsSummary"][Flatten[matTravel], "All elements"][[1]], ResourceFunction["RecordsSummary"][Select[Flatten[matTravel], # > 0 &], "Non-zero elements"][[1]], MatrixPlot[matTravel, ImageSize -> Small]}
           ];
 
-      Print[ "Make grid graph (to check and visualize):" ];
+      ProgressFunc[ "Make grid graph (to check and visualize):" ];
 
       (* New Yorkers fleeing to FLL : *)
 
@@ -277,7 +314,7 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
       grHexagonCells = ToGraph[Join[aGrid, <|"AdjacencyMatrix" -> Unitize[SparseArray[Normal[matHexagonCellsTraffic] /. t -> 1.]]|>], EdgeStyle -> Opacity[0.2], VertexSize -> 0.45];
 
-      Print[" Make grid ID's infected cases and deaths..."];
+      ProgressFunc[" Make grid ID's infected cases and deaths..."];
 
       aInfected = Association@Map[{#Lon, #Lat} -> #Cases &, Normal[dsNYDataCountiesLastDay]];
       aICInfected = AggregateForCellIDs[aGrid, aInfected];
@@ -291,29 +328,29 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
       aICTotalPopulations = Merge[{aICPopulations, aICDead}, If[Length[#] > 1, Subtract @@ #, #[[1]]] &];
 
-      Print[ "Check total populations keys:" ];
-      Print[ Sort[Keys[aICTotalPopulations]] == Range[Dimensions[matHexagonCellsTraffic][[2]]] ];
+      ProgressFunc[ "Check total populations keys:" ];
+      ProgressFunc[ Sort[Keys[aICTotalPopulations]] == Range[Dimensions[matHexagonCellsTraffic][[2]]] ];
 
       (* Susceptible populations*)
 
       aICSusceptiblePopulations = Merge[{aICTotalPopulations, aICInfected}, If[Length[#] > 1, Subtract @@ #, #[[1]]] &];
 
-      Print[ "Check susceptible populations keys:" ];
-      Print[ Sort[Keys[aICSusceptiblePopulations]] == Range[Dimensions[matHexagonCellsTraffic][[2]]] ];
+      ProgressFunc[ "Check susceptible populations keys:" ];
+      ProgressFunc[ Sort[Keys[aICSusceptiblePopulations]] == Range[Dimensions[matHexagonCellsTraffic][[2]]] ];
 
       (* Verification*)
 
-      Print["Check that the populations should \"balance out\" :"];
+      ProgressFunc["Check that the populations should \"balance out\" :"];
 
-      Print[ MinMax[Merge[{aICTotalPopulations, -aICSusceptiblePopulations, -aICInfected}, Total]]];
+      ProgressFunc[ MinMax[Merge[{aICTotalPopulations, -aICSusceptiblePopulations, -aICInfected}, Total]]];
 
-      Print[Style["\tSimulation initialization DONE", Bold, Purple]];
+      ProgressFunc[Style["\tSimulation initialization DONE", Bold, Purple]];
 
       (*-----------------------------------------------------*)
       (* Single-site "seed" model                            *)
       (*-----------------------------------------------------*)
 
-      Print[Style["\tSingle-site \"seed\" model...", Bold, Purple]];
+      ProgressFunc[Style["\tSingle-site \"seed\" model...", Bold, Purple]];
 
       (* In this section we create a single-site model that is being replicated over the graph nodes. (The rates and initial conditions are replicated for all nodes.) *)
 
@@ -332,20 +369,20 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
       model1 = SetRateRules[model1, <|nhbr[TP] -> numberOfHospitalBedsPer1000 / 1000|>];
 
-      Print[Style["\tSingle-site \"seed\" model DONE", Bold, Purple]];
+      ProgressFunc[Style["\tSingle-site \"seed\" model DONE", Bold, Purple]];
 
       (*-----------------------------------------------------*)
       (* Main multi-site workflow                            *)
       (*-----------------------------------------------------*)
 
-      Print[Style["\tMain multi-site model workflow", Bold, Purple]];
+      ProgressFunc[Style["\tMain multi-site model workflow", Bold, Purple]];
 
       (* In this section we do the model extension and simulation over a the hexagonal cells graph and the corresponding constant traveling patterns matrix. *)
 
       (* Here we scale the SEI2R model with the grid graph traveling matrix: *)
-      Print["Scale the single-site model..."];
+      ProgressFunc["Scale the single-site model..."];
 
-      Print @
+      ProgressFunc @
           AbsoluteTiming[
             modelMultiSite =
                 ToSiteCompartmentsModel[model1, matHexagonCellsTraffic,
@@ -353,9 +390,9 @@ MultiSiteModelSimulation[ aParams_Association ] :=
           ];
 
       (* Change the initial conditions with the determined the total, susceptible, and infected populations for each hexagonal cell: *)
-      Print["Change the initial conditions with the determined the total, susceptible, and infected populations for each hexagonal cell..."];
+      ProgressFunc["Change the initial conditions with the determined the total, susceptible, and infected populations for each hexagonal cell..."];
 
-      Print @
+      ProgressFunc @
           AbsoluteTiming[
             modelMultiSite =
                 SetInitialConditions[
@@ -372,9 +409,9 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
 
       (* Solve the system of ODE's of the scaled model: *)
-      Print["Solve the system of ODE's of the scaled model..."];
+      ProgressFunc["Solve the system of ODE's of the scaled model..."];
 
-      Print @
+      ProgressFunc @
           AbsoluteTiming[
             aSolMultiSite = Association@First@
                 NDSolve[
@@ -390,19 +427,21 @@ MultiSiteModelSimulation[ aParams_Association ] :=
           ];
 
 
-      Print[Style["\tMain multi-site model workflow DONE", Bold, Purple]];
+      ProgressFunc[Style["\tMain multi-site model workflow DONE", Bold, Purple]];
 
       (*-----------------------------------------------------*)
       (* Export results                                      *)
       (*-----------------------------------------------------*)
 
-      Print[Style["\tExport results...", Bold, Purple]];
+      ProgressFunc[Style["\tExport results...", Bold, Purple]];
 
       aExportParams = Join[ aExportParams, <|"NYTimesDate" -> dsNYDataCountiesLastDay[1, "Date"]|>];
 
-      Print["Evaluate solutions over graph:"];
+      dsExportParams = List @@@ Normal[aExportParams];
 
-      Print @
+      ProgressFunc["Evaluate solutions over graph:"];
+
+      ProgressFunc @
           AbsoluteTiming[
             aSolData = Association@Map[# -> Round[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}], 0.001] &, Union[Values[modelMultiSite["Stocks"]]]];
           ];
@@ -417,15 +456,15 @@ MultiSiteModelSimulation[ aParams_Association ] :=
 
 
       If[TrueQ[exportSolutionsQ],
-        Print["Write files:"];
-        Print @
+        ProgressFunc["Write files:"];
+        ProgressFunc @
             AbsoluteTiming[
-              Export[FileNameJoin[{NotebookDirectory[], "ExperimentsData", StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, ".csv"]}], Prepend[dsParams, {"Parameter", "Value"}], "CSV"];
+              Export[FileNameJoin[{NotebookDirectory[], "ExperimentsData", StringJoin[exportFileNamePrefix, "GSTEM-Parameters-", timeStamp, ".csv"]}], Prepend[dsExportParams, {"Parameter", "Value"}], "CSV"];
               Export[FileNameJoin[{NotebookDirectory[], "ExperimentsData", StringJoin[exportFileNamePrefix, "GSTEM-Solutions-", timeStamp, ".csv"]}], Prepend[dsSolData, lsSolDataColumnNames], "CSV"];
             ];
       ];
 
-      Print[Style["\tExport results DONE", Bold, Purple]];
+      ProgressFunc[Style["\tExport results DONE", Bold, Purple]];
 
 
       (*-----------------------------------------------------*)
