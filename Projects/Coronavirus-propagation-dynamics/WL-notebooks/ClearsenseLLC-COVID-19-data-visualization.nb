@@ -1,0 +1,1026 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     40072,       1018]
+NotebookOptionsPosition[     33369,        916]
+NotebookOutlinePosition[     33798,        933]
+CellTagsIndexPosition[     33755,        930]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Clearsense LLC COVID-19 data visualization", "Title",
+ CellChangeTimes->{{3.794330360872464*^9, 3.7943304158178377`*^9}, {
+  3.794824216654914*^9, 3.794824219206966*^9}, {3.794828389122563*^9, 
+  3.794828390899211*^9}},ExpressionUUID->"7b1061d8-a03e-47f4-996d-\
+4a9a58cb30bf"],
+
+Cell[TextData[{
+ "Anton Antonov\n",
+ ButtonBox["MathematicaForPrediction at WordPress",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematicaforprediction.wordpress.com"], None},
+  ButtonNote->"https://mathematicaforprediction.wordpress.com"],
+ "\n",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "\nApril 2020"
+}], "Text",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQB2IQvflC9cSe4teOqfWaU0G0nfrkm8uBNP/Kp3dB9Gz5
+/YKzK187Gi1wEAbRwv/ercqoe+2o0rBsNYhuMr+6A0QvaVy5G0TPUmqf2zn3
+teO6ib3zQLS3gvo6ED2t0wNM+z5fuK8XSD/48RBMvz+5/3M/kP6Z8QJMb+9Z
+0x6y77Wj1xXHDhBtc6teZO+J144sbn9EQfSm7S9Xh5167Wjhp7EGRAvPZf0Y
+f/G1o9DmvWD63nrOC9GXXzvGLCgA0z6dj+8X3X7t2GzE8QBET3PWTv5277Wj
+xAqGFBD91sLRSvDBa8dTW2+A6SKVqZfalN44PhPWvQyiz7ManjkPpBeWLgbT
+Z3a58h60eOO4YMdGMK2/yUZByvKNo5FCvhqIDq3cpnvR4Y3jOcmLYHrT1D3N
+vG5vHFMEWVtANABsaMWR
+  
+  "],ExpressionUUID->"95109206-a5b5-48be-ad27-499dc0d26ff6"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.794345746996327*^9, 
+  3.794345749605562*^9}},ExpressionUUID->"29db2d93-ae9c-4e54-85bb-\
+c5450bb2e23d"],
+
+Cell["\<\
+The purpose of this notebook is to give data locations, data ingestion code, \
+and code for rudimentary analysis and visualization of COVID-19 data provided \
+by Clearsense, LLC, [CD1]. \
+\>", "Text",
+ CellChangeTimes->{{3.794346921595045*^9, 3.794346925453019*^9}, {
+  3.794355006960698*^9, 3.7943550525231247`*^9}, {3.7943552101273813`*^9, 
+  3.794355259011519*^9}, {3.7943568157791033`*^9, 3.79435683693953*^9}, {
+  3.7943575567272253`*^9, 3.7943575887258472`*^9}, {3.79482423085301*^9, 
+  3.79482428520162*^9}},ExpressionUUID->"0d90cfc7-94e7-4c29-98e1-\
+6905981f52a6"],
+
+Cell["The following steps are taken:", "Text",
+ CellChangeTimes->{{3.794346921595045*^9, 3.794346925453019*^9}, {
+  3.794355006960698*^9, 3.7943550525231247`*^9}, {3.7943552101273813`*^9, 
+  3.794355270349257*^9}},ExpressionUUID->"0c2599be-425a-4688-9cf8-\
+bc2a0ccd7656"],
+
+Cell[CellGroupData[{
+
+Cell["Take COVID-19 data from Clearsense, LLC. ", "Item",
+ CellChangeTimes->{{3.7943457521256123`*^9, 3.7943458058542557`*^9}, {
+  3.794345870477439*^9, 3.7943458775200853`*^9}, {3.794355274624127*^9, 
+  3.794355277436842*^9}, {3.7943569196524563`*^9, 3.794356922093157*^9}, {
+  3.794824404352427*^9, 3.7948244140046473`*^9}, {3.794828138342372*^9, 
+  3.794828143304742*^9}},ExpressionUUID->"28390dce-4bf6-40f5-a3be-\
+1e5f668f936c"],
+
+Cell["Transform the data to long form.", "Item",
+ CellChangeTimes->{{3.7943457521256123`*^9, 3.794345868115096*^9}, {
+  3.7943568500691557`*^9, 3.794356899853088*^9}, {3.79482511598975*^9, 
+  3.794825123617613*^9}},ExpressionUUID->"f40ab184-b2e1-41d0-9d41-\
+942bee869c4f"],
+
+Cell["Make data summaries and related plots.", "Item",
+ CellChangeTimes->{{3.7943457521256123`*^9, 3.794345868115096*^9}, {
+  3.7943568500691557`*^9, 3.794356901651682*^9}, {3.794356938732407*^9, 
+  3.794356942624893*^9}},ExpressionUUID->"c24f49bc-e58a-4af5-a62b-\
+34fc37021d4c"],
+
+Cell["Make corresponding geo-region plots.", "Item",
+ CellChangeTimes->{{3.7943457521256123`*^9, 3.794345858822269*^9}, {
+  3.7943568823383827`*^9, 3.794356884033588*^9}, {3.7948280853217163`*^9, 
+  3.7948280960890493`*^9}},ExpressionUUID->"eb952990-6bfa-4e76-b70b-\
+ba9a6806debf"],
+
+Cell["Do \[OpenCurlyDoubleQuote]out of the box\[CloseCurlyDoubleQuote] time \
+series forecast.", "Item",
+ CellChangeTimes->{{3.7943457521256123`*^9, 3.794345858822269*^9}, {
+  3.7943568823383827`*^9, 3.794356884033588*^9}, {3.7948280853217163`*^9, 
+  3.794828119004672*^9}},ExpressionUUID->"f5e143d5-d699-4e72-be82-\
+bceb9b71a724"]
+}, Open  ]],
+
+Cell["\<\
+Note that other, older repositories with COVID-19 data exist, like, [JH1, \
+VK1, NYT1].\
+\>", "Text",
+ CellChangeTimes->{{3.794356740560237*^9, 3.7943567938975153`*^9}, {
+  3.794384600413849*^9, 3.794384611236965*^9}, {3.794569162090925*^9, 
+  3.79456916731109*^9}, {3.794825137409919*^9, 
+  3.794825142337892*^9}},ExpressionUUID->"cae6f333-e19b-455c-9fb6-\
+b86bed27728e"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The time series section is done for illustration purposes only. The \
+forecasts there should not be taken seriously."
+}], "Text",
+ CellChangeTimes->{{3.7943870015773277`*^9, 
+  3.794387044632237*^9}},ExpressionUUID->"95548169-83dc-4207-a944-\
+34185ec850e7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Import data", "Section",
+ CellChangeTimes->{{3.794330392159608*^9, 
+  3.794330397064024*^9}},ExpressionUUID->"b0ac26f4-416c-4ebf-afee-\
+ec9a98d00453"],
+
+Cell[CellGroupData[{
+
+Cell["Clearsense LLC  confirmed daily count", "Subsection",
+ CellChangeTimes->{{3.794340305270193*^9, 3.794340310512809*^9}, {
+  3.794385022995207*^9, 3.794385028057364*^9}, {3.794824616418486*^9, 
+  3.794824638434499*^9}, {3.794828445620969*^9, 
+  3.794828446321094*^9}},ExpressionUUID->"896f9728-b5e8-443b-973e-\
+32e108c389e0"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"dsCDDaily", "=", 
+   RowBox[{
+    RowBox[{"ResourceFunction", "[", "\"\<ImportCSVToDataset\>\"", "]"}], 
+    "[", "\"\<https://raw.githubusercontent.com/ClearsenseData/COVID-Data/\
+master/COVID-Confirmed-Daily-Count.csv\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"dsCDDaily", "=", 
+   RowBox[{"dsCDDaily", "[", 
+    RowBox[{"All", ",", 
+     RowBox[{
+      RowBox[{"AssociationThread", "[", 
+       RowBox[{
+        RowBox[{"Capitalize", "/@", 
+         RowBox[{"Keys", "[", "#", "]"}]}], ",", 
+        RowBox[{"Values", "[", "#", "]"}]}], "]"}], "&"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"RandomSample", "[", 
+  RowBox[{"dsCDDaily", ",", "6"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.794330417416209*^9, 3.794330421063409*^9}, {
+   3.79433061944948*^9, 3.794330623384183*^9}, 3.79434034807038*^9, 
+   3.79434287991103*^9, {3.794384877273458*^9, 3.794384882370675*^9}, {
+   3.794384959251917*^9, 3.7943849686671457`*^9}, {3.7943941710910387`*^9, 
+   3.794394175070877*^9}, {3.794824442166708*^9, 3.794824462824361*^9}, {
+   3.794825175303638*^9, 3.794825184788538*^9}},
+ CellLabel->
+  "In[158]:=",ExpressionUUID->"4ece09d7-a11a-47cd-8487-41a1c503a353"],
+
+Cell[BoxData[
+ RowBox[{"Magnify", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"ResourceFunction", "[", "\"\<RecordsSummary\>\"", "]"}], "[", 
+    "dsCDDaily", "]"}], ",", "0.6"}], "]"}]], "Input",
+ CellChangeTimes->{{3.794330762639402*^9, 3.794330763653027*^9}, 
+   3.7943428783899527`*^9, 3.794824473987568*^9, {3.794825152045319*^9, 
+   3.794825166188572*^9}},
+ CellLabel->
+  "In[157]:=",ExpressionUUID->"48bb15e3-eea8-4a8b-bd9f-924c4e1ef0d4"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Transform data", "Section",
+ CellChangeTimes->{{3.7943405275175047`*^9, 3.794340529104331*^9}, {
+  3.794345901517717*^9, 3.794345903035919*^9}, {3.794824745874807*^9, 
+  3.794824749800377*^9}},ExpressionUUID->"87bd028c-0855-4609-ad5d-\
+ddf51de82ae7"],
+
+Cell[TextData[{
+ "It is better to have the data in long form. For that I am using the package \
+",
+ ButtonBox["\"DataReshape.m\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+DataReshape.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+DataReshape.m"],
+ ", [AAp1]."
+}], "Text",
+ CellChangeTimes->{{3.794357153992291*^9, 3.7943571731074533`*^9}, {
+  3.794824753457986*^9, 3.794824789497348*^9}, {3.794828474677185*^9, 
+  3.7948284746780777`*^9}},ExpressionUUID->"ef4e957a-f83f-4215-913c-\
+1fb4f906c957"],
+
+Cell[BoxData[
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/\
+master/DataReshape.m\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.7948247933964863`*^9, 3.79482479774011*^9}, {
+  3.794825215242093*^9, 3.7948252158650103`*^9}},
+ CellLabel->
+  "In[174]:=",ExpressionUUID->"b1bd993c-1cfb-4c30-a3d8-27870c551bb0"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsIDColumnNames", "=", 
+   RowBox[{"{", 
+    RowBox[{
+    "\"\<Country_Region\>\"", ",", "\"\<Province_State\>\"", ",", 
+     "\"\<Admin2\>\""}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"dsCDDailyLongForm", "=", 
+   RowBox[{"ToLongForm", "[", 
+    RowBox[{"dsCDDaily", ",", "lsIDColumnNames", ",", 
+     RowBox[{"Complement", "[", 
+      RowBox[{
+       RowBox[{"Keys", "[", 
+        RowBox[{
+        "dsCDDaily", "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}], 
+        "]"}], ",", "lsIDColumnNames"}], "]"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Dimensions", "[", "dsCDDailyLongForm", "]"}]}], "Input",
+ CellChangeTimes->{{3.794824801596869*^9, 3.794824926935461*^9}, {
+  3.794824984567821*^9, 3.794825031213602*^9}},
+ CellLabel->
+  "In[175]:=",ExpressionUUID->"78f2baa9-0df5-4edd-bb21-b1e476eb9078"],
+
+Cell["Remove the rows with \[OpenCurlyDoubleQuote]empty\
+\[CloseCurlyDoubleQuote] values:", "Text",
+ CellChangeTimes->{{3.794825076872972*^9, 
+  3.7948250891132593`*^9}},ExpressionUUID->"c0899a87-348f-4267-a543-\
+f8c83f7022bb"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"dsCDDailyLongForm", "=", 
+   RowBox[{"dsCDDailyLongForm", "[", 
+    RowBox[{"Select", "[", 
+     RowBox[{
+      RowBox[{"#Value", "\[NotEqual]", "\"\<\>\""}], "&"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Dimensions", "[", "dsCDDailyLongForm", "]"}]}], "Input",
+ CellChangeTimes->{{3.794825036080393*^9, 3.794825071777617*^9}, {
+  3.7948252665921593`*^9, 3.794825283670854*^9}},
+ CellLabel->
+  "In[178]:=",ExpressionUUID->"3a749f85-4529-4213-9628-94d73639894d"],
+
+Cell["\<\
+Rename the column \[OpenCurlyDoubleQuote]Variable\[CloseCurlyDoubleQuote] to \
+\[OpenCurlyDoubleQuote]Date\[CloseCurlyDoubleQuote] and add a related \
+\[OpenCurlyDoubleQuote]DateObject\[CloseCurlyDoubleQuote] column:\
+\>", "Text",
+ CellChangeTimes->{{3.794825250587368*^9, 3.794825258766273*^9}, {
+  3.794825328619322*^9, 
+  3.794825375487177*^9}},ExpressionUUID->"7017d852-9714-40ee-a320-\
+39b49c41a0e9"],
+
+Cell[BoxData[
+ RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"dsCDDailyLongForm", "=", 
+    RowBox[{"dsCDDailyLongForm", "[", 
+     RowBox[{"All", ",", 
+      RowBox[{
+       RowBox[{"Join", "[", 
+        RowBox[{
+         RowBox[{"KeyDrop", "[", 
+          RowBox[{"#", ",", "\"\<Variable\>\""}], "]"}], ",", 
+         RowBox[{"<|", 
+          RowBox[{
+           RowBox[{"\"\<Date\>\"", "\[Rule]", "#Variable"}], ",", 
+           RowBox[{"\"\<DateObject\>\"", "\[Rule]", 
+            RowBox[{"DateObject", "[", "#Variable", "]"}]}]}], "|>"}]}], 
+        "]"}], "&"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", "]"}]], "Input",\
+
+ CellChangeTimes->{{3.794825382037763*^9, 3.794825384566284*^9}, {
+  3.7948255954056997`*^9, 3.794825707593154*^9}},
+ CellLabel->
+  "In[180]:=",ExpressionUUID->"10aa68e9-eaf6-4053-ad49-8f1cc802cc9d"],
+
+Cell["Here is sample of the transformed data:", "Text",
+ CellChangeTimes->{{3.794825250587368*^9, 
+  3.794825258766273*^9}},ExpressionUUID->"ec020b0c-a2cd-49c4-9c6f-\
+edff17d246b6"],
+
+Cell[BoxData[
+ RowBox[{"RandomSample", "[", 
+  RowBox[{"dsCDDailyLongForm", ",", "12"}], "]"}]], "Input",
+ CellChangeTimes->{{3.794825286599278*^9, 3.7948252930907583`*^9}},
+ CellLabel->
+  "In[181]:=",ExpressionUUID->"a91f07a8-9d80-4145-843a-206ab79e2334"],
+
+Cell["Here is summary:", "Text",
+ CellChangeTimes->{{3.794828489968636*^9, 
+  3.79482849387226*^9}},ExpressionUUID->"90d909cb-dbea-457e-815b-\
+b6e950af826b"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<RecordsSummary\>\"", "]"}], "[", 
+  "dsCDDailyLongForm", "]"}]], "Input",
+ CellChangeTimes->{{3.794828495568749*^9, 3.794828511322422*^9}},
+ CellLabel->
+  "In[312]:=",ExpressionUUID->"71a5d2f1-e654-4bdb-a131-0b710e68e8bb"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Basic data analysis", "Section",
+ CellChangeTimes->{{3.79434590915602*^9, 3.794345923870749*^9}, {
+  3.794345990011511*^9, 
+  3.7943460012047586`*^9}},ExpressionUUID->"d39bc2b3-5f0e-4152-a24b-\
+adb38904817f"],
+
+Cell["\<\
+We consider cases and deaths for the last date only. (The queries can easily \
+adjusted for other dates.)\
+\>", "Text",
+ CellChangeTimes->{{3.794357199973565*^9, 3.7943572231358337`*^9}, {
+  3.7943573734388933`*^9, 
+  3.794357400934412*^9}},ExpressionUUID->"aaa3c251-207c-45a6-9a95-\
+2a44968ed7bc"],
+
+Cell[BoxData[
+ RowBox[{"lastDate", "=", 
+  RowBox[{"Last", "@", 
+   RowBox[{"Sort", "@", 
+    RowBox[{"Normal", "@", 
+     RowBox[{"dsCDDailyLongForm", "[", 
+      RowBox[{"All", ",", "\"\<Date\>\""}], "]"}]}]}]}]}]], "Input",
+ CellChangeTimes->{{3.794825758153295*^9, 3.794825830212906*^9}},
+ CellLabel->
+  "In[186]:=",ExpressionUUID->"eb9e59f3-d28b-46e0-81b1-bc2cb4faaf0f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"dsQuery", "=", 
+   RowBox[{"dsCDDailyLongForm", "[", 
+    RowBox[{
+     RowBox[{"Select", "[", 
+      RowBox[{
+       RowBox[{"#Date", "==", "lastDate"}], "&"}], "]"}], ",", 
+     RowBox[{"{", "\"\<Value\>\"", "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.79435735856813*^9, 3.79435736689353*^9}, 
+   3.794357407956645*^9, {3.794385094795925*^9, 3.7943851039181423`*^9}, 
+   3.794825225011602*^9, {3.794825841014462*^9, 3.794825852428341*^9}, {
+   3.794826776509995*^9, 3.794826776608753*^9}},
+ CellLabel->
+  "In[231]:=",ExpressionUUID->"7fcde486-8a0d-45ad-a049-ae1dbe51bd04"],
+
+Cell[BoxData[
+ RowBox[{"Total", "[", "dsQuery", "]"}]], "Input",
+ CellChangeTimes->{{3.794330738218162*^9, 3.7943307528745747`*^9}, 
+   3.794342897740512*^9, {3.794346014380028*^9, 3.794346051629498*^9}, {
+   3.794355578079974*^9, 3.794355591193882*^9}, 3.794355849403344*^9, {
+   3.794357226064003*^9, 3.794357246091445*^9}, {3.794357301022217*^9, 
+   3.7943573573794537`*^9}, {3.7943574120609703`*^9, 3.794357413074789*^9}, {
+   3.7948267800502043`*^9, 3.7948267801635933`*^9}},
+ CellLabel->
+  "In[232]:=",ExpressionUUID->"d41bcfaa-3d03-4a6f-b020-348c88a22936"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<RecordsSummary\>\"", "]"}], "[", 
+  "dsQuery", "]"}]], "Input",
+ CellChangeTimes->{{3.794330738218162*^9, 3.7943307528745747`*^9}, 
+   3.794342897740512*^9, {3.794346014380028*^9, 3.7943460401419907`*^9}, {
+   3.79435585291346*^9, 3.794355864496475*^9}, {3.794357419117384*^9, 
+   3.7943574200166197`*^9}, {3.7948267873276253`*^9, 3.794826790802505*^9}},
+ CellLabel->
+  "In[233]:=",ExpressionUUID->"2882af2f-572e-42d7-b1f8-6dd12c1fd6e5"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"opts", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "Medium"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Function", "[", 
+     RowBox[{
+      RowBox[{"{", "columnName", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Histogram", "[", 
+           RowBox[{
+            RowBox[{"Log10", "[", "#", "]"}], ",", 
+            RowBox[{"PlotLabel", "\[Rule]", 
+             RowBox[{"Row", "[", 
+              RowBox[{"{", 
+               RowBox[{"Log10", ",", 
+                RowBox[{"Spacer", "[", "3", "]"}], ",", " ", "columnName"}], 
+               "}"}], "]"}]}], ",", "opts"}], "]"}], ",", 
+          RowBox[{
+           RowBox[{
+           "ResourceFunction", "[", "\"\<ParetoPrinciplePlot\>\"", "]"}], "[", 
+           RowBox[{"#", ",", 
+            RowBox[{"PlotLabel", "\[Rule]", "columnName"}], ",", "opts"}], 
+           "]"}]}], "}"}], "&"}], "@", 
+       RowBox[{"Normal", "[", 
+        RowBox[{"dsQuery", "[", 
+         RowBox[{"All", ",", "columnName"}], "]"}], "]"}]}]}], 
+     "\[IndentingNewLine]", "]"}], "/@", 
+    RowBox[{"{", "\"\<Value\>\"", "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"Dividers", "\[Rule]", "All"}], ",", 
+   RowBox[{"FrameStyle", "\[Rule]", 
+    RowBox[{"GrayLevel", "[", "0.7", "]"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7943432525765247`*^9, 3.7943432784836397`*^9}, 
+   3.794345351730372*^9, {3.7943459259868813`*^9, 3.7943459310038557`*^9}, {
+   3.7943461618182287`*^9, 3.794346369956295*^9}, {3.7943464008717203`*^9, 
+   3.7943464860785103`*^9}, {3.794355875516863*^9, 3.7943558812823963`*^9}, {
+   3.794357430154915*^9, 3.794357431245391*^9}, {3.794385108609267*^9, 
+   3.794385113852089*^9}, {3.794825868700082*^9, 3.794825871285183*^9}, 
+   3.7948267989476557`*^9},
+ CellLabel->
+  "In[234]:=",ExpressionUUID->"d41448cd-40aa-4477-9e69-4a963aa26c7c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Geographic regions plot", "Section",
+ CellChangeTimes->{{3.794343016679358*^9, 3.794343021898898*^9}, {
+  3.794826904343733*^9, 
+  3.7948269126798553`*^9}},ExpressionUUID->"12989521-6f73-4a47-b7b0-\
+944950227d59"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsAllDates", "=", 
+   RowBox[{"Sort", "[", 
+    RowBox[{"Union", "[", 
+     RowBox[{"Normal", "[", 
+      RowBox[{"dsCDDailyLongForm", "[", 
+       RowBox[{"All", ",", "\"\<Date\>\""}], "]"}], "]"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"lsAllDates", "//", "Length"}]}], "Input",
+ CellChangeTimes->{{3.7943561611317596`*^9, 3.794356203005199*^9}, {
+   3.7943851591021442`*^9, 3.794385159381098*^9}, 3.794827489439546*^9, {
+   3.794827798893758*^9, 3.794827804989263*^9}},
+ CellLabel->
+  "In[298]:=",ExpressionUUID->"1ace0410-5e29-4a2a-9dc5-21e67b6d6bc4"],
+
+Cell["\<\
+Not all countries in the provided data are known in WL; we are going to \
+remove the ones WL does not know. Here is a list of known country names:\
+\>", "Text",
+ CellChangeTimes->{{3.7948279853975286`*^9, 
+  3.794828052257287*^9}},ExpressionUUID->"adc57753-67b1-4415-a44a-\
+f48e7ca94bc3"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsKnownCountryNames", "=", 
+   RowBox[{"Cases", "[", 
+    RowBox[{
+     RowBox[{"CountryData", "[", "]"}], ",", 
+     RowBox[{
+      RowBox[{"Entity", "[", 
+       RowBox[{"\"\<Country\>\"", ",", "nm_String"}], "]"}], "\[RuleDelayed]",
+       "nm"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.79482660457113*^9, 3.79482662243804*^9}, {
+  3.7948266854492273`*^9, 3.7948267167091618`*^9}, {3.794827495351779*^9, 
+  3.794827496351564*^9}},
+ CellLabel->
+  "In[279]:=",ExpressionUUID->"744b2324-f4f4-454d-b69e-958dc0d4b0d1"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lastDate", "=", 
+   RowBox[{"Last", "@", 
+    RowBox[{"Sort", "@", 
+     RowBox[{"Normal", "@", 
+      RowBox[{"dsCDDailyLongForm", "[", 
+       RowBox[{"All", ",", "\"\<Date\>\""}], "]"}]}]}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.794825758153295*^9, 3.794825830212906*^9}, {
+  3.794827510664575*^9, 3.7948275126290827`*^9}},
+ CellLabel->
+  "In[281]:=",ExpressionUUID->"77b35fb8-97f9-4b94-bd1f-e3db0f7d55e5"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "GeoPlotByDate", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "GeoPlotByDate", "]"}], "=", 
+   RowBox[{"Options", "[", "GeoRegionValuePlot", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"GeoPlotByDate", "[", 
+    RowBox[{"pickDate_String", ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"ds", "=", 
+        RowBox[{"dsCDDailyLongForm", "[", 
+         RowBox[{"Select", "[", 
+          RowBox[{
+           RowBox[{"#Date", "==", "pickDate"}], "&"}], "]"}], "]"}]}], ",", 
+       "aQuery", ",", "aQuery2"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"aQuery", "=", 
+       RowBox[{"GroupBy", "[", 
+        RowBox[{
+         RowBox[{"Normal", "[", "ds", "]"}], ",", 
+         RowBox[{
+          RowBox[{"#", "[", "\"\<Country_Region\>\"", "]"}], "&"}], ",", 
+         RowBox[{
+          RowBox[{"Total", "[", 
+           RowBox[{
+            RowBox[{"#Value", "&"}], "/@", "#"}], "]"}], "&"}]}], "]"}]}], 
+      ";", "\[IndentingNewLine]", 
+      RowBox[{"aQuery", "=", 
+       RowBox[{"KeyMap", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"#", "/.", 
+           RowBox[{"{", 
+            RowBox[{"\"\<US\>\"", "\[Rule]", "\"\<UnitedStates\>\""}], 
+            "}"}]}], "&"}], ",", "aQuery"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"aQuery", "=", 
+       RowBox[{"KeySelect", "[", 
+        RowBox[{"aQuery", ",", 
+         RowBox[{
+          RowBox[{"MemberQ", "[", 
+           RowBox[{"lsKnownCountryNames", ",", "#"}], "]"}], "&"}]}], "]"}]}],
+       ";", "\[IndentingNewLine]", 
+      RowBox[{"aQuery2", "=", 
+       RowBox[{"KeyMap", "[", 
+        RowBox[{
+         StyleBox[
+          RowBox[{
+           RowBox[{"Entity", "[", 
+            RowBox[{"\"\<Country\>\"", ",", "#"}], "]"}], "&"}],
+          ShowSpecialCharacters->False,
+          ShowStringCharacters->True,
+          NumberMarks->True], ",", "aQuery"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"GeoRegionValuePlot", "[", 
+       RowBox[{"aQuery2", ",", "opts", ",", 
+        RowBox[{"PlotLabel", "\[Rule]", "pickDate"}]}], "]"}]}]}], 
+    "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{
+  3.794827562947671*^9, {3.794827633146656*^9, 3.7948277717690287`*^9}},
+ CellLabel->
+  "In[294]:=",ExpressionUUID->"69aefb98-fdda-4c32-876a-eace0d77ae06"],
+
+Cell[BoxData[
+ RowBox[{"Multicolumn", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"GeoPlotByDate", "[", 
+      RowBox[{"#", ",", 
+       RowBox[{"ImageSize", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"400", ",", "Automatic"}], "}"}]}]}], "]"}], "&"}], "/@", 
+    RowBox[{"lsAllDates", "\[LeftDoubleBracket]", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "50", ",", 
+       RowBox[{"-", "10"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], "\[RightDoubleBracket]"}]}], ",", "2"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.794827719837428*^9, 3.794827723822228*^9}, {
+  3.7948277741305637`*^9, 3.79482795957833*^9}},
+ CellLabel->
+  "In[311]:=",ExpressionUUID->"c65dbf8d-1ef0-4700-8ae8-edee5c4ace08"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Time series analysis", "Section",
+ CellChangeTimes->{{3.7943844198274317`*^9, 3.794384426442081*^9}, {
+  3.794386179885665*^9, 
+  3.794386187265361*^9}},ExpressionUUID->"4fd6cf71-b33c-4fc3-93c4-\
+ba9a1ec1556c"],
+
+Cell[CellGroupData[{
+
+Cell["Time series", "Subsection",
+ CellChangeTimes->{{3.794386887759753*^9, 
+  3.794386892791842*^9}},ExpressionUUID->"3fe302b6-92f0-4297-b5c3-\
+46d0cb923b08"],
+
+Cell["\<\
+For each date sum all cases over the states, make a time series, and plot it:\
+\
+\>", "Text",
+ CellChangeTimes->{{3.794384442811306*^9, 3.79438446982263*^9}, {
+  3.794385403667324*^9, 
+  3.794385417403837*^9}},ExpressionUUID->"e277e437-21cf-461d-9831-\
+ca7232660ccb"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tsCases", "=", 
+   RowBox[{"TimeSeries", "@", 
+    RowBox[{"(", 
+     RowBox[{"List", "@@@", 
+      RowBox[{"Normal", "[", 
+       RowBox[{"GroupBy", "[", 
+        RowBox[{
+         RowBox[{"Normal", "[", "dsCDDailyLongForm", "]"}], ",", 
+         RowBox[{"#DateObject", "&"}], ",", 
+         RowBox[{
+          RowBox[{"Total", "[", 
+           RowBox[{
+            RowBox[{"#Value", "&"}], "/@", "#"}], "]"}], "&"}]}], "]"}], 
+       "]"}]}], ")"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"opts", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"AspectRatio", "\[Rule]", 
+      RowBox[{"1", "/", "4"}]}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "Large"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"DateListPlot", "[", 
+  RowBox[{"tsCases", ",", 
+   RowBox[{"PlotLabel", "\[Rule]", "\"\<Cases\>\""}], ",", "opts"}], 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.794384628284143*^9, 3.794384642434271*^9}, {
+  3.794385213541448*^9, 3.794385376149405*^9}, {3.7943854203422527`*^9, 
+  3.794385438996499*^9}, {3.794385591333909*^9, 3.794385596732286*^9}, {
+  3.7943860928502007`*^9, 3.794386109043367*^9}, {3.7943863065228987`*^9, 
+  3.7943863242256002`*^9}, {3.794825942183868*^9, 3.79482594946375*^9}},
+ CellLabel->
+  "In[198]:=",ExpressionUUID->"8526de01-e2b1-4afc-aed3-be24f72a877e"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<RecordsSummary\>\"", "]"}], "[", 
+  RowBox[{"tsCases", "[", "\"\<Path\>\"", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.794386914180272*^9, 3.794386955870192*^9}},
+ CellLabel->
+  "In[201]:=",ExpressionUUID->"3cf40ceb-ca6c-4a21-8cb9-09c2ef97933a"],
+
+Cell["Logarithmic plot:", "Text",
+ CellChangeTimes->{{3.79438569257216*^9, 
+  3.794385701336048*^9}},ExpressionUUID->"4ef403ab-08ce-4a5c-bbca-\
+cb5f7b5c549e"],
+
+Cell[BoxData[
+ RowBox[{"DateListPlot", "[", 
+  RowBox[{
+   RowBox[{"Log10", "[", "tsCases", "]"}], ",", 
+   RowBox[{"PlotLabel", "\[Rule]", 
+    RowBox[{"Row", "[", 
+     RowBox[{"{", 
+      RowBox[{"Log10", ",", 
+       RowBox[{"Spacer", "[", "3", "]"}], ",", "\"\<Cases\>\""}], "}"}], 
+     "]"}]}], ",", "opts"}], "]"}]], "Input",
+ CellChangeTimes->{{3.7943855076076803`*^9, 3.794385511928738*^9}, {
+  3.794385557403418*^9, 3.794385585570704*^9}, {3.794386089262721*^9, 
+  3.794386115456954*^9}, {3.794386330359399*^9, 3.79438633636445*^9}},
+ CellLabel->
+  "In[202]:=",ExpressionUUID->"2e0672af-8d91-48e7-a71e-538ca3236d0b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\[OpenCurlyDoubleQuote]Forecast\[CloseCurlyDoubleQuote]", "Subsection",
+ CellChangeTimes->{{3.794386133034148*^9, 3.794386134424623*^9}, {
+  3.794386212309989*^9, 
+  3.794386224053445*^9}},ExpressionUUID->"75ff1520-3379-4d95-a4c6-\
+b739b9d5284f"],
+
+Cell["Fit a time series model to log 10 of the time series:", "Text",
+ CellChangeTimes->{{3.794386403280702*^9, 3.794386411459395*^9}, {
+  3.794386802033414*^9, 
+  3.794386822812007*^9}},ExpressionUUID->"d6b16620-6487-40a5-9869-\
+aebacce977b7"],
+
+Cell[BoxData[
+ RowBox[{"tsm", "=", 
+  RowBox[{"TimeSeriesModelFit", "[", 
+   RowBox[{"Log10", "[", "tsCases", "]"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.794386261016397*^9, 3.794386285401099*^9}},
+ CellLabel->
+  "In[203]:=",ExpressionUUID->"375d617b-6758-437a-924c-d27061696c21"],
+
+Cell["Plot log 10 data and forecast:", "Text",
+ CellChangeTimes->{{3.794386806274097*^9, 
+  3.79438684131882*^9}},ExpressionUUID->"e064f071-0d38-45cb-b4a1-\
+d28030752c73"],
+
+Cell[BoxData[
+ RowBox[{"DateListPlot", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"tsm", "[", "\"\<TemporalData\>\"", "]"}], ",", 
+     RowBox[{"TimeSeriesForecast", "[", 
+      RowBox[{"tsm", ",", 
+       RowBox[{"{", "10", "}"}]}], "]"}]}], "}"}], ",", "opts", ",", 
+   RowBox[{"PlotLegends", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Data\>\"", ",", "\"\<Forecast\>\""}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7943862285769463`*^9, 3.794386235024678*^9}, {
+  3.7943862685964317`*^9, 3.7943862949183617`*^9}, {3.794386360363613*^9, 
+  3.794386394156698*^9}},
+ CellLabel->
+  "In[204]:=",ExpressionUUID->"62a466af-39ef-4a9b-b075-afaad33ce2d6"],
+
+Cell["Plot data and forecast:", "Text",
+ CellChangeTimes->{{3.794386806274097*^9, 
+  3.794386853580727*^9}},ExpressionUUID->"691d909b-cd04-4d2d-930d-\
+bcb285d901e7"],
+
+Cell[BoxData[
+ RowBox[{"DateListPlot", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"tsCases", ",", 
+     RowBox[{"10", "^", 
+      RowBox[{"TimeSeriesForecast", "[", 
+       RowBox[{"tsm", ",", 
+        RowBox[{"{", "10", "}"}]}], "]"}]}]}], "}"}], ",", "opts", ",", 
+   RowBox[{"PlotLegends", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Data\>\"", ",", "\"\<Forecast\>\""}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.794386454212552*^9, 3.794386489715755*^9}},
+ CellLabel->
+  "In[205]:=",ExpressionUUID->"137c3603-b9a0-4fba-808b-90deed8faca7"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.794345550061627*^9, 
+  3.7943455531323967`*^9}},ExpressionUUID->"88e44fc2-9a82-4937-9f23-\
+f649122c9a22"],
+
+Cell[TextData[{
+ "[CD1] Clearsense LLC, ",
+ ButtonBox["COVID-Data",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/ClearsenseData/COVID-Data"], None},
+  ButtonNote->"https://github.com/ClearsenseData/COVID-Data"],
+ ",(2020), ",
+ ButtonBox["ClearsenseData at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/ClearsenseData"], None},
+  ButtonNote->"https://github.com/ClearsenseData"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.794345559432405*^9, 3.794345636927494*^9}, {
+  3.794356689316554*^9, 3.79435669028293*^9}, {3.794828308297439*^9, 
+  3.794828373406518*^9}},ExpressionUUID->"cbd7032b-1189-4025-b920-\
+bcede299284e"],
+
+Cell[TextData[{
+ "[NYT1] The New York Times, ",
+ ButtonBox["Coronavirus (Covid-19) Data in the United States",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/nytimes/covid-19-data"], None},
+  ButtonNote->"https://github.com/nytimes/covid-19-data"],
+ ", (2020), GitHub."
+}], "Text",
+ CellChangeTimes->{{3.794345559432405*^9, 3.794345636927494*^9}, {
+  3.794356689316554*^9, 
+  3.79435669028293*^9}},ExpressionUUID->"ae470a1c-f943-41c5-aca2-\
+ba28eacd2ebf"],
+
+Cell[TextData[{
+ "[WRI1] Wolfram Research Inc., ",
+ ButtonBox["USA county records",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Data/\
+dfUSACountyRecords.csv"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Data/\
+dfUSACountyRecords.csv"],
+ ", (2020), ",
+ ButtonBox["System Modeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.794345644675522*^9, 
+  3.79434574018814*^9}},ExpressionUUID->"e00fd6ba-c4a6-4c31-ab8a-\
+f07d15a89060"],
+
+Cell[TextData[{
+ "[JH1] CSSE at Johns Hopkins University, ",
+ ButtonBox["COVID-19",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/CSSEGISandData/COVID-19"], None},
+  ButtonNote->"https://github.com/CSSEGISandData/COVID-19"],
+ ", (2020), GitHub."
+}], "Text",
+ CellChangeTimes->{{3.794356692195366*^9, 
+  3.7943567332067747`*^9}},ExpressionUUID->"1da42fd5-5046-4e61-bc98-\
+f19f01af29fe"],
+
+Cell[TextData[{
+ "[VK1] Vitaliy Kaurov, ",
+ ButtonBox["Resources For Novel Coronavirus COVID-19",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://community.wolfram.com/groups/-/m/t/1872608"], None},
+  ButtonNote->"https://community.wolfram.com/groups/-/m/t/1872608"],
+ ", (2020), ",
+ ButtonBox["community.wolfram.com",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://community.wolfram.com"], None},
+  ButtonNote->"https://community.wolfram.com"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7943845176476107`*^9, 
+  3.794384593997785*^9}},ExpressionUUID->"d121f600-9ebb-4aa8-9465-\
+ea8ad75da8b2"],
+
+Cell[TextData[{
+ "[AA1] Anton Antonov, ",
+ ButtonBox["\"NY Times COVID-19 data visualization\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-\
+visualization.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-\
+visualization.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.794745781750211*^9, 3.794745830524087*^9}, {
+  3.794828285485854*^9, 
+  3.794828286767498*^9}},ExpressionUUID->"4fe60732-b284-44dc-a147-\
+dee3701dcb7c"],
+
+Cell[TextData[{
+ "[AAp1] Anton Antonov, ",
+ ButtonBox["Data reshaping Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+DataReshape.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+DataReshape.m"],
+ ", (2018), ",
+ ButtonBox["MathematicaForPrediciton at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.794828156850593*^9, 
+  3.794828236850971*^9}},ExpressionUUID->"3259a229-bbbc-4b81-9ba8-\
+bc8eed60f4b3"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{2006, 1386},
+WindowMargins->{{Automatic, 672}, {-24, Automatic}},
+Magnification:>1.25 Inherited,
+FrontEndVersion->"12.1 for Mac OS X x86 (64-bit) (March 13, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"3b7bbec7-02af-4221-8946-ad5f7011a8e9"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 282, 4, 123, "Title",ExpressionUUID->"7b1061d8-a03e-47f4-996d-4a9a58cb30bf"],
+Cell[865, 28, 1054, 25, 131, "Text",ExpressionUUID->"95109206-a5b5-48be-ad27-499dc0d26ff6"],
+Cell[CellGroupData[{
+Cell[1944, 57, 157, 3, 84, "Section",ExpressionUUID->"29db2d93-ae9c-4e54-85bb-c5450bb2e23d"],
+Cell[2104, 62, 582, 10, 44, "Text",ExpressionUUID->"0d90cfc7-94e7-4c29-98e1-6905981f52a6"],
+Cell[2689, 74, 271, 4, 44, "Text",ExpressionUUID->"0c2599be-425a-4688-9cf8-bc2a0ccd7656"],
+Cell[CellGroupData[{
+Cell[2985, 82, 432, 6, 40, "Item",ExpressionUUID->"28390dce-4bf6-40f5-a3be-1e5f668f936c"],
+Cell[3420, 90, 272, 4, 40, "Item",ExpressionUUID->"f40ab184-b2e1-41d0-9d41-942bee869c4f"],
+Cell[3695, 96, 279, 4, 40, "Item",ExpressionUUID->"c24f49bc-e58a-4af5-a62b-34fc37021d4c"],
+Cell[3977, 102, 281, 4, 40, "Item",ExpressionUUID->"eb952990-6bfa-4e76-b70b-ba9a6806debf"],
+Cell[4261, 108, 331, 5, 40, "Item",ExpressionUUID->"f5e143d5-d699-4e72-be82-bceb9b71a724"]
+}, Open  ]],
+Cell[4607, 116, 382, 8, 44, "Text",ExpressionUUID->"cae6f333-e19b-455c-9fb6-b86bed27728e"],
+Cell[4992, 126, 320, 8, 44, "Text",ExpressionUUID->"95548169-83dc-4207-a944-34185ec850e7"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5349, 139, 156, 3, 84, "Section",ExpressionUUID->"b0ac26f4-416c-4ebf-afee-ec9a98d00453"],
+Cell[CellGroupData[{
+Cell[5530, 146, 329, 5, 67, "Subsection",ExpressionUUID->"896f9728-b5e8-443b-973e-32e108c389e0"],
+Cell[5862, 153, 1234, 28, 90, "Input",ExpressionUUID->"4ece09d7-a11a-47cd-8487-41a1c503a353"],
+Cell[7099, 183, 442, 10, 37, "Input",ExpressionUUID->"48bb15e3-eea8-4a8b-bd9f-924c4e1ef0d4"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7590, 199, 256, 4, 84, "Section",ExpressionUUID->"87bd028c-0855-4609-ad5d-ddf51de82ae7"],
+Cell[7849, 205, 631, 16, 44, "Text",ExpressionUUID->"ef4e957a-f83f-4215-913c-1fb4f906c957"],
+Cell[8483, 223, 363, 7, 37, "Input",ExpressionUUID->"b1bd993c-1cfb-4c30-a3d8-27870c551bb0"],
+Cell[8849, 232, 884, 22, 90, "Input",ExpressionUUID->"78f2baa9-0df5-4edd-bb21-b1e476eb9078"],
+Cell[9736, 256, 227, 4, 44, "Text",ExpressionUUID->"c0899a87-348f-4267-a543-f8c83f7022bb"],
+Cell[9966, 262, 518, 12, 64, "Input",ExpressionUUID->"3a749f85-4529-4213-9628-94d73639894d"],
+Cell[10487, 276, 415, 8, 44, "Text",ExpressionUUID->"7017d852-9714-40ee-a320-39b49c41a0e9"],
+Cell[10905, 286, 860, 21, 90, "Input",ExpressionUUID->"10aa68e9-eaf6-4053-ad49-8f1cc802cc9d"],
+Cell[11768, 309, 181, 3, 44, "Text",ExpressionUUID->"ec020b0c-a2cd-49c4-9c6f-edff17d246b6"],
+Cell[11952, 314, 256, 5, 37, "Input",ExpressionUUID->"a91f07a8-9d80-4145-843a-206ab79e2334"],
+Cell[12211, 321, 157, 3, 44, "Text",ExpressionUUID->"90d909cb-dbea-457e-815b-b6e950af826b"],
+Cell[12371, 326, 286, 6, 37, "Input",ExpressionUUID->"71a5d2f1-e654-4bdb-a131-0b710e68e8bb"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12694, 337, 214, 4, 84, "Section",ExpressionUUID->"d39bc2b3-5f0e-4152-a24b-adb38904817f"],
+Cell[12911, 343, 308, 7, 44, "Text",ExpressionUUID->"aaa3c251-207c-45a6-9a95-2a44968ed7bc"],
+Cell[13222, 352, 375, 9, 37, "Input",ExpressionUUID->"eb9e59f3-d28b-46e0-81b1-bc2cb4faaf0f"],
+Cell[13600, 363, 622, 14, 37, "Input",ExpressionUUID->"7fcde486-8a0d-45ad-a049-ae1dbe51bd04"],
+Cell[14225, 379, 563, 9, 37, "Input",ExpressionUUID->"d41bcfaa-3d03-4a6f-b020-348c88a22936"],
+Cell[14791, 390, 501, 9, 37, "Input",ExpressionUUID->"2882af2f-572e-42d7-b1f8-6dd12c1fd6e5"],
+Cell[15295, 401, 2084, 49, 168, "Input",ExpressionUUID->"d41448cd-40aa-4477-9e69-4a963aa26c7c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17416, 455, 219, 4, 84, "Section",ExpressionUUID->"12989521-6f73-4a47-b7b0-944950227d59"],
+Cell[17638, 461, 612, 14, 64, "Input",ExpressionUUID->"1ace0410-5e29-4a2a-9dc5-21e67b6d6bc4"],
+Cell[18253, 477, 298, 6, 44, "Text",ExpressionUUID->"adc57753-67b1-4415-a44a-f48e7ca94bc3"],
+Cell[18554, 485, 562, 14, 37, "Input",ExpressionUUID->"744b2324-f4f4-454d-b69e-958dc0d4b0d1"],
+Cell[19119, 501, 449, 11, 37, "Input",ExpressionUUID->"77b35fb8-97f9-4b94-bd1f-e3db0f7d55e5"],
+Cell[19571, 514, 2595, 72, 272, "Input",ExpressionUUID->"69aefb98-fdda-4c32-876a-eace0d77ae06"],
+Cell[22169, 588, 714, 19, 37, "Input",ExpressionUUID->"c65dbf8d-1ef0-4700-8ae8-edee5c4ace08"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[22920, 612, 216, 4, 84, "Section",ExpressionUUID->"4fd6cf71-b33c-4fc3-93c4-ba9a1ec1556c"],
+Cell[CellGroupData[{
+Cell[23161, 620, 159, 3, 67, "Subsection",ExpressionUUID->"3fe302b6-92f0-4297-b5c3-46d0cb923b08"],
+Cell[23323, 625, 277, 7, 44, "Text",ExpressionUUID->"e277e437-21cf-461d-9831-ca7232660ccb"],
+Cell[23603, 634, 1467, 36, 90, "Input",ExpressionUUID->"8526de01-e2b1-4afc-aed3-be24f72a877e"],
+Cell[25073, 672, 312, 6, 37, "Input",ExpressionUUID->"3cf40ceb-ca6c-4a21-8cb9-09c2ef97933a"],
+Cell[25388, 680, 158, 3, 44, "Text",ExpressionUUID->"4ef403ab-08ce-4a5c-bbca-cb5f7b5c549e"],
+Cell[25549, 685, 627, 14, 37, "Input",ExpressionUUID->"2e0672af-8d91-48e7-a71e-538ca3236d0b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[26213, 704, 252, 4, 67, "Subsection",ExpressionUUID->"75ff1520-3379-4d95-a4c6-b739b9d5284f"],
+Cell[26468, 710, 244, 4, 44, "Text",ExpressionUUID->"d6b16620-6487-40a5-9869-aebacce977b7"],
+Cell[26715, 716, 284, 6, 37, "Input",ExpressionUUID->"375d617b-6758-437a-924c-d27061696c21"],
+Cell[27002, 724, 171, 3, 44, "Text",ExpressionUUID->"e064f071-0d38-45cb-b4a1-d28030752c73"],
+Cell[27176, 729, 681, 17, 37, "Input",ExpressionUUID->"62a466af-39ef-4a9b-b075-afaad33ce2d6"],
+Cell[27860, 748, 165, 3, 44, "Text",ExpressionUUID->"691d909b-cd04-4d2d-930d-bcb285d901e7"],
+Cell[28028, 753, 561, 15, 37, "Input",ExpressionUUID->"137c3603-b9a0-4fba-808b-90deed8faca7"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28638, 774, 157, 3, 84, "Section",ExpressionUUID->"88e44fc2-9a82-4937-9f23-f649122c9a22"],
+Cell[28798, 779, 673, 18, 44, "Text",ExpressionUUID->"cbd7032b-1189-4025-b920-bcede299284e"],
+Cell[29474, 799, 478, 12, 44, "Text",ExpressionUUID->"ae470a1c-f943-41c5-aca2-ba28eacd2ebf"],
+Cell[29955, 813, 710, 20, 44, "Text",ExpressionUUID->"e00fd6ba-c4a6-4c31-ab8a-f07d15a89060"],
+Cell[30668, 835, 409, 11, 44, "Text",ExpressionUUID->"1da42fd5-5046-4e61-bc98-f19f01af29fe"],
+Cell[31080, 848, 613, 17, 44, "Text",ExpressionUUID->"d121f600-9ebb-4aa8-9465-ea8ad75da8b2"],
+Cell[31696, 867, 902, 23, 44, "Text",ExpressionUUID->"4fe60732-b284-44dc-a147-dee3701dcb7c"],
+Cell[32601, 892, 740, 20, 44, "Text",ExpressionUUID->"3259a229-bbbc-4b81-9ba8-bc8eed60f4b3"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
