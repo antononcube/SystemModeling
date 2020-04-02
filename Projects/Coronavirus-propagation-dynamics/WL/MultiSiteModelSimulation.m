@@ -111,7 +111,7 @@ MultiSiteModelReadData[] :=
 
 Clear[MultiSiteModelSimulation];
 
-SyntaxInformation[MultiSiteModelSimulation] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+SyntaxInformation[MultiSiteModelSimulation] = { "ArgumentsPattern" -> { _, _., _., OptionsPattern[] } };
 
 MultiSiteModelSimulation::"ndata" = "The second argument is expected to be an association of with values that are
 datasets and the keys are `1`.";
@@ -122,6 +122,14 @@ MultiSiteModelSimulation[ aParams_Association, opts : OptionsPattern[] ] :=
     MultiSiteModelSimulation[ aParams, Automatic, opts];
 
 MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Automatic ), opts : OptionsPattern[] ] :=
+    MultiSiteModelSimulation[ aParams, aDataArg, Automatic, opts];
+
+MultiSiteModelSimulation[
+  aParams_Association,
+  aDataArg : ( _Association | Automatic ),
+  singleSiteModel : ( _?EpidemiologyModels`EpidemiologyFullModelQ | Automatic ),
+  opts : OptionsPattern[] ] :=
+
     Block[{ aData = aDataArg, ProgressFunc,
       aExportParams = aParams, dsExportParams,
       expectedDataKeys,
@@ -355,7 +363,13 @@ MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Autom
 
       (* In this section we create a single-site model that is being replicated over the graph nodes. (The rates and initial conditions are replicated for all nodes.) *)
 
-      model1 = singleSiteModelFunc[t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation", "BirthsTerm" -> TrueQ[includeBirthsTermQ]];
+      If[ TrueQ[ singleSiteModel === Automatic ],
+        ProgressFunc["Making (and using) a single site model with ", singleSiteModelFunc];
+        model1 = singleSiteModelFunc[t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation", "BirthsTerm" -> TrueQ[includeBirthsTermQ]],
+        (*ELSE*)
+        ProgressFunc["Using a specified single site model."];
+        model1 = singleSiteModel
+      ];
 
       (* Quarantine scenarios functions: *)
 
@@ -390,8 +404,8 @@ MultiSiteModelSimulation[ aParams_Association, aDataArg : ( _Association | Autom
                   "MigratingPopulations" -> Automatic];
           ];
 
-      (* Change the initial conditions with the determined the total, susceptible, and infected populations for each hexagonal cell: *)
-      ProgressFunc["Change the initial conditions with the determined the total, susceptible, and infected populations for each hexagonal cell..."];
+      (* Change the initial conditions with the determined total, susceptible, and infected populations for each site (hexagonal cell): *)
+      ProgressFunc["Change the initial conditions with the determined total, susceptible, and infected populations for each site (hexagonal cell)..."];
 
       ProgressFunc @
           AbsoluteTiming[
