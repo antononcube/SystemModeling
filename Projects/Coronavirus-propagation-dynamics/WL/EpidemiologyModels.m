@@ -720,7 +720,7 @@ Options[SEI2HRModel] = Options[SEI2RModel];
 SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
-      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, pos},
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, peopleDyingPerDay, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HRModel, "InitialConditions" ] ];
 
@@ -790,6 +790,8 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
         newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
 
+        peopleDyingPerDay = deathRate[ISSP] * ( ISSP[t] - HP[t] ) + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t];
+
         lsNewEquations = {
           If[ birthsTermQ,
             SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
@@ -798,13 +800,13 @@ SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           ],
           EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
           INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
-          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ( ISSP[t] - HP[t] ) - deathRate[HP] * HP[t],
           HP'[t] == Piecewise[{{Min[HB[t] - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < HB[t]}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
-          DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
+          DIP'[t] == peopleDyingPerDay,
           HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
-          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
+          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + peopleDyingPerDay)
         };
 
         Which[
@@ -876,8 +878,8 @@ Options[SEI2HREconModel] = Options[SEI2RModel];
 SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
-      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, usableHospitalBeds,
-      eqMSD0, pos},
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, peopleDyingPerDay,
+      usableHospitalBeds, eqMSD0, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
 
@@ -977,6 +979,8 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
 
         usableHospitalBeds = Min[HB[t], HMS[t] / mscr[ISSP]];
 
+        peopleDyingPerDay = deathRate[ISSP] * ( ISSP[t] - HP[t] ) + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t];
+
         lsNewEquations = {
           If[ birthsTermQ,
             SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
@@ -985,17 +989,17 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           ],
           EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp)) * EP[t],
           INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
-          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ( ISSP[t] - HP[t] ) - deathRate[HP] * HP[t],
           HP'[t] == Piecewise[{{Min[usableHospitalBeds - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < usableHospitalBeds}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
-          DIP'[t] == deathRate[ISSP] * ISSP[t] + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t],
+          DIP'[t] == peopleDyingPerDay,
           HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]),
           MS'[t] == mspr[HB] * ((capacity[MS] - MS[t]) / capacity[MS]) - Min[MS[t], (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t])],
           MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
-          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + DIP[t])
+          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + peopleDyingPerDay)
         };
 
         Which[
