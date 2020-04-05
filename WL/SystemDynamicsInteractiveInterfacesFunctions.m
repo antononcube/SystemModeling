@@ -45,17 +45,32 @@
 BeginPackage["SystemDynamicsInteractiveInterfacesFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-ParametricSolutionsPlots::usage = "ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumberQ, opts : OptionsPattern[]] \
+ParametricSolutionsPlots::usage = "ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumericQ, opts : OptionsPattern[]] \
 uses Plot over an association of parametrized functions aSol for the stocks aStocks with function parameters params for time range {0, tmax}.";
 
+ParametricFunctionValues::usage = "ParametricFunctionValues[pf_ParametricFunction, pars_?AssociationQ, tspec : {tmin_?NumericQ, tmax_?NumericQ, tstep_?NumericQ}] \
+evaluates the parametric function pf with parameters pars over the times specified by tspec.";
+
+TrapezoidalRule::usage = "TrapezoidalRule[pnts : {{_?NumericQ, _?NumericQ}..} ] applies the trapezoidal integration rule to list of points.";
+
+TrapezoidalRuleAccumulate::usage = "TrapezoidalRuleAccumulate[pnts : {{_?NumericQ, _?NumericQ}..} ] \
+gives accumulated integrals over a list of points.";
+
+StockVariabilityPlot::usage = "StockVariabilityPlot[aSol_Association, stock_Symbol, aPars_Association, {fparVar_Symbol, fparVals_?VectorQ}, tspec : {tmin_?NumericQ, tmax_?NumericQ, tspep_?NumericQ}, opts___]\
+makes a plot with different curves with respect to a specified parameters aPars, focus parameter values fparVals over a time grid specification tspec.";
+
 Begin["`Private`"];
+
+(**************************************************************)
+(* ParametricSolutionsPlots                                   *)
+(**************************************************************)
 
 Clear[ParametricSolutionsPlots];
 
 Options[ParametricSolutionsPlots] =
     Join[{"LogPlot" -> False, "Together" -> False, "Derivatives" -> False, "DerivativePrefix" -> "\[CapitalDelta]"}, Options[Plot]];
 
-ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumberQ, opts : OptionsPattern[]] :=
+ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumericQ, opts : OptionsPattern[]] :=
     Block[{logPlotQ, togetherQ, derivativesQ, derivativesPrefix, plotFunc = Plot, dfunc = Identity, dprefix = "", stockRules},
 
       logPlotQ = TrueQ[OptionValue[ParametricSolutionsPlots, "LogPlot"]];
@@ -93,6 +108,108 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List 
         ]
       ]
 
+    ];
+
+
+(**************************************************************)
+(* ParametricFunctionValues                                   *)
+(**************************************************************)
+
+Clear[ParametricFunctionValues];
+ParametricFunctionValues[pfunc_ParametricFunction, aParams_?AssociationQ, tmax_?NumericQ] :=
+    ParametricFunctionValues[pfunc, aParams, {0, tmax, 1}];
+
+ParametricFunctionValues[pfunc_ParametricFunction, aParams_?AssociationQ, tspec : {tmin_?NumericQ, tmax_?NumericQ, tstep_?NumericQ}] :=
+    Block[{params, ts = Range @@ tspec, f},
+      params = pfunc["Parameters"] //. aParams;
+      f = pfunc[Sequence @@ params];
+      Transpose[{ts, f[ts]}]
+    ];
+
+
+(**************************************************************)
+(* TrapezoidalRule                                            *)
+(**************************************************************)
+
+Clear[TrapezoidalRule];
+TrapezoidalRule[points : {{_?NumericQ, _?NumericQ} ..}, aggrFunc_ : Total] :=
+    aggrFunc[Partition[Sort@points, 2, 1] /. {{x1_, y1_}, {x2_, y2_}} :> (x2 - x1) (y1 + (y2 - y1) / 2)];
+
+
+(**************************************************************)
+(* TrapezoidalRuleAccumulate                                  *)
+(**************************************************************)
+
+Clear[TrapezoidalRuleAccumulate];
+TrapezoidalRuleAccumulate[points : {{_?NumericQ, _?NumericQ} ..}] :=
+    Transpose[{Rest@points[[All, 1]], TrapezoidalRule[points, Accumulate]}];
+
+
+(**************************************************************)
+(* StockVariabilityPlot                                  *)
+(**************************************************************)
+
+Clear[StockVariabilityPlot];
+
+Options[StockVariabilityPlot] = Join[{"Operation" -> "Identidy"}, Options[ListLinePlot]];
+
+StockVariabilityPlot::"nop" = "The value of the option \"Operation\" is expected to be one of `1`";
+
+StockVariabilityPlot[aSol_Association, stock_Symbol,
+  aParams_Association, {parVar_Symbol, parRange_?VectorQ},
+  tmax_?NumericQ, opts : OptionsPattern[]] :=
+    StockVariabilityPlot[aSol, stock, aParams, {parVar, parRange}, {0, tmax, 1}, opts];
+
+StockVariabilityPlot[aSol_Association, stock_Symbol,
+  aParams_Association, {parVar_Symbol, parRange_?VectorQ},
+  tspec : {tmin_?NumericQ, tmax_?NumericQ, tspep_?NumericQ},
+  optsArg : OptionsPattern[]] :=
+
+    Block[{aVals, plots, prefix, funcPaths, funcPathEnds, expectedOperations, operation, opts},
+
+      operation = OptionValue[StockVariabilityPlot, "Operation"];
+
+      opts = FilterRules[{optsArg}, Options[ListLinePlot]];
+
+      aVals = Association@Flatten@Table[v -> ParametricFunctionValues[aSol[stock], Append[aParams, parVar -> v], tspec], {v, parRange}];
+
+      expectedOperations = {"Identity", "Derivative", "Integral"};
+
+      Which[
+        operation == "Identity",
+        prefix = Nothing;
+        funcPaths = Values[aVals];
+        plots = ListLinePlot[funcPaths, Evaluate[opts], PlotLegends -> Keys[aVals], ImageSize -> Medium],
+
+        operation == "Derivative",
+        prefix = "\[CapitalDelta]";
+        funcPaths = Differences[TimeSeries[#]]["Path"] & /@ Values[aVals];
+        plots = ListLinePlot[funcPaths, Evaluate[opts], PlotLegends -> Keys[aVals], ImageSize -> Medium],
+
+        operation == "Integral",
+        prefix = "\[Integral]";
+        funcPaths = TrapezoidalRuleAccumulate /@ Values[aVals];
+        plots = ListLinePlot[funcPaths, Evaluate[opts], PlotLegends -> Keys[aVals], ImageSize -> Medium],
+
+        True,
+        Message[StockVariabilityPlot::"nop", expectedOperations];
+        Return[$Failed]
+      ];
+
+      funcPathEnds = funcPaths[[All, -1, 2]];
+
+      Labeled[
+        ResourceFunction["GridTableForm"][
+          <|
+            Row[{prefix, stock}] -> plots,
+            Row[{"Differences at ", tspec[[2]]}] ->
+                ResourceFunction["GridTableForm"][
+                  List @@@ Transpose[{parRange, Round[funcPathEnds, 0.01], Round[(First[#] - # &)@funcPathEnds, 0.01]}],
+                  TableHeadings -> {"Parameter", "End values", "Difference\nwith the first"}, Alignment -> "."]
+          |>,
+          Background -> White],
+        Row[{stock, Spacer[5], "wrt", Spacer[5], parVar}], Top
+      ]
     ];
 
 End[]; (* `Private` *)
