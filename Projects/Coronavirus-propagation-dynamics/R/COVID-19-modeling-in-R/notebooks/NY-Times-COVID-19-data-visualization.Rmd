@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+author: Anton Antonov
+date: 2020-03-30
+output: html_notebook
+---
+
+```{r, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(d3heatmap)
+library(ParetoPrincipleAdherence)
+```
+
+# Introduction
+
+The purpose of this notebook is to give data locations, data ingestion code, and code for rudimentary analysis and visualization of COVID-19 data provided by New York Times, [NYT1]. 
+
+The following steps are taken:
+
+- Ingest data
+
+  - Take COVID-19 data from The New York Times, based on reports from state and local health agencies, [NYT1].
+
+  - Take USA counties records data (FIPS codes, geo-coordinates, populations), [WRI1].
+
+- Merge the data.
+
+- Make data summaries and related plots.
+
+- Make corresponding geo-plots.
+
+Note that other, older repositories with COVID-19 data exist, like, [JH1, VK1].
+
+*Remark:* The time series section is done for illustration purposes only. The forecasts there should not be taken seriously.
+
+# Preliminary defintions
+
+From the help of `tolower`:
+
+```{r}
+capwords <- function(s, strict = FALSE) {
+    cap <- function(s) paste(toupper(substring(s, 1, 1)),
+                  {s <- substring(s, 2); if(strict) tolower(s) else s},
+                             sep = "", collapse = " " )
+    sapply(strsplit(s,  split = " "), cap, USE.NAMES = !is.null(names(s)))
+}
+```
+
+# Import data
+
+## NYTimes USA states data
+
+```{r}
+dfNYDataStates <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", stringsAsFactors = FALSE )
+colnames(dfNYDataStates) <- capwords(colnames(dfNYDataStates))
+head(dfNYDataStates)
+```
+
+```{r}
+summary(as.data.frame(unclass(dfNYDataStates)))
+```
+
+## NYTimes USA counties data
+
+```{r}
+dfNYDataCounties <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv", stringsAsFactors = FALSE )
+colnames(dfNYDataCounties) <- capwords(colnames(dfNYDataCounties))
+head(dfNYDataCounties)
+```
+
+```{r}
+summary(as.data.frame(unclass(dfNYDataCounties)))
+```
+
+## US county records
+
+```{r}
+dfUSACountyData <- read.csv( "https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv", stringsAsFactors = FALSE )
+head(dfUSACountyData)
+```
+
+```{r}
+summary(as.data.frame(unclass(dfUSACountyData)))
+```
+
+# Merge data
+
+```{r}
+dsNYDataCountiesExtended <- 
+  dfNYDataCounties %>% 
+  dplyr::inner_join( dfUSACountyData %>% dplyr::select_at( .vars = c("FIPS", "Lat", "Lon", "Population") ), by = c( "Fips" = "FIPS" ) )
+dsNYDataCountiesExtended
+```
+
+
+# Basic data analysis
+
+```{r}
+ParetoPlotForColumns( dsNYDataCountiesExtended, c("Cases", "Deaths"), scales = "free" )
+```
+
+# Geo-histogram
+
+```{r}
+cf <- colorBin( palette = "Reds", domain = log10(dsNYDataCountiesExtended$Cases), bins = 10 )
+```
+
+```{r}
+m <- 
+  leaflet( dsNYDataCountiesExtended[, c("Lat", "Lon", "Cases")] ) %>%
+  addTiles() %>% 
+  addCircleMarkers( ~Lon, ~Lat, radius = ~ log10(Cases), fillColor = ~ cf(log10(Cases)), color = ~ cf(log10(Cases)), fillOpacity = 0.8, stroke = FALSE, popup = ~Cases )
+m
+```
+
+# Heat-map plots
+
+An alternative of the geo-visualization is to use a heat-map plot.
+
+
+## Cases
+
+Make a heat-map plot by sorting the rows of the cross-tabulation matrix (that correspond to states):
+
+```{r}
+matSDC <- xtabs( Cases ~ State + Date, dfNYDataStates, sparse = TRUE)
+d3heatmap::d3heatmap( log10(matSDC+1), cellnote = as.matrix(matSDC), scale = "none", dendrogram = "row", colors = "Blues", theme = "dark")
+```
+
+
+Deaths
+
+Cross-tabulate states with dates over deaths and plot:
+
+
+```{r}
+matSDD <- xtabs( Deaths ~ State + Date, dfNYDataStates, sparse = TRUE)
+d3heatmap::d3heatmap( log10(matSDD+1), cellnote = as.matrix(matSDD), scale = "none", dendrogram = "row", colors = "Blues", theme = "dark")
+```
+
+# Time series analysis
+
+TBD...
+
+
+
