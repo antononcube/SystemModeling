@@ -31,8 +31,8 @@
     Mathematica is a registered trademark of Wolfram Research, Inc.
 *)
 
-(* :Title: EpidemiologyVisualizationFunctions *)
-(* :Context: EpidemiologyVisualizationFunctions` *)
+(* :Title: EpidemiologyModelingVisualizationFunctions *)
+(* :Context: EpidemiologyModelingVisualizationFunctions` *)
 (* :Author: Anton Antonov *)
 (* :Date: 2020-03-12 *)
 
@@ -57,7 +57,7 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 (* Package definition                                         *)
 (**************************************************************)
 
-BeginPackage["EpidemiologyVisualizationFunctions`"];
+BeginPackage["EpidemiologyModelingVisualizationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
 EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[gr, model, stockNames, aSol, timeRange] \
