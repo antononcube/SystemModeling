@@ -96,24 +96,26 @@ Needs["HextileBins`"];
 
 Clear[ModelNDSolveEquations];
 
-SyntaxInformation[ModelNDSolveEquations] = { "ArgumentsPattern" -> { _ } };
+SyntaxInformation[ModelNDSolveEquations] = { "ArgumentsPattern" -> { _, _. } };
 
 ModelNDSolveEquations::"nargs" = "The first argument is expected to be a model.";
 
-ModelNDSolveEquations[ model_ ] :=
+ModelNDSolveEquations[ model_ ] := ModelNDSolveEquations[ model, model["RateRules"] ];
+
+ModelNDSolveEquations[ model_, rateRules_Association ] :=
     Block[{lsActualEquations, lsInitialConditions},
 
       lsInitialConditions =
           Thread[
             Equal[
               model["InitialConditions"][[All, 1]],
-              model["InitialConditions"][[All, 2]] //. Join[ToAssociation[model["InitialConditions"]], model["RateRules"]]
+              model["InitialConditions"][[All, 2]] //. Join[ Association[ Rule @@@ model["InitialConditions"] ], rateRules]
             ]
           ];
 
       lsActualEquations =
           Join[
-            model["Equations"] //. Join[Association[ Rule @@@ model["InitialConditions"] ], model["RateRules"]],
+            model["Equations"] //. Join[ Association[ Rule @@@ model["InitialConditions"] ], rateRules],
             lsInitialConditions
           ];
 
