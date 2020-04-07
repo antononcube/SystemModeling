@@ -21,7 +21,7 @@ ImageResize[Import["https://github.com/antononcube/SystemModeling/raw/master/Pro
 
 In this notebook we also deal with quarantine scenarios.
 
-**Remark:** We consider the contagious decease propagation models as instances of the more general [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models. We use SD terminology in this notebook.
+**Remark:** We consider the contagious disease propagation models as instances of the more general [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models. We use SD terminology in this notebook.
 
 ### The models
 
