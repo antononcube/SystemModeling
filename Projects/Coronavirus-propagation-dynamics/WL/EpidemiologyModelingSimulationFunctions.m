@@ -84,6 +84,8 @@ ToGraph::usage = "ToGraph[ grid_Association ] makes a graph for a given grid.";
 AggregateForCellIDs::usage = "AggregateForCellIDs[ aGrid, aLonLatVal] aggregated the values of aLonLatVal around
 the ID's of aGrid[\"Cells\"].";
 
+GridObjectQ::usage = "GridObjectQ[arg] checks is the argument a grid object";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
@@ -164,8 +166,8 @@ ModelNDSolve[___] :=
 (* MakeHexGrid                                             *)
 (***********************************************************)
 
-Clear[CellGridQ];
-CellGridQ[a_] := AssociationQ[a] && Length[ Intersection[ Keys[a], {"Cells", "AdjacencyMatrix", "Range", "CellRadius"} ] ] == 4;
+Clear[GridObjectQ];
+GridObjectQ[a_] := AssociationQ[a] && Length[ Intersection[ Keys[a], {"Cells", "AdjacencyMatrix", "Range", "CellRadius"} ] ] == 4;
 
 Clear[MakeHexGrid];
 
@@ -243,7 +245,7 @@ Clear[ToGraph];
 
 Options[ToGraph] = Options[Graph];
 
-ToGraph[ aGrid_?CellGridQ, opts : OptionsPattern[] ] :=
+ToGraph[ aGrid_?GridObjectQ, opts : OptionsPattern[] ] :=
     AdjacencyGraph[
       aGrid["AdjacencyMatrix"],
       opts,
@@ -265,7 +267,7 @@ The second argument is expected to be an association with keys that are coordina
 
 Options[AggregateForCellIDs] = { "AggregationFunction" -> Total };
 
-AggregateForCellIDs[ aGrid_?CellGridQ, aLonLatPopulation : Association[ ( {_?NumberQ, _?NumberQ} -> _?AtomQ ) .. ], opts : OptionsPattern[] ] :=
+AggregateForCellIDs[ aGrid_?GridObjectQ, aLonLatPopulation : Association[ ( {_?NumberQ, _?NumberQ} -> _?AtomQ ) .. ], opts : OptionsPattern[] ] :=
     Block[{nc, aDataIDs, aggrFunc},
 
       aggrFunc = OptionValue[ AggregateForCellIDs, "AggregationFunction" ];
