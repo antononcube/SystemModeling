@@ -60,8 +60,8 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 BeginPackage["EpidemiologyModelingVisualizationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[gr, model, stockNames, aSol, timeRange] \
-evaluates the solutions aSol for each vertex of gr over the specified time range timeRange.";
+EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[mdl, sns, aSol, trng] \
+evaluates the solutions in aSol for the stock names sns for each (vertex) ID in the model mdl over the specified time range trng.";
 
 EvaluateSolutionsOverGraph::usage = "EvaluateSolutionsOverGraph[gr, model, stockNames, aSol, timeRange, opts] \
 makes a sequence of graph plots of the graph gr with the graph nodes colored according solution functions aSol.";
@@ -92,30 +92,26 @@ EvaluateSolutionsOverGraphVertexes::"ntr" = "The fifth argument is expected to b
 EvaluateSolutionsOverGraphVertexes::"nst" = "No model stocks are found with the specification given as the third argument.";
 
 EvaluateSolutionsOverGraphVertexes[
-  gr_Graph,
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   maxTimeArg : (Automatic | _?NumberQ) ] :=
-    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {1, maxTimeArg, 1}];
+    EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {1, maxTimeArg, 1}];
 
 EvaluateSolutionsOverGraphVertexes[
-  gr_Graph,
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)} ] :=
-    EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTimeArg, 1}];
+    EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {minTime, maxTimeArg, 1}];
 
 EvaluateSolutionsOverGraphVertexes[
-  gr_Graph,
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ } ] :=
 
     Block[{maxTime = maxTimeArg, stockSymbols, stockValues},
-
 
       If[TrueQ[maxTime === Automatic],
         (* Assuming all solution functions have the same domain. *)
@@ -234,7 +230,7 @@ EvaluateSolutionsOverGraph[
       ];
 
       (* Some of the work above is repeated in EvaluateSolutionsOverGraphVertexes. *)
-      stockValues = EvaluateSolutionsOverGraphVertexes[ gr, model, stockNames, aSol, {minTime, maxTime, step} ];
+      stockValues = EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {minTime, maxTime, step} ];
 
       If[ MemberQ[ {Automatic, "Global" }, normalization],
 
