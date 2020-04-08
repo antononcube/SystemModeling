@@ -97,7 +97,16 @@ If[Length[DownValues[SystemDynamicsInteractiveInterfacesFunctions`ParametricSolu
 
 BeginPackage["MonadicEpidemiologyCompartmentalModeling`"];
 
+CoordinatesToValuesAssociationQ::usage = "Checks does the argument match  <|({_?NumericQ, _?NumericQ} -> _?NumericQ) ...|>.";
+
+SubtractByKeys::usage = "SubtractByKeys[a1_Association, a2_Association] for each key in common subtracts the a2 value from the a1 value.";
+
+DeriveSusceptiblePopulation::usage = "DeriveSusceptiblePopulation[total, infected, deceased] \
+derives susceptible population from total population, infected, and deceased.";
+
 $ECMMonFailure::usage = "Failure symbol for the monad ECMMon.";
+
+ECMMonEchoModelGridTableForm::usage = "ECMMonEchoModelGridTableForm";
 
 ECMMonMakeHexagonalGrid::usage = "ECMMonMakeHexagonalGrid";
 
@@ -124,6 +133,28 @@ Needs["SystemDynamicsInteractiveInterfacesFunctions`"];
 
 
 (**************************************************************)
+(* Non-monadic functions                                      *)
+(**************************************************************)
+
+Clear[CoordinatesToValuesAssociationQ];
+CoordinatesToValuesAssociationQ[arg_] := MatchQ[arg, <|({_?NumericQ, _?NumericQ} -> _?NumericQ) ...|>];
+
+Clear[SubtractByKeys];
+SubtractByKeys[a1_?AssociationQ, a2_?AssociationQ] :=
+    Merge[{a1, KeyTake[a2, Keys[a1]]}, If[Length[#] > 1, #[[1]] - #[[2]], #[[1]]] &];
+
+Clear[DeriveSusceptiblePopulation];
+DeriveSusceptiblePopulation[
+  aPopulations_?CoordinatesToValuesAssociationQ,
+  aInfected_?CoordinatesToValuesAssociationQ,
+  aDead_?CoordinatesToValuesAssociationQ] :=
+    Block[{aRes},
+      aRes = SubtractByKeys[aPopulations, aInfected];
+      SubtractByKeys[aRes, aDead]
+    ];
+
+
+(**************************************************************)
 (* Generation                                                 *)
 (**************************************************************)
 
@@ -139,6 +170,69 @@ GenerateMonadAccessors[
   "MonadicEpidemiologyCompartmentalModeling`ECMMon",
   {"singleSiteModel", "multiSiteModel", "grid", "solution" },
   "FailureSymbol" -> $ECMMonFailure ];
+
+
+(**************************************************************)
+(* ECMMonEchoModelGridTableForm                               *)
+(**************************************************************)
+
+Clear[ECMMonEchoModelGridTableForm];
+
+SyntaxInformation[ECMMonEchoModelGridTableForm] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonEchoModelGridTableForm] = Options[ModelGridTableForm];
+
+ECMMonEchoModelGridTableForm[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonEchoModelGridTableForm[xs_, context_Association] := ECMMonEchoModelGridTableForm[][xs, context];
+
+ECMMonEchoModelGridTableForm[][xs_, context_Association] := ECMMonEchoModelGridTableForm[Automatic][xs, context];
+
+ECMMonEchoModelGridTableForm[ opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonEchoModelGridTableForm[Automatic, opts];
+
+ECMMonEchoModelGridTableForm[ spec_, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{model, res},
+
+      Which[
+
+        KeyExistsQ[ context, "multiSiteModel"],
+        model = context["multiSiteModel"],
+
+        KeyExistsQ[ context, "singleSiteModel"],
+        model = context["singleSiteModel"],
+
+        True,
+        Echo["Cannot find a model.", "ECMMonEchoModelGridTableForm:"];
+        Return[$ECMMonFailure]
+      ];
+
+      Which[
+        TrueQ[ spec === Automatic ] || TrueQ[ spec === All ],
+        res = ModelGridTableForm[model, opts],
+
+        Length[ Intersection[ Keys[model], Flatten[{spec}] ] ] > 0,
+        res = KeyTake[ ModelGridTableForm[model, opts], spec ],
+
+        True,
+        Echo["Unknown specification.", "ECMMonEchoModelGridTableForm:"];
+        Return[$ECMMonFailure]
+      ];
+
+      Echo[res];
+
+      ECMMonUnit[res, context]
+    ];
+
+ECMMonEchoModelGridTableForm[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonEchoModelGridTableForm[ spec_, opts___ ]"
+            <> " or ECMMonEchoModelGridTableForm[OptionsPattern[]].",
+        "ECMMonEchoModelGridTableForm:"];
+      $ECMMonFailure
+    ];
+
 
 (**************************************************************)
 (* ECMMonSetInitialConditions                                 *)
@@ -292,7 +386,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
 
       grid = OptionValue[ ECMMonMakeHexagonalGrid, "Populations" ];
 
-      If[ ! MatchQ[populations, <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |> ],
+      If[ ! CoordinatesToValuesAssociationQ[populations],
         Echo[
           "The value of the option \"Populations\" is expected to be a association of coordinates to values.",
           "ECMMonExtendByGrid:"
@@ -346,7 +440,7 @@ ECMMonExtendByGrid[aGrid_?GridObjectQ, aPopulations_Association, factor_?Numeric
 
       ECMMonUnit[modelMultiSite, Join[context, <| "multiSiteModel" -> modelMultiSite |>]]
 
-    ] /; MatchQ[aPopulations, <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |> ];
+    ] /; CoordinatesToValuesAssociationQ[aPopulations];
 
 ECMMonExtendByGrid[__][___] :=
     Block[{},
@@ -511,13 +605,16 @@ ECMMonSimulate[__][___] :=
 (* ECMMonPlotSolutions                                        *)
 (**************************************************************)
 
-
-ParametricSolutionsPlots[]
 Clear[ECMMonPlotSolutions];
 
 SyntaxInformation[ECMMonPlotSolutions] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ECMMonPlotSolutions] = Join[ { "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True }, Options[ParametricSolutionsPlots] ];
+Options[ECMMonPlotSolutions] =
+    Join[
+      { "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True },
+      Options[MultiSiteModelStocksPlot],
+      Options[ParametricSolutionsPlots]
+    ];
 
 ECMMonPlotSolutions[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -557,10 +654,16 @@ ECMMonPlotSolutions[ stocksSpecArg : All | ( _String | {_String..} | _StringExpr
 
       Which[
 
+        (*---------*)
         KeyExistsQ[ context, "multiSiteModel"] && KeyExistsQ[ context, "solution"],
-        Echo["Multi-site solutions plot not implemented.", "ECMMonPlotSolutions:"];
-        Return[$ECMMonFailure],
 
+        res =
+            MultiSiteModelStocksPlot[ context["multiSiteModel"], stocksSpec, context["solution"], maxTime,
+              FilterRules[{opts}, Options[MultiSiteModelStocksPlot]],
+              ImageSize -> Medium, PlotTheme -> "Detailed"
+            ],
+
+        (*---------*)
         KeyExistsQ[ context, "singleSiteModel"] && KeyExistsQ[ context, "solution"],
 
         Which[
@@ -577,10 +680,12 @@ ECMMonPlotSolutions[ stocksSpecArg : All | ( _String | {_String..} | _StringExpr
         res =
             ParametricSolutionsPlots[ context["singleSiteModel"]["Stocks"], KeyTake[context["solution"], stockSymbols], None, maxTime,
               FilterRules[{opts}, Options[ParametricSolutionsPlots]],
-              "Together" ->True, ImageSize -> Medium, PlotTheme -> "Detailed"
+              "Together" -> True, ImageSize -> Medium, PlotTheme -> "Detailed"
             ],
 
+        (*---------*)
         True,
+
         Echo["Cannot find a model or solution.", "ECMMonPlotSolutions:"];
         $ECMMonFailure
       ];
@@ -605,6 +710,7 @@ ECMMonPlotSolutions[__][___] :=
 (**************************************************************)
 (* ECMMonPlotGraphNodesWithSolutionValues                     *)
 (**************************************************************)
+
 
 
 End[]; (* `Private` *)
