@@ -112,6 +112,8 @@ ECMMonMakeHexagonalGrid::usage = "ECMMonMakeHexagonalGrid";
 
 ECMMonPlotGrid::usage = "ECMMonPlotGrid";
 
+ECMMonPlotGridHistogram::usage = "ECMMonPlotGridHistogram";
+
 ECMMonExtendByGrid::usage = "ECMMonExtendByGrid";
 
 ECMMonAssignMultiSiteInitialConditions::usage = "ECMMonAssignMultiSiteInitialConditions";
@@ -320,16 +322,18 @@ Clear[ECMMonPlotGrid];
 
 SyntaxInformation[ECMMonPlotGrid] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
 
-Options[ECMMonPlotGrid] = Join[ {"Echo" -> True}, Options[Graphics] ];
+Options[ECMMonPlotGrid] = Join[ {"Echo" -> True, "CellIDs" -> False }, Options[Graphics] ];
 
 ECMMonPlotGrid[___][$ECMMonFailure] := $ECMMonFailure;
 
 ECMMonPlotGrid[xs_, context_Association] := ECMMonPlotGrid[][xs, context];
 
 ECMMonPlotGrid[ opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{echoQ, gr},
+    Block[{echoQ, cellIDsQ, gr},
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotGrid, "Echo"] ];
+
+      cellIDsQ = TrueQ[ OptionValue[ECMMonPlotGrid, "CellIDs"] ];
 
       If[ !KeyExistsQ[ context, "grid"],
         Echo["No grid object is found.", "ECMMonPlotGrid:"];
@@ -338,7 +342,14 @@ ECMMonPlotGrid[ opts : OptionsPattern[] ][xs_, context_] :=
 
       gr =
           Graphics[
-            {FaceForm[LightBlue], EdgeForm[Red], Values[Map[#Cell &, context["grid"]["Cells"]]]}, opts,
+            {
+              FaceForm[LightBlue], EdgeForm[Red], Values[Map[#Cell &, context["grid"]["Cells"]]],
+              If[ cellIDsQ,
+                Values[Map[Text[ #ID, #Center] &, context["grid"]["Cells"]]],
+                Nothing
+              ]
+            },
+            opts,
             ImageSize -> Medium, Frame -> True];
 
       If[echoQ,
@@ -353,6 +364,60 @@ ECMMonPlotGrid[__][___] :=
       Echo[
         "The expected signature is ECMMonPlotGrid[OptionsPattern[]].",
         "ECMMonPlotGrid:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonPlotGridHistogram                                    *)
+(**************************************************************)
+
+Clear[ECMMonPlotGridHistogram];
+
+SyntaxInformation[ECMMonPlotGridHistogram] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+
+Options[ECMMonPlotGridHistogram] = Join[ {"Echo" -> True}, Options[HextileHistogram] ];
+
+ECMMonPlotGridHistogram[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonPlotGridHistogram[xs_, context_Association] := ECMMonPlotGridHistogram[None][xs, context];
+
+ECMMonPlotGridHistogram[ aData_?CoordinatesToValuesAssociationQ, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{echoQ, aDataToGrid, grHexHist, gr},
+
+      echoQ = TrueQ[ OptionValue[ECMMonPlotGridHistogram, "Echo"] ];
+
+      If[ !KeyExistsQ[ context, "grid"],
+        Echo["No grid object is found.", "ECMMonPlotGridHistogram:"];
+        Return[$ECMMonFailure]
+      ];
+
+      aDataToGrid = AggregateForCellIDs[ context["grid"], aData];
+
+      grHexHist =
+          HextileHistogram[ aData, context["grid"]["CellRadius"],
+            FilterRules[{opts}, Options[HextileHistogram]],
+            ColorFunction -> (Opacity[#, Blue] &),
+            PlotRange -> All, ImageSize -> Medium];
+
+      gr =
+          Show[{
+            grHexHist,
+            Graphics[{Red, PointSize[0.001 * context["grid"]["CellRadius"]], Point[Keys[aData]]}]
+          }];
+
+      If[echoQ,
+        Echo[ gr, "grid:" ]
+      ];
+
+      ECMMonUnit[gr, context]
+    ];
+
+ECMMonPlotGridHistogram[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is ECMMonPlotGrid[data : <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |>, OptionsPattern[]].",
+        "ECMMonPlotGridHistogram:"];
       $ECMMonFailure
     ];
 
@@ -658,7 +723,7 @@ ECMMonPlotSolutions[ stocksSpecArg : All | ( _String | {_String..} | _StringExpr
         KeyExistsQ[ context, "multiSiteModel"] && KeyExistsQ[ context, "solution"],
 
         If[TrueQ[ stocksSpec === {All} ],
-          stocksSpec = {__~~___};
+          stocksSpec = {__ ~~ ___};
         ];
 
         res =
