@@ -99,6 +99,8 @@ BeginPackage["MonadicEpidemiologyCompartmentalModeling`"];
 
 CoordinatesToValuesAssociationQ::usage = "Checks does the argument match  <|({_?NumericQ, _?NumericQ} -> _?NumericQ) ...|>.";
 
+BinaryOperateByKeys::usage = "BinaryOperateByKeys[a1_Association, a2_Association, op_] for each key in common applies the binary operation op.";
+
 SubtractByKeys::usage = "SubtractByKeys[a1_Association, a2_Association] for each key in common subtracts the a2 value from the a1 value.";
 
 DeriveSusceptiblePopulation::usage = "DeriveSusceptiblePopulation[total, infected, deceased] \
@@ -140,6 +142,10 @@ Needs["SystemDynamicsInteractiveInterfacesFunctions`"];
 
 Clear[CoordinatesToValuesAssociationQ];
 CoordinatesToValuesAssociationQ[arg_] := MatchQ[arg, <|({_?NumericQ, _?NumericQ} -> _?NumericQ) ...|>];
+
+Clear[BinaryOperateByKeys];
+BinaryOperateByKeys[a1_?AssociationQ, a2_?AssociationQ, oper_] :=
+    Merge[{a1, KeyTake[a2, Keys[a1]]}, If[Length[#] > 1, oper[ #[[1]], #[[2]] ], #[[1]]] &];
 
 Clear[SubtractByKeys];
 SubtractByKeys[a1_?AssociationQ, a2_?AssociationQ] :=
@@ -376,16 +382,18 @@ Clear[ECMMonPlotGridHistogram];
 
 SyntaxInformation[ECMMonPlotGridHistogram] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ECMMonPlotGridHistogram] = Join[ {"Echo" -> True}, Options[HextileHistogram] ];
+Options[ECMMonPlotGridHistogram] = Join[ {"Echo" -> True, "ShowDataPoints" -> True }, Options[HextileHistogram] ];
 
 ECMMonPlotGridHistogram[___][$ECMMonFailure] := $ECMMonFailure;
 
 ECMMonPlotGridHistogram[xs_, context_Association] := ECMMonPlotGridHistogram[None][xs, context];
 
 ECMMonPlotGridHistogram[ aData_?CoordinatesToValuesAssociationQ, opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{echoQ, aDataToGrid, grHexHist, gr},
+    Block[{echoQ, showDataPointsQ, aDataToGrid, grHexHist, gr},
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotGridHistogram, "Echo"] ];
+
+      showDataPointsQ = TrueQ[ OptionValue[ECMMonPlotGridHistogram, "ShowDataPoints"] ];
 
       If[ !KeyExistsQ[ context, "grid"],
         Echo["No grid object is found.", "ECMMonPlotGridHistogram:"];
@@ -400,11 +408,15 @@ ECMMonPlotGridHistogram[ aData_?CoordinatesToValuesAssociationQ, opts : OptionsP
             ColorFunction -> (Opacity[#, Blue] &),
             PlotRange -> All, ImageSize -> Medium];
 
-      gr =
-          Show[{
-            grHexHist,
-            Graphics[{Red, PointSize[0.001 * context["grid"]["CellRadius"]], Point[Keys[aData]]}]
-          }];
+      If[ showDataPointsQ,
+        gr =
+            Show[{
+              grHexHist,
+              Graphics[{Red, PointSize[0.001 * context["grid"]["CellRadius"]], Point[Keys[aData]]}]
+            }],
+        (* ELSE *)
+        gr = grHexHist
+      ];
 
       If[echoQ,
         Echo[ gr, "grid:" ]
