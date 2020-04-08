@@ -438,7 +438,7 @@ ECMMonExtendByGrid[aGrid_?GridObjectQ, aPopulations_Association, factor_?Numeric
 
       modelMultiSite = ToSiteCompartmentsModel[ singleSiteModel, matGridTraffic, "MigratingPopulations" -> Automatic];
 
-      ECMMonUnit[modelMultiSite, Join[context, <| "multiSiteModel" -> modelMultiSite |>]]
+      ECMMonUnit[modelMultiSite, Join[context, <| "singleSiteModel" -> singleSiteModel, "multiSiteModel" -> modelMultiSite |>]]
 
     ] /; CoordinatesToValuesAssociationQ[aPopulations];
 
@@ -656,6 +656,10 @@ ECMMonPlotSolutions[ stocksSpecArg : All | ( _String | {_String..} | _StringExpr
 
         (*---------*)
         KeyExistsQ[ context, "multiSiteModel"] && KeyExistsQ[ context, "solution"],
+
+        If[TrueQ[ stocksSpec === {All} ],
+          stocksSpec = {__~~___};
+        ];
 
         res =
             MultiSiteModelStocksPlot[ context["multiSiteModel"], stocksSpec, context["solution"], maxTime,
