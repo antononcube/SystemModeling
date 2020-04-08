@@ -52,8 +52,7 @@ BeginTestSection["MonadicEpidemiologyCompartmentalModeling-Unit-Tests.mt"];
 
 VerificationTest[
   CompoundExpression[
-    (*    Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.m"],*)
-    Import["/Volumes/Macintosh HD/Users/antonov/SystemModeling/Projects/Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.m"],
+    Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.m"],
     Greater[Length[SubValues[MonadicEpidemiologyCompartmentalModeling`ECMMonSimulate]], 0]
   ]
   ,
@@ -119,11 +118,11 @@ VerificationTest[
   ecmObj =
       DoubleLongRightArrow[
         ecmObj,
-        ECMMonAssignMultiSiteInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
-        ECMMonAssignMultiSiteInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
-        ECMMonAssignMultiSiteInitialConditions[<||>, "Exposed Population", "Default" -> 0],
-        ECMMonAssignMultiSiteInitialConditions[aInfected, "Infected Normally Symptomatic Population", "Default" -> 0],
-        ECMMonAssignMultiSiteInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
+        ECMMonAssignInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
+        ECMMonAssignInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
+        ECMMonAssignInitialConditions[<||>, "Exposed Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[aInfected, "Infected Normally Symptomatic Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
       ];
 
   Sort[Keys[ecmObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
@@ -138,11 +137,11 @@ VerificationTest[
   ecmObj =
       DoubleLongRightArrow[
         ecmObj,
-        ECMMonAssignMultiSiteInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
-        ECMMonAssignMultiSiteInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
-        ECMMonAssignMultiSiteInitialConditions[<||>, "Exposed Population", "Default" -> 0],
-        ECMMonAssignMultiSiteInitialConditions[aInfected, "Infected Normally Symptomatic Population", "Default" -> 0],
-        ECMMonAssignMultiSiteInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
+        ECMMonAssignInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
+        ECMMonAssignInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
+        ECMMonAssignInitialConditions[<||>, "Exposed Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[aInfected, "Infected Normally Symptomatic Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
       ];
   con = ECMMonBind[ ecmObj, ECMMonTakeContext];
   AssociationQ[con] && Sort[Keys[con]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
