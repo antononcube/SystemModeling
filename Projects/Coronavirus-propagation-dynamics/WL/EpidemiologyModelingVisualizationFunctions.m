@@ -75,6 +75,9 @@ MakeVertexShapeFunction::usage = "MakeVertexShapeFunction makes a vertex shape f
 ConvertSolutions::usage = "ConvertSolutions[ aSolEvals, type] converts an association of solution evaluations into
 a dataset.";
 
+MultiSiteModelStocksPlot::usage = "MultiSiteModelStocksPlot[model, focusStocks, aSol, maxTime, opts___] \
+plots aggregated by stock solution values for a multi-site model.";
+
 PopulationStockPlots::usage = "PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_Association, stocksArg : (_String | {_String ..}), maxTime_?NumberQ, addOpts : OptionsPattern[]]";
 
 EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_Association, stock_String, maxTime_?NumberQ, opts : OptionsPattern[] ]";
@@ -341,6 +344,90 @@ ConvertSolutions[ aStockSolutionValues : Association[(_String -> Association[(_ 
 
     ];
 
+
+(**************************************************************)
+(* CellValues3D                                               *)
+(**************************************************************)
+
+Clear[CellValues3D];
+
+CellValues3D[
+  aCells_?AssociationQ,
+  model_?EpidemiologyFullModelQ,
+  focusStocksArg_ : (_String | {_String ..}),
+  aSolHexGermany_?AssociationQ, maxTime_?NumberQ,
+  normalizeQ : (True | False)] :=
+
+    Block[{focusStocks = Flatten[{focusStocksArg}], aSolVertexVals,
+
+      aSolVertexVals2, aSolVertexVals3},
+      aSolVertexVals = EvaluateSolutionsOverGraphVertexes[model, focusStocks, aSolHexGermany, {0, maxTime}];
+
+      If[normalizeQ,
+        aSolVertexVals2 = Map[# / Max[#] &, aSolVertexVals],
+        aSolVertexVals2 = aSolVertexVals
+      ];
+
+      aSolVertexVals3 = Association[KeyValueMap[Function[{k, v}, k -> Map[Append[aCells[k]["Center"], #] &, v]], aSolVertexVals2]]
+    ];
+
+
+(**************************************************************)
+(* MultiSiteModelStocksPlot                                   *)
+(**************************************************************)
+
+Clear[MultiSiteModelStocksPlot];
+
+SyntaxInformation[MultiSiteModelStocksPlot] = { "ArgumentsPattern" -> { _, _, _, _, OptionsPattern[] } };
+
+MultiSiteModelStocksPlot::"nargs" = "The first argument is expected to be an epidemiology model. \
+The second argument is expected to be a stock description, a list of stock descriptions, or All. \
+The third argument is expected to be an association of multi-site solutions. \
+The fourth argument is expected to be a number.";
+
+Options[MultiSiteModelStocksPlot] = Join[ {"FocusTime" -> None}, Options[ListLinePlot] ];
+
+MultiSiteModelStocksPlot[
+  model_?EpidemiologyModelQ,
+  focusStocksArg : ( All | _String | {_String ..} | _StringExpression | {_StringExpression..} ),
+  aSol_?AssociationQ,
+  maxTime_?NumericQ,
+  opts : OptionsPattern[] ] :=
+
+    Block[{focusStocks = Flatten[{focusStocksArg}], focusTime, a3DVals, a2DVals, epilog = {} },
+
+      focusTime = OptionValue[ MultiSiteModelStocksPlot, "FocusTime"];
+
+      If[ NumericQ[focusTime],
+        epilog = {Red, Dashed, Line[{{focusTime, -0.1 * Max[a2DVals]}, {focusTime, 1.3 * Max[a2DVals]}}]}
+      ];
+
+      Which[
+        TrueQ[focusStocksArg === All],
+        focusStocks = Union[ Values[model["Stocks"]] ],
+
+        MatchQ[focusStocks, {_StringExpression..}],
+        focusStocks = Flatten[ StringCases[  Union[ Values[model["Stocks"]] ], #]& /@ focusStocks ]
+      ];
+
+      a3DVals = Association @ Map[ # -> EvaluateSolutionsOverGraphVertexes[model, #, aSol, {0, maxTime}]&, focusStocks];
+
+      a2DVals = Total[Values[#]] & /@ a3DVals;
+
+      ListLinePlot[
+        a2DVals,
+        PlotLabel -> "Aggregated over all sites",
+        PlotLegends -> Keys[a2DVals],
+        Epilog -> epilog, opts,
+        PlotRange -> All, PlotTheme -> "Detailed"
+      ]
+    ];
+
+MultiSiteModelStocksPlot[___] :=
+    Block[{},
+      Message[MultiSiteModelStocksPlot::"nargs"];
+      $Failed
+    ];
 
 (**************************************************************)
 (* PopulationStockPlots                                       *)
