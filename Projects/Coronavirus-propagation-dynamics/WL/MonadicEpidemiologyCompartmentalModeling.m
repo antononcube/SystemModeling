@@ -109,6 +109,8 @@ ECMMonAssignMultiSiteInitialConditions::usage = "ECMMonAssignMultiSiteInitialCon
 
 ECMMonSimulate::usage = "ECMMonSimulate";
 
+ECMMonPlotSolutions::usage = "ECMMonPlotSolutions";
+
 Begin["`Private`"];
 
 Needs["StateMonadCodeGenerator`"];
@@ -224,7 +226,7 @@ Clear[ECMMonPlotGrid];
 
 SyntaxInformation[ECMMonPlotGrid] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
 
-Options[ECMMonPlotGrid] = Join[ {"Echo"->True}, Options[Graphics] ];
+Options[ECMMonPlotGrid] = Join[ {"Echo" -> True}, Options[Graphics] ];
 
 ECMMonPlotGrid[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -486,7 +488,7 @@ ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
         aSol = Association @ First @ ModelNDSolve[ context["singleSiteModel"], {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ],
 
         True,
-        Echo["Cannot find models.", "ECMMonSimulate:"];
+        Echo["Cannot find a model.", "ECMMonSimulate:"];
         $ECMMonFailure
       ];
 
@@ -498,7 +500,7 @@ ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
 ECMMonSimulate[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonSimulate[ maxTimes_?NumericQ, opts ].",
+        "The expected signature is one of ECMMonSimulate[ maxTime_?NumericQ, opts___ ].",
         "ECMMonSimulate:"
       ];
       $ECMMonFailure
@@ -510,8 +512,95 @@ ECMMonSimulate[__][___] :=
 (**************************************************************)
 
 
+ParametricSolutionsPlots[]
+Clear[ECMMonPlotSolutions];
 
+SyntaxInformation[ECMMonPlotSolutions] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
+Options[ECMMonPlotSolutions] = Join[ { "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True }, Options[ParametricSolutionsPlots] ];
+
+ECMMonPlotSolutions[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonPlotSolutions[xs_, context_Association] := ECMMonAssignMultiSiteInitialConditions[][xs, context];
+
+ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{stocks, time},
+
+      stocks = OptionValue[ECMMonPlotSolutions, "MaxTime"];
+
+      If[ ! MatchQ[ stocks, All | ( _String | {_String..} | _Symbol | {_Symbol..} ) ],
+        Echo[
+          "The value of the option \"Stocks\" is expected match the pattern: All | ( _String | {_String..} | _Symbol | {_Symbol..} ).",
+          "ECMMonPlotSolutions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      time = OptionValue[ECMMonPlotSolutions, "MaxTime"];
+
+      If[ ! ( NumericQ[time] && time >= 0 ),
+        Echo["The value of the option \"MaxTime\" is expected to be a non-negative number.", "ECMMonPlotSolutions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonPlotSolutions[ stocks, time, opts][xs, context]
+    ];
+
+ECMMonPlotSolutions[ stocksSpecArg : All | ( _String | {_String..} | _StringExpression), maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{stocksSpec = Flatten[{stocksSpecArg}], echoQ, res, stockSymbols, aStocks},
+
+      echoQ = TrueQ[ OptionValue[ECMMonPlotSolutions, "Echo"] ];
+
+      If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
+        Echo["The first argument is expected to be a non-negative number.", "ECMMonPlotSolutions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      Which[
+
+        KeyExistsQ[ context, "multiSiteModel"] && KeyExistsQ[ context, "solution"],
+        Echo["Multi-site solutions plot not implemented.", "ECMMonPlotSolutions:"];
+        Return[$ECMMonFailure],
+
+        KeyExistsQ[ context, "singleSiteModel"] && KeyExistsQ[ context, "solution"],
+
+        Which[
+          TrueQ[ stocksSpec === {All} ],
+          stockSymbols = GetStockSymbols[ context["singleSiteModel"] ],
+
+          MatchQ[ stocksSpec, {_String ..} | {_StringExpression ..} ],
+          stockSymbols = Flatten[ GetStockSymbols[ context["singleSiteModel"], # ]& /@ stocksSpec ],
+
+          True,
+          stockSymbols = GetStockSymbols[ context["singleSiteModel"] ]
+        ];
+
+        res =
+            ParametricSolutionsPlots[ context["singleSiteModel"]["Stocks"], KeyTake[context["solution"], stockSymbols], None, maxTime,
+              FilterRules[{opts}, Options[ParametricSolutionsPlots]],
+              "Together" ->True, ImageSize -> Medium, PlotTheme -> "Detailed"
+            ],
+
+        True,
+        Echo["Cannot find a model or solution.", "ECMMonPlotSolutions:"];
+        $ECMMonFailure
+      ];
+
+      If[echoQ,
+        Echo[ res, "solutions:" ]
+      ];
+
+      ECMMonUnit[res, context]
+
+    ];
+
+ECMMonPlotSolutions[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonPlotSolutions[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ].",
+        "ECMMonPlotSolutions:"
+      ];
+      $ECMMonFailure
+    ];
 
 (**************************************************************)
 (* ECMMonPlotGraphNodesWithSolutionValues                     *)
