@@ -122,6 +122,8 @@ ECMMonAssignInitialConditionsByGridAggregation::usage = "ECMMonAssignInitialCond
 
 ECMMonAssignInitialConditions::usage = "ECMMonAssignInitialConditions";
 
+ECMMonAssignRateRules::usage = "ECMMonAssignRateRules";
+
 ECMMonSimulate::usage = "ECMMonSimulate";
 
 ECMMonPlotSolutions::usage = "ECMMonPlotSolutions";
@@ -674,6 +676,59 @@ ECMMonAssignInitialConditions[__][___] :=
       ];
       $ECMMonFailure
     ];
+
+
+(**************************************************************)
+(* ECMMonAssignRateRules                                      *)
+(**************************************************************)
+
+Clear[ECMMonAssignRateRules];
+
+SyntaxInformation[ECMMonAssignRateRules] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+
+ECMMonAssignRateRules[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonAssignRateRules[xs_, context_Association] := ECMMonAssignRateRules[][xs, context];
+
+ECMMonAssignRateRules[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{},
+      Echo["Not implemented signature.", "ECMMonAssignInitialConditions:"];
+      $ECMMonFailure
+    ];
+
+ECMMonAssignRateRules[ aRateRules_Association ][xs_, context_] :=
+    Block[{ model, aContextAddition },
+
+      Which[
+
+        KeyExistsQ[ context, "multiSiteModel"],
+        model = context["multiSiteModel"];
+        model = SetRateRules[ model, aRateRules ];
+        aContextAddition = <| "multiSiteModel" -> model |>,
+
+        KeyExistsQ[ context, "singleSiteModel"],
+        model = context["singleSiteModel"];
+        model = SetRateRules[ model, aRateRules ];
+        aContextAddition = <| "singleSiteModel" -> model |>,
+
+        True,
+        Echo["Cannot find a model.", "ECMMonAssignRateRules:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonUnit[model, Join[context, aContextAddition]]
+
+    ];
+
+ECMMonAssignRateRules[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonAssignRateRules[ aRateRules_Association].",
+        "ECMMonAssignRateRules:"
+      ];
+      $ECMMonFailure
+    ];
+
 
 (**************************************************************)
 (* ECMMonSimulate                                             *)
