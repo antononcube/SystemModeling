@@ -97,11 +97,15 @@ If[Length[DownValues[SystemDynamicsInteractiveInterfacesFunctions`ParametricSolu
 
 BeginPackage["MonadicEpidemiologyCompartmentalModeling`"];
 
-$ECMMonFailure::usage = "Failure symbol for the monad LSAMon.";
+$ECMMonFailure::usage = "Failure symbol for the monad ECMMon.";
 
 ECMMonMakeHexagonalGrid::usage = "ECMMonMakeHexagonalGrid";
 
 ECMMonExtendByGrid::usage = "ECMMonExtendByGrid";
+
+ECMMonAssignInitialConditions::usage = "ECMMonAssignInitialConditions";
+
+ECMMonSimulate::usage = "ECMMonSimulate";
 
 Begin["`Private`"];
 
@@ -176,17 +180,17 @@ ECMMonMakeHexagonalGrid[ opts : OptionsPattern[] ][xs_, context_] :=
           "The value of the option \"Coordinates\" is expected to be a list of numeric pairs.",
           "ECMMonMakeHexagonalGrid:"
         ];
-        Return[ECMMonMakeHexagonalGrid]
+        Return[$ECMMonFailure]
       ];
 
-      radius = OptionValue[ ECMMonMakeHexagonalGrid, "Coordinates" ];
+      radius = OptionValue[ ECMMonMakeHexagonalGrid, "Radius" ];
 
       If[ ! ( NumericQ[radius] && radius > 0 ),
         Echo[
           "The value of the option \"Radius\" is expected to be a positive number.",
           "ECMMonMakeHexagonalGrid:"
         ];
-        Return[ECMMonMakeHexagonalGrid]
+        Return[$ECMMonFailure]
       ];
 
       ECMMonMakeHexagonalGrid[ coords, radius ][xs, context]
@@ -234,7 +238,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
           "The value of the option \"Grid\" is expected to be a grid object. (See GridObjectQ.)",
           "ECMMonExtendByGrid:"
         ];
-        Return[ECMMonExtendByGrid]
+        Return[$ECMMonFailure]
       ];
 
       grid = OptionValue[ ECMMonMakeHexagonalGrid, "Populations" ];
@@ -244,7 +248,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
           "The value of the option \"Populations\" is expected to be a association of coordinates to values.",
           "ECMMonExtendByGrid:"
         ];
-        Return[ECMMonExtendByGrid]
+        Return[$ECMMonFailure]
       ];
 
       factor = OptionValue[ ECMMonExtendByGrid, "Factor" ];
@@ -254,7 +258,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
           "The value of the option \"Factor\" is expected to be a positive number.",
           "ECMMonExtendByGrid:"
         ];
-        Return[ECMMonExtendByGrid]
+        Return[$ECMMonFailure]
       ];
 
       ECMMonExtendByGrid[ grid, factor ][xs, context]
@@ -270,16 +274,23 @@ ECMMonExtendByGrid[ aPopulations_Association, factor_?NumericQ ][xs_, context_] 
     ];
 
 ECMMonExtendByGrid[aGrid_?GridObjectQ, aPopulations_Association, factor_?NumericQ ][xs_, context_] :=
-    Block[{matGridTraffic, singleSiteModel, modelMultiSite},
+    Block[{ aICValues, matGridTraffic, singleSiteModel, modelMultiSite},
 
       (* Check is there are context member gridPopulations. *)
       (* If yes, use the gridPopulations to make the matrix. *)
+      aICValues = AggregateForCellIDs[aGrid, aPopulations ];
 
-      matGridTraffic = SparseArray[Map[(List @@ #) -> factor * Mean[Map[aPopulations[#] &, List @@ #]] &, Most[ArrayRules[aGrid["AdjacencyMatrix"]]][[All, 1]]]];
+      matGridTraffic =
+          SparseArray[
+            Map[ (List @@ #) -> factor * Mean[Map[aICValues[#] &, List @@ #]] &, Most[ArrayRules[aGrid["AdjacencyMatrix"]]][[All, 1]] ],
+            Dimensions[aGrid["AdjacencyMatrix"]]
+          ];
+
+      Print[matGridTraffic];
 
       If[ !KeyExistsQ[ context, "singleSiteModel"],
-        Echo["No single model is found. Making one with SEI2RModel.", "ECMMonExtendByGrid:"];
-        singleSiteModel = SEI2RModel[t],
+        Echo["No single-site, seed model is found. Making one with SEI2RModel.", "ECMMonExtendByGrid:"];
+        singleSiteModel = SEI2RModel[Global`t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation"],
         (*ELSE*)
         singleSiteModel = context["singleSiteModel"]
       ];
@@ -299,14 +310,154 @@ ECMMonExtendByGrid[__][___] :=
       $ECMMonFailure
     ];
 
+
 (**************************************************************)
 (* ECMMonMakeTravelingPatternsMatrix                          *)
 (**************************************************************)
 
 
 (**************************************************************)
+(* ECMMonAssignInitialConditions                              *)
+(**************************************************************)
+
+Clear[ECMMonAssignInitialConditions];
+
+SyntaxInformation[ECMMonAssignInitialConditions] = { "ArgumentsPattern" -> { _, _, OptionsPattern[] } };
+
+Options[ECMMonAssignInitialConditions] = { "Default" -> 0 };
+
+ECMMonAssignInitialConditions[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonAssignInitialConditions[xs_, context_Association] := ECMMonAssignInitialConditions[][xs, context];
+
+ECMMonAssignInitialConditions[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{},
+      Echo["Not implemented signature.", "ECMMonAssignInitialConditions:"];
+      $ECMMonFailure
+    ];
+
+ECMMonAssignInitialConditions[ aCoordsToValues_Association, stockName_String, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{default, modelMultiSite, aICValues, stockSymbol},
+
+      default = OptionValue[ECMMonAssignInitialConditions, "Default"];
+
+      If[ ! ( NumericQ[default] && default >= 0 ),
+        Echo["The value of the option \"Default\" is expected to be a non-negative number.", "ECMMonAssignInitialConditions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ !KeyExistsQ[ context, "multiSiteModel"],
+        Echo["No multi-site model is found. (Required for this signature.)", "ECMMonAssignInitialConditions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      modelMultiSite = context["multiSiteModel"];
+
+      If[ !KeyExistsQ[ context, "grid"],
+        Echo["No grid object is found. (Required for this signature.)", "ECMMonAssignInitialConditions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ ! MemberQ[ Values[modelMultiSite["Stocks"]], stockName ],
+        Echo["The second argument, \"" <> stockName <> "\", is expected to be one of the stock names: " <> ToString[Union[Values[modelMultiSite["Stocks"]]]],
+          "ECMMonAssignInitialConditions:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ Length[aCoordsToValues] > 0,
+
+        aICValues = AggregateForCellIDs[context["grid"], aCoordsToValues ];
+
+        stockSymbol = Head@First@GetStockSymbols[ modelMultiSite, stockName];
+
+        modelMultiSite =
+            SetInitialConditions[
+              modelMultiSite,
+              Join[Association@Map[#[0] -> default &, GetPopulationSymbols[modelMultiSite, stockName]], Association[KeyValueMap[With[{sh = stockSymbol}, sh[#1][0] -> #2 ]&, aICValues]]]
+            ],
+        (* ELSE *)
+        modelMultiSite =
+            SetInitialConditions[
+              modelMultiSite,
+              Association@Map[#[0] -> default &, GetPopulationSymbols[modelMultiSite, stockName]]
+            ]
+      ];
+
+      ECMMonUnit[modelMultiSite, Join[context, <| "multiSiteModel" -> modelMultiSite |>]]
+
+    ] /; MatchQ[aCoordsToValues, <| ({_?NumericQ, _?NumericQ} -> _?NumericQ)... |> ];
+
+ECMMonAssignInitialConditions[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonAssignInitialConditions[ coordsToValues: <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |>, stockName_String, opts ].",
+        "ECMMonAssignInitialConditions:"
+      ];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
 (* ECMMonSimulate                                             *)
 (**************************************************************)
+
+Clear[ECMMonSimulate];
+
+SyntaxInformation[ECMMonSimulate] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+
+Options[ECMMonSimulate] = Join[ { "MaxTime" -> 365 }, Options[NDSolve] ];
+
+ECMMonSimulate[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonSimulate[xs_, context_Association] := ECMMonAssignInitialConditions[][xs, context];
+
+ECMMonSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{time},
+
+      time = OptionValue[ECMMonSimulate, "MaxTime"];
+
+      If[ ! ( NumericQ[time] && time >= 0 ),
+        Echo["The value of the option \"MaxTime\" is expected to be a non-negative number.", "ECMMonSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonSimulate[ time, opts][xs, context]
+    ];
+
+ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{aSol},
+
+      If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
+        Echo["The first argument is expected to be a non-negative number.", "ECMMonSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      Which[
+
+        KeyExistsQ[ context, "multiSiteModel"],
+        aSol = Association @ First @ ModelNDSolve[ context["multiSiteModel"], {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ],
+
+        KeyExistsQ[ context, "singleSiteModel"],
+        aSol = Association @ First @ ModelNDSolve[ context["singleSiteModel"], {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ],
+
+        True,
+        Echo["Cannot find models.", "ECMMonSimulate:"];
+        $ECMMonFailure
+      ];
+
+
+      ECMMonUnit[aSol, Join[context, <| "multiSiteModel" -> modelMultiSite |>]]
+
+    ];
+
+ECMMonSimulate[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonSimulate[ maxTimes_?NumericQ, opts ].",
+        "ECMMonSimulate:"
+      ];
+      $ECMMonFailure
+    ];
 
 
 (**************************************************************)
