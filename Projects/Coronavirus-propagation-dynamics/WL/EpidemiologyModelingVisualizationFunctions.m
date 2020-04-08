@@ -141,8 +141,17 @@ EvaluateSolutionsByModelIDs[
       stockValues
     ];
 
+EvaluateSolutionsByModelIDs[gr_Graph, args___] := EvaluateSolutionsByModelIDs[args];
 
-EvaluateSolutionsOverGraphVertexes[gr_Graph, args___] := EvaluateSolutionsByModelIDs[args];
+
+(**************************************************************)
+(* EvaluateSolutionsOverGraphVertexes                         *)
+(**************************************************************)
+
+Clear[EvaluateSolutionsOverGraphVertexes];
+
+EvaluateSolutionsOverGraphVertexes = EvaluateSolutionsByModelIDs;
+
 
 (**************************************************************)
 (* EvaluateSolutionsOverGraph                                 *)
@@ -343,14 +352,17 @@ PopulationStockPlots::"nst" = "At least one of the specified stocks is not known
 
 Options[PopulationStockPlots] = Options[EvaluateSolutionsByModelIDs];
 
-PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stocksArg : (_String | {_String ..}), maxTime_?NumericQ, opts : OptionsPattern[]] :=
+PopulationStockPlots[grHexagonCellsDummy_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stocksArg : (_String | {_String ..}), maxTime_?NumericQ, opts : OptionsPattern[]] :=
+    PopulationStockPlots[modelMultiSite, aSolMultiSite, stocksArg, maxTime, opts];
+
+PopulationStockPlots[modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stocksArg : (_String | {_String ..}), maxTime_?NumericQ, opts : OptionsPattern[]] :=
     Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}, stocks = Flatten[{stocksArg}], vals},
 
       lsLocalOpts = Join[{opts}, lsLocalOpts];
 
       If[Apply[And, MemberQ[Union[Values[modelMultiSite["Stocks"]]], #] & /@ stocks],
 
-        vals = Total@Map[Total@Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}]] &, stocks];
+        vals = Total@Map[Total@Values[EvaluateSolutionsByModelIDs[modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}]] &, stocks];
 
         Row[{
           ListLinePlot[
@@ -360,7 +372,7 @@ PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, a
           ],
           Spacer[10],
           ListLinePlot[
-            vals / Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, "Total Population", aSolMultiSite, {1, maxTime, 1}]]],
+            vals / Total[Values[EvaluateSolutionsByModelIDs[modelMultiSite, "Total Population", aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> Row[{"Ratio of", Spacer[2], StringRiffle[stocks, " + "], Spacer[2], "with Total Population"}]
           ]
@@ -383,7 +395,10 @@ EconomicsStockPlots::"nst" = "The specified stock is not known.";
 
 Options[EconomicsStockPlots] = Options[EvaluateSolutionsByModelIDs];
 
-EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stock_String, maxTime_?NumericQ, opts : OptionsPattern[] ] :=
+EconomicsStockPlots[grHexagonCellsDummmy_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stock_String, maxTime_?NumericQ, opts : OptionsPattern[] ] :=
+    EconomicsStockPlots[modelMultiSite, aSolMultiSite, stock, maxTime, opts];
+
+EconomicsStockPlots[modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stock_String, maxTime_?NumericQ, opts : OptionsPattern[] ] :=
     Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}},
 
       lsLocalOpts = Join[{opts}, lsLocalOpts];
@@ -391,13 +406,13 @@ EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aS
       If[ MemberQ[Union[Values[modelMultiSite["Stocks"]]], stock],
         Row[{
           ListLinePlot[
-            Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            Total[Values[EvaluateSolutionsByModelIDs[modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> stock
           ],
           Spacer[10],
           ListLinePlot[
-            Differences@Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            Differences@Total[Values[EvaluateSolutionsByModelIDs[modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> Row[{"\[CapitalDelta]", Spacer[1], stock}]
           ]
