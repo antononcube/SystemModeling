@@ -60,8 +60,12 @@ If[Length[DownValues[EpidemiologyModelModifications`GetStockSymbols]] == 0,
 BeginPackage["EpidemiologyModelingVisualizationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[mdl, sns, aSol, trng] \
-evaluates the solutions in aSol for the stock names sns for each (vertex) ID in the model mdl over the specified time range trng.";
+EvaluateSolutionsByModelIDs::usage = "EvaluateSolutionsOverModelIDs[mdl, sns, aSol, trng] \
+evaluates the solutions in aSol for the stock names sns for each ID in the model mdl over the specified time range trng.";
+
+EvaluateSolutionsOverGraphVertexes::usage = "EvaluateSolutionsOverGraphVertexes[gr, mdl, sns, aSol, trng] \
+evaluates the solutions in aSol for the stock names sns for each (vertex) ID in the model mdl over the specified time range trng. \
+(Legacy function.)";
 
 EvaluateSolutionsOverGraph::usage = "EvaluateSolutionsOverGraph[gr, model, stockNames, aSol, timeRange, opts] \
 makes a sequence of graph plots of the graph gr with the graph nodes colored according solution functions aSol.";
@@ -82,30 +86,30 @@ Needs["EpidemiologyModels`"];
 Needs["EpidemiologyModelModifications`"];
 
 (**************************************************************)
-(* EvaluateSolutionsOverGraphVertexes                         *)
+(* EvaluateSolutionsByModelIDs                         *)
 (**************************************************************)
 
-Clear[EvaluateSolutionsOverGraphVertexes];
+Clear[EvaluateSolutionsByModelIDs];
 
-EvaluateSolutionsOverGraphVertexes::"ntr" = "The fifth argument is expected to be a valid time range specification.";
+EvaluateSolutionsByModelIDs::"ntr" = "The fifth argument is expected to be a valid time range specification.";
 
-EvaluateSolutionsOverGraphVertexes::"nst" = "No model stocks are found with the specification given as the third argument.";
+EvaluateSolutionsByModelIDs::"nst" = "No model stocks are found with the specification given as the third argument.";
 
-EvaluateSolutionsOverGraphVertexes[
+EvaluateSolutionsByModelIDs[
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   maxTimeArg : (Automatic | _?NumberQ) ] :=
-    EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {1, maxTimeArg, 1}];
+    EvaluateSolutionsByModelIDs[ model, stockNames, aSol, {1, maxTimeArg, 1}];
 
-EvaluateSolutionsOverGraphVertexes[
+EvaluateSolutionsByModelIDs[
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
   {minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ)} ] :=
-    EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {minTime, maxTimeArg, 1}];
+    EvaluateSolutionsByModelIDs[ model, stockNames, aSol, {minTime, maxTimeArg, 1}];
 
-EvaluateSolutionsOverGraphVertexes[
+EvaluateSolutionsByModelIDs[
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSol_Association,
@@ -126,7 +130,7 @@ EvaluateSolutionsOverGraphVertexes[
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStockSymbols[model, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
       If[ Length[stockSymbols] == 0,
-        Message[EvaluateSolutionsOverGraphVertexes::"nst"];
+        Message[EvaluateSolutionsByModelIDs::"nst"];
         Return[$Failed]
       ];
 
@@ -137,6 +141,8 @@ EvaluateSolutionsOverGraphVertexes[
       stockValues
     ];
 
+
+EvaluateSolutionsOverGraphVertexes[gr_Graph, args___] := EvaluateSolutionsByModelIDs[args];
 
 (**************************************************************)
 (* EvaluateSolutionsOverGraph                                 *)
@@ -229,8 +235,8 @@ EvaluateSolutionsOverGraph[
         Return[$Failed]
       ];
 
-      (* Some of the work above is repeated in EvaluateSolutionsOverGraphVertexes. *)
-      stockValues = EvaluateSolutionsOverGraphVertexes[ model, stockNames, aSol, {minTime, maxTime, step} ];
+      (* Some of the work above is repeated in EvaluateSolutionsByModelIDs. *)
+      stockValues = EvaluateSolutionsByModelIDs[ model, stockNames, aSol, {minTime, maxTime, step} ];
 
       If[ MemberQ[ {Automatic, "Global" }, normalization],
 
@@ -335,7 +341,7 @@ Clear[PopulationStockPlots];
 
 PopulationStockPlots::"nst" = "At least one of the specified stocks is not known.";
 
-Options[PopulationStockPlots] = Options[EvaluateSolutionsOverGraphVertexes];
+Options[PopulationStockPlots] = Options[EvaluateSolutionsByModelIDs];
 
 PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stocksArg : (_String | {_String ..}), maxTime_?NumericQ, opts : OptionsPattern[]] :=
     Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}, stocks = Flatten[{stocksArg}], vals},
@@ -344,7 +350,7 @@ PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, a
 
       If[Apply[And, MemberQ[Union[Values[modelMultiSite["Stocks"]]], #] & /@ stocks],
 
-        vals = Total@Map[Total@Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}]] &, stocks];
+        vals = Total@Map[Total@Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, #, aSolMultiSite, {1, maxTime, 1}]] &, stocks];
 
         Row[{
           ListLinePlot[
@@ -354,7 +360,7 @@ PopulationStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, a
           ],
           Spacer[10],
           ListLinePlot[
-            vals / Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, "Total Population", aSolMultiSite, {1, maxTime, 1}]]],
+            vals / Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, "Total Population", aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> Row[{"Ratio of", Spacer[2], StringRiffle[stocks, " + "], Spacer[2], "with Total Population"}]
           ]
@@ -375,7 +381,7 @@ Clear[EconomicsStockPlots];
 
 EconomicsStockPlots::"nst" = "The specified stock is not known.";
 
-Options[EconomicsStockPlots] = Options[EvaluateSolutionsOverGraphVertexes];
+Options[EconomicsStockPlots] = Options[EvaluateSolutionsByModelIDs];
 
 EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, stock_String, maxTime_?NumericQ, opts : OptionsPattern[] ] :=
     Block[{lsLocalOpts = {PlotTheme -> "Detailed", PlotRange -> All, ImageSize -> Medium}},
@@ -385,13 +391,13 @@ EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aS
       If[ MemberQ[Union[Values[modelMultiSite["Stocks"]]], stock],
         Row[{
           ListLinePlot[
-            Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> stock
           ],
           Spacer[10],
           ListLinePlot[
-            Differences@Total[Values[EvaluateSolutionsOverGraphVertexes[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
+            Differences@Total[Values[EvaluateSolutionsByModelIDs[grHexagonCells, modelMultiSite, stock, aSolMultiSite, {1, maxTime, 1}]]],
             lsLocalOpts,
             PlotLabel -> Row[{"\[CapitalDelta]", Spacer[1], stock}]
           ]
