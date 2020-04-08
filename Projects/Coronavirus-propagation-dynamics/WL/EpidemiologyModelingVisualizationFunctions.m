@@ -394,31 +394,36 @@ MultiSiteModelStocksPlot[
   maxTime_?NumericQ,
   opts : OptionsPattern[] ] :=
 
-    Block[{focusStocks = Flatten[{focusStocksArg}], focusTime, a3DVals, a2DVals, epilog = {} },
+    Block[{focusStocks = Flatten[{focusStocksArg}], focusTime, a3DVals, a2DVals, epilog = {}, stockRules },
 
       focusTime = OptionValue[ MultiSiteModelStocksPlot, "FocusTime"];
 
-      If[ NumericQ[focusTime],
-        epilog = {Red, Dashed, Line[{{focusTime, -0.1 * Max[a2DVals]}, {focusTime, 1.3 * Max[a2DVals]}}]}
-      ];
+      (*
+            stockRules = Normal[model["Stocks"]];
+            stockRules[[All, 1]] = stockRules[[All, 1]] /. {x_Symbol[id_][v_Symbol] :> x[id]["t"], x_Symbol[v_Symbol] :> x["t"]};
+      *)
 
       Which[
         TrueQ[focusStocksArg === All],
         focusStocks = Union[ Values[model["Stocks"]] ],
 
         MatchQ[focusStocks, {_StringExpression..}],
-        focusStocks = Flatten[ StringCases[  Union[ Values[model["Stocks"]] ], #]& /@ focusStocks ]
+        focusStocks = Flatten[ StringCases[ Union[ Values[model["Stocks"]] ], #]& /@ focusStocks ]
       ];
 
       a3DVals = Association @ Map[ # -> EvaluateSolutionsOverGraphVertexes[model, #, aSol, {0, maxTime}]&, focusStocks];
 
       a2DVals = Total[Values[#]] & /@ a3DVals;
 
+      If[ NumericQ[focusTime],
+        epilog = {Red, Dashed, Line[{{focusTime, -0.1 * Max[a2DVals]}, {focusTime, 1.3 * Max[a2DVals]}}]}
+      ];
+
       ListLinePlot[
         a2DVals,
         PlotLabel -> "Aggregated over all sites",
         PlotLegends -> Keys[a2DVals],
-        Epilog -> epilog, opts,
+        Epilog -> epilog, FilterRules[{opts}, Options[ListLinePlot]],
         PlotRange -> All, PlotTheme -> "Detailed"
       ]
     ];
