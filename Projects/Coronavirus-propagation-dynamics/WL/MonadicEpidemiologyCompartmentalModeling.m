@@ -105,7 +105,7 @@ ECMMonPlotGrid::usage = "ECMMonPlotGrid";
 
 ECMMonExtendByGrid::usage = "ECMMonExtendByGrid";
 
-ECMMonAssignStockInitialConditions::usage = "ECMMonAssignStockInitialConditions";
+ECMMonAssignMultiSiteInitialConditions::usage = "ECMMonAssignMultiSiteInitialConditions";
 
 ECMMonSimulate::usage = "ECMMonSimulate";
 
@@ -362,44 +362,44 @@ ECMMonExtendByGrid[__][___] :=
 
 
 (**************************************************************)
-(* ECMMonAssignStockInitialConditions                       *)
+(* ECMMonAssignMultiSiteInitialConditions                       *)
 (**************************************************************)
 
-Clear[ECMMonAssignStockInitialConditions];
+Clear[ECMMonAssignMultiSiteInitialConditions];
 
-SyntaxInformation[ECMMonAssignStockInitialConditions] = { "ArgumentsPattern" -> { _, _, OptionsPattern[] } };
+SyntaxInformation[ECMMonAssignMultiSiteInitialConditions] = { "ArgumentsPattern" -> { _, _, OptionsPattern[] } };
 
-Options[ECMMonAssignStockInitialConditions] = { "Default" -> 0 };
+Options[ECMMonAssignMultiSiteInitialConditions] = { "Default" -> 0 };
 
-ECMMonAssignStockInitialConditions[___][$ECMMonFailure] := $ECMMonFailure;
+ECMMonAssignMultiSiteInitialConditions[___][$ECMMonFailure] := $ECMMonFailure;
 
-ECMMonAssignStockInitialConditions[xs_, context_Association] := ECMMonAssignStockInitialConditions[][xs, context];
+ECMMonAssignMultiSiteInitialConditions[xs_, context_Association] := ECMMonAssignMultiSiteInitialConditions[][xs, context];
 
-ECMMonAssignStockInitialConditions[ opts : OptionsPattern[] ][xs_, context_] :=
+ECMMonAssignMultiSiteInitialConditions[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{},
       Echo["Not implemented signature.", "ECMMonAssignInitialConditions:"];
       $ECMMonFailure
     ];
 
-ECMMonAssignStockInitialConditions[ aCoordsToValues_Association, stockName_String, opts : OptionsPattern[] ][xs_, context_] :=
+ECMMonAssignMultiSiteInitialConditions[ aCoordsToValues_Association, stockName_String, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{default, modelMultiSite, aICValues, stockSymbol},
 
-      default = OptionValue[ECMMonAssignStockInitialConditions, "Default"];
+      default = OptionValue[ECMMonAssignMultiSiteInitialConditions, "Default"];
 
       If[ ! ( NumericQ[default] && default >= 0 ),
-        Echo["The value of the option \"Default\" is expected to be a non-negative number.", "ECMMonAssignStockInitialConditions:"];
+        Echo["The value of the option \"Default\" is expected to be a non-negative number.", "ECMMonAssignMultiSiteInitialConditions:"];
         Return[$ECMMonFailure]
       ];
 
       If[ !KeyExistsQ[ context, "multiSiteModel"],
-        Echo["No multi-site model is found. (Required for this signature.)", "ECMMonAssignStockInitialConditions:"];
+        Echo["No multi-site model is found. (Required for this signature.)", "ECMMonAssignMultiSiteInitialConditions:"];
         Return[$ECMMonFailure]
       ];
 
       modelMultiSite = context["multiSiteModel"];
 
       If[ !KeyExistsQ[ context, "grid"],
-        Echo["No grid object is found. (Required for this signature.)", "ECMMonAssignStockInitialConditions:"];
+        Echo["No grid object is found. (Required for this signature.)", "ECMMonAssignMultiSiteInitialConditions:"];
         Return[$ECMMonFailure]
       ];
 
@@ -432,11 +432,11 @@ ECMMonAssignStockInitialConditions[ aCoordsToValues_Association, stockName_Strin
 
     ] /; MatchQ[aCoordsToValues, <| ({_?NumericQ, _?NumericQ} -> _?NumericQ)... |> ];
 
-ECMMonAssignStockInitialConditions[__][___] :=
+ECMMonAssignMultiSiteInitialConditions[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonAssignStockInitialConditions[ coordsToValues: <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |>, stockName_String, opts ].",
-        "ECMMonAssignStockInitialConditions:"
+        "The expected signature is one of ECMMonAssignMultiSiteInitialConditions[ coordsToValues: <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |>, stockName_String, opts ].",
+        "ECMMonAssignMultiSiteInitialConditions:"
       ];
       $ECMMonFailure
     ];
@@ -454,7 +454,7 @@ Options[ECMMonSimulate] = Join[ { "MaxTime" -> 365 }, Options[NDSolve] ];
 
 ECMMonSimulate[___][$ECMMonFailure] := $ECMMonFailure;
 
-ECMMonSimulate[xs_, context_Association] := ECMMonAssignStockInitialConditions[][xs, context];
+ECMMonSimulate[xs_, context_Association] := ECMMonAssignMultiSiteInitialConditions[][xs, context];
 
 ECMMonSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{time},
