@@ -82,6 +82,7 @@ PopulationStockPlots::usage = "PopulationStockPlots[grHexagonCells_Graph, modelM
 
 EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_Association, stock_String, maxTime_?NumberQ, opts : OptionsPattern[] ]";
 
+SiteIndexSolutionsPlot::usage = "SiteIndexSolutionsPlot[siteIndex_Integer, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, maxTime_?NumberQ, opts : OptionsPattern[]]";
 
 Begin["`Private`"];
 
@@ -94,7 +95,7 @@ Needs["EpidemiologyModelModifications`"];
 
 Clear[EvaluateSolutionsByModelIDs];
 
-EvaluateSolutionsByModelIDs::"ntr" = "The fifth argument is expected to be a valid time range specification.";
+EvaluateSolutionsByModelIDs::"ntr" = "The forth argument is expected to be a valid time range specification.";
 
 EvaluateSolutionsByModelIDs::"nst" = "No model stocks are found with the specification given as the third argument.";
 
@@ -411,7 +412,7 @@ MultiSiteModelStocksPlot[
         focusStocks = Flatten[ StringCases[ Union[ Values[model["Stocks"]] ], #]& /@ focusStocks ]
       ];
 
-      a3DVals = Association @ Map[ # -> EvaluateSolutionsOverGraphVertexes[model, #, aSol, {0, maxTime}]&, focusStocks];
+      a3DVals = Association @ Map[ # -> EvaluateSolutionsByModelIDs[model, #, aSol, {0, maxTime}]&, focusStocks];
 
       a2DVals = Total[Values[#]] & /@ a3DVals;
 
@@ -517,6 +518,44 @@ EconomicsStockPlots[modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?Associati
     ];
 
 EconomicsStockPlots[___] := $Failed;
+
+
+(**************************************************************)
+(* SiteIndexSolutionsPlot                                     *)
+(**************************************************************)
+
+Clear[SiteIndexSolutionsPlot];
+
+SiteIndexSolutionsPlot::"nst" = "No model stocks are found with the specification given as the third argument.";
+
+Options[SiteIndexSolutionsPlot] = Options[Plot];
+
+SiteIndexSolutionsPlot[
+  siteIndex_Integer,
+  modelMultiSite_?EpidemiologyModelQ,
+  stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
+  aSolMultiSite_?AssociationQ,
+  maxTime_?NumberQ,
+  opts : OptionsPattern[]] :=
+
+    Block[{aSol, stockSymbols},
+
+      stockSymbols = Union @ Flatten @ Map[ Cases[GetStocks[modelMultiSite, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
+
+      If[ Length[stockSymbols] == 0,
+        Message[SiteIndexSolutionsPlot::"nst"];
+        Return[$Failed]
+      ];
+
+      aSol = KeySelect[KeyTake[aSolMultiSite, stockSymbols], #[[1]] == siteIndex &];
+
+      Plot[
+        Evaluate[Map[#[t] &, Values[aSol]]], {t, 0, maxTime},
+        opts,
+        PlotRange -> All, PlotTheme -> "Detailed",
+        PlotLegends -> Keys[aSol], ImageSize -> Medium]
+    ];
+
 
 End[]; (* `Private` *)
 
