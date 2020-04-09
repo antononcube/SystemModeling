@@ -104,7 +104,7 @@ VerificationTest[
         ECMMonMakeHexagonalGrid[Keys[aPopulations], 15],
         ECMMonPlotGrid[ImageSize -> Medium, "Echo" -> False],
         ECMMonExtendByGrid[aPopulations, 0.12],
-        ECMMonAssignMultiSiteInitialConditions[<||>, "Total Population", "Default" -> 1.2*^6]
+        ECMMonAssignInitialConditions[<||>, "Total Population", "Default" -> 1.2*^6]
       ];
   Sort[Keys[ecmObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
   ,
