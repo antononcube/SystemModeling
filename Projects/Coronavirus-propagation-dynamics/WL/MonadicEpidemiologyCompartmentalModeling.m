@@ -363,7 +363,7 @@ ECMMonPlotGrid[ opts : OptionsPattern[] ][xs_, context_] :=
                 Nothing
               ]
             },
-            opts,
+            FilterRules[ {opts}, Options[Graphics] ],
             ImageSize -> Medium, Frame -> True];
 
       If[echoQ,
