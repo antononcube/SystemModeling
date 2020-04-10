@@ -151,7 +151,7 @@ TrapezoidalRuleAccumulate[points : {{_?NumericQ, _?NumericQ} ..}] :=
 
 Clear[StockVariabilityPlot];
 
-Options[StockVariabilityPlot] = Join[{"Operation" -> "Identidy"}, Options[ListLinePlot]];
+Options[StockVariabilityPlot] = Join[{"Operation" -> "Identity"}, Options[ListLinePlot]];
 
 StockVariabilityPlot::"nop" = "The value of the option \"Operation\" is expected to be one of `1`";
 
