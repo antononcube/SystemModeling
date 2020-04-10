@@ -996,7 +996,8 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]),
           MS'[t] == mspr[HB] * ((capacity[MS] - MS[t]) / capacity[MS]) - Min[MS[t], (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t])],
-          MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
+          (* MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),*)
+          MSD'[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
           MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + peopleDyingPerDay)
@@ -1017,9 +1018,11 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         (* New Initial conditions *)
         If[ addInitialConditionsQ,
 
+(*
           eqMSD0 = Cases[newModel["Equations"], MSD[t] == _ ][[1]];
           eqMSD0 = eqMSD0 /. t -> 0 ;
           eqMSD0 = eqMSD0[[1]] == ( eqMSD0[[2]] /. Association[ Rule @@@ newModel["InitialConditions"] ] );
+*)
 
           newModel["InitialConditions"] =
               Join[
@@ -1028,7 +1031,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
                   HP[0] == 0,
                   DIP[0] == 0,
                   HB[0] == nhbr[TP] * (TP[0] /. newModel["RateRules"]),
-                  eqMSD0, (* MSD[0] == 0, *)
+                  MSD[0] == 0,
                   MHS[0] == 0,
                   MMSP[0] == 0,
                   HMS[0] == (capacity[HMS] //. Prepend[ newModel["RateRules"], HB[0] -> (nhbr[TP] * TP[0] /. newModel["RateRules"]) ] ),
