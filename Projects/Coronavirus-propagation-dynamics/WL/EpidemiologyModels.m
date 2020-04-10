@@ -129,7 +129,7 @@ The second optional argument is expected to be context string.";
 MalariaModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[MalariaModel] = { "TotalPopulationRepresentation" -> "Constant", "InitialConditions" -> False, "RateRules" -> False, "Ross" -> False };
+Options[MalariaModel] = { "TotalPopulationRepresentation" -> "Constant", "InitialConditions" -> True, "RateRules" -> True, "Ross" -> False };
 
 MalariaModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, rossQ, tpRepr,
@@ -292,7 +292,7 @@ The second optional argument is expected to be context string.";
 SIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False };
+Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True };
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
@@ -419,7 +419,7 @@ The second optional argument is expected to be context string.";
 SI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False, "BirthsTerm" -> False };
+Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
@@ -564,7 +564,7 @@ The second optional argument is expected to be context string.";
 SEI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> False, "RateRules" -> False, "BirthsTerm" -> False };
+Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, tpRepr,
