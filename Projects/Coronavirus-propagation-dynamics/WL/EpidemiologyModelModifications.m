@@ -448,10 +448,10 @@ The second argument is expected to be an associations of initial condition rules
 
 SetInitialConditions::"ninit" = "The model does not have initial conditions.";
 
-SetInitialConditions[model_Association, lsInitConds : { _Equal .. } ] :=
+SetInitialConditions[model_?EpidemiologyModelQ, lsInitConds : { _Equal .. } ] :=
     SetInitialConditions[ model, Association @ ReplaceAll[ lsInitConds, Equal[x_, y_] :> Rule[x, y] ] ];
 
-SetInitialConditions[model_Association, aInitConds_Association] :=
+SetInitialConditions[model_?EpidemiologyModelQ, aInitConds_Association] :=
     Block[{lsInitConds, pos},
 
       If[ !KeyExistsQ[model, "InitialConditions"],
@@ -494,13 +494,16 @@ The second argument is expected to be an association of rate rules.";
 
 SetRateRules::"nrrs" = "The model does not have rate rules.";
 
-SetRateRules[model_Association, aRateRules_Association] :=
+SetRateRules[model_?EpidemiologyModelQ, aRateRules_Association] :=
     Block[{lsRateRules},
 
       If[ !KeyExistsQ[model, "RateRules"],
         lsRateRules = aRateRules,
         (* ELSE *)
-        lsRateRules = Join[ model["RateRules"], aRateRules ]
+        lsRateRules = Join[ model["RateRules"], aRateRules ];
+        (* There is no need to do the following because it is done in ModelNDSolve. *)
+        (* lsRateRules = AssociationThread[ Keys[model["RateRules"]], Values[model["RateRules"]] //. aRateRules]; *)
+        (* lsRateRules = Join[ lsRateRules, aRateRules ] *)
       ];
 
       Join[model, <|"RateRules" -> lsRateRules|>]
