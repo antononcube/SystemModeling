@@ -99,6 +99,8 @@ EvaluateSolutionsByModelIDs::"ntr" = "The forth argument is expected to be a val
 
 EvaluateSolutionsByModelIDs::"nst" = "No model stocks are found with the specification given as the third argument.";
 
+EvaluateSolutionsByModelIDs::"ket" = "The computation times are not added to the result because there is stock named \"Times\".";
+
 EvaluateSolutionsByModelIDs[
   model_Association,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
@@ -119,7 +121,7 @@ EvaluateSolutionsByModelIDs[
   aSol_Association,
   { minTime_?NumberQ, maxTimeArg : (Automatic | _?NumberQ), step_?NumberQ } ] :=
 
-    Block[{maxTime = maxTimeArg, stockSymbols, stockValues},
+    Block[{maxTime = maxTimeArg, stockSymbols, stockValues, lsTimes},
 
       If[TrueQ[maxTime === Automatic],
         (* Assuming all solution functions have the same domain. *)
@@ -138,9 +140,17 @@ EvaluateSolutionsByModelIDs[
         Return[$Failed]
       ];
 
-      stockValues = Map[ #[ Range[minTime, maxTime, step] ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
+      lsTimes = Range[minTime, maxTime, step];
+
+      stockValues = Map[ #[ lsTimes ]&, KeyTake[ aSol, Union @ Flatten @ Map[ GetStockSymbols[model, #]&, Flatten[{stockNames}] ] ] ];
 
       stockValues = GroupBy[ Normal[stockValues], #[[1, 1]]&, Total @ #[[All, 2]] & ];
+
+      If[ KeyExistsQ[stockValues, "Times" ],
+        Message[EvaluateSolutionsByModelIDs::"ket"],
+        (* ELSE *)
+        stockValues = Append[ stockValues, "Times" -> lsTimes ]
+      ];
 
       stockValues
     ];
