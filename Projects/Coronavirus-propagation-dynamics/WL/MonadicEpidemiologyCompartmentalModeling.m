@@ -896,7 +896,7 @@ ECMMonPlotSolutions[xs_, context_Association] := ECMMonPlotSolutions[][xs, conte
 ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{stocks, time},
 
-      stocks = OptionValue[ECMMonPlotSolutions, "MaxTime"];
+      stocks = OptionValue[ECMMonPlotSolutions, "Stocks"];
 
       If[ ! MatchQ[ stocks, All | ( _String | {_String..} | _StringExpression) ],
         Echo[
