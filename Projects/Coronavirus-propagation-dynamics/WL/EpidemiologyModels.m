@@ -879,7 +879,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
       aNewStocks, aNewRates, lsNewEquations, model, newModel,
       newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, peopleDyingPerDay,
-      usableHospitalBeds, eqMSD0, pos},
+      usableHospitalBeds, orderedHospitalSupplies, pos},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2HREconModel, "InitialConditions" ] ];
 
@@ -962,11 +962,13 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           mspcr[ISSP, INSP] -> "Medical supplies production cost rate (per unit)",
           msdr[HB] -> "Medical supplies delivery rate (delay factor)",
           msdp[HB] -> "Medical supplies delivery period (number of days)",
-          mscr[ISSP] -> "Medical supplies consumption rate (units per day per person)",
-          mscr[INSP] -> "Medical supplies consumption rate (units per day per person)",
           mscr[TP] -> "Medical supplies consumption rate (units per day per person)",
+          mscr[INSP] -> "Medical supplies consumption rate (units per day per person)",
+          mscr[ISSP] -> "Medical supplies consumption rate (units per day per person)",
+          mscr[HP] -> "Medical supplies consumption rate (units per day per person)",
           capacity[HMS] -> "Capacity to store Hospital Medical Supplies",
-          capacity[MS] -> "Capacity to store produced Medical Supplies"
+          capacity[MS] -> "Capacity to store produced Medical Supplies",
+          capacity[MSD] -> "Capacity to transport produced Medical Supplies"
         |>;
 
         newModel["Rates"] = Join[ newModel["Rates"], aNewRates ];
@@ -977,9 +979,11 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         newByNormallyInfectedTerm = contactRate[INSP] / TP[t] * SP[t] * INSP[t];
         newlyInfectedTerm = newBySeverelyInfectedTerm + newByNormallyInfectedTerm;
 
-        usableHospitalBeds = Min[HB[t], HMS[t] / mscr[ISSP]];
+        usableHospitalBeds = Min[HB[t] - HP[t], HMS[t] / mscr[ISSP]];
 
         peopleDyingPerDay = deathRate[ISSP] * ( ISSP[t] - HP[t] ) + deathRate[INSP] * INSP[t] + deathRate[HP] * HP[t];
+
+        orderedHospitalSupplies = Min[ capacity[MSD], MS[t], mscr[HP] * HB[t], capacity[HMS] - HMS[t] ] / msdp[HB];
 
         lsNewEquations = {
           If[ birthsTermQ,
@@ -990,14 +994,13 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp)) * EP[t],
           INSP'[t] == (1 - sspf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
           ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ( ISSP[t] - HP[t] ) - deathRate[HP] * HP[t],
-          HP'[t] == Piecewise[{{Min[usableHospitalBeds - HP[t], sspf[SP] * (1 / aincp) * EP[t]], HP[t] < usableHospitalBeds}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
+          HP'[t] == Piecewise[{{Min[usableHospitalBeds, sspf[SP] * (1 / aincp) * EP[t]], HP[t] < HB[t]}}, 0] - (1 / aip) * HP[t] - deathRate[HP] * HP[t],
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           DIP'[t] == peopleDyingPerDay,
           HB'[t] == nhbcr[ISSP, INSP] * HB[t],
-          HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]),
-          MS'[t] == mspr[HB] * ((capacity[MS] - MS[t]) / capacity[MS]) - Min[MS[t], (mscr[ISSP] * HB[t] / msdp[HB]) * ((capacity[HMS] - HMS[t]) / capacity[HMS]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t])],
-          (* MSD[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),*)
-          MSD'[t] == mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
+          HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + orderedHospitalSupplies,
+          MS'[t] == Min[ mspr[HB], capacity[MS] - MS[t] ] - orderedHospitalSupplies - Min[ MS[t] - orderedHospitalSupplies, mscr[INSP] * (ISSP[t] - HP[t]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]) ],
+          MSD'[t] == mscr[HP] * HP[t] + mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
           MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + peopleDyingPerDay)
@@ -1018,11 +1021,11 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
         (* New Initial conditions *)
         If[ addInitialConditionsQ,
 
-(*
-          eqMSD0 = Cases[newModel["Equations"], MSD[t] == _ ][[1]];
-          eqMSD0 = eqMSD0 /. t -> 0 ;
-          eqMSD0 = eqMSD0[[1]] == ( eqMSD0[[2]] /. Association[ Rule @@@ newModel["InitialConditions"] ] );
-*)
+          (*
+                    eqMSD0 = Cases[newModel["Equations"], MSD[t] == _ ][[1]];
+                    eqMSD0 = eqMSD0 /. t -> 0 ;
+                    eqMSD0 = eqMSD0[[1]] == ( eqMSD0[[2]] /. Association[ Rule @@@ newModel["InitialConditions"] ] );
+          *)
 
           newModel["InitialConditions"] =
               Join[
@@ -1056,11 +1059,13 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
                   mspcr[ISSP, INSP] -> 1,
                   msdp[HB] -> 1.5,
                   mspr[HB] -> 100 * nhbr[TP] * TP[0],
-                  mscr[ISSP] -> 3,
-                  mscr[INSP] -> 0.7,
                   mscr[TP] -> 0.02,
+                  mscr[INSP] -> 0.7,
+                  mscr[ISSP] -> 3,
+                  mscr[HP] -> 4,
                   capacity[HMS] -> HB[0] * mscr[ISSP] * 2,
-                  capacity[MS] -> TP[0] * mscr[TP] * 2
+                  capacity[MS] -> TP[0] * mscr[TP] * 2,
+                  capacity[MSD] -> HB[0] / 10
                 |>
               ];
         ];
