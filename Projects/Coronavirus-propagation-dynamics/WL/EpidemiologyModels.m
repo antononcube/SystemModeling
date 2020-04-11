@@ -999,7 +999,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           DIP'[t] == peopleDyingPerDay,
           HB'[t] == nhbcr[ISSP, INSP] * HB[t],
           HMS'[t] == -Min[HMS[t], mscr[ISSP] * HP[t]] + orderedHospitalSupplies,
-          MS'[t] == Min[ mspr[HB], capacity[MS] - MS[t] ] - orderedHospitalSupplies - Min[ MS[t] - orderedHospitalSupplies, mscr[INSP] * (ISSP[t] - HP[t]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]) ],
+          MS'[t] == Min[ mspr[HB], capacity[MS] - MS[t] ] - orderedHospitalSupplies - Min[ MS[t] - orderedHospitalSupplies, mscr[ISSP] * (ISSP[t] - HP[t]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]) ],
           MSD'[t] == mscr[HP] * HP[t] + mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
           MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
