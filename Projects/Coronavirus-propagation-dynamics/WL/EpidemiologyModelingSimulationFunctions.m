@@ -1,5 +1,5 @@
 (*
-    Epidemiology models simulation functions Mathematica package
+    Epidemiology modeling simulation functions Mathematica package
     Copyright (C) 2020  Anton Antonov
 
     This program is free software: you can redistribute it and/or modify
