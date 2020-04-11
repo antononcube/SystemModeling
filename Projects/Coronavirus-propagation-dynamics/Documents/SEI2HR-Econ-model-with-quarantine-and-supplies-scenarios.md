@@ -3,20 +3,19 @@
 **Version 0.9**
 
 Anton Antonov   
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)   
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
-March, April 2020   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)  
+March, April 2020
 
 ## Introduction
 
 The [epidemiology compartmental model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology), [Wk1], presented in this notebook -- SEI2HR-Econ -- deals with all three rectangles in this diagram:
 
 ```mathematica
-ImageResize[
- Import["https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg"], 900]
+ImageResize[Import["https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg"], 900]
 ```
 
-![1vu4qj5d7gvgu](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1vu4qj5d7gvgu.png)
+![1nfurrmjzvnjk](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1nfurrmjzvnjk.png)
 
 “SEI2HR” stands for “Susceptible, Exposed, Infected two, Hospitalized, Recovered” (populations.) “Econ” stands for “Economic”.
 
@@ -134,12 +133,16 @@ Here is SEI2HR:
 
 ```mathematica
 reprTP = "AlgebraicEquation";
-lsModelOpts = {"Tooltips" -> True, TooltipStyle -> {Background -> Yellow, CellFrameColor -> Gray, FontSize -> 20}};
-modelReference = SEI2HRModel[t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> reprTP];
+lsModelOpts = {"Tooltips" -> True, 
+   TooltipStyle -> {Background -> Yellow, CellFrameColor -> Gray, 
+     FontSize -> 20}};
+modelReference = 
+  SEI2HRModel[t, "InitialConditions" -> True, "RateRules" -> True, 
+   "TotalPopulationRepresentation" -> reprTP];
 ModelGridTableForm[modelReference, lsModelOpts]
 ```
 
-![1brjmij85rwf5](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1brjmij85rwf5.png)
+![123yrlk2zl1zu](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/123yrlk2zl1zu.png)
 
 Here is SEI2HR-Econ:
 
@@ -150,7 +153,7 @@ modelSEI2HREcon =
 ModelGridTableForm[modelSEI2HREcon, lsModelOpts]
 ```
 
-![1ibf08vt4gtzj](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ibf08vt4gtzj.png)
+![10vmc7pwzubaa](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/10vmc7pwzubaa.png)
 
 Here are the “differences” between the two models:
 
@@ -160,7 +163,7 @@ ModelGridTableForm@
   If[AssociationQ[#[[1]]], KeyComplement[#], Complement @@ #] &]
 ```
 
-![1kz4ty38918nu](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1kz4ty38918nu.png)
+![036glal3iv3uy](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/036glal3iv3uy.png)
 
 ## Equations explanations
 
@@ -209,7 +212,7 @@ ColumnForm@
   HoldPattern[\[Beta][_] -> _], \[Infinity]]
 ```
 
-![1mhrp4gcb9ojt](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1mhrp4gcb9ojt.png)
+![1nlv3w1o6bvs1](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1nlv3w1o6bvs1.png)
 
 Here are the mortality rates from the SEI2HR-Econ dictionary
 
@@ -219,20 +222,13 @@ ColumnForm@
   HoldPattern[\[Mu][_] -> _], \[Infinity]]
 ```
 
-![0uwn6d9tkoci7](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0uwn6d9tkoci7.png)
+![1ile9wky2yqy5](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ile9wky2yqy5.png)
 
 **Remark:** Below with “Infected Population” we mean both stocks Infected Normally Symptomatic Population (INSP) and Infected Severely Symptomatic Population (ISSP).
 
 ### Total Population
 
 In this notebook we consider a DAE’s formulation of SEI2HR-Econ. The stock Total Population has the following (obvious) algebraic equation:
-
-```mathematica
-ModelGridTableForm[modelSEI2HREcon, lsModelOpts]["Equations"][[1, 
- EquationPosition[modelSEI2HREcon, TP] + 1, 2]]
-```
-
-![15ldpcea6yzbu](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/15ldpcea6yzbu.png)
 
 ![0z7878rbvh3ut](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0z7878rbvh3ut.png)
 
@@ -267,7 +263,7 @@ Block[{m = SEI2HREconModel[t, "BirthsTerm" -> True]},
  ]
 ```
 
-![0agzwlsx2ril2](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0agzwlsx2ril2.png)
+![16thktzpo0dk9](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/16thktzpo0dk9.png)
 
 The births rate is the same as the death rate, but it can be programmatically changed. (See [AAp2].)
 
@@ -351,7 +347,7 @@ The MS delivery term is build with the following assumptions / postulates:
 
 Here is the MS delivery term:
 
-![1ns3msi13x880](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ns3msi13x880.png)
+![1uxby6ipa49dw](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1uxby6ipa49dw.png)
 
 Here is the corresponding HMS equation:
 
@@ -373,7 +369,7 @@ The equation of the Medical Supplies (MS) stock is based on the following assump
 
 Here is the MS delivery term described in the previous section:
 
-![1hlqopj4vnpuu](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1hlqopj4vnpuu.png)
+![1dy38wd13b0h6](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1dy38wd13b0h6.png)
 
 Here is the MS formula with the MS delivery term replaced with “Dlvr”:
 
@@ -383,7 +379,7 @@ ModelGridTableForm[modelSEI2HREcon, "Tooltips" -> False][
  dlvr -> Dlvr
 ```
 
-![1ghd6f0nwxmmn](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ghd6f0nwxmmn.png)
+![1r0u6ie10kbi4](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1r0u6ie10kbi4.png)
 
 We can see from that equation that MS is increased by medical supplies production rate (mspr) with measuring dimension number of units per day. The production is restricted by the storage capacity, $\kappa [\text{MS}]$:
 
@@ -436,7 +432,7 @@ Block[{func = \[Beta]*
    ], func]]
 ```
 
-![0tw3ua5u0a0ij](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0tw3ua5u0a0ij.png)
+![1nf41pq3u0gvg](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1nf41pq3u0gvg.png)
 
 To model quarantine with a piecewise constant function we use the following  parameters:
 
@@ -469,7 +465,7 @@ Block[{func =
    ], func]]
 ```
 
-![0wdyh4j0qrp2d](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0wdyh4j0qrp2d.png)
+![093okrtfqf4bj](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/093okrtfqf4bj.png)
 
 To model disruption of delivery with a piecewise constant function we use the following  parameters:
 
@@ -533,7 +529,15 @@ lsActualEquations =
 ResourceFunction["GridTableForm"][List /@ lsActualEquations]
 ```
 
-![1e3k1vw088wye](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1e3k1vw088wye.png)
+![1gymf7m70fgyh](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1gymf7m70fgyh.png)
+
+```mathematica
+lsActualEquations = 
+  ModelNDSolveEquations[modelSEI2HREcon, modelSEI2HREcon["RateRules"]];
+ResourceFunction["GridTableForm"][List /@ lsActualEquations]
+```
+
+![1avljj6kz4oeo](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1avljj6kz4oeo.png)
 
 ## Simulation
 
@@ -560,7 +564,7 @@ AbsoluteTiming[
      ];
  ]
 
-(*{0.323937, Null}*)
+(*{0.366168, Null}*)
 ```
 
 Here we plot the results for ISSP only:
@@ -578,7 +582,7 @@ ListLinePlot[
  PlotLabel -> ISSP[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![0ofxk51y46svj](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0ofxk51y46svj.png)
+![0idl7dzxetaox](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0idl7dzxetaox.png)
 
 **Remark:** We use the code in this section to do the computations in the section “Sensitivity Analysis”.
 
@@ -704,7 +708,7 @@ Manipulate[
  ControlPlacement -> Left, ContinuousAction -> False]
 ```
 
-![0ui41fdjuzdey](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0ui41fdjuzdey.png)
+![1nbd62e0zn26p](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1nbd62e0zn26p.png)
 
 ## Sensitivity analysis
 
@@ -759,14 +763,15 @@ AbsoluteTiming[
      ];
  ]
 
-(*{0.205606, Null}*)
+(*{0.231634, Null}*)
 ```
 
 As expected more frequent delivery results in fuller utilization of the non-occupied hospital beds:
 
 ```mathematica
 SeedRandom[23532]
-aVals = #[HP][Range[0, 365]] & /@ aVarSolutions;
+focusStock = HP;
+aVals = #[focusStock][Range[0, 365]] & /@ aVarSolutions;
 ListLinePlot[
  KeyValueMap[
   Callout[Tooltip[#2, #1], #1, {If[#1 < 1, RandomInteger[{120, 150}], 
@@ -775,10 +780,10 @@ ListLinePlot[
   SwatchLegend[Keys[aVals], 
    LegendLabel -> "Medical supplies\ndelivery period"], 
  PlotRange -> All, ImageSize -> Large, 
- PlotLabel -> "Hospitalized Population"]
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![0sl9vdedpnqg8](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0sl9vdedpnqg8.png)
+![0xacdbpxbv6yo](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0xacdbpxbv6yo.png)
 
 Here are the corresponding AUC values:
 
@@ -787,14 +792,15 @@ aAUCs = TrapezoidalRule[Transpose[{Range[0, 365], #}]] & /@ aVals;
 ResourceFunction["GridTableForm"][aAUCs]
 ```
 
-![1nbm1x965qd8c](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1nbm1x965qd8c.png)
+![1a3d3me9wh6bh](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1a3d3me9wh6bh.png)
 
 ```mathematica
 BarChart[aAUCs, ChartLabels -> Keys[aAUCs], ColorFunction -> "Pastel",
-  PlotLabel -> "Hospitalized Population AUC"]
+  PlotLabel -> 
+  Row[{focusStock[t] /. modelSEI2HREcon["Stocks"], Spacer[5], "AUC"}]]
 ```
 
-![0enthvr1vf80c](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0enthvr1vf80c.png)
+![1ncranm3ufw0h](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ncranm3ufw0h.png)
 
 ### Variation of medical supplies production rate
 
@@ -812,7 +818,7 @@ AbsoluteTiming[
       model2 = 
        SetRateRules[
         model2, <|\[Kappa][MS] -> 100000, \[Kappa][HMS] -> 
-          10000, \[Kappa][MSD] -> 10000, mspr[HB] -> msprVar, 
+          10000, \[Kappa][MSD] -> 1000, mspr[HB] -> msprVar, 
          msdp[HB] -> 1.5, mscr[ISSP] -> 0.2, mscr[TP] -> 0.001, 
          mscr[ISSP] -> 1, nhbr[TP] -> 100/1000|>];
       msprVar -> Association[ModelNDSolve[model2, {t, 365}][[1]]]
@@ -821,7 +827,7 @@ AbsoluteTiming[
      ];
  ]
 
-(*{0.135784, Null}*)
+(*{0.156794, Null}*)
 ```
 
 #### Hospitalized Population
@@ -830,7 +836,8 @@ As expected we can see that with smaller production rates we get less hospitaliz
 
 ```mathematica
 SeedRandom[1232]
-aVals = #[HP][Range[0, 365]] & /@ aVarSolutions;
+focusStock = HP;
+aVals = #[focusStock][Range[0, 365]] & /@ aVarSolutions;
 ListLinePlot[
  KeyValueMap[
   Callout[Tooltip[#2, #1], #1, {RandomInteger[{180, 240}], Above}] &, 
@@ -838,10 +845,10 @@ ListLinePlot[
   SwatchLegend[Keys[aVals], 
    LegendLabel -> "Medical supplies\nproduction rate"], 
  PlotRange -> All, ImageSize -> Large, 
- PlotLabel -> "Hospitalized Population"]
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![0eoycdp3gtdco](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0eoycdp3gtdco.png)
+![0vxim0nbznmmi](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0vxim0nbznmmi.png)
 
 Here are the corresponding AUC values:
 
@@ -850,14 +857,15 @@ aAUCs = TrapezoidalRule[Transpose[{Range[0, 365], #}]] & /@ aVals;
 ResourceFunction["GridTableForm"][aAUCs]
 ```
 
-![1mzm14jbh8o4s](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1mzm14jbh8o4s.png)
+![07nfkyx6s9mjo](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/07nfkyx6s9mjo.png)
 
 ```mathematica
 BarChart[aAUCs, ChartLabels -> Keys[aAUCs], ColorFunction -> "Pastel",
-  PlotLabel -> "Hospitalized Population AUC"]
+  PlotLabel -> 
+  Row[{focusStock[t] /. modelSEI2HREcon["Stocks"], Spacer[5], "AUC"}]]
 ```
 
-![16yx096ew6487](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/16yx096ew6487.png)
+![08xdwgkj6ljeh](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/08xdwgkj6ljeh.png)
 
 #### Medical Supplies
 
@@ -865,6 +873,7 @@ Here we plot the availability of MS at MS producer’s storage:
 
 ```mathematica
 SeedRandom[821]
+focusStock = MS;
 aVals = #[MS][Range[0, 365]] & /@ aVarSolutions;
 ListLinePlot[
  KeyValueMap[
@@ -873,10 +882,10 @@ ListLinePlot[
   SwatchLegend[Keys[aVals], 
    LegendLabel -> "Medical supplies\nproduction rate"], 
  PlotRange -> All, ImageSize -> Large, 
- PlotLabel -> "Medical Supplies"]
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![0462njzijsy2i](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0462njzijsy2i.png)
+![05il7vfu2msga](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/05il7vfu2msga.png)
 
 Here are the corresponding AUC values:
 
@@ -885,14 +894,18 @@ aAUCs = TrapezoidalRule[Transpose[{Range[0, 365], #}]] & /@ aVals;
 ResourceFunction["GridTableForm"][aAUCs]
 ```
 
-![0v4mcvy6da42l](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0v4mcvy6da42l.png)
+![03yccn85qjh1a](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/03yccn85qjh1a.png)
 
 ```mathematica
-BarChart[aAUCs, ChartLabels -> Keys[aAUCs], ColorFunction -> "Pastel",
-  PlotLabel -> "Medical Supplies AUC"]
+BarChart[aAUCs, 
+ ChartLabels -> Map[Rotate[ToString[#], \[Pi]/6] &, Keys[aAUCs]], 
+ ColorFunction -> "Pastel", 
+ PlotLabel -> 
+  Row[{focusStock[t] /. modelSEI2HREcon["Stocks"], Spacer[5], "AUC"}],
+  ImageSize -> Medium]
 ```
 
-![0gjrzlnmkg9er](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0gjrzlnmkg9er.png)
+![0z5dthm5iuod6](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0z5dthm5iuod6.png)
 
 ### Variation of delivery disruption starts
 
@@ -908,34 +921,37 @@ AbsoluteTiming[
        Association[
         ModelNDSolve[
           SetRateRules[
-           modelSEI2HREcon, <|ql -> 56, qsd -> 60, dbp -> 1.8, 
-            dds -> ddsVar, ddl -> 7, dsf -> 2|>], {t, 365}][[1]]]
+           modelSEI2HREcon, <|\[Kappa][MS] -> 100000, \[Kappa][HMS] ->
+              1000, mspr[HB] -> 100, ql -> 56, qsd -> 60, 
+            nhbr[TP] -> 3/1000, dbp -> 1, dds -> ddsVar, ddl -> 7, 
+            dsf -> 2|>], {t, 365}][[1]]]
       ],
      Append[Range[40, 120, 20], 365]
      ];
  ]
 
-(*{0.362243, Null}*)
+(*{0.45243, Null}*)
 ```
 
-Note, that disruption start at day 365 means no disruption.
+Note, that disruption start at day 365 means no disruption. Also, we use three hospital beds per thousand people.
 
 Here we plot the results for HP only:
 
 ```mathematica
 SeedRandom[009]
-aVals = #[HP][Range[0, 365]] & /@ aVarSolutions;
+focusStock = HP;
+aVals = #[focusStock][Range[0, 365]] & /@ aVarSolutions;
 ListLinePlot[
  KeyValueMap[
   Callout[Tooltip[#2, #1], #1, {RandomInteger[{60, 140}], Bottom}] &, 
   aVals], PlotLegends -> 
   SwatchLegend[Keys[aVals], 
-   LegendLabel -> "Medical supplies\ndsiruption start"], 
+   LegendLabel -> "Medical supplies\ndisruption start"], 
  PlotRange -> All, ImageSize -> Large, 
- PlotLabel -> "Medical Supplies"]
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![1pqz39xo3k5fx](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1pqz39xo3k5fx.png)
+![1sdi97njh54gj](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1sdi97njh54gj.png)
 
 Here are the corresponding AUC values:
 
@@ -944,14 +960,18 @@ aAUCs = TrapezoidalRule[Transpose[{Range[0, 365], #}]] & /@ aVals;
 ResourceFunction["GridTableForm"][aAUCs]
 ```
 
-![0wic9syhm7nda](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0wic9syhm7nda.png)
+![0s1zcqcmvxbrs](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0s1zcqcmvxbrs.png)
 
 ```mathematica
-BarChart[aAUCs, ChartLabels -> Keys[aAUCs], ColorFunction -> "Pastel",
-  PlotLabel -> "Hospitalized Population AUC"]
+BarChart[aAUCs, 
+ ChartLabels -> Map[Rotate[ToString[#], \[Pi]/6] &, Keys[aAUCs]], 
+ ColorFunction -> "Pastel", 
+ PlotLabel -> 
+  Row[{focusStock[t] /. modelSEI2HREcon["Stocks"], Spacer[5], "AUC"}],
+  ImageSize -> Medium]
 ```
 
-![12gxovovznjoa](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/12gxovovznjoa.png)
+![0vq0berxbjf9v](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0vq0berxbjf9v.png)
 
 ### Combined variability of delivery start and disruption
 
@@ -966,23 +986,24 @@ AbsoluteTiming[
       model2 = modelSEI2HREcon;
       model2 = 
        SetRateRules[
-        model2, <|\[Kappa][MS] -> 10000, \[Kappa][HMS] -> 100, 
-         mspr[HB] -> 100, dbp -> par[[1]], dds -> par[[2]], ddl -> 7, 
-         dsf -> 4|>];
+        model2, <|\[Kappa][MS] -> 100000, \[Kappa][HMS] -> 10000, 
+         mspr[HB] -> 1000, dbp -> par[[1]], dds -> par[[2]], ddl -> 7,
+          dsf -> 4, nhbr[TP] -> 3/1000|>];
       par -> Association[ModelNDSolve[model2, {t, 365}][[1]]]
       ],
      Flatten[Outer[List, {0.5, 1, 1.5}, {60, 100, 365}], 1]
      ];
  ]
 
-(*{0.49052, Null}*)
+(*{0.759922, Null}*)
 ```
 
 As expected more frequent, less disrupted delivery brings fuller utilization of the non-occupied hospital beds:
 
 ```mathematica
 SeedRandom[3233]
-aVals = #[HP][Range[0, 365]] & /@ aVarSolutions;
+focusStock = HP;
+aVals = #[focusStock][Range[0, 365]] & /@ aVarSolutions;
 ListLinePlot[
  KeyValueMap[
   Callout[Tooltip[#2, ToString[#1]], 
@@ -992,10 +1013,10 @@ ListLinePlot[
    LegendLabel -> 
     "Medical supplies\ndelivery period & disruption start"], 
  PlotRange -> All, ImageSize -> Large, 
- PlotLabel -> "Hospitalized Population"]
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
 ```
 
-![1eznhie9brgb1](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1eznhie9brgb1.png)
+![1qqm9hcj40qmx](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1qqm9hcj40qmx.png)
 
 Here are the corresponding AUC values:
 
@@ -1004,16 +1025,51 @@ aAUCs = TrapezoidalRule[Transpose[{Range[0, 365], #}]] & /@ aVals;
 ResourceFunction["GridTableForm"][aAUCs]
 ```
 
-![1y20iw6wjpof9](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1y20iw6wjpof9.png)
+![19kpmr551tt1c](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/19kpmr551tt1c.png)
 
 ```mathematica
 BarChart[aAUCs, 
  ChartLabels -> Map[Rotate[ToString[#], \[Pi]/6] &, Keys[aAUCs]], 
  ColorFunction -> "Pastel", 
- PlotLabel -> "Hospitalized Population AUC", ImageSize -> Medium]
+ PlotLabel -> 
+  Row[{focusStock[t] /. modelSEI2HREcon["Stocks"], Spacer[5], "AUC"}],
+  ImageSize -> Medium]
 ```
 
-![10jeeg6yda8j7](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/10jeeg6yda8j7.png)
+![1ia6ik6cr7kg5](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1ia6ik6cr7kg5.png)
+
+```mathematica
+SeedRandom[3233]
+focusStock = DIP;
+aVals = #[focusStock][Range[0, 365]] & /@ aVarSolutions;
+ListLinePlot[
+ KeyValueMap[
+  Callout[Tooltip[#2, ToString[#1]], 
+    ToString[#1], {RandomInteger[{60, 160}], Left}] &, aVals], 
+ PlotLegends -> 
+  SwatchLegend[ToString /@ Keys[aVals], 
+   LegendLabel -> 
+    "Medical supplies\ndelivery period & disruption start"], 
+ PlotRange -> All, ImageSize -> Large, 
+ PlotLabel -> focusStock[t] /. modelSEI2HREcon["Stocks"]]
+```
+
+![0xwdkry34kcfq](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0xwdkry34kcfq.png)
+
+```mathematica
+ResourceFunction["GridTableForm"][Last /@ aVals]
+```
+
+![1u293ap7k53o5](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/1u293ap7k53o5.png)
+
+```mathematica
+BarChart[Last /@ aVals, 
+ ChartLabels -> Map[Rotate[ToString[#], \[Pi]/6] &, Keys[aAUCs]], 
+ ColorFunction -> "Pastel", 
+ PlotLabel -> "Deceased Population at day 365", ImageSize -> Medium]
+```
+
+![0m5va3qv461nx](./Diagrams/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios/0m5va3qv461nx.png)
 
 ## References
 
@@ -1052,4 +1108,3 @@ BarChart[aAUCs,
 [AAp4] Anton Antonov, ["Epidemiology modeling simulation functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelingSimulationFunctions.m), (2020), [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
 [AAp5] Anton Antonov, ["System dynamics interactive interfaces functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
-
