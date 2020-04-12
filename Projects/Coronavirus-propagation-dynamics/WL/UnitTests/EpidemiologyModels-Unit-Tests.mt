@@ -92,7 +92,7 @@ VerificationTest[
 (***********************************************************)
 
 VerificationTest[
-  ShortModelQ[ SIRModel[t] ]
+  LongModelQ[ SIRModel[t] ]
   ,
   True
   ,
@@ -101,7 +101,7 @@ VerificationTest[
 
 
 VerificationTest[
-  ShortModelQ[ SIRModel[t, "MyPrivate`Context1`"] ]
+  LongModelQ[ SIRModel[t, "MyPrivate`Context1`"] ]
   ,
   True
   ,
@@ -115,6 +115,15 @@ VerificationTest[
   True
   ,
   TestID -> "SIRModel-3"
+];
+
+
+VerificationTest[
+  ShortModelQ[ SIRModel[t, "InitialConditions" -> False, "RateRules" -> False ] ]
+  ,
+  True
+  ,
+  TestID -> "SIRModel-4"
 ];
 
 
@@ -172,7 +181,7 @@ VerificationTest[
 (***********************************************************)
 
 VerificationTest[
-  ShortModelQ[ SI2RModel[t] ]
+  LongModelQ[ SI2RModel[t] ]
   ,
   True
   ,
@@ -180,8 +189,8 @@ VerificationTest[
 ];
 
 
-VerificationTest[
-  ShortModelQ[ SI2RModel[t, "MyPrivate`Context1`"] ]
+LongModelQ[
+  LongModelQ[ SI2RModel[t, "MyPrivate`Context1`"] ]
   ,
   True
   ,
@@ -195,6 +204,15 @@ VerificationTest[
   True
   ,
   TestID -> "SI2RModel-3"
+];
+
+
+VerificationTest[
+  ShortModelQ[ SI2RModel[t, "InitialConditions" -> False, "RateRules" -> False ] ]
+  ,
+  True
+  ,
+  TestID -> "SI2RModel-4"
 ];
 
 
@@ -252,7 +270,7 @@ VerificationTest[
 (***********************************************************)
 
 VerificationTest[
-  ShortModelQ[ SEI2RModel[t] ]
+  LongModelQ[ SEI2RModel[t] ]
   ,
   True
   ,
@@ -261,7 +279,7 @@ VerificationTest[
 
 
 VerificationTest[
-  ShortModelQ[ SEI2RModel[t, "MyPrivate`Context1`"] ]
+  LongModelQ[ SEI2RModel[t, "MyPrivate`Context1`"] ]
   ,
   True
   ,
@@ -275,6 +293,15 @@ VerificationTest[
   True
   ,
   TestID -> "SEI2RModel-3"
+];
+
+
+VerificationTest[
+  ShortModelQ[ SEI2RModel[t, "InitialConditions" -> False, "RateRules" -> False ] ]
+  ,
+  True
+  ,
+  TestID -> "SEI2RModel-4"
 ];
 
 
