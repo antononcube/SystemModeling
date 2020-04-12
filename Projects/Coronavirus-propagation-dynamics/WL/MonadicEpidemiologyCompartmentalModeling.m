@@ -1055,7 +1055,7 @@ ECMMonPlotSiteSolutions[
           stocksSpec = {__ ~~ ___};
         ];
 
-        res = Association @ Map[ # -> SiteIndexSolutionsPlot[ #, context["multiSiteModel"], stocksSpec, context["solution"], maxTime ]&, cellIDs],
+        res = Association @ Map[ # -> SiteIndexSolutionsPlot[ #, context["multiSiteModel"], stocksSpec, context["solution"], maxTime, FilterRules[{opts}, Options[SiteIndexSolutionsPlot]] ]&, cellIDs],
 
         (*---------*)
         True,
