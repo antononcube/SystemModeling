@@ -67,7 +67,7 @@ AddModelIdentifier::usage = "AddModelIdentifier[m, id] adds a specified identifi
 JoinModels::usage = "JoinModels[m1_Association, ..] or JoinModels[ {_Association ..} ] joins models.";
 
 MakeCoreMultiSiteModel::usage = "MakeCoreMultiSiteModel[coreModel_, n_Integer | ids_List, t_Symbol, context_] \
-makes core multi-cell model.";
+makes core multi-site model.";
 
 EquationPosition::usage = "EquationPosition[eqs:{_Equal..}, lhs_] finds the element of eqs that has \
 the specified left hand side lhs.";
@@ -112,12 +112,12 @@ Begin["`Private`"];
 Needs["EpidemiologyModels`"];
 
 (***********************************************************)
-(* Add ID                                                  *)
+(* AddModelIdentifier                                      *)
 (***********************************************************)
 
 Clear[AddModelIdentifier];
 
-AddModelIdentifier[ model_Association, id_ ] :=
+AddModelIdentifier[ model_?EpidemiologyModelQ, id_ ] :=
     Block[{modelSymbols, rules},
       modelSymbols = Union @ Cases[ Normal /@ Values[ KeyTake[model, {"Stocks", "Rates"}]], HoldPattern[ (x_Symbol | x_[args__]) -> descr_String ] :> x , Infinity ];
 
@@ -139,10 +139,10 @@ Clear[JoinModels];
 
 JoinModels::"nargs" = "The arguments are expected to be valid model associations.";
 
-JoinModels[ m1_Association, args__ ] :=
+JoinModels[ m1_?EpidemiologyModelQ, args__ ] :=
     JoinModels[ {m1, args} ];
 
-JoinModels[ models : {_Association..} ] :=
+JoinModels[ models : {_?EpidemiologyModelQ ..} ] :=
     MapThread[Join, models];
 
 JoinModels[___] :=
@@ -163,13 +163,13 @@ The second argument is expected to be an integer or a list of ID's. \
 If the first argument is model making function the third argument is expected to be a time variable, \
 and the fourth (optional) argument is expected to be a context.";
 
-MakeCoreMultiSiteModel[model : (_Symbol | _Association), n_Integer, args___] :=
+MakeCoreMultiSiteModel[model : (_Symbol | _?EpidemiologyModelQ), n_Integer, args___] :=
     MakeCoreMultiSiteModel[model, Range[n], args];
 
 MakeCoreMultiSiteModel[model_Symbol, cellIDs_List, t_Symbol, context_ : "Global`"] :=
     MapThread[Join, Map[AddModelIdentifier[model[t, context], #] &, cellIDs]];
 
-MakeCoreMultiSiteModel[model_Association, cellIDs_List, args___] :=
+MakeCoreMultiSiteModel[model_?EpidemiologyModelQ, cellIDs_List, args___] :=
     MapThread[Join, Map[AddModelIdentifier[model, #] &, cellIDs]];
 
 MakeCoreMultiSiteModel[___] :=
