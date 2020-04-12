@@ -744,7 +744,7 @@ Below we use 1 and 3.
 
 ### Variation of medical supplies delivery period
 
-Here are calculate the solutions for a certain combination of capacities and rates:
+Here we calculate the solutions for a certain combination of capacities and rates:
 
 ```mathematica
 AbsoluteTiming[
@@ -806,7 +806,7 @@ BarChart[aAUCs, ChartLabels -> Keys[aAUCs], ColorFunction -> "Pastel",
 
 In order to demonstrate the effect of medical supplies production rate (mspr) it is beneficial to eliminate the hospital beds availability restriction -- we assume that we have enough hospital beds for all infected severely symptomatic people.
 
-Here are calculate the solutions for a certain combination of capacities and rates:
+Here we calculate the solutions for a certain combination of capacities and rates:
 
 ```mathematica
 AbsoluteTiming[
@@ -975,7 +975,7 @@ BarChart[aAUCs,
 
 ### Combined variability of delivery start and disruption
 
-Here are calculate the solutions for a set of combinations of delivery periods and delivery disruption starts:
+Here we calculate the solutions for a set of combinations of delivery periods and delivery disruption starts:
 
 ```mathematica
 AbsoluteTiming[
