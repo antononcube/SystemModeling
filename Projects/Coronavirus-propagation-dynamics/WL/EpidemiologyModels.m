@@ -958,8 +958,8 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           contactRate[HP] -> "Contact rate for the hospitalized population",
           hpmscr[ISSP, INSP] -> "Hospitalized population medical supplies consumption rate (per day)",
           upmscr[ISSP, INSP] -> "Un-hospitalized population medical supplies consumption rate (units per day)",
-          mspr[ISSP, INSP] -> "Medical supplies production rate (units per pay)",
-          mspcr[ISSP, INSP] -> "Medical supplies production cost rate (per unit)",
+          mspr[HB] -> "Medical supplies production rate (units per pay)",
+          mspcr[HB] -> "Medical supplies production cost rate (per unit)",
           msdr[HB] -> "Medical supplies delivery rate (delay factor)",
           msdp[HB] -> "Medical supplies delivery period (number of days)",
           mscr[TP] -> "Medical supplies consumption rate (units per day per person)",
@@ -1002,7 +1002,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
           MS'[t] == Min[ mspr[HB], capacity[MS] - MS[t] ] - orderedHospitalSupplies - Min[ MS[t] - orderedHospitalSupplies, mscr[ISSP] * (ISSP[t] - HP[t]) + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]) ],
           MSD'[t] == mscr[HP] * HP[t] + mscr[ISSP] * ISSP[t] + mscr[INSP] * INSP[t] + mscr[TP] * (SP[t] + EP[t] + RP[t]),
           MHS'[t] == hscr[ISSP, INSP] * HP[t],
-          MMSP'[t] == mspcr[ISSP, INSP] * MSD[t],
+          MMSP'[t] == mspcr[HB] * MSD[t],
           MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + peopleDyingPerDay)
         };
 
@@ -1056,7 +1056,7 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
                   hscr[ISSP, INSP] -> 1,
                   hpmscr[ISSP, INSP] -> 4,
                   upmscr[ISSP, INSP] -> 2,
-                  mspcr[ISSP, INSP] -> 1,
+                  mspcr[HB] -> 1,
                   msdp[HB] -> 1.5,
                   mspr[HB] -> 100 * nhbr[TP] * TP[0],
                   mscr[TP] -> 0.02,
