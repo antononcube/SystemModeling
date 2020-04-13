@@ -108,7 +108,14 @@ derives susceptible population from total population, infected, and deceased.";
 
 $ECMMonFailure::usage = "Failure symbol for the monad ECMMon.";
 
-ECMMonEchoModelGridTableForm::usage = "ECMMonEchoModelGridTableForm";
+ECMMonGetDefaultModel::usage = "ECMMonGetDefaultModel[] gets the default model in the monad object. \
+The default model is determined by the following sequence of checks: \
+(1) is the pipeline is an epidemiology model, \
+(2) does \"multiSiteModel\" exist, \
+(3) does \"singleSiteModel\" exist.";
+
+ECMMonEchoModelGridTableForm::usage = "ECMMonEchoModelGridTableForm[] echoes grid table form of the default model.\
+ECMMonEchoModelGridTableForm[spec_String] only echoes the specified parts of the grid table form.";
 
 ECMMonMakeHexagonalGrid::usage = "ECMMonMakeHexagonalGrid";
 
@@ -189,6 +196,41 @@ GenerateMonadAccessors[
 
 
 (**************************************************************)
+(* ECMMonGetDefaultModel                                      *)
+(**************************************************************)
+
+Clear[ECMMonGetDefaultModel];
+
+SyntaxInformation[ECMMonGetDefaultModel] = { "ArgumentsPattern" -> {} };
+
+ECMMonGetDefaultModel[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonGetDefaultModel[xs_, context_Association] := ECMMonGetDefaultModel[][xs, context];
+
+ECMMonGetDefaultModel[][xs_, context_] :=
+    Which[
+      EpidemiologyModelQ[xs],
+      xs,
+
+      KeyExistsQ[context, "multiSiteModel"] && EpidemiologyModelQ[context["multiSiteModel"]],
+      context["multiSiteModel"],
+
+      KeyExistsQ[context, "singleSiteModel"] && EpidemiologyModelQ[context["singleSiteModel"]],
+      context["singleSiteModel"],
+
+      True,
+      Echo["Cannot find a model.", "ECMMonGetDefaultModel:"];
+      $ECMMonFailure
+    ];
+
+ECMMonGetDefaultModel[__][___] :=
+    Block[{},
+      Echo["No arguments are expected.", "ECMMonGetDefaultModel:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
 (* ECMMonEchoModelGridTableForm                               *)
 (**************************************************************)
 
@@ -210,18 +252,7 @@ ECMMonEchoModelGridTableForm[ opts : OptionsPattern[] ][xs_, context_] :=
 ECMMonEchoModelGridTableForm[ spec_, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{model, res},
 
-      Which[
-
-        KeyExistsQ[ context, "multiSiteModel"],
-        model = context["multiSiteModel"],
-
-        KeyExistsQ[ context, "singleSiteModel"],
-        model = context["singleSiteModel"],
-
-        True,
-        Echo["Cannot find a model.", "ECMMonEchoModelGridTableForm:"];
-        Return[$ECMMonFailure]
-      ];
+      model = Fold[ ECMMonBind, model, {ECMMonGetDefaultModel, ECMMonGetValue}];
 
       Which[
         TrueQ[ spec === Automatic ] || TrueQ[ spec === All ],
@@ -649,6 +680,7 @@ ECMMonAssignInitialConditions[ aCoordsToValues_Association, stockName_String, op
 ECMMonAssignInitialConditions[ aStockValues_Association ][xs_, context_] :=
     Block[{ model, aContextAddition },
 
+      (* Maybe we should be able to use ECMMonGetDefaultModel here. *)
       Which[
 
         KeyExistsQ[ context, "multiSiteModel"],
