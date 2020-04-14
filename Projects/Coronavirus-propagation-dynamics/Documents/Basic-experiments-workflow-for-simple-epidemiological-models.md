@@ -13,9 +13,10 @@ The model in this notebook -- SEI2R -- differs from [the classical SEIR model](h
 
 1. Two separate infected populations: one is "severely symptomatic", the other is "normally symptomatic"
 
-2. The monetary equivalent of lost productivity due to infected or died people is tracked.
+2. The monetary equivalent of lost productivity due to infected or died people is tracked
 
-**Remark:** We consider the coronavirus propagation models as instances of the more general [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models.
+**Remark:** We consider the contagious disease propagation models as instances of the more general [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models.
+We use SD terminology in this notebook.
 
 **Remark:** The SEI2R model is a modification of the classic epidemic model SEIR, [Wk1].
 
@@ -25,25 +26,25 @@ The model in this notebook -- SEI2R -- differs from [the classical SEIR model](h
 
 1. Get one of the classical epidemiology models.
 
-1. Extend the equations of model if needed or desired.
+2. Extend the model equations if needed or desired.
 
-1. Set relevant initial conditions for the populations.
+3. Set relevant initial conditions for the populations.
 
-1. Pick model parameters to be adjust and “play with.”
+4. Pick model parameters to adjust and “play with.”
 
-1. Derive parametrized solutions of model’s system of equations (ODE’s or DAE’s.)
+5. Derive parametrized solutions of model’s system of equations (ODE’s or DAE’s.)
 
     1. Using the parameters of the previous step.
 
-1. Using an interactive interface experiment with different values of the parameters.
+6. Using an interactive interface experiment with different values of the parameters.
 
     1. In order to form “qualitative understanding.”
 
-1. Get real life data.
+7. Get real life data.
 
     1. Say, for the 2019-20 coronavirus outbreak.
 
-1.  Attempt manual or automatic calibration of the model.
+8.  Attempt manual or automatic calibration of the model.
 
     1. This step will most likely require additional data transformations and programming.
 
@@ -162,19 +163,13 @@ Here we set custom rates and initial conditions:
 ```mathematica
 population = 58160000/400;
 modelSI2R = SetRateRules[modelSI2R, <|TP[t] -> population|>];
-modelSI2R = 
-  SetInitialConditions[
-   modelSI2R, <|SP[0] -> population - 1, ISSP[0] -> 0, 
-    INSP[0] -> 1|>];
+modelSI2R = SetInitialConditions[modelSI2R, <|SP[0] -> population - 1, ISSP[0] -> 0, INSP[0] -> 1|>];
 ```
 
 Here is the system of ODE’s we use with to do *parametrized* simulations:
 
 ```mathematica
-lsActualEquations = 
-  Join[modelSI2R["Equations"] //. 
-    KeyDrop[modelSI2R["RateRules"], lsFocusParams], 
-   modelSI2R["InitialConditions"]];
+lsActualEquations = Join[modelSI2R["Equations"] //. KeyDrop[modelSI2R["RateRules"], lsFocusParams], modelSI2R["InitialConditions"]];
 ResourceFunction["GridTableForm"][List /@ lsActualEquations]
 ```
 
@@ -369,9 +364,7 @@ DynamicModule[{aincp = 6, aip = 32, criap = 0.8, ndays = 90,
     Association[SP[0] -> population - 1, ISSP[0] -> 0, 
      INSP[0] -> 1]]; 
   lsActualEquations = 
-   Join[modelSI2R["Equations"] //.\[VeryThinSpace]KeyDrop[
-      modelSI2R["RateRules"], lsFocusParams], 
-    modelSI2R["InitialConditions"]]; 
+   Join[modelSI2R["Equations"] //. KeyDrop[modelSI2R["RateRules"], lsFocusParams], modelSI2R["InitialConditions"]]; 
   aSol = Association[
     Flatten[ParametricNDSolve[
       lsActualEquations, {SP, EP, INSP, RP, IDP}, {t, 0, 365}, 
@@ -412,9 +405,7 @@ DynamicModule[{aincp = 5, aip = 26, criap = 2.3, ndays = 90,
     Association[SP[0] -> population - 1, ISSP[0] -> 0, 
      INSP[0] -> 1]]; 
   lsActualEquations = 
-   Join[modelSI2R["Equations"] //.\[VeryThinSpace]KeyDrop[
-      modelSI2R["RateRules"], lsFocusParams], 
-    modelSI2R["InitialConditions"]]; 
+   Join[modelSI2R["Equations"] //. KeyDrop[modelSI2R["RateRules"], lsFocusParams], modelSI2R["InitialConditions"]]; 
   aSol = Association[
     Flatten[ParametricNDSolve[
       lsActualEquations, {SP, EP, INSP, RP, IDP}, {t, 0, 365}, 
@@ -461,8 +452,8 @@ Block[{aincp = 5, aip = 26, criap = 2.3, ndays = 90, padOffset = -14, population
 
 [AAr1] Anton Antonov, [Coronavirus propagation dynamics project](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics), (2020), [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
-[AAp1] Anton Antonov, ["Epidemiology models Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[AAp1] Anton Antonov, ["Epidemiology models Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), (2020), [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
-[AAp2] Anton Antonov, ["Epidemiology models modifications Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[AAp2] Anton Antonov, ["Epidemiology models modifications Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m), (2020), [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
-[AAp3] Anton Antonov, ["System dynamics interactive interfaces functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m), (2020), [SystemsModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[AAp3] Anton Antonov, ["System dynamics interactive interfaces functions Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsInteractiveInterfacesFunctions.m), (2020), [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
