@@ -1,11 +1,12 @@
 ---
-title: "R Notebook"
+title: "New York Times COVID-19 data visualization"
 author: Anton Antonov
 date: 2020-03-30
-output: html_notebook:
-fig_width: 6
-fig_hight: 4
-fig_align: "center"
+output: 
+  html_notebook:
+    fig_width: 6
+    fig_hight: 4
+    fig_align: "center"
 ---
 
 ```{r, echo=FALSE}
