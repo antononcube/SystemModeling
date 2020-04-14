@@ -1,0 +1,38 @@
+---
+title: "Agend based modeling visual aids"
+author: Anton Antonov
+date: 2020-04-14
+output: html_notebook:
+  fig_width: 6
+  fig_hight: 4
+---
+
+```{r setup, message=FALSE}
+library(igraph)
+```
+
+# Contact number rationale
+
+```{r}
+gr <- igraph::make_full_graph( n = 12, directed = TRUE )
+plot(gr, vertex.size=10, vertex.label=NA)
+```
+
+
+```{r}
+grRandom <- sample_smallworld(dim=2, size=8, nei=1., p=0.2, loops = FALSE, multiple = TRUE )
+
+plot(igraph::simplify(grRandom), vertex.size=6, vertex.label=NA, layout = igraph::layout_nicely)
+```
+
+Community plot:
+
+```{r}
+ceb <- cluster_edge_betweenness(grRandom) 
+dendPlot(ceb, mode="hclust")
+```
+
+```{r}
+plot(ceb, grRandom, vertex.size=3, vertex.label = NA) 
+```
+
