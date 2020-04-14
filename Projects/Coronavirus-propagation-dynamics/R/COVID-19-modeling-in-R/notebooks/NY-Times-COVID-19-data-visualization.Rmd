@@ -2,15 +2,21 @@
 title: "R Notebook"
 author: Anton Antonov
 date: 2020-03-30
-output: html_notebook
+output: html_notebook:
+fig_width: 6
+fig_hight: 4
+fig_align: "center"
 ---
 
 ```{r, echo=FALSE}
+library(Hmisc)
 library(dplyr)
 library(ggplot2)
 library(leaflet)
 library(d3heatmap)
 library(ParetoPrincipleAdherence)
+library(lubridate)
+library(forecast)
 ```
 
 # Introduction
@@ -33,7 +39,7 @@ The following steps are taken:
 
 Note that other, older repositories with COVID-19 data exist, like, [JH1, VK1].
 
-*Remark:* The time series section is done for illustration purposes only. The forecasts there should not be taken seriously.
+**Remark:** The time series section is done for illustration purposes only. The forecasts there should not be taken seriously.
 
 # Preliminary defintions
 
@@ -53,21 +59,46 @@ capwords <- function(s, strict = FALSE) {
 ## NYTimes USA states data
 
 ```{r}
-dfNYDataStates <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", stringsAsFactors = FALSE )
-colnames(dfNYDataStates) <- capwords(colnames(dfNYDataStates))
+if( !exists("dfNYDataStates") ) {
+  dfNYDataStates <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", stringsAsFactors = FALSE )
+  colnames(dfNYDataStates) <- capwords(colnames(dfNYDataStates))
+}
 head(dfNYDataStates)
+```
+
+```{r}
+dfNYDataStates$DateObject <- as.POSIXct(dfNYDataStates$Date)
 ```
 
 ```{r}
 summary(as.data.frame(unclass(dfNYDataStates)))
 ```
 
+Summary by state:
+
+```{r, eval=FALSE}
+by( data = as.data.frame(unclass(dfNYDataStates)), INDICES = dfNYDataStates$State, FUN = summary )
+```
+
+Alternative summary:
+
+```{r, eval=FALSE}
+Hmisc::describe(dfNYDataStates)
+```
+
+
 ## NYTimes USA counties data
 
 ```{r}
-dfNYDataCounties <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv", stringsAsFactors = FALSE )
-colnames(dfNYDataCounties) <- capwords(colnames(dfNYDataCounties))
+if(!exists("dfNYDataCounties") ) {
+  dfNYDataCounties <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv", stringsAsFactors = FALSE )
+  colnames(dfNYDataCounties) <- capwords(colnames(dfNYDataCounties))
+}
 head(dfNYDataCounties)
+```
+
+```{r}
+dfNYDataCounties$DateObject <- as.POSIXct(dfNYDataCounties$Date)
 ```
 
 ```{r}
@@ -77,7 +108,9 @@ summary(as.data.frame(unclass(dfNYDataCounties)))
 ## US county records
 
 ```{r}
-dfUSACountyData <- read.csv( "https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv", stringsAsFactors = FALSE )
+if(!exists("dfUSACountyData")){
+  dfUSACountyData <- read.csv( "https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv", stringsAsFactors = FALSE )
+}
 head(dfUSACountyData)
 ```
 
@@ -103,6 +136,8 @@ ParetoPlotForColumns( dsNYDataCountiesExtended, c("Cases", "Deaths"), scales = "
 
 # Geo-histogram
 
+## Leaflet
+
 ```{r}
 cf <- colorBin( palette = "Reds", domain = log10(dsNYDataCountiesExtended$Cases), bins = 10 )
 ```
@@ -115,6 +150,7 @@ m <-
 m
 ```
 
+
 # Heat-map plots
 
 An alternative of the geo-visualization is to use a heat-map plot.
@@ -126,23 +162,71 @@ Make a heat-map plot by sorting the rows of the cross-tabulation matrix (that co
 
 ```{r}
 matSDC <- xtabs( Cases ~ State + Date, dfNYDataStates, sparse = TRUE)
-d3heatmap::d3heatmap( log10(matSDC+1), cellnote = as.matrix(matSDC), scale = "none", dendrogram = "row", colors = "Blues", theme = "dark")
+d3heatmap::d3heatmap( log10(matSDC+1), cellnote = as.matrix(matSDC), scale = "none", dendrogram = "row", colors = "Blues") #, theme = "dark")
 ```
 
 
-Deaths
+## Deaths
 
 Cross-tabulate states with dates over deaths and plot:
 
 
 ```{r}
 matSDD <- xtabs( Deaths ~ State + Date, dfNYDataStates, sparse = TRUE)
-d3heatmap::d3heatmap( log10(matSDD+1), cellnote = as.matrix(matSDD), scale = "none", dendrogram = "row", colors = "Blues", theme = "dark")
+d3heatmap::d3heatmap( log10(matSDD+1), cellnote = as.matrix(matSDD), scale = "none", dendrogram = "row", colors = "Blues") #, theme = "dark")
 ```
 
 # Time series analysis
 
-TBD...
+In this section we do simple "forecasting" (not a serious attempt).
 
+Make time series data frame in long form:
 
+```{r}
+dfQuery <- 
+  dfNYDataStates %>% 
+  dplyr::group_by( Date, DateObject ) %>% 
+  dplyr::summarise_at( .vars = c("Cases", "Deaths"), .funs = sum )
+dfQueryLongForm <- tidyr::pivot_longer( dfQuery, cols = c("Cases", "Deaths"), names_to = "Variable", values_to = "Value")
+head(dfQueryLongForm)
+```
 
+Plot the time series:
+
+```{r}
+ggplot(dfQueryLongForm) +
+  geom_line( aes( x = DateObject, y = log10(Value) ) ) +
+  facet_wrap( ~Variable, ncol = 1 )
+```
+
+## Cases
+
+Fit using ARIMA:
+
+```{r}
+fit <- forecast::auto.arima( dfQuery$Cases )
+fit
+```
+
+Plot "forecast":
+
+```{r}
+plot( forecast::forecast(fit, h = 20) )
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+```
+
+## Deaths
+
+Fit with ARIMA:
+
+```{r}
+fit <- forecast::auto.arima( dfQuery$Deaths )
+fit
+```
+
+Plot "forecast":
+
+```{r}
+plot( forecast::forecast(fit, h = 20) )
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+```
