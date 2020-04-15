@@ -92,13 +92,13 @@ We also discuss the interpretation of the simulation outcomes.
 [GitHub](https://github.com/JimDuggan).   
 (Resources for text book "System Dynamics Modeling with R".)
  
- \[AA1\] Anton Antonov, 
- ["COVID-19-modeling-in-R"](../../Projects/Coronavirus-propagation-dynamics/COVID-19-modeling-in-R), 
- 2020,
- [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
+\[AA1\] Anton Antonov, 
+["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R), 
+2020,
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
  
- \[AA2\] Anton Antonov, 
- [Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
- 2020,
- [ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
+\[AA2\] Anton Antonov, 
+[Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
+2020,
+[ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
  
