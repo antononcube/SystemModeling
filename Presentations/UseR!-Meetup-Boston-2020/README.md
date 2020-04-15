@@ -2,13 +2,15 @@
 ***Tutorial presentation***   
 
 The 
-[extended abstract of the presentation](./ExtendedAbstract.md)
+[extended abstract of the presentation](https://github.com/antononcube/SystemModeling/blob/master/Presentations/UseR!-Meetup-Boston-2020/ExtendedAbstract.md)
 was loosely followed. 
 Here is the (main) presentation mind-map:
 
-[![MainMindMap](./Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.png)](./Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.pdf)
+[![MainMindMap](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.png)](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.pdf)
 
-(Note that mind-map's PDF has hyperlinks.)
+(Note that mind-map's PDF has hyperlinks. Also see the folder 
+[Presention-aids](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids).
+)
 
 This presentation was based 70% on software monad for epedimiology compartmental models
 [ECMMo-R](https://github.com/antononcube/ECMMon-R), [AAr2],
@@ -59,19 +61,18 @@ access password: `t3.#hu#%` .
 [GitHub](https://github.com/JimDuggan).   
 (Resources for text book "System Dynamics Modeling with R".)
  
- \[AA1\] Anton Antonov, 
- ["COVID-19-modeling-in-R"](../../Projects/Coronavirus-propagation-dynamics/COVID-19-modeling-in-R), 
- 2020,
- [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
+\[AA1\] Anton Antonov, 
+["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R), 
+2020,
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
  
+\[AAr1\] Anton Antonov, 
+[Coronavirus-propagation-dynamics](../../Projects/Coronavirus-propagation-dynamics), 
+2020,
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
  
- \[AAr1\] Anton Antonov, 
- [Coronavirus-propagation-dynamics](../../Projects/Coronavirus-propagation-dynamics), 
- 2020,
- [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
- 
- \[AAr2\] Anton Antonov, 
- [Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
- 2020,
- [ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
+\[AAr2\] Anton Antonov, 
+[Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
+2020,
+[ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
  
