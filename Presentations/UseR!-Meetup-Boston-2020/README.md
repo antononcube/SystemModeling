@@ -1,63 +1,29 @@
-# Coronavirus propagation modeling
-***useR! Meetup Boston, April 2020***
-***Extended abstract***
+# Coronavirus propagation modeling, useR! Boston April 2020
+***Tutorial presentation***   
 
-*The Boston useR! Meetup event in April 2020 is planned to be online due to COVID-19.*
+The 
+[extended abstract of the presentation](./ExtendedAbstract.md)
+was loosely followed. 
+Here is the (main) presentation mind-map:
 
-*The presentation materials are reused for the Orlando Machine Learning and Data Science Meetup (OMLDS)* 
-*online session ["Coronavirus propagation modeling"](https://www.meetup.com/Orlando-MLDS/events/269445903).*
+[![MainMindMap](./Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.png)](./Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.pdf)
 
-## In brief
+(Note that mind-map's PDF has hyperlinks.)
 
-In this (tutorial) presentation we:
-1. Discuss the modeling and evolution of different scenarios of the coronavirus propagation and related decease
-2. Overview classic compartmental models in epidemiology
-4. Discuss the theory behind the System dynamics approach using simple examples
-3. Discus philosophical, scientific, and mathematical justifications
-5. Describe System dynamics' approaches of modeling the propagation of
-[SARS-CoV-2](https://en.wikipedia.org/wiki/Severe_acute_respiratory_syndrome_coronavirus_2) 
-and the economic impact of 
-[COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019). 
+This presentation was based 70% on software monad for epedimiology compartmental models
+[ECMMo-R](https://github.com/antononcube/ECMMon-R), [AAr2],
+For the rest were used frameworks, simulations, and graphics made with
+[Mathematica](https://www.wolfram.com/mathematica), [AAr1],
+and
+[Wolfram System Modeler](https://www.wolfram.com/system-modeler/) . 
 
-Our focus is on the modeling strategy and techniques and how they can be implemented using R. (See \[AA1\].)
+The presentation was given online (because of COVID-19) using Zoom. 
+[190 people registered](https://www.meetup.com/Boston-useR/events/269304135).
+Nearly 70 showed up (and maybe 60 stayed throughout.) 
 
-Most of the examples used to illustrate the theoretical concepts and practical aspects will have 
-graphics visualizations. The more important examples will have interactive interfaces. 
-
-Most of the models are not coronavirus specific and the presentation can be seen as an introduction to System dynamics.
-
-## Part 1 -- Coronavirus outbreak overview (7-10 min)
-
-In the first part we describe the "2019-2020 coronavirus outbreak problem" and establish related terminology.
-
-## Part 2 -- Compartmental models and System dynamics models (30 min)
-
-In the second part we:
-1. Discuss and outline the classic compartmental models in epidemiology using several examples
-2. Introduce, clarify, and demonstrate the basics of System dynamics theory and methodology 
-using progressively more complicated examples.
-
-First we show the mathematical models and related R code. 
-After that we show how different interactive interfaces (made with Shiny) can be utilized for better understanding
-of the results.
-
-## Part 3 -- Coronavirus Scenario modeling and simulations (20 min)
-
-In the last part we show how to model various propagation, policy, and economic aspects related to the 
-coronavirus 2019-20 outbreak. 
-
-We focus on the different strategies to model the outbreak dynamics and how the different 
-states can be interpreted from economics point of view.
-
-We show how to progressively build comprehensive models starting from (relatively) simple ones. 
-We also discuss the interpretation of the simulation outcomes.
-
-## Visual aid
-
-*(From the dedicated project
-[Coronavirus propagation dynamics](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics). 
-)*
-![Coronavirus propagation simple dynamics](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
+Here is a link to the 
+[Zoom video recording](https://zoom.us/rec/share/wtdYEKzO1nJJSc_H2hHNBbEwT47jaaa8hikarPMIz02OKAAz_4wMlrDV4qSzTJt6);
+access password: `t3.#hu#%` .
 
 ## References
 
@@ -97,4 +63,15 @@ We also discuss the interpretation of the simulation outcomes.
  ["COVID-19-modeling-in-R"](../../Projects/Coronavirus-propagation-dynamics/COVID-19-modeling-in-R), 
  2020,
  [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
+ 
+ 
+ \[AAr1\] Anton Antonov, 
+ [Coronavirus-propagation-dynamics](../../Projects/Coronavirus-propagation-dynamics), 
+ 2020,
+ [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+ 
+ \[AAr2\] Anton Antonov, 
+ [Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
+ 2020,
+ [ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
  
