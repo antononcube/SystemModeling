@@ -1,8 +1,8 @@
 # Coronavirus propagation modeling tutorial presentation, OMLDS March 2020
 
 The presentation abstract heavily borrowed descriptions and plans from a similar presentation
-to be given for the 
-[useR! Boston Meetup in April](../UseR!-Meetup-Boston-2020).
+was given for the 
+[useR! Boston Meetup in April](../UseR!-Meetup-Boston-2020) two weeks later.
 
 This presentation was almost entirely based on frameworks, simulations, and graphics made with
 [Mathematica](https://www.wolfram.com/mathematica).
