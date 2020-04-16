@@ -13,7 +13,7 @@ Here is the (main) presentation mind-map:
 )
 
 This presentation was based 70% on software monad for epidemiology compartmental models
-[ECMMo-R](https://github.com/antononcube/ECMMon-R), [AAr2],
+[ECMMon-R](https://github.com/antononcube/ECMMon-R), [AAr2],
 For the rest were used frameworks, simulations, and graphics made with
 [Mathematica](https://www.wolfram.com/mathematica), [AAr1],
 and
