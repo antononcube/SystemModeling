@@ -9,7 +9,7 @@
 ## In brief
 
 In this (tutorial) presentation we:
-1. Discuss the modeling and evolution of different scenarios of the coronavirus propagation and related decease
+1. Discuss the modeling and evolution of different scenarios of the coronavirus propagation and related disease
 2. Overview classic compartmental models in epidemiology
 4. Discuss the theory behind the System dynamics approach using simple examples
 3. Discus philosophical, scientific, and mathematical justifications
