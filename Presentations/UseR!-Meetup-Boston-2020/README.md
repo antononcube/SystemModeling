@@ -12,7 +12,7 @@ Here is the (main) presentation mind-map:
 [Presention-aids](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids).
 )
 
-This presentation was based 70% on software monad for epedimiology compartmental models
+This presentation was based 70% on software monad for epidemiology compartmental models
 [ECMMo-R](https://github.com/antononcube/ECMMon-R), [AAr2],
 For the rest were used frameworks, simulations, and graphics made with
 [Mathematica](https://www.wolfram.com/mathematica), [AAr1],
