@@ -23,9 +23,7 @@ The presentation was given online (because of COVID-19) using Zoom.
 [190 people registered](https://www.meetup.com/Boston-useR/events/269304135).
 Nearly 70 showed up (and maybe 60 stayed throughout.) 
 
-Here is a link to the 
-[Zoom video recording](https://zoom.us/rec/share/wtdYEKzO1nJJSc_H2hHNBbEwT47jaaa8hikarPMIz02OKAAz_4wMlrDV4qSzTJt6);
-access password: `t3.#hu#%` .
+Here is a link to the [video recording](https://youtu.be/K15-mckZGKY).
 
 ## References
 
