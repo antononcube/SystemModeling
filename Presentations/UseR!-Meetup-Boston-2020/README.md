@@ -8,11 +8,11 @@ Here is the (main) presentation mind-map:
 
 [![MainMindMap](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.png)](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids/UseR!-Boston-April-2020-tutorial-mind-map.pdf)
 
-(Note that mind-map's PDF has hyperlinks. Also see the folder 
-[Presention-aids](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids).
+(Note that mind-map's PDF has hyperlinks. Also, see the folder 
+[Presentation-aids](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids).
 )
 
-This presentation was based 70% on software monad for epidemiology compartmental models
+Approximately 70% of the presentation was based on an R-programmed software monad for epidemiology compartmental models
 [ECMMon-R](https://github.com/antononcube/ECMMon-R), [AAr2],
 For the rest were used frameworks, simulations, and graphics made with
 [Mathematica](https://www.wolfram.com/mathematica), [AAr1],
@@ -24,6 +24,9 @@ The presentation was given online (because of COVID-19) using Zoom.
 Nearly 70 showed up (and maybe 60 stayed throughout.) 
 
 Here is a link to the [video recording](https://youtu.be/K15-mckZGKY).
+
+[A similar presentation](https://github.com/antononcube/SystemModeling/tree/master/Presentations/OMLDS-Meetup-March-2020)
+was given two weeks prior for [OMLDS](https://www.meetup.com/Orlando-MLDS/events/269445903/).
 
 ## References
 
