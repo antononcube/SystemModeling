@@ -12,8 +12,8 @@ Here is the (main) presentation mind-map:
 [Presentation-aids](https://github.com/antononcube/SystemModeling/raw/master/Presentations/UseR!-Meetup-Boston-2020/Presentation-aids).
 )
 
-Approximately 70% of the presentation was based on an R-programmed software monad for epidemiology compartmental models
-[ECMMon-R](https://github.com/antononcube/ECMMon-R), [AAr2],
+Approximately 70% of the presentation was based on an R-programmed software monad for epidemiology compartmental models,
+[ECMMon-R](https://github.com/antononcube/ECMMon-R), [AAr2].
 For the rest were used frameworks, simulations, and graphics made with
 [Mathematica](https://www.wolfram.com/mathematica), [AAr1],
 and
