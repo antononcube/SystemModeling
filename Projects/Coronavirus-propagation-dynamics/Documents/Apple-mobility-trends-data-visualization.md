@@ -72,9 +72,7 @@ Magnify[ResourceFunction["RecordsSummary"][dsAppleMobility], 0.6]
 Number of unique “country/region” values:
 
 ```mathematica
-Length[Union[
-  Normal[dsAppleMobility[Select[#["geo_type"] == "country/region" &], 
-    "region"]]]]
+Length[Union[Normal[dsAppleMobility[Select[#["geo_type"] == "country/region" &], "region"]]]]
 
 (*63*)
 ```
@@ -82,9 +80,7 @@ Length[Union[
 Number of unique “city” values:
 
 ```mathematica
-Length[Union[
-  Normal[dsAppleMobility[Select[#["geo_type"] == "city" &], 
-    "region"]]]]
+Length[Union[Normal[dsAppleMobility[Select[#["geo_type"] == "city" &], "region"]]]]
 
 (*89*)
 ```
@@ -136,8 +132,7 @@ Rename the column “Variable” to “Date” and add a related “DateObject�
 AbsoluteTiming[
  dsAppleMobilityLongForm = 
    dsAppleMobilityLongForm[All, 
-    Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, 
-       "DateObject" -> DateObject[#Variable]|>] &];
+    Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, "DateObject" -> DateObject[#Variable]|>] &];
  ]
 
 (*{16.9671, Null}*)
@@ -195,19 +190,16 @@ aDayQueries =
   Association@
    Flatten@Outer[
      Function[{gt, tt}, {gt, tt} -> 
-       dsAppleMobilityLongForm[
-        Select[#["geo_type"] == gt && #Date == 
-            lastDate && #["transportation_type"] == tt &]]], 
+       dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #Date == lastDate && #["transportation_type"] == tt &]]], 
      lsGeoTypes, lsTransportationTypes];
 ```
 
 ```mathematica
 Dimensions /@ aDayQueries
 
-(*<|{"city", "driving"} -> {89, 7}, {"city", "transit"} -> {64, 
-   7}, {"city", "walking"} -> {89, 7}, {"country/region", 
-   "driving"} -> {63, 7}, {"country/region", "transit"} -> {27, 
-   7}, {"country/region", "walking"} -> {63, 7}|>*)
+(*<|{"city", "driving"} -> {89, 7}, {"city", "transit"} -> {64, 7}, {"city", "walking"} -> {89, 7}, 
+    {"country/region", "driving"} -> {63, 7}, {"country/region", "transit"} -> {27, 7}, 
+    {"country/region", "walking"} -> {63, 7}|>*)
 ```
 
 Here we plot histograms and Pareto principle adherence:
@@ -235,9 +227,7 @@ Cross-tabulate dates with regions:
 
 ```mathematica
 aMatDateRegion = 
-  ResourceFunction["CrossTabulate"][#[
-      All, {"Date", "region", "Value"}], "Sparse" -> True] & /@ 
-   aQueries;
+  ResourceFunction["CrossTabulate"][#[All, {"Date", "region", "Value"}], "Sparse" -> True] & /@ aQueries;
 ```
 
 Make a heat-map plot by sorting the columns of the cross-tabulation matrix (that correspond to countries):
@@ -274,11 +264,8 @@ Here we create nearest neighbor graphs of the contingency matrices computed abov
 Manipulate[
  Multicolumn[
   Normal@Map[
-    CommunityGraphPlot@
-      NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], nns, 
-       ImageSize -> Medium] &, aMatDateRegion], 2, Dividers -> All],
- {{nns, 5, "Number of nearest neighbors:"}, 2, 30, 1, 
-  Appearance -> "Open"}, SaveDefinitions -> True]
+    CommunityGraphPlot @ NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], nns, ImageSize -> Medium] &, aMatDateRegion], 2, Dividers -> All],
+ {{nns, 5, "Number of nearest neighbors:"}, 2, 30, 1, Appearance -> "Open"}, SaveDefinitions -> True]
 ```
 
 ![1uh66ncyh1vuo](./Diagrams/Apple-mobility-trends-data-visualization/1uh66ncyh1vuo.png)
@@ -290,8 +277,7 @@ Here we endow each nearest neighbors graph with appropriate vertex labels:
 ```mathematica
 aNNGraphs = 
   Map[NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], 3, 
-     VertexLabels -> 
-      Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]] &,
+     VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]] &,
     aMatDateRegion];
 ```
 
@@ -299,10 +285,8 @@ Here we plot the graphs with clusters:
 
 ```mathematica
 ResourceFunction["GridTableForm"][
- List @@@ Normal[
-   CommunityGraphPlot[#, ImageSize -> 800] & /@ aNNGraphs], 
- TableHeadings -> {"region & transportation type", 
-   "communities of nearest neibhbors graph"}, Background -> White, 
+ List @@@ Normal[CommunityGraphPlot[#, ImageSize -> 800] & /@ aNNGraphs], 
+ TableHeadings -> {"region & transportation type", "communities of nearest neighbors graph"}, Background -> White, 
  Dividers -> All]
 ```
 
@@ -342,9 +326,7 @@ Association@KeyValueMap[
    transpType ->
     DateListPlot[ts, 
      GridLines -> {AbsoluteTime /@ 
-        Union[Normal[
-          dsAppleMobilityLongForm[Select[#DayName == "Sunday" &], 
-           "DateObject"]]], Automatic}, 
+        Union[Normal[ dsAppleMobilityLongForm[Select[#DayName == "Sunday" &], "DateObject"]]], Automatic}, 
      GridLinesStyle -> {Directive[Orange, Dashed], 
        Directive[Gray, Dotted]}, PlotLabel -> Capitalize[transpType], 
      opts]
