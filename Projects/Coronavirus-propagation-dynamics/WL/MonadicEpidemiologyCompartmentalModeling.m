@@ -117,7 +117,8 @@ The default model is determined by the following sequence of checks: \
 ECMMonEchoModelGridTableForm::usage = "ECMMonEchoModelGridTableForm[] echoes grid table form of the default model.\
 ECMMonEchoModelGridTableForm[spec_String] only echoes the specified parts of the grid table form.";
 
-ECMMonMakeHexagonalGrid::usage = "ECMMonMakeHexagonalGrid";
+ECMMonMakePolygonGrid::usage = "ECMMonMakePolygonGrid[points: {{_?NumberQ, _?NumberQ}..} , cellRadius_?NumberQ, opts___] \
+creates a hexagonal grid (object) that covers the specified points.";
 
 ECMMonPlotGrid::usage = "ECMMonPlotGrid";
 
@@ -144,6 +145,7 @@ Begin["`Private`"];
 Needs["StateMonadCodeGenerator`"];
 Needs["SSparseMatrix`"];
 Needs["HextileBins`"];
+Needs["TileBins`"];
 Needs["EpidemiologyModels`"];
 Needs["EpidemiologyModelModifications`"];
 Needs["EpidemiologyModelingSimulationFunctions`"];
@@ -302,59 +304,59 @@ ECMMonEchoModelGridTableForm[__][___] :=
 
 
 (**************************************************************)
-(* ECMMonMakeHexagonalGrid                                    *)
+(* ECMMonMakePolygonGrid                                      *)
 (**************************************************************)
 
-Clear[ECMMonMakeHexagonalGrid];
+Clear[ECMMonMakePolygonGrid];
 
-SyntaxInformation[ECMMonMakeHexagonalGrid] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
+SyntaxInformation[ECMMonMakePolygonGrid] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
 
-Options[ECMMonMakeHexagonalGrid] = { "Coordinates" -> None, "Radius" -> None };
+Options[ECMMonMakePolygonGrid] = { "Coordinates" -> None, "Radius" -> None, "BinningFunction" -> Automatic };
 
-ECMMonMakeHexagonalGrid[___][$ECMMonFailure] := $ECMMonFailure;
+ECMMonMakePolygonGrid[___][$ECMMonFailure] := $ECMMonFailure;
 
-ECMMonMakeHexagonalGrid[xs_, context_Association] := ECMMonMakeHexagonalGrid[][xs, context];
+ECMMonMakePolygonGrid[xs_, context_Association] := ECMMonMakePolygonGrid[][xs, context];
 
-ECMMonMakeHexagonalGrid[ opts : OptionsPattern[] ][xs_, context_] :=
+ECMMonMakePolygonGrid[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{coords, radius},
 
-      coords = OptionValue[ ECMMonMakeHexagonalGrid, "Coordinates" ];
+      coords = OptionValue[ ECMMonMakePolygonGrid, "Coordinates" ];
 
       If[ ! MatchQ[coords, { {_?NumericQ, _?NumericQ} .. }],
         Echo[
           "The value of the option \"Coordinates\" is expected to be a list of numeric pairs.",
-          "ECMMonMakeHexagonalGrid:"
+          "ECMMonMakePolygonGrid:"
         ];
         Return[$ECMMonFailure]
       ];
 
-      radius = OptionValue[ ECMMonMakeHexagonalGrid, "Radius" ];
+      radius = OptionValue[ ECMMonMakePolygonGrid, "Radius" ];
 
       If[ ! ( NumericQ[radius] && radius > 0 ),
         Echo[
           "The value of the option \"Radius\" is expected to be a positive number.",
-          "ECMMonMakeHexagonalGrid:"
+          "ECMMonMakePolygonGrid:"
         ];
         Return[$ECMMonFailure]
       ];
 
-      ECMMonMakeHexagonalGrid[ coords, radius ][xs, context]
+      ECMMonMakePolygonGrid[ coords, radius ][xs, context]
     ];
 
-ECMMonMakeHexagonalGrid[coords : { { _?NumericQ, _?NumericQ } .. }, radius_?NumericQ ][xs_, context_] :=
+ECMMonMakePolygonGrid[coords : { { _?NumericQ, _?NumericQ } .. }, radius_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{aGrid},
 
-      aGrid = MakeHexGrid[coords, radius];
+      aGrid = MakePolygonGrid[coords, radius, FilterRules[{opts}, Options[MakePolygonGrid]] ];
 
       ECMMonUnit[aGrid, Join[context, <| "grid" -> aGrid |>]]
     ];
 
-ECMMonMakeHexagonalGrid[__][___] :=
+ECMMonMakePolygonGrid[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonMakeHexagonalGrid[coordinates: { {_?NumericQ, _?NumericQ} .. }, radius_?NumericQ ]"
-            <> " or ECMMonMakeHexagonalGrid[OptionsPattern[]].",
-        "ECMMonMakeHexagonalGrid:"];
+        "The expected signature is one of ECMMonMakePolygonGrid[coordinates: { {_?NumericQ, _?NumericQ} .. }, radius_?NumericQ, opts___ ]"
+            <> " or ECMMonMakePolygonGrid[OptionsPattern[]].",
+        "ECMMonMakePolygonGrid:"];
       $ECMMonFailure
     ];
 
@@ -428,7 +430,7 @@ ECMMonPlotGridHistogram[___][$ECMMonFailure] := $ECMMonFailure;
 ECMMonPlotGridHistogram[xs_, context_Association] := ECMMonPlotGridHistogram[None][xs, context];
 
 ECMMonPlotGridHistogram[ aData_?CoordinatesToValuesAssociationQ, opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{echoQ, showDataPointsQ, aDataToGrid, grHexHist, gr},
+    Block[{echoQ, showDataPointsQ, aDataToGrid, histFunc, grHexHist, gr},
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotGridHistogram, "Echo"] ];
 
@@ -441,9 +443,16 @@ ECMMonPlotGridHistogram[ aData_?CoordinatesToValuesAssociationQ, opts : OptionsP
 
       aDataToGrid = AggregateForCellIDs[ context["grid"], aData];
 
+      histFunc =
+          If[ Length[PolygonCoordinates[ context["grid"]["Cells"][[1]]["Cell"]]] == 4,
+            TileHistogram,
+            (*ELSE*)
+            HextileHistogram
+          ];
+
       grHexHist =
-          HextileHistogram[ aData, context["grid"]["CellRadius"],
-            FilterRules[{opts}, Options[HextileHistogram]],
+          histFunc[ aData, context["grid"]["CellRadius"],
+            FilterRules[{opts}, Options[histFunc]],
             ColorFunction -> (Opacity[#, Blue] &),
             PlotRange -> All, ImageSize -> Medium];
 
@@ -490,7 +499,7 @@ ECMMonExtendByGrid[xs_, context_Association] := ECMMonExtendByGrid[][xs, context
 ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{grid, populations, factor},
 
-      grid = OptionValue[ ECMMonMakeHexagonalGrid, "Grid" ];
+      grid = OptionValue[ ECMMonMakePolygonGrid, "Grid" ];
 
       If[ ! GridObjectQ[grid],
         Echo[
@@ -500,7 +509,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      grid = OptionValue[ ECMMonMakeHexagonalGrid, "Populations" ];
+      grid = OptionValue[ ECMMonMakePolygonGrid, "Populations" ];
 
       If[ ! CoordinatesToValuesAssociationQ[populations],
         Echo[
