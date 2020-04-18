@@ -228,7 +228,7 @@ MultiSiteModelSimulation[
       aLonLatPopulation = Association@Map[Most[#] -> Last[#] &, Values /@ Normal[dsUSACountyRecords[All, {"Lon", "Lat", "Population"}]]];
       ProgressFunc["Length[aLonLatPopulation] = ", Length[aLonLatPopulation]];
 
-      aGrid = MakeHexGrid[Keys[aLonLatPopulation], cellRadiusDegrees];
+      aGrid = MakeHexagonGrid[Keys[aLonLatPopulation], cellRadiusDegrees];
 
       ProgressFunc[ Graphics[{FaceForm[LightBlue], EdgeForm[Red], Values[Map[#Cell &, aGrid["Cells"]]]}, Frame -> True] ];
 
