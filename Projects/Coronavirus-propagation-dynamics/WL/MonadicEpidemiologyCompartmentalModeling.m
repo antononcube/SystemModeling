@@ -126,6 +126,9 @@ ECMMonPlotGridHistogram::usage = "ECMMonPlotGridHistogram";
 
 ECMMonExtendByGrid::usage = "ECMMonExtendByGrid";
 
+ECMMonExtendByAdjacencyMatrix::usage = "ECMMonExtendByAdjacencyMatrix[ mat_?MatrixQ, factor_?NumberQ] \
+extends monad's single site model into multi-site model using the numerical matrix mat.";
+
 ECMMonAssignInitialConditionsByGridAggregation::usage = "ECMMonAssignInitialConditionsByGridAggregation";
 
 ECMMonAssignInitialConditions::usage = "ECMMonAssignInitialConditions";
@@ -210,19 +213,24 @@ ECMMonGetDefaultModel[___][$ECMMonFailure] := $ECMMonFailure;
 ECMMonGetDefaultModel[xs_, context_Association] := ECMMonGetDefaultModel[][xs, context];
 
 ECMMonGetDefaultModel[][xs_, context_] :=
-    Which[
-      EpidemiologyModelQ[xs],
-      xs,
+    Block[{model},
 
-      KeyExistsQ[context, "multiSiteModel"] && EpidemiologyModelQ[context["multiSiteModel"]],
-      context["multiSiteModel"],
+      Which[
+        EpidemiologyModelQ[xs],
+        model = xs,
 
-      KeyExistsQ[context, "singleSiteModel"] && EpidemiologyModelQ[context["singleSiteModel"]],
-      context["singleSiteModel"],
+        KeyExistsQ[context, "multiSiteModel"] && EpidemiologyModelQ[context["multiSiteModel"]],
+        model = context["multiSiteModel"],
 
-      True,
-      Echo["Cannot find a model.", "ECMMonGetDefaultModel:"];
-      $ECMMonFailure
+        KeyExistsQ[context, "singleSiteModel"] && EpidemiologyModelQ[context["singleSiteModel"]],
+        model = context["singleSiteModel"],
+
+        True,
+        Echo["Cannot find a model.", "ECMMonGetDefaultModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonUnit[model, context]
     ];
 
 ECMMonGetDefaultModel[__][___] :=
@@ -254,7 +262,11 @@ ECMMonEchoModelGridTableForm[ opts : OptionsPattern[] ][xs_, context_] :=
 ECMMonEchoModelGridTableForm[ spec_, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{model, res},
 
-      model = Fold[ ECMMonBind, model, {ECMMonGetDefaultModel, ECMMonGetValue}];
+      model = Fold[ ECMMonBind, ECMMonUnit[xs, context], {ECMMonGetDefaultModel, ECMMonTakeValue}];
+
+      If[ TrueQ[ model === $ECMMonFailure ],
+        Return[$ECMMonFailure];
+      ];
 
       Which[
         TrueQ[ spec === Automatic ] || TrueQ[ spec === All ],
@@ -290,16 +302,6 @@ ECMMonEchoModelGridTableForm[__][___] :=
 
 (**************************************************************)
 (* ECMMonSetRates                                             *)
-(**************************************************************)
-
-
-(**************************************************************)
-(* ECMMonExtendByGraph                                        *)
-(**************************************************************)
-
-
-(**************************************************************)
-(* ECMMonExtendByAdjacencyMatrix                              *)
 (**************************************************************)
 
 
@@ -509,7 +511,7 @@ ECMMonExtendByGrid[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      grid = OptionValue[ ECMMonMakePolygonGrid, "Populations" ];
+      populations = OptionValue[ ECMMonMakePolygonGrid, "Populations" ];
 
       If[ ! CoordinatesToValuesAssociationQ[populations],
         Echo[
@@ -573,6 +575,64 @@ ECMMonExtendByGrid[__][___] :=
         "The expected signature is one of ECMMonExtendByGrid[ grid_?GridObjectQ, populations: <| ({_?NumericQ, _?NumericQ} -> _?NumericQ).. |>, factor_?NumericQ ]"
             <> " or ECMMonExtendByGrid[OptionsPattern[]].",
         "ECMMonExtendByGrid:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonExtendByAdjacencyMatrix                              *)
+(**************************************************************)
+
+Clear[ECMMonExtendByAdjacencyMatrix];
+
+SyntaxInformation[ECMMonExtendByAdjacencyMatrix] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
+
+Options[ECMMonExtendByAdjacencyMatrix] = { "AdjacencyMatrix" -> None };
+
+ECMMonExtendByAdjacencyMatrix[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonExtendByAdjacencyMatrix[xs_, context_Association] := ECMMonExtendByAdjacencyMatrix[][xs, context];
+
+ECMMonExtendByAdjacencyMatrix[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{adjacencyMatrix},
+
+      adjacencyMatrix = OptionValue[ ECMMonMakePolygonGrid, "AdjacencyMatrix" ];
+
+      If[ ! MatrixQ[adjacencyMatrix, NumberQ],
+        Echo[
+          "The value of the option \"AdjacencyMatrix\" is expected to be a numerical matrix.",
+          "ECMMonExtendByAdjacencyMatrix:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonExtendByAdjacencyMatrix[ adjacencyMatrix ][xs, context]
+    ];
+
+ECMMonExtendByAdjacencyMatrix[ matAdj_?MatrixQ ][xs_, context_] :=
+    Block[{ singleSiteModel, modelMultiSite},
+
+      If[ !KeyExistsQ[ context, "singleSiteModel"],
+        Echo["No single-site, seed model is found. Making one with SEI2RModel.", "ECMMonExtendByGrid:"];
+        singleSiteModel = SEI2RModel[Global`t, "InitialConditions" -> True, "RateRules" -> True, "TotalPopulationRepresentation" -> "AlgebraicEquation"],
+        (*ELSE*)
+        singleSiteModel = context["singleSiteModel"]
+      ];
+
+      (* Maybe we should also make a corresponding grid object. *)
+
+      modelMultiSite = ToSiteCompartmentsModel[ singleSiteModel, matAdj, "MigratingPopulations" -> Automatic ];
+
+      ECMMonUnit[modelMultiSite, Join[context, <| "singleSiteModel" -> singleSiteModel, "multiSiteModel" -> modelMultiSite |>]]
+
+    ] /; MatrixQ[matAdj, NumberQ];
+
+ECMMonExtendByAdjacencyMatrix[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonExtendByAdjacencyMatrix[ mat_?MatrixQ ]"
+            <> " or ECMMonExtendByAdjacencyMatrix[OptionsPattern[]].",
+        "ECMMonExtendByAdjacencyMatrix:"];
       $ECMMonFailure
     ];
 
