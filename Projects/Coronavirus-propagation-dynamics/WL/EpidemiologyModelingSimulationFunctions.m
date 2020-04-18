@@ -249,6 +249,7 @@ MakePolygonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, range : { 
       aCells = Association@KeyValueMap[#1 -> Prepend[#2, "ID" -> #1] &, aCells];
 
       (* Make neighbors graph *)
+      (* The NN's radius should fit both hex-tiles and tiles. *)
       grHexagonCellsNetwork =
           NearestNeighborGraph[
             Keys[aCells], {7, Min[lsDistances] / Cos[\[Pi] / 6.]},
