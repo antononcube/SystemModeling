@@ -63,6 +63,12 @@ If[Length[DownValues[HextileBins`HextileBins]] == 0,
   Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/HextileBins.m"]
 ];
 
+If[Length[DownValues[TileBins`TileBins]] == 0,
+  Echo["TileBins.m", "Importing from GitHub:"];
+  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/TileBins.m"]
+];
+
+
 (**************************************************************)
 (* Package definition                                         *)
 (**************************************************************)
@@ -76,8 +82,12 @@ into a list equations to be give to NDSolve.";
 
 ModelNDSolve::usage = "ModelNDSolve[model, {t, maxTime}, opts] simulates the model from 0 to maxTime using NDSolve";
 
-MakeHexGrid::usage = "MakeHexGrid[ coords_List, cellRadius_?NumberQ, range : ( Automatic | _?MatrixQ), opts___ ] \
-makes a hexagonal tiling grid for specified data.";
+MakePolygonGrid::usage = "MakePolygonGrid[ coords_List, cellSize_?NumberQ, range : ( Automatic | _?MatrixQ), opts___ ] \
+makes a polygonal tiling grid for specified data.";
+
+MakeHexagonGrid::usage = "MakeHexagonGrid[ coords_List, cellRadius_?NumberQ, range : ( Automatic | _?MatrixQ), opts___ ] \
+makes a hexagonal tiling grid for specified data. \
+Shortcut for MakePolygonGrid[ coords, cellSize, \"BinningFunction\" -> HextileBins ]";
 
 ToGraph::usage = "ToGraph[ grid_Association ] makes a graph for a given grid.";
 
@@ -91,6 +101,7 @@ Begin["`Private`"];
 Needs["EpidemiologyModels`"];
 Needs["EpidemiologyModelModifications`"];
 Needs["HextileBins`"];
+Needs["TileBins`"];
 
 (***********************************************************)
 (* ModelNDSolveEquations                                   *)
@@ -163,36 +174,58 @@ ModelNDSolve[___] :=
 
 
 (***********************************************************)
-(* MakeHexGrid                                             *)
+(* MakePolygonGrid                                         *)
 (***********************************************************)
 
 Clear[GridObjectQ];
 GridObjectQ[a_] := AssociationQ[a] && Length[ Intersection[ Keys[a], {"Cells", "AdjacencyMatrix", "Range", "CellRadius"} ] ] == 4;
 
-Clear[MakeHexGrid];
+Clear[MakePolygonGrid];
 
-Options[MakeHexGrid] :=
+MakePolygonGrid::nargs = "The first argument is expected to be a numerical matrix with two columns (list of 2D coordinates). \
+The second argument is expected to be a number (grid cell size).
+The third argument is expected to be a list of two numerical pairs (2D range specification).";
+
+MakePolygonGrid::nbf = "The value of the option \"BinningFunction\" is expected to be one of
+\"HextileBins\", \"TileBins\", or Automatic.";
+
+Options[MakePolygonGrid] :=
     Join[
-      {"RemoveLoneCells" -> False},
+      {"RemoveLoneCells" -> False, "BinningFunction" -> Automatic },
       Options[HextileBins],
       Options[NearestNeighborGraph]
     ];
 
-MakeHexGridDataQ[d_] := MatrixQ[ d, NumberQ ];
+MakePolygonGridDataQ[d_] := MatrixQ[ d, NumberQ ];
 
-MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, opts : OptionsPattern[] ] :=
-    MakeHexGrid[ lsLonLat, cellRadius, Automatic, opts ];
+MakePolygonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, opts : OptionsPattern[] ] :=
+    MakePolygonGrid[ lsLonLat, cellRadius, Automatic, opts ];
 
-MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, Automatic, opts : OptionsPattern[] ] :=
-    MakeHexGrid[ lsLonLat, cellRadius, MinMax /@ Transpose[lsLonLat], opts ];
+MakePolygonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, Automatic, opts : OptionsPattern[] ] :=
+    MakePolygonGrid[ lsLonLat, cellRadius, MinMax /@ Transpose[lsLonLat], opts ];
 
-MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, range : { {_?NumberQ, _?NumberQ}, {_?NumberQ, _?NumberQ} }, opts : OptionsPattern[] ] :=
-    Block[{removeLoneCellsQ, aPolygonValues, lsCells, aCells,
+MakePolygonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, range : { {_?NumberQ, _?NumberQ}, {_?NumberQ, _?NumberQ} }, opts : OptionsPattern[] ] :=
+    Block[{removeLoneCellsQ, binningFunction, aPolygonValues, lsCells, aCells,
       nc, lsDistances, pos, grHexagonCellsNetwork, matHexGrid},
 
-      removeLoneCellsQ = TrueQ[OptionValue[MakeHexGrid, "RemoveLoneCells"]];
+      removeLoneCellsQ = TrueQ[OptionValue[MakePolygonGrid, "RemoveLoneCells"]];
 
-      aPolygonValues = HextileBins[lsLonLat, cellRadius, range, FilterRules[{opts}, Options[HextileBins]]];
+      binningFunction = OptionValue[ MakePolygonGrid, "BinningFunction" ];
+
+      Which[
+
+        MemberQ[ {Automatic, "HextileBins", HextileBins}, binningFunction ],
+        binningFunction = HextileBins,
+
+        MemberQ[ {"TileBins", TileBins}, binningFunction ],
+        binningFunction = TileBins,
+
+        True,
+        Message[MakePolygonGrid::nbf];
+        Return[$Failed]
+      ];
+
+      aPolygonValues = binningFunction[lsLonLat, cellRadius, range, FilterRules[{opts}, Options[binningFunction]]];
 
       (* Make cell objects *)
       lsCells = KeyValueMap[<|"Value" -> #2, "Cell" -> #1, "Center" -> Mean[PolygonCoordinates[#1]]|> &, aPolygonValues];
@@ -235,6 +268,35 @@ MakeHexGrid[ lsLonLat_?MakeHexGridDataQ, cellRadius_?NumberQ, range : { {_?Numbe
       <| "Cells" -> aCells, "AdjacencyMatrix" -> matHexGrid, "Range" -> range, "CellRadius" -> cellRadius |>
 
     ];
+
+MakePolygonGrid[___] :=
+    Block[{},
+      Message[MakePolygonGrid::nargs];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* MakeHexagonGrid                                         *)
+(***********************************************************)
+
+Clear[MakeHexagonGrid];
+
+Options[MakeHexagonGrid] :=
+    Join[
+      {"RemoveLoneCells" -> False },
+      Options[HextileBins],
+      Options[NearestNeighborGraph]
+    ];
+
+MakeHexagonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, opts : OptionsPattern[] ] :=
+    MakeHexagonGrid[ lsLonLat, cellRadius, Automatic, opts ];
+
+MakeHexagonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, Automatic, opts : OptionsPattern[] ] :=
+    MakeHexagonGrid[ lsLonLat, cellRadius, MinMax /@ Transpose[lsLonLat], opts ];
+
+MakeHexagonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, range : { {_?NumberQ, _?NumberQ}, {_?NumberQ, _?NumberQ} }, opts : OptionsPattern[] ] :=
+    MakePolygonGrid[ lsLonLat, cellRadius, range, "BinningFunction" -> HextileBins, opts];
 
 
 (***********************************************************)
