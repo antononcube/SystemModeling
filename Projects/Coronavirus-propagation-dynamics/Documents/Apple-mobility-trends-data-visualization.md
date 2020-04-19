@@ -1,6 +1,6 @@
 # Apple mobility trends data visualization
 
-**Version 0.8**
+**Version 0.9**
 
 Anton Antonov   
 [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
@@ -36,6 +36,16 @@ The CSV file and charts on this site show a relative volume of directions reques
 We define our day as midnight-to-midnight, Pacific time. Cities represent usage in greater metropolitan areas and are stably defined during this period. In many countries/regions and cities, relative volume has increased since January 13th, consistent with normal, seasonal usage of Apple Maps. Day of week effects are important to normalize as you use this data.
 Data that is sent from users’ devices to the Maps service is associated with random, rotating identifiers so Apple doesn’t have a profile of your movements and searches. Apple Maps has no demographic information about our users, so we can’t make any statements about the representativeness of our usage against the overall population.
 
+### Observations
+
+The observations listed in this subsection are also placed under the relevant statistics in the following sections and indicated with “**Observation**”.
+
+- The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
+
+- From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example, in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
+
+- In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
+
 ## Load packages
 
 ```mathematica
@@ -43,7 +53,7 @@ Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/m
 Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/HeatmapPlot.m"]
 ```
 
-## Data
+## Data ingestion
 
 Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
 
@@ -52,6 +62,8 @@ dsAppleMobility = ResourceFunction["ImportCSVToDataset"]["~/Downloads/applemobil
 ```
 
 ![1i5v3pxe9xmx9](./Diagrams/Apple-mobility-trends-data-visualization/1i5v3pxe9xmx9.png)
+
+**Observation:** The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
 
 Data dimensions:
 
@@ -96,21 +108,19 @@ lsGeoTypes = Union[Normal[dsAppleMobility[All, "geo_type"]]]
 All unique transportation types:
 
 ```mathematica
-lsTransportationTypes = 
- Union[Normal[dsAppleMobility[All, "transportation_type"]]]
+lsTransportationTypes = Union[Normal[dsAppleMobility[All, "transportation_type"]]]
 
 (*{"driving", "transit", "walking"}*)
 ```
 
 ## Transform data
 
-It is better to have the data in long form. For that I am using the package ["DataReshape.m"](https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m), [AAp1].
+It is better to have the data in [long form (narrow form)](https://en.wikipedia.org/wiki/Wide_and_narrow_data). 
+For that I am using the package ["DataReshape.m"](https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m), [AAp1].
 
 ```mathematica
 lsIDColumnNames = {"geo_type", "region", "transportation_type"};
-dsAppleMobilityLongForm = 
-  ToLongForm[dsAppleMobility, lsIDColumnNames, 
-   Complement[Keys[dsAppleMobility[[1]]], lsIDColumnNames]];
+dsAppleMobilityLongForm = ToLongForm[dsAppleMobility, lsIDColumnNames, Complement[Keys[dsAppleMobility[[1]]], lsIDColumnNames]];
 Dimensions[dsAppleMobilityLongForm]
 
 (*{36735, 5}*)
@@ -119,8 +129,7 @@ Dimensions[dsAppleMobilityLongForm]
 Remove the rows with “empty” values:
 
 ```mathematica
-dsAppleMobilityLongForm = 
-  dsAppleMobilityLongForm[Select[#Value != "" &]];
+dsAppleMobilityLongForm = dsAppleMobilityLongForm[Select[#Value != "" &]];
 Dimensions[dsAppleMobilityLongForm]
 
 (*{36735, 5}*)
@@ -131,8 +140,7 @@ Rename the column “Variable” to “Date” and add a related “DateObject�
 ```mathematica
 AbsoluteTiming[
  dsAppleMobilityLongForm = 
-   dsAppleMobilityLongForm[All, 
-    Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, "DateObject" -> DateObject[#Variable]|>] &];
+   dsAppleMobilityLongForm[All, Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, "DateObject" -> DateObject[#Variable]|>] &];
  ]
 
 (*{16.9671, Null}*)
@@ -141,9 +149,7 @@ AbsoluteTiming[
 Add “day name” (“day of the week”) field:
 
 ```mathematica
-dsAppleMobilityLongForm = 
-  dsAppleMobilityLongForm[All, 
-   Join[#, <|"DayName" -> DateString[#DateObject, {"DayName"}]|>] &];
+dsAppleMobilityLongForm = dsAppleMobilityLongForm[All, Join[#, <|"DayName" -> DateString[#DateObject, {"DayName"}]|>] &];
 ```
 
 Here is sample of the transformed data:
@@ -170,9 +176,7 @@ aQueries =
   Association@
    Flatten@Outer[
      Function[{gt, tt}, {gt, tt} -> 
-       dsAppleMobilityLongForm[
-        Select[#["geo_type"] == gt && #["transportation_type"] == 
-            tt &]]], lsGeoTypes, lsTransportationTypes];
+       dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #["transportation_type"] == tt &]]], lsGeoTypes, lsTransportationTypes];
 ```
 
 ## Basic data analysis
@@ -189,8 +193,7 @@ lastDate = Last@Sort@Normal@dsAppleMobilityLongForm[All, "Date"]
 aDayQueries = 
   Association@
    Flatten@Outer[
-     Function[{gt, tt}, {gt, tt} -> 
-       dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #Date == lastDate && #["transportation_type"] == tt &]]], 
+     Function[{gt, tt}, {gt, tt} -> dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #Date == lastDate && #["transportation_type"] == tt &]]], 
      lsGeoTypes, lsTransportationTypes];
 ```
 
@@ -209,8 +212,7 @@ opts = {PlotRange -> All, ImageSize -> Medium};
 Grid[
    Function[{columnName},
      {Histogram[#, 12, PlotLabel -> columnName, opts], 
-        ResourceFunction["ParetoPrinciplePlot"][#, 
-         PlotLabel -> columnName, opts]} &@Normal[#[All, "Value"]]
+        ResourceFunction["ParetoPrinciplePlot"][#, PlotLabel -> columnName, opts]} &@Normal[#[All, "Value"]]
      ] /@ {"Value"},
    Dividers -> All, FrameStyle -> GrayLevel[0.7]] & /@ aDayQueries
 ```
@@ -226,8 +228,7 @@ We can visualize the data using heat-map plots. Here we use the package ["Heatma
 Cross-tabulate dates with regions:
 
 ```mathematica
-aMatDateRegion = 
-  ResourceFunction["CrossTabulate"][#[All, {"Date", "region", "Value"}], "Sparse" -> True] & /@ aQueries;
+aMatDateRegion = ResourceFunction["CrossTabulate"][#[All, {"Date", "region", "Value"}], "Sparse" -> True] & /@ aQueries;
 ```
 
 Make a heat-map plot by sorting the columns of the cross-tabulation matrix (that correspond to countries):
@@ -276,8 +277,7 @@ Here we endow each nearest neighbors graph with appropriate vertex labels:
 
 ```mathematica
 aNNGraphs = 
-  Map[NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], 3, 
-     VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]] &,
+  Map[NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], 3, VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]] &,
     aMatDateRegion];
 ```
 
@@ -291,6 +291,10 @@ ResourceFunction["GridTableForm"][
 ```
 
 ![1bm08jjpp5729](./Diagrams/Apple-mobility-trends-data-visualization/1bm08jjpp5729.png)
+
+**Observation:** From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. 
+For example in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. 
+In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
 
 ## Time series analysis
 
@@ -336,6 +340,10 @@ Association@KeyValueMap[
 ```
 
 ![0cb4ez3rk1pyv](./Diagrams/Apple-mobility-trends-data-visualization/0cb4ez3rk1pyv.png)
+
+**Observation:** In the time series plots the Sundays are indicated with orange dashed lines. 
+We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. 
+We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
 
 ### “Forecast”
 
