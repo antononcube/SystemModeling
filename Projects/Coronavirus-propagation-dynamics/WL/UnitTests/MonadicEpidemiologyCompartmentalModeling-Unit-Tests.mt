@@ -94,30 +94,75 @@ VerificationTest[
 
 
 (**************************************************************)
-(* Multi-site                                                 *)
+(* Multi-site model derivation                                *)
 (**************************************************************)
 
 VerificationTest[
-  ecmObj =
+  ecmHexObj =
       DoubleLongRightArrow[
         ECMMonUnit[],
-        ECMMonMakePolygonGrid[Keys[aPopulations], 15],
+        ECMMonMakePolygonGrid[Keys[aPopulations], 15, "BinningFunction" -> "HextileBins" ],
         ECMMonPlotGrid[ImageSize -> Medium, "Echo" -> False],
         ECMMonExtendByGrid[aPopulations, 0.12],
         ECMMonAssignInitialConditions[<||>, "Total Population", "Default" -> 1.2*^6]
       ];
-  Sort[Keys[ecmObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
+  Sort[Keys[ecmHexObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
   ,
   True
   ,
   TestID -> "MultiSiteModel-hexagonal-grid-creation-and-extension-1"
 ];
 
+
+VerificationTest[
+  ecmObj1 =
+      DoubleLongRightArrow[
+        ECMMonUnit[],
+        ECMMonMakePolygonGrid[Keys[aPopulations], 15, "BinningFunction" -> Automatic ],
+        ECMMonExtendByGrid[aPopulations, 0.12]
+      ];
+
+  ecmObj2 =
+      DoubleLongRightArrow[
+        ECMMonUnit[],
+        ECMMonMakePolygonGrid[Keys[aPopulations], 15, "BinningFunction" -> "HextileBins" ],
+        ECMMonExtendByGrid[aPopulations, 0.12]
+      ];
+
+  ecmObj1 == ecmObj2
+  ,
+  True
+  ,
+  TestID -> "MultiSiteModel-hexagonal-grid-creation-and-extension-2"
+];
+
+
+VerificationTest[
+  ecmObj3 =
+      DoubleLongRightArrow[
+        ECMMonUnit[],
+        ECMMonMakePolygonGrid[Keys[aPopulations], 15, "BinningFunction" -> "TileBins" ],
+        ECMMonPlotGrid[ImageSize -> Medium, "Echo" -> False],
+        ECMMonExtendByGrid[aPopulations, 0.12],
+        ECMMonAssignInitialConditions[<||>, "Total Population", "Default" -> 1.2*^6]
+      ];
+  Sort[Keys[ecmObj3[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
+  ,
+  True
+  ,
+  TestID -> "MultiSiteModel-rectangular-grid-creation-and-extension-1"
+];
+
+
+(**************************************************************)
+(* Multi-site initial conditions                              *)
+(**************************************************************)
+
 VerificationTest[
 
-  ecmObj =
+  ecmHexObj =
       DoubleLongRightArrow[
-        ecmObj,
+        ecmHexObj,
         ECMMonAssignInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
         ECMMonAssignInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
         ECMMonAssignInitialConditions[<||>, "Exposed Population", "Default" -> 0],
@@ -125,7 +170,7 @@ VerificationTest[
         ECMMonAssignInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
       ];
 
-  Sort[Keys[ecmObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
+  Sort[Keys[ecmHexObj[[2]]]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
   ,
   True
   ,
@@ -134,31 +179,43 @@ VerificationTest[
 
 VerificationTest[
 
-  ecmObj =
+  maxPopulation = 1.2*^6;
+
+  ecmHexObj2 =
       DoubleLongRightArrow[
-        ecmObj,
-        ECMMonAssignInitialConditions[ aPopulations, "Total Population", "Default" -> 0 ],
-        ECMMonAssignInitialConditions[ DeriveSusceptiblePopulation[aPopulations, aInfected, aDead], "Susceptible Population", "Default" -> 0 ],
+        ecmHexObj,
+        ECMMonAssignInitialConditions[<||>, "Total Population", "Default" -> maxPopulation ];
+        ECMMonAssignInitialConditions[<||>, "Susceptible Population", "Default" -> maxPopulation ],
         ECMMonAssignInitialConditions[<||>, "Exposed Population", "Default" -> 0],
-        ECMMonAssignInitialConditions[aInfected, "Infected Normally Symptomatic Population", "Default" -> 0],
-        ECMMonAssignInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0]
+        ECMMonAssignInitialConditions[<||>, "Infected Normally Symptomatic Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[<||>, "Infected Severely Symptomatic Population", "Default" -> 0],
+        ECMMonAssignInitialConditions[<|ISSP[1][0] -> 1, SP[1][0] -> maxPopulation - 1|>]
       ];
-  con = ECMMonBind[ ecmObj, ECMMonTakeContext];
+
+  con = ECMMonBind[ ecmHexObj2, ECMMonTakeContext];
+
   AssociationQ[con] && Sort[Keys[con]] == Sort[{"grid", "singleSiteModel", "multiSiteModel"}]
   ,
   True
   ,
-  TestID -> "MultiSiteModel-initial-conditions-1"
+  TestID -> "MultiSiteModel-initial-conditions-2"
 ];
+
+
+(**************************************************************)
+(* Multi-site simulation                                      *)
+(**************************************************************)
 
 VerificationTest[
 
-  ecmObj2 =
+  ecmHexObj2 =
       DoubleLongRightArrow[
-        ecmObj,
+        ecmHexObj,
         ECMMonSimulate[12]
       ];
-  con = ECMMonBind[ecmObj2, ECMMonTakeContext];
+
+  con = ECMMonBind[ecmHexObj2, ECMMonTakeContext];
+
   AssociationQ[con] && ( Sort[Keys[con]] == Sort[{"grid", "singleSiteModel", "multiSiteModel", "solution"}] )
   ,
   True
@@ -168,7 +225,8 @@ VerificationTest[
 
 VerificationTest[
 
-  sol = ECMMonBind[ecmObj2, ECMMonTakeContext]["solution"];
+  sol = ECMMonBind[ecmHexObj2, ECMMonTakeContext]["solution"];
+
   AssociationQ[sol] && MatchQ[sol, <|(_ -> (_InterpolatingFunction)) ..|>]
   ,
   True
@@ -177,13 +235,15 @@ VerificationTest[
 ];
 
 VerificationTest[
+
   res =
       Fold[ ECMMonBind,
-        ecmObj2,
+        ecmHexObj2,
         {
-          ECMMonPlotSolutions[__ ~~ "Population", 12, "Echo"->False],
+          ECMMonPlotSolutions[__ ~~ "Population", 12, "Echo" -> False],
           ECMMonTakeValue
         }];
+
   MatchQ[res, Legended[_Graphics, _]]
   ,
   True
@@ -192,14 +252,16 @@ VerificationTest[
 ];
 
 VerificationTest[
+
   res =
       Fold[ ECMMonBind,
-        ecmObj2,
+        ecmHexObj2,
         {
-          ECMMonPlotSolutions[{"Recovered Population", "Susceptible Population"}, 12, "Echo"->False],
+          ECMMonPlotSolutions[{"Recovered Population", "Susceptible Population"}, 12, "Echo" -> False],
           ECMMonTakeValue
         }
       ];
+
   MatchQ[res, Legended[_Graphics, _]]
   ,
   True
@@ -210,9 +272,9 @@ VerificationTest[
 VerificationTest[
   res =
       Fold[ ECMMonBind,
-        ecmObj2,
+        ecmHexObj2,
         {
-          ECMMonPlotSolutions[All, 12, "Echo"->False],
+          ECMMonPlotSolutions[All, 12, "Echo" -> False],
           ECMMonTakeValue
         }
       ];
