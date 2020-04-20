@@ -65,6 +65,11 @@ If[Length[DownValues[HextileBins`HextileBins]] == 0,
   Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/HextileBins.m"]
 ];
 
+If[Length[DownValues[TileBins`TileBins]] == 0,
+  Echo["TileBins.m", "Importing from GitHub:"];
+  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/TileBins.m"]
+];
+
 If[Length[DownValues[EpidemiologyModels`SIRModel]] == 0,
   Echo["EpidemiologyModels.m", "Importing from GitHub:"];
   Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"]
@@ -137,11 +142,14 @@ ECMMonAssignRateRules::usage = "ECMMonAssignRateRules";
 
 ECMMonSimulate::usage = "ECMMonSimulate";
 
-ECMMonGetSolutionValues::usage = "ECMMonGetSolutionValues";
+ECMMonGetSolutionValues::usage = "ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ] \
+gets the solution values for specified stocks and maximum time.";
 
 ECMMonPlotSolutions::usage = "ECMMonPlotSolutions";
 
 ECMMonPlotSiteSolutions::usage = "ECMMonPlotSiteSolutions";
+
+ECMMonEvaluateSolutionsOverGraph::usage = "ECMMonEvaluateSolutionsOverGraph";
 
 Begin["`Private`"];
 
@@ -196,7 +204,7 @@ GenerateStateMonadCode[ "MonadicEpidemiologyCompartmentalModeling`ECMMon", "Fail
 
 GenerateMonadAccessors[
   "MonadicEpidemiologyCompartmentalModeling`ECMMon",
-  {"singleSiteModel", "multiSiteModel", "grid", "solution" },
+  {"singleSiteModel", "multiSiteModel", "grid", "solution", "graph", "adjacencyMatrix" },
   "FailureSymbol" -> $ECMMonFailure ];
 
 
@@ -580,6 +588,54 @@ ECMMonExtendByGrid[__][___] :=
 
 
 (**************************************************************)
+(* ECMMonExtendByGraph                                        *)
+(**************************************************************)
+
+Clear[ECMMonExtendByGraph];
+
+SyntaxInformation[ECMMonExtendByGraph] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonExtendByGraph] = { "Graph" -> None };
+
+ECMMonExtendByGraph[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonExtendByGraph[xs_, context_Association] := ECMMonExtendByGraph[][xs, context];
+
+ECMMonExtendByGraph[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{graph},
+
+      graph = OptionValue[ ECMMonExtendByGraph, "Graph" ];
+
+      If[ ! MatrixQ[graph, NumberQ],
+        Echo[
+          "The value of the option \"Graph\" is expected to be a numerical matrix.",
+          "ECMMonExtendByGraph:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonExtendByGraph[ graph ][xs, context]
+    ];
+
+ECMMonExtendByGraph[ graph_Graph ][xs_, context_] :=
+    Block[{matAdj},
+
+      matAdj = AdjacencyMatrix[graph];
+
+      Fold[ ECMMonBind, ECMMonUnit[xs, context], { ECMMonExtendByAdjacencyMatrix, ECMMonAddToContext[<|"graph" -> graph|>] }]
+    ];
+
+ECMMonExtendByGraph[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonExtendByGraph[ mat_?MatrixQ ]"
+            <> " or ECMMonExtendByGraph[OptionsPattern[]].",
+        "ECMMonExtendByGraph:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
 (* ECMMonExtendByAdjacencyMatrix                              *)
 (**************************************************************)
 
@@ -596,7 +652,7 @@ ECMMonExtendByAdjacencyMatrix[xs_, context_Association] := ECMMonExtendByAdjacen
 ECMMonExtendByAdjacencyMatrix[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{adjacencyMatrix},
 
-      adjacencyMatrix = OptionValue[ ECMMonMakePolygonGrid, "AdjacencyMatrix" ];
+      adjacencyMatrix = OptionValue[ ECMMonExtendByAdjacencyMatrix, "AdjacencyMatrix" ];
 
       If[ ! MatrixQ[adjacencyMatrix, NumberQ],
         Echo[
@@ -623,7 +679,7 @@ ECMMonExtendByAdjacencyMatrix[ matAdj_?MatrixQ ][xs_, context_] :=
 
       modelMultiSite = ToSiteCompartmentsModel[ singleSiteModel, matAdj, "MigratingPopulations" -> Automatic ];
 
-      ECMMonUnit[modelMultiSite, Join[context, <| "singleSiteModel" -> singleSiteModel, "multiSiteModel" -> modelMultiSite |>]]
+      ECMMonUnit[modelMultiSite, Join[context, <| "singleSiteModel" -> singleSiteModel, "multiSiteModel" -> modelMultiSite, "adjacencyMatrix" -> matAdj |>]]
 
     ] /; MatrixQ[matAdj, NumberQ];
 
@@ -633,6 +689,103 @@ ECMMonExtendByAdjacencyMatrix[__][___] :=
         "The expected signature is one of ECMMonExtendByAdjacencyMatrix[ mat_?MatrixQ ]"
             <> " or ECMMonExtendByAdjacencyMatrix[OptionsPattern[]].",
         "ECMMonExtendByAdjacencyMatrix:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonEvaluateSolutionsOverGraph                           *)
+(**************************************************************)
+
+Clear[ECMMonEvaluateSolutionsOverGraph];
+
+SyntaxInformation[ECMMonEvaluateSolutionsOverGraph] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonEvaluateSolutionsOverGraph] =
+    Join[
+      { "Population" -> "Infected Normally Symptomatic Population", "TimeRange" -> None },
+      Options[EvaluateSolutionsOverGraph]
+    ];
+
+ECMMonEvaluateSolutionsOverGraph[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonEvaluateSolutionsOverGraph[xs_, context_Association] := ECMMonEvaluateSolutionsOverGraph[][xs, context];
+
+ECMMonEvaluateSolutionsOverGraph[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{population, timeRange},
+
+      population = OptionValue[ ECMMonEvaluateSolutionsOverGraph, "Population" ];
+
+      If[ ! MatchQ[ population, ( _String | { _String ..} | _StringExpression | { _StringExpression ..} ), population ],
+        Echo[
+          "The value of the option \"Population\" is expected to be a valid population specification: " <>
+              "( maxTime_?NumberQ, {minTime_?NumberQ, maxTime_?NumberQ}, {minTime_?NumberQ, maxTime_?NumberQ, timeStep_?NumberQ} .",
+          "ECMMonEvaluateSolutionsOverGraph:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
+      timeRange = OptionValue[ ECMMonEvaluateSolutionsOverGraph, "TimeRange" ];
+
+      If[ ! MatchQ[ timeRange, _?NumberQ | {_?NumberQ, _?NumberQ} | {_?NumberQ, _?NumberQ, _?NumberQ} ],
+        Echo[
+          "The value of the option \"TimeRange\" is expected to be a valid range specification: " <>
+              "( maxTime_?NumberQ | {minTime_?NumberQ, maxTime_?NumberQ} | {minTime_?NumberQ, maxTime_?NumberQ, timeStep_?NumberQ} ) .",
+          "ECMMonEvaluateSolutionsOverGraph:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonEvaluateSolutionsOverGraph[ population, timeRange, opts ][xs, context]
+    ];
+
+ECMMonEvaluateSolutionsOverGraph[ populationSpec_, timeRangeSpec_, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{gr, matAdj, model, sol, res},
+
+      (* Separate checks if grid object is present, or only adjacency matrix is present. *)
+      If[ KeyExistsQ[context, "graph"],
+        gr = context["graph"],
+        (*ELSE*)
+        matAdj = ECMMonBind[ ECMMonUnit[xs, context], ECMMonTakeAdjacencyMatrix ];
+        Print[matAdj];
+        If[ !MatrixQ[ matAdj ],
+          Echo["Cannot find graph or adjacency matrix.", "ECMMonEvaluateSolutionsOverGraph:" ];
+          Return[$ECMMonFailure]
+        ];
+
+        gr = AdjacencyGraph[ Unitize[matAdj] ];
+
+        Echo[
+          "Using a graph made from the unitized version of the adjacency matrix in the context.",
+          "ECMMonEvaluateSolutionsOverGraph:"
+        ]
+      ];
+
+      If[ KeyExistsQ[context, "multiSiteModel"],
+        model = context["multiSiteModel"],
+        (*ELSE*)
+        Echo["Cannot find multi-site model.", "ECMMonEvaluateSolutionsOverGraph:" ];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ KeyExistsQ[context, "solution"],
+        sol = context["solution"],
+        (*ELSE*)
+        Echo["Cannot find solution.", "ECMMonEvaluateSolutionsOverGraph:" ];
+        Return[$ECMMonFailure]
+      ];
+
+      res = EvaluateSolutionsOverGraph[ gr, model, populationSpec, sol, timeRangeSpec, FilterRules[ {opts}, Options[EvaluateSolutionsOverGraph] ] ];
+
+      ECMMonUnit[res, context]
+    ];
+
+ECMMonEvaluateSolutionsOverGraph[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonEvaluateSolutionsOverGraph[  ]"
+            <> " or ECMMonEvaluateSolutionsOverGraph[OptionsPattern[]].",
+        "ECMMonEvaluateSolutionsOverGraph:"];
       $ECMMonFailure
     ];
 
@@ -729,7 +882,7 @@ ECMMonAssignInitialConditionsByGridAggregation[__][___] :=
 
 Clear[ECMMonAssignInitialConditions];
 
-SyntaxInformation[ECMMonAssignInitialConditions] = { "ArgumentsPattern" -> { _, _, OptionsPattern[] } };
+SyntaxInformation[ECMMonAssignInitialConditions] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
 Options[ECMMonAssignInitialConditions] = Options[ECMMonAssignInitialConditionsByGridAggregation];
 
@@ -1101,7 +1254,7 @@ SyntaxInformation[ECMMonPlotSiteSolutions] = { "ArgumentsPattern" -> { _, Option
 
 Options[ECMMonPlotSiteSolutions] =
     Join[
-      { "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True },
+      { "CellIDs" -> None, "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True },
       Options[MultiSiteModelStocksPlot],
       Options[ParametricSolutionsPlots]
     ];
@@ -1111,13 +1264,22 @@ ECMMonPlotSiteSolutions[___][$ECMMonFailure] := $ECMMonFailure;
 ECMMonPlotSiteSolutions[xs_, context_Association] := ECMMonAssignInitialConditionsByGridAggregation[][xs, context];
 
 ECMMonPlotSiteSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{stocks, time},
+    Block[{cellIDs, stocks, time},
+
+      cellIDs = OptionValue[ECMMonPlotSiteSolutions, "CellIDs"];
+
+      If[ ! MatchQ[ cellIDs, _Integer | {_Integer..} ],
+        Echo[
+          "The value of the option \"CellIDs\" is expected match the pattern: ( _Integer | {_String..} ).",
+          "ECMMonPlotSiteSolutions:"];
+        Return[$ECMMonFailure]
+      ];
 
       stocks = OptionValue[ECMMonPlotSiteSolutions, "MaxTime"];
 
       If[ ! MatchQ[ stocks, All | ( _String | {_String..} | _Symbol | {_Symbol..} ) ],
         Echo[
-          "The value of the option \"Stocks\" is expected match the pattern: All | ( _String | {_String..} | _Symbol | {_Symbol..} ).",
+          "The value of the option \"Stocks\" is expected match the pattern: ( All | _String | {_String..} | _Symbol | {_Symbol..} ).",
           "ECMMonPlotSiteSolutions:"];
         Return[$ECMMonFailure]
       ];
