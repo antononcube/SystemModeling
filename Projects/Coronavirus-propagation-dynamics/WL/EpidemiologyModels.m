@@ -367,7 +367,7 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
             <| TP[0] -> 100000,
               deathRate[TP] -> (800 / 10^5) / 365,
               deathRate[IP] -> 0.035 / aip,
-              contactRate[IP] -> 6,
+              contactRate[IP] -> 0.15,
               aip -> 4 * 7,
               lpcr[IP] -> 1
             |>;
