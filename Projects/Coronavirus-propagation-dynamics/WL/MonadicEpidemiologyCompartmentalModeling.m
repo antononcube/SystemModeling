@@ -593,16 +593,16 @@ ECMMonExtendByGrid[__][___] :=
 
 Clear[ECMMonExtendByGraph];
 
-SyntaxInformation[ECMMonExtendByGraph] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+SyntaxInformation[ECMMonExtendByGraph] = { "ArgumentsPattern" -> { _., _., OptionsPattern[] } };
 
-Options[ECMMonExtendByGraph] = { "Graph" -> None };
+Options[ECMMonExtendByGraph] = { "Graph" -> None, "Factor" -> 1 };
 
 ECMMonExtendByGraph[___][$ECMMonFailure] := $ECMMonFailure;
 
 ECMMonExtendByGraph[xs_, context_Association] := ECMMonExtendByGraph[][xs, context];
 
 ECMMonExtendByGraph[ opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{graph},
+    Block[{graph, factor},
 
       graph = OptionValue[ ECMMonExtendByGraph, "Graph" ];
 
@@ -614,13 +614,23 @@ ECMMonExtendByGraph[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
+      factor = OptionValue[ ECMMonExtendByGraph, "Factor" ];
+
+      If[ ! ( NumericQ[factor] && factor > 0 ),
+        Echo[
+          "The value of the option \"Factor\" is expected to be a positive number.",
+          "ECMMonExtendByGraph:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
       ECMMonExtendByGraph[ graph ][xs, context]
     ];
 
-ECMMonExtendByGraph[ graph_Graph ][xs_, context_] :=
+ECMMonExtendByGraph[ graph_Graph, factor_?NumberQ : 1.0 ][xs_, context_] :=
     Block[{matAdj},
 
-      matAdj = AdjacencyMatrix[graph];
+      matAdj = AdjacencyMatrix[graph] * factor;
 
       Fold[ ECMMonBind, ECMMonUnit[xs, context], { ECMMonExtendByAdjacencyMatrix, ECMMonAddToContext[<|"graph" -> graph|>] }]
     ];
@@ -628,7 +638,7 @@ ECMMonExtendByGraph[ graph_Graph ][xs_, context_] :=
 ECMMonExtendByGraph[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonExtendByGraph[ mat_?MatrixQ ]"
+        "The expected signature is one of ECMMonExtendByGraph[ graph_Graph, factor_?NumberQ ]"
             <> " or ECMMonExtendByGraph[OptionsPattern[]].",
         "ECMMonExtendByGraph:"];
       $ECMMonFailure
@@ -788,11 +798,6 @@ ECMMonEvaluateSolutionsOverGraph[__][___] :=
         "ECMMonEvaluateSolutionsOverGraph:"];
       $ECMMonFailure
     ];
-
-
-(**************************************************************)
-(* ECMMonMakeTravelingPatternsMatrix                          *)
-(**************************************************************)
 
 
 (**************************************************************)
@@ -1080,7 +1085,9 @@ ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
       time = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
 
       If[ ! ( NumericQ[time] && time >= 0 ),
-        Echo["The value of the option \"MaxTime\" is expected to be a non-negative number.", "ECMMonGetSolutionValues:"];
+        Echo[
+          "The value of the option \"MaxTime\" is expected to be a non-negative number.",
+          "ECMMonGetSolutionValues:"];
         Return[$ECMMonFailure]
       ];
 
@@ -1092,10 +1099,17 @@ ECMMonGetSolutionValues[
   maxTime_?NumericQ,
   opts : OptionsPattern[] ][xs_, context_] :=
 
-    Block[{stocksSpec = Flatten[{stocksSpecArg}], res},
+    Block[{stocksSpec = Flatten[{stocksSpecArg}], multiSiteQ, lsTimes, res},
 
-      If[ ! KeyExistsQ[ context, "multiSiteModel"],
-        Echo["Cannot find multi-site model.", "ECMMonGetSolutionValues:"];
+      Which[
+        KeyExistsQ[ context, "multiSiteModel"],
+        multiSiteQ = True,
+
+        KeyExistsQ[ context, "singleSiteModel"],
+        multiSiteQ = False,
+
+        True,
+        Echo["Cannot find a model.", "ECMMonGetSolutionValues:"];
         Return[$ECMMonFailure]
       ];
 
@@ -1104,15 +1118,31 @@ ECMMonGetSolutionValues[
         Return[$ECMMonFailure]
       ];
 
+      (* Shouldn't this be handled by GetStocks? *)
       Which[
-        TrueQ[stocksSpecArg === All],
+        multiSiteQ && TrueQ[stocksSpecArg === All],
         stocksSpec = Union[ Values[context["multiSiteModel"]["Stocks"]] ],
 
-        MatchQ[stocksSpec, {_StringExpression..}],
-        stocksSpec = Flatten[ StringCases[ Union[ Values[context["multiSiteModel"]["Stocks"]] ], #]& /@ stocksSpec ]
+        multiSiteQ && MatchQ[stocksSpec, {_StringExpression..}],
+        stocksSpec = Flatten[ StringCases[ Union[ Values[context["multiSiteModel"]["Stocks"]] ], #]& /@ stocksSpec ],
+
+        !multiSiteQ && TrueQ[stocksSpecArg === All],
+        stocksSpec = Union[ Values[context["singleSiteModel"]["Stocks"]] ],
+
+        !multiSiteQ && MatchQ[stocksSpec, {_StringExpression..}],
+        stocksSpec = Flatten[ StringCases[ Union[ Values[context["singleSiteModel"]["Stocks"]] ], #]& /@ stocksSpec ]
       ];
 
-      res = Association @ Map[ # -> EvaluateSolutionsByModelIDs[context["multiSiteModel"], #, context["solution"], {0, maxTime, 1}]&, stocksSpec];
+      If[ multiSiteQ,
+        res = Association @ Map[ # -> EvaluateSolutionsByModelIDs[context["multiSiteModel"], #, context["solution"], {0, maxTime, 1}]&, stocksSpec],
+
+        (*ELSE*)
+        lsTimes = Range[0, maxTime];
+
+        stocksSpec = Union @ Flatten @ Map[ GetStockSymbols[context["singleSiteModel"], #]&, stocksSpec ];
+
+        res = Map[ #[ lsTimes ]&, KeyTake[ context["solution"], stocksSpec ] ];
+      ];
 
       ECMMonUnit[ res, context ]
     ];
