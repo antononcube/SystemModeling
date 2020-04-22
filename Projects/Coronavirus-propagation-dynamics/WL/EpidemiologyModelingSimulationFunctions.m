@@ -301,7 +301,7 @@ MakeHexagonGrid[ lsLonLat_?MakePolygonGridDataQ, cellRadius_?NumberQ, range : { 
 
 
 (***********************************************************)
-(* ToGridGraph                                             *)
+(* ToGraph                                                 *)
 (***********************************************************)
 
 Clear[ToGraph];
