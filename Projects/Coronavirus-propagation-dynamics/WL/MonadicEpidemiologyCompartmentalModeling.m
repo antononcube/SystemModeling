@@ -142,6 +142,8 @@ ECMMonAssignRateRules::usage = "ECMMonAssignRateRules";
 
 ECMMonSimulate::usage = "ECMMonSimulate";
 
+ECMMonBatchSimulate::usage = "ECMMonBatchSimulate";
+
 ECMMonGetSolutionValues::usage = "ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ] \
 gets the solution values for specified stocks and maximum time.";
 
@@ -188,6 +190,9 @@ DeriveSusceptiblePopulation[
       aRes = SubtractByKeys[aPopulations, aInfected];
       SubtractByKeys[aRes, aDead]
     ];
+
+Clear[StocksSpecQ];
+StocksSpecQ[x_] := MatchQ[ x, All | _String | {_String..} | _StringExpression | {_StringExpression ..} ];
 
 
 (**************************************************************)
@@ -1153,6 +1158,111 @@ ECMMonGetSolutionValues[__][___] :=
         "The expected signature is one of ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ]" <>
             " or ECMMonGetSolutionValues[opts___].",
         "ECMMonGetSolutionValues:"
+      ];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonBatchSimulate                         *)
+(**************************************************************)
+
+Clear[ECMMonBatchSimulate];
+
+SyntaxInformation[ECMMonBatchSimulate] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+
+Options[ECMMonBatchSimulate] = { "Stocks" -> All, "Parameters" -> All, "MaxTime" -> 365 };
+
+ECMMonBatchSimulate[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonBatchSimulate[xs_, context_Association] := ECMMonBatchSimulate[][xs, context];
+
+ECMMonBatchSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{stocks, params, time},
+
+      stocks = OptionValue[ECMMonBatchSimulate, "Stocks"];
+
+      If[ ! StocksSpecQ[stocks],
+        Echo[
+          "The value of the option \"Stocks\" is expected to be a string, a string pattern, a list of strings, or a list of string patterns.",
+          "ECMMonBatchSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      params = OptionValue[ECMMonBatchSimulate, "Parameters"];
+
+      If[ ! MatchQ[ params, { _Association .. } | <| ( _ -> { _?NumberQ .. } ) .. |> ],
+        Echo[
+          "The value of the option \"Parameters\" is expected to be a list of associations or an association of parameter numerical lists.",
+          "ECMMonBatchSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      time = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
+
+      If[ ! ( NumericQ[time] && time >= 0 ),
+        Echo[
+          "The value of the option \"MaxTime\" is expected to be a non-negative number.",
+          "ECMMonBatchSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonBatchSimulate[ stocks, params, time, opts][xs, context]
+    ];
+
+ECMMonBatchSimulate[
+  stockSpec_?StocksSpecQ,
+  params : <| ( _ -> { _?NumericQ .. } ) .. |>,
+  maxTime_?NumericQ,
+  opts : OptionsPattern[] ][xs_, context_] :=
+
+    Block[{lsProcessedParams},
+
+      (* Here we can / should are the parameters known in the model. *)
+      (* Not necessary, because unknown rates are going to be ignored. *)
+      lsProcessedParams = Flatten @ Outer[AssociationThread[Keys[params], List[##]] &, Sequence @@ Values[params]];
+
+      ECMMonBatchSimulate[ stockSpec, lsProcessedParams, maxTime, opts ][xs, context]
+
+    ];
+
+ECMMonBatchSimulate[
+  stockSpec_?StocksSpecQ,
+  params : { _Association .. },
+  maxTime_?NumericQ,
+  opts : OptionsPattern[] ][xs_, context_] :=
+
+    Block[{res},
+
+      res =
+          Association @
+              Map[
+                Function[{p},
+                  p ->
+                      Fold[
+                        ECMMonBind,
+                        ECMMonUnit[xs, context],
+                        {
+                          ECMMonAssignRateRules[ p ],
+                          ECMMonSimulate[maxTime],
+                          ECMMonGetSolutionValues[ stockSpec, maxTime ],
+                          ECMMonTakeValue
+                        }
+                      ]
+                ],
+                params
+              ];
+
+      ECMMonUnit[ res, context ]
+    ];
+
+ECMMonBatchSimulate[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of" <>
+            " ECMMonBatchSimulate[ stockSpec : ( All | _String | {_String..} | _StringExpression | {_StringExpression ..} ), params : { _Association .. } | <| ( _ -> { _?NumberQ ..} ) .. |>, maxTime_?NumericQ, opts___ ]" <>
+            " or ECMMonBatchSimulate[opts___].",
+        "ECMMonBatchSimulate:"
       ];
       $ECMMonFailure
     ];
