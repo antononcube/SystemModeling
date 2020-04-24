@@ -1,5 +1,7 @@
 # Investigating COVID-19 with R: data analysis and simulations 
-
+**[R-Ladies Miami Meetup](https://www.meetup.com/rladies-miami/)**   
+May 2020   
+***Proposed***
 
 ## In brief
 
