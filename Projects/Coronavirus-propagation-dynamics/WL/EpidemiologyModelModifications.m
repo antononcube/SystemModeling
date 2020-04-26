@@ -184,6 +184,13 @@ MakeCoreMultiSiteModel[___] :=
 
 Clear[MakeMigrationTerms];
 
+MakeMigrationTerms::"nargs" = "The first argument is expected to be a matrix. \
+If there is not fourth argument then the second and third argument are expected to be lists of stock functions. \
+If a fourth argument is given then the second and third arguments are expected to be lists of stock symbols.";
+
+MakeMigrationTerms[mat_SparseArray, args__] :=
+    MakeMigrationTerms[Normal[mat], args ] /; MatrixQ[mat];
+
 MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, t_Symbol] :=
     MakeMigrationTerms[mat, Through[TPs, t], Through[Ps[t]] ];
 
@@ -219,7 +226,11 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
 
     ] /; Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
 
-MakeMigrationTerms[___] := $Failed;
+MakeMigrationTerms[___] :=
+    Block[{},
+      Message[ MakeMigrationTerms::"nargs" ];
+      $Failed
+    ];
 
 
 (***********************************************************)
