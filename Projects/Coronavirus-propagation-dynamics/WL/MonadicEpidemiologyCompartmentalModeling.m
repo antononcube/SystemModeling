@@ -55,6 +55,11 @@ If[Length[DownValues[StateMonadCodeGenerator`GenerateStateMonadCode]] == 0,
   Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/StateMonadCodeGenerator.m"]
 ];
 
+If[Length[DownValues[CrossTabulate`CrossTabulate]] == 0,
+  Echo["CrossTabulate.m", "Importing from GitHub:"];
+  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/CrossTabulate.m"]
+];
+
 If[Length[DownValues[SSparseMatrix`ToSSparseMatrix]] == 0,
   Echo["SSparseMatrix.m", "Importing from GitHub:"];
   Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/SSparseMatrix.m"]
@@ -134,6 +139,9 @@ ECMMonExtendByGrid::usage = "ECMMonExtendByGrid";
 ECMMonExtendByAdjacencyMatrix::usage = "ECMMonExtendByAdjacencyMatrix[ mat_?MatrixQ, factor_?NumberQ] \
 extends monad's single site model into multi-site model using the numerical matrix mat.";
 
+ECMMonMakeTravelingPatternsMatrix::usage = "ECMMonMakeTravelingPatternsMatrix[ aOriginDestinationToTravelers_Association, aLocationToLonLat_Association ] \
+crates a contingency matrix for the travelers between the cells of grid object in the context.";
+
 ECMMonAssignInitialConditionsByGridAggregation::usage = "ECMMonAssignInitialConditionsByGridAggregation";
 
 ECMMonAssignInitialConditions::usage = "ECMMonAssignInitialConditions";
@@ -156,6 +164,7 @@ ECMMonEvaluateSolutionsOverGraph::usage = "ECMMonEvaluateSolutionsOverGraph";
 Begin["`Private`"];
 
 Needs["StateMonadCodeGenerator`"];
+Needs["CrossTabulate`"];
 Needs["SSparseMatrix`"];
 Needs["HextileBins`"];
 Needs["TileBins`"];
@@ -310,11 +319,6 @@ ECMMonEchoModelGridTableForm[__][___] :=
 
 (**************************************************************)
 (* ECMMonSetInitialConditions                                 *)
-(**************************************************************)
-
-
-(**************************************************************)
-(* ECMMonSetRates                                             *)
 (**************************************************************)
 
 
@@ -704,6 +708,70 @@ ECMMonExtendByAdjacencyMatrix[__][___] :=
         "The expected signature is one of ECMMonExtendByAdjacencyMatrix[ mat_?MatrixQ ]"
             <> " or ECMMonExtendByAdjacencyMatrix[OptionsPattern[]].",
         "ECMMonExtendByAdjacencyMatrix:"];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonMakeTravelingPatternsMatrix                          *)
+(**************************************************************)
+
+Clear[ECMMonMakeTravelingPatternsMatrix];
+
+SyntaxInformation[ECMMonMakeTravelingPatternsMatrix] = { "ArgumentsPattern" -> { _., _., OptionsPattern[] } };
+
+Options[ECMMonMakeTravelingPatternsMatrix] = { "OriginDestinationToTravelers" -> None, "LocationToLongitudeLatitude" -> None };
+
+ECMMonMakeTravelingPatternsMatrix[___][$ECMMonFailure] := $ECMMonFailure;
+
+(*ECMMonMakeTravelingPatternsMatrix[xs_, context_Association] := $ECMMonFailure;*)
+
+ECMMonMakeTravelingPatternsMatrix[][xs_, context_Association] := $ECMMonFailure;
+
+ECMMonMakeTravelingPatternsMatrix[ aOriginDestinationToTravelers_Association, aLocationToLonLat_Association, opts : OptionsPattern[] ][xs_, context_Association] :=
+    Block[{matAT, aCellIDToLocation, aLocationToCellID, aLonLatToLocation, aOriginDestinationToTravelersByCells, m, n},
+
+      If[ !MatchQ[ aOriginDestinationToTravelers, Association[ ( {_, _} -> _?NumberQ ) .. ] ],
+        Echo["The first argument is expected to a be an association that maps origin-destination pairs to values.", "ECMMonMakeTravelingPatternsMatrix:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ !MatchQ[ aLocationToLonLat, Association[ ( _ -> { _?NumberQ, _?NumberQ } ) .. ] ],
+        Echo["The second argument is expected to a be an association that location ID's to coordinates (longitude-latitude pairs.)", "ECMMonMakeTravelingPatternsMatrix:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ !KeyExistsQ[context, "grid"],
+        Echo["Cannot find grid object.", "ECMMonMakeTravelingPatternsMatrix:"];
+        Return[$ECMMonFailure]
+      ];
+
+      aLonLatToLocation = Association[ Reverse /@ Normal[aLocationToLonLat] ];
+
+      aCellIDToLocation = AggregateForCellIDs[ context["grid"], aLonLatToLocation, "AggregationFunction" -> Identity];
+
+      aLocationToCellID = Association[Flatten[Thread[Reverse[#]] & /@ Normal[aCellIDToLocation]]];
+
+      (* "Modify the airport-to-airport contingency matrix to cellID-to-cellID ... *)
+
+      aOriginDestinationToTravelersByCells = KeyMap[ # /. aLocationToCellID&, aOriginDestinationToTravelers];
+
+      matAT = CrossTabulate[ Map[ Flatten, List @@@ Normal[aOriginDestinationToTravelersByCells] ], "Sparse" -> True];
+      matAT = ToSSparseMatrix[matAT];
+
+      {m, n} = Dimensions[context["grid"]["AdjacencyMatrix"]];
+      matAT = ImposeColumnNames[matAT, ToString /@ Range[n]];
+      matAT = ImposeRowNames[matAT, ToString /@ Range[m]];
+
+      ECMMonUnit[matAT, context]
+    ];
+
+ECMMonMakeTravelingPatternsMatrix[__][__] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonMakeTravelingPatternsMatrix[ _Association, _Association, opts___ ]"
+            <> " or ECMMonMakeTravelingPatternsMatrix[OptionsPattern[]].",
+        "ECMMonMakeTravelingPatternsMatrix:"];
       $ECMMonFailure
     ];
 
