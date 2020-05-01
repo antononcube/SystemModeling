@@ -247,7 +247,7 @@ MultiSiteModelSimulation[
 
       aFAACodeToCellID = Association[Flatten[Thread[Reverse[#]] & /@ Normal[aCellIDToFAACode]]];
 
-      ProgressFunc["Modify the airport - to - airport contingency matrix to cellID -to-cellID ..."];
+      ProgressFunc["Modify the airport-to-airport contingency matrix to cellID-to-cellID ..."];
 
       dsQuery = dsUSAAirportToAirportTravelers[All, Join[#, <|"From" -> aFAACodeToCellID[#From], "To" -> aFAACodeToCellID[#To]|>] &];
 
