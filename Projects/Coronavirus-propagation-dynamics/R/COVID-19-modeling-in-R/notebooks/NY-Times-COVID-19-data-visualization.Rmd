@@ -137,6 +137,16 @@ ParetoPlotForColumns( dsNYDataCountiesExtended, c("Cases", "Deaths"), scales = "
 
 # Geo-histogram
 
+## ggplot2
+
+Note that in the plots in this sub-section we filter out Hawaii and Alaska.
+
+```{r}
+ggplot2::ggplot(dsNYDataCountiesExtended[ dsNYDataCountiesExtended$Lon > -130, c("Lat", "Lon", "Cases")]) +
+  ggplot2::geom_point( ggplot2::aes(x = Lon, y = Lat, fill = log10(Cases)), alpha = 0.01, size = 0.5, color = "blue" ) + 
+  ggplot2::coord_quickmap()
+```
+
 ## Leaflet
 
 ```{r}
