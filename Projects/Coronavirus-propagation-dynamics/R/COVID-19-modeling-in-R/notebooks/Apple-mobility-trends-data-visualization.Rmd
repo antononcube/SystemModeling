@@ -226,18 +226,18 @@ aNNGraphs <-
     m2 <- as( m2, "dgCMatrix") 
     m2@x[ m2@x <= th ] <- 0
     #m2@x[ m2@x > th ] <- 1
-    igraph::graph_from_adjacency_matrix(Matrix::drop0(m2), weighted = TRUE)
+    igraph::graph_from_adjacency_matrix(Matrix::drop0(m2), weighted = TRUE, mode = "undirected")
   })
 ```
 
-```{r}
+```{r, warning=FALSE}
 ind <- 3
 ceb <- cluster_edge_betweenness(aNNGraphs[[ind]])  
-dendPlot(ceb, mode="hclust")
+dendPlot(ceb, mode="hclust", main = names(aNNGraphs)[[ind]])
 ```
 
 ```{r}
-plot(ceb, aNNGraphs[[ind]], vertex.size=1, vertex.label=NA)
+plot(ceb, aNNGraphs[[ind]], vertex.size=1, vertex.label=NA, main = names(aNNGraphs)[[ind]])
 ```
 
 
