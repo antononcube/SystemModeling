@@ -48,8 +48,13 @@ The observations listed in this subsection are also placed under the relevant st
 # Load packages
 
 ```{r}
+library(Matrix)
 library(tidyverse)
+library(ggplot2)
+library(gridExtra)
 library(d3heatmap)
+library(igraph)
+library(zoo)
 ```
 
 
@@ -190,11 +195,12 @@ dfPlotQuery <- purrr::map_df( aMatDateRegion, Matrix::summary, .id = "Type" )
 head(dfPlotQuery)
 ```
 
-```{r, warning=FALSE}
+```{r, fig.width = 8, fig.hight = 8, warning=FALSE}
 ggplot(dfPlotQuery) +
-  geom_tile( aes( x = j, y = i, fill = x) ) +
+  geom_tile( aes( x = j, y = i, fill = x), color = "white") +
+  scale_fill_gradient(low = "white", high = "blue") +
   xlab("Region") + ylab("Date") + 
-  facet_wrap( ~Type, scales = "free", ncol = 2 )
+  facet_wrap( ~Type, scales = "free", ncol = 2)
 ```
 
 Here we take a "closer look" to one of the plots using a dedicated `d3heatmap` plot:
@@ -205,4 +211,117 @@ d3heatmap::d3heatmap( x = aMatDateRegion[["country/region.driving"]], Rowv = FAL
 
 # Nearest neighbors graphs
 
+## Graphs overview
+
+Here we create nearest neighbor graphs of the contingency matrices computed above and plot cluster the nodes:
+
+```{r}
+th <- 0.94
+aNNGraphs <- 
+  purrr::map( aMatDateRegion, function(m) { 
+    m2 <- cor(as.matrix(m))
+    for( i in 1:nrow(m2) ) {
+      m2[i,i] <- 0
+    }
+    m2 <- as( m2, "dgCMatrix") 
+    m2@x[ m2@x <= th ] <- 0
+    #m2@x[ m2@x > th ] <- 1
+    igraph::graph_from_adjacency_matrix(Matrix::drop0(m2), weighted = TRUE)
+  })
+```
+
+```{r}
+ind <- 3
+ceb <- cluster_edge_betweenness(aNNGraphs[[ind]])  
+dendPlot(ceb, mode="hclust")
+```
+
+```{r}
+plot(ceb, aNNGraphs[[ind]], vertex.size=1, vertex.label=NA)
+```
+
+
+
 # Time series analysis
+
+## Time series
+
+In this section for each date we sum all cases over the region-transportation pairs, make a time series, and plot them. 
+
+**Remark:** In the plots the Sundays are indicated with orange dashed lines.
+
+Here we make the time series:
+
+```{r}
+aDateStringToDateObject <- unique( dfAppleMobilityLongForm[, c("Date", "DateObject")] )
+aDateStringToDateObject <- setNames( aDateStringToDateObject$DateObject, aDateStringToDateObject$Date )
+aDateStringToDateObject <- as.POSIXct(aDateStringToDateObject)
+aTSDirReqByCountry <-  purrr::map( aMatDateRegion, function(m) rowSums(m) )
+```
+
+```{r}
+matTS <- do.call( cbind, aTSDirReqByCountry)
+```
+
+```{r}
+zooObj <- zoo::zoo( x = matTS, as.POSIXct(rownames(matTS)) )
+```
+
+Here we plot them:
+
+
+```{r, fig.height=6, fig.width=6}
+autoplot(zooObj) +
+  aes(colour = NULL, linetype = NULL) +
+	facet_grid(Series ~ ., scales = "free_y") +
+  geom_vline( xintercept = aDateStringToDateObject[weekdays(aDateStringToDateObject) == "Sunday"], color = "orange", linetype = "dashed", size = 0.3 )
+```
+
+
+**Observation:** In the time series plots the Sundays are indicated with orange dashed lines. 
+We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. 
+We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
+
+## “Forecast”
+
+He we do “forecast” for code-workflow demonstration purposes -- the forecasts should not be taken seriously.
+
+Fit a time series model to the time series:
+
+```{r}
+aTSModels <- purrr::map( names(zooObj), function(x) { forecast::auto.arima( zoo( x = zooObj[,x], order.by = index(zooObj) ) ) } )
+```
+
+```{r}
+aTSModels <- purrr::map( names(zooObj), function(x) forecast::forecast( as.matrix(zooObj)[,x] ) )
+names(aTSModels) <- names(zooObj)
+```
+
+Plot data and forecast:
+
+```{r}
+lsPlots <- purrr::map( names(aTSModels), function(x) autoplot(aTSModels[[x]]) + ylab("Volume") + ggtitle(x) )
+names(lsPlots) <- names(aTSModels)
+```
+
+
+```{r}
+do.call( gridExtra::grid.arrange, lsPlots )
+```
+
+
+
+# References
+
+[APPL1] Apple Inc., [Mobility Trends Reports](https://www.apple.com/covid19/mobility), (2020), [apple.com](https://www.apple.com).
+
+[AA1] Anton Antonov, 
+["Apple mobility trends data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Apple-mobility-trends-data-visualization.md), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+[AA2] Anton Antonov, 
+["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md), 
+(2020), 
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
