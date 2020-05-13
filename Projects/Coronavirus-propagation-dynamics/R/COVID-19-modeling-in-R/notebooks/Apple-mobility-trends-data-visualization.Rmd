@@ -1,0 +1,208 @@
+---
+title: "Apple mobility trends data visualization"
+author: Anton Antonov
+date: 2020-05-13
+output: html_notebook
+---
+
+
+# Introduction
+
+I this notebook we ingest and visualize the mobility trends data provided by Apple, [APPL1].
+
+We take the following steps:
+
+1. Download the data
+
+2. Import the data and summarise it
+
+3. Transform the data into long form
+
+4. Partition the data into subsets that correspond to combinations of geographical regions and transportation types
+
+5. Make contingency matrices and corresponding heat-map plots
+
+6. Make nearest neighbors graphs over the contingency matrices and plot communities
+
+7. Plot the corresponding time series
+
+## Data description
+
+### From Apple’s page [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility)
+
+**About This Data**
+The CSV file and charts on this site show a relative volume of directions requests per country/region or city compared to a baseline volume on January 13th, 2020.
+We define our day as midnight-to-midnight, Pacific time. Cities represent usage in greater metropolitan areas and are stably defined during this period. In many countries/regions and cities, relative volume has increased since January 13th, consistent with normal, seasonal usage of Apple Maps. Day of week effects are important to normalize as you use this data.
+Data that is sent from users’ devices to the Maps service is associated with random, rotating identifiers so Apple doesn’t have a profile of your movements and searches. Apple Maps has no demographic information about our users, so we can’t make any statements about the representativeness of our usage against the overall population.
+
+## Observations
+
+The observations listed in this subsection are also placed under the relevant statistics in the following sections and indicated with “**Observation**”.
+
+- The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
+
+- From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example, in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
+
+- In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(d3heatmap)
+```
+
+
+## Data ingestion
+
+Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
+
+```{r}
+dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2020-04-14.csv", stringsAsFactors = FALSE)
+names(dfAppleMobility) <- gsub( "^X", "", names(dfAppleMobility))
+names(dfAppleMobility) <- gsub( ".", "-", names(dfAppleMobility), fixed = TRUE)
+```
+
+```{r}
+dfAppleMobility
+```
+
+
+**Observation:** The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
+
+Data dimensions:
+
+```{r}
+dim(dfAppleMobility)
+```
+
+Data summary:
+
+```{r}
+summary(as.data.frame(unclass(dfAppleMobility[,1:3]), stringsAsFactors = TRUE))
+```
+
+Number of unique “country/region” values:
+
+```{r}
+dfAppleMobility %>% 
+  dplyr::filter( geo_type == "country/region") %>% 
+  dplyr::pull("region") %>%
+  unique %>% 
+  length
+```
+
+Number of unique “city” values:
+
+```{r}
+dfAppleMobility %>% 
+  dplyr::filter( geo_type == "city") %>% 
+  dplyr::pull("region") %>%
+  unique %>% 
+  length
+```
+
+
+All unique geo types:
+
+```{r}
+lsGeoTypes <- unique(dfAppleMobility[["geo_type"]])
+lsGeoTypes
+```
+
+All unique transportation types:
+
+```{r}
+lsTransportationTypes <-  unique(dfAppleMobility[["transportation_type"]])
+lsTransportationTypes
+```
+
+# Data transformation
+
+It is better to have the data in [long form (narrow form)](https://en.wikipedia.org/wiki/Wide_and_narrow_data). 
+For that I am using the package ["tidyr"](https://tidyr.tidyverse.org).
+
+```{r}
+lsIDColumnNames <- c("geo_type", "region", "transportation_type");
+dfAppleMobilityLongForm <- tidyr::pivot_longer( data = dfAppleMobility, cols = setdiff( names(dfAppleMobility), lsIDColumnNames), names_to = "Date", values_to = "Value" )
+dim(dfAppleMobilityLongForm)
+```
+
+Remove the rows with “empty” values:
+
+```{r}
+dfAppleMobilityLongForm <- dfAppleMobilityLongForm[ complete.cases(dfAppleMobilityLongForm), ]
+dim(dfAppleMobilityLongForm)
+```
+
+Add the "DateObject" column:
+
+```{r}
+dfAppleMobilityLongForm$DateObject <- as.POSIXct( dfAppleMobilityLongForm$Date, format = "%Y-%m-%d", origin = "1970-01-01" )
+```
+
+Add "day name" (“day of the week”) field:
+
+```{r}
+dfAppleMobilityLongForm$DayName <- weekdays(dfAppleMobilityLongForm$DateObject)
+```
+
+Here is sample of the transformed data:
+
+```{r}
+set.seed(3232)
+dfAppleMobilityLongForm %>% dplyr::sample_n( 10 )
+```
+
+Here is summary:
+
+```{r}
+summary(as.data.frame(unclass(dfAppleMobilityLongForm), stringsAsFactors = TRUE))
+```
+
+Partition the data into geo types × transportation types:
+
+```{r}
+dfAppleMobilityLongForm %>% 
+  dplyr::group_by( geo_type, transportation_type) %>% 
+  dplyr::count()
+```
+
+```{r}
+aQueries <- split(dfAppleMobilityLongForm,  dfAppleMobilityLongForm[,c("geo_type", "transportation_type")] )
+```
+
+# Heat-map plots
+
+We can visualize the data using heat-map plots.
+
+**Remark:** Using the contingency matrices prepared for the heat-map plots we can do further analysis, like, finding correlations or nearest neighbors. (See below.)
+
+Cross-tabulate dates with regions:
+
+```{r}
+aMatDateRegion <- purrr::map( aQueries, function(dfX) { xtabs( formula = Value ~ Date + region, data = dfX, sparse = TRUE ) } )
+```
+
+
+```{r}
+dfPlotQuery <- purrr::map_df( aMatDateRegion, Matrix::summary, .id = "Type" )
+head(dfPlotQuery)
+```
+
+```{r, warning=FALSE}
+ggplot(dfPlotQuery) +
+  geom_tile( aes( x = j, y = i, fill = x) ) +
+  xlab("Region") + ylab("Date") + 
+  facet_wrap( ~Type, scales = "free", ncol = 2 )
+```
+
+Here we take a "closer look" to one of the plots using a dedicated `d3heatmap` plot:
+
+```{r}
+d3heatmap::d3heatmap( x = aMatDateRegion[["country/region.driving"]], Rowv = FALSE )
+```
+
+# Nearest neighbors graphs
+
+# Time series analysis
