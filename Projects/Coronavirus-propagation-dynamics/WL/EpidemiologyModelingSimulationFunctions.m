@@ -96,6 +96,11 @@ the ID's of aGrid[\"Cells\"].";
 
 GridObjectQ::usage = "GridObjectQ[arg] checks is the argument a grid object";
 
+ApproximateField::usage = "ApproximateField[aStateToValue, aStateCityToPopulation] \
+approximates a state-granularity field to a state-city-granularity field proportionally to cities populations. \
+ApproximateField[aStateToValue, aStateCityToPopulation, aStateCityToCoords] approximates the field over the \
+state-city coordinates.";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
@@ -349,6 +354,41 @@ AggregateForCellIDs[___] :=
     ];
 
 
+(***********************************************************)
+(* ApproximateField                                        *)
+(***********************************************************)
+
+Clear[ApproximateField];
+ApproximateField[
+  aStateToValue : Association[ ( _String -> _?NumberQ ) .. ],
+  aStateCityToPopulation : Association[ ( { _String, _String} -> _?NumberQ ) .. ],
+  opts : OptionsPattern[] ] :=
+    Block[{aStatePopulations},
+
+      aStatePopulations = GroupBy[ Normal[aStateCityToPopulation], #[[1, 1]] &, Total[Map[#[[2]]&, #]] &];
+
+      Association @
+          KeyValueMap[
+            #1 ->
+                If[NumberQ @ aStateToValue[#1[[1]]],
+                  N[ #2 / aStatePopulations[#1[[1]]] * aStateToValue[#1[[1]]] ],
+                  0
+                ]&,
+            aStateCityToPopulation
+          ]
+    ];
+
+ApproximateField[
+  aStateToValue : Association[ ( _String -> _?NumberQ ) .. ],
+  aStateCityToPopulation : Association[ ( { _String, _String} -> _?NumberQ ) .. ],
+  aStateCityToCoords : Association[ ( { _String, _String } -> {_?NumberQ, _?NumberQ} ) .. ],
+  opts : OptionsPattern[] ] :=
+    Block[{aStateCityToValue},
+
+      aStateCityToValue = ApproximateField[ aStateToValue, aStateCityToPopulation, opts];
+
+      Map[ aStateCityToValue[#]&, Association[ Reverse /@ Normal[ aStateCityToCoords ] ] ]
+    ];
 
 End[]; (* `Private` *)
 
