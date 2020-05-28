@@ -63,7 +63,7 @@ library(zoo)
 Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
 
 ```{r}
-dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2020-04-14.csv", stringsAsFactors = FALSE)
+dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2020-05-26.csv", stringsAsFactors = FALSE)
 names(dfAppleMobility) <- gsub( "^X", "", names(dfAppleMobility))
 names(dfAppleMobility) <- gsub( ".", "-", names(dfAppleMobility), fixed = TRUE)
 ```
@@ -128,7 +128,8 @@ It is better to have the data in [long form (narrow form)](https://en.wikipedia.
 For that I am using the package ["tidyr"](https://tidyr.tidyverse.org).
 
 ```{r}
-lsIDColumnNames <- c("geo_type", "region", "transportation_type");
+# lsIDColumnNames <- c("geo_type", "region", "transportation_type") # For the initial dataset released by Apple.
+lsIDColumnNames <- c("geo_type", "region", "transportation_type", "alternative_name", "sub-region", "country" )
 dfAppleMobilityLongForm <- tidyr::pivot_longer( data = dfAppleMobility, cols = setdiff( names(dfAppleMobility), lsIDColumnNames), names_to = "Date", values_to = "Value" )
 dim(dfAppleMobilityLongForm)
 ```
@@ -187,7 +188,9 @@ Cross-tabulate dates with regions:
 
 ```{r}
 aMatDateRegion <- purrr::map( aQueries, function(dfX) { xtabs( formula = Value ~ Date + region, data = dfX, sparse = TRUE ) } )
+aMatDateRegion <- aMatDateRegion[ purrr::map_lgl(aMatDateRegion, function(x) nrow(x) > 0 ) ]
 ```
+
 
 
 ```{r}
@@ -230,17 +233,15 @@ aNNGraphs <-
   })
 ```
 
-```{r, warning=FALSE}
+```{r, eval=FALSE, warning=FALSE}
 ind <- 3
 ceb <- cluster_edge_betweenness(aNNGraphs[[ind]])  
 dendPlot(ceb, mode="hclust", main = names(aNNGraphs)[[ind]])
 ```
 
-```{r}
+```{r, eval=FALSE}
 plot(ceb, aNNGraphs[[ind]], vertex.size=1, vertex.label=NA, main = names(aNNGraphs)[[ind]])
 ```
-
-
 
 # Time series analysis
 
@@ -308,8 +309,6 @@ names(lsPlots) <- names(aTSModels)
 ```{r}
 do.call( gridExtra::grid.arrange, lsPlots )
 ```
-
-
 
 # References
 
