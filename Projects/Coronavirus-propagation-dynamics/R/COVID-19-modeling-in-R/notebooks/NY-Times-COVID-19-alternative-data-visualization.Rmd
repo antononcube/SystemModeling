@@ -1,0 +1,34 @@
+---
+title: "Alternative visualizations"
+author: Anton Antonov
+date: 2020-04=14
+output: html_notebook
+---
+
+```{r}
+library(hexbin)
+```
+
+# Geo-histogram
+
+## ggplot2
+
+Not that these are just location denistities:
+
+```{r}
+ggplot( dsNYDataCountiesExtended[, c("Lat", "Lon", "Cases")] ) +
+  geom_hex( aes( x = Lon, y = Lat ) )
+```
+
+## hexbin
+
+This would have been nice if worked with less obscure workflow/option settings:
+
+```{r}
+hb2 <- hexbin::hexbin( x = dsNYDataCountiesExtended$Lon, y = dsNYDataCountiesExtended$Lat, xbins = 20, xlab = "Longitude", ylab = "Latitude" )
+P <- plot(hb2, type="n", main = "Cases" )
+hexbin::pushHexport(P$plot.vp)
+hexbin::grid.hexagons(hb2, style= "nested.centroids", mincnt = 2, use.count = FALSE, cell.at = dsNYDataCountiesExtended$Cases )
+grid::popViewport()
+```
+
