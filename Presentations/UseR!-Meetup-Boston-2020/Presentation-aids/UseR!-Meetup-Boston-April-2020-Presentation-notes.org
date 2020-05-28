@@ -21,7 +21,7 @@
   - So you can go and do something else.
 * DONE Who am I?
 - /Basically the host did this for me./
-- I an applied mathematician.
+- I am an applied mathematician.
 - Currently I brand myself as a "Senior data scientist."
 ** MUST [#A] Education
 - MSc Computer Science (Data Bases)
