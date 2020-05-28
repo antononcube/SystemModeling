@@ -11,6 +11,7 @@ output:
 
 ```{r, echo=FALSE}
 library(Hmisc)
+library(highcharter)
 library(dplyr)
 library(ggplot2)
 library(leaflet)
@@ -61,7 +62,9 @@ capwords <- function(s, strict = FALSE) {
 
 ```{r}
 if( !exists("dfNYDataStates") ) {
-  dfNYDataStates <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", stringsAsFactors = FALSE )
+  dfNYDataStates <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", 
+                              colClasses = c("character", "character", "character", "integer", "integer"), 
+                              stringsAsFactors = FALSE )
   colnames(dfNYDataStates) <- capwords(colnames(dfNYDataStates))
 }
 head(dfNYDataStates)
@@ -72,7 +75,7 @@ dfNYDataStates$DateObject <- as.POSIXct(dfNYDataStates$Date)
 ```
 
 ```{r}
-summary(as.data.frame(unclass(dfNYDataStates)))
+summary(as.data.frame(unclass(dfNYDataStates), stringsAsFactors = TRUE))
 ```
 
 Summary by state:
@@ -92,7 +95,9 @@ Hmisc::describe(dfNYDataStates)
 
 ```{r}
 if(!exists("dfNYDataCounties") ) {
-  dfNYDataCounties <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv", stringsAsFactors = FALSE )
+  dfNYDataCounties <- read.csv( "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv", 
+                                colClasses = c("character", "character", "character", "character", "integer", "integer"),
+                                stringsAsFactors = FALSE )
   colnames(dfNYDataCounties) <- capwords(colnames(dfNYDataCounties))
 }
 head(dfNYDataCounties)
@@ -110,13 +115,15 @@ summary(as.data.frame(unclass(dfNYDataCounties)))
 
 ```{r}
 if(!exists("dfUSACountyData")){
-  dfUSACountyData <- read.csv( "https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv", stringsAsFactors = FALSE )
+  dfUSACountyData <- read.csv( "https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv", 
+                               colClasses = c("character", "character", "character", "character", "integer", "numeric", "numeric"),
+                               stringsAsFactors = FALSE )
 }
 head(dfUSACountyData)
 ```
 
 ```{r}
-summary(as.data.frame(unclass(dfUSACountyData)))
+summary(as.data.frame(unclass(dfUSACountyData), stringsAsFactors = TRUE))
 ```
 
 # Merge data
@@ -161,6 +168,9 @@ m <-
 m
 ```
 
+```{r}
+dsNYDataCountiesExtended
+```
 
 # Heat-map plots
 
