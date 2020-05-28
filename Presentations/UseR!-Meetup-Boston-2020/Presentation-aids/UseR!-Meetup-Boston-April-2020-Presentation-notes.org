@@ -44,7 +44,7 @@
   wrong I am:
   - antononcube@gmail.com
 * DONE Managing expectations 
-- This talk in not about Data Science or Statistics.
+- This talk is not about Data Science or Statistics.
   - Typically what R is used in.
 - Statistics and Data Science are not adequate enough for this kind of models.
 - Accentuate on what we do when we encounter these kind of problems.
