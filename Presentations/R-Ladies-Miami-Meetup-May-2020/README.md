@@ -57,22 +57,12 @@ was given six weeks prior for [UseR!-Boston-Meetup](https://www.meetup.com/Bosto
 \[Wk4\] Wikipedia entry,
 [System dynamics](https://en.wikipedia.org/wiki/System_dynamics).
 
-\[JD1\] Jim Duggan, 
-[System Dynamics Modeling with R](https://www.springer.com/gp/book/9783319340418), 
-2016, Springer.
-
 ### R code/software
 
 \[KS1\] Karline Soetaert, Thomas Petzoldt, R. Woodrow Setzer,
 ["deSolve: Solvers for Initial Value Problems of Differential Equations ('ODE', 'DAE', 'DDE')"](https://cran.r-project.org/web/packages/deSolve/index.html),
 [CRAN](https://cran.r-project.org). 
 
-\[JD2\] Jim Duggan, 
-["SDMR"](https://github.com/JimDuggan/SDMR), 
-2016, 
-[GitHub](https://github.com/JimDuggan).   
-(Resources for text book "System Dynamics Modeling with R".)
- 
 \[AA1\] Anton Antonov, 
 ["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R), 
 2020,
