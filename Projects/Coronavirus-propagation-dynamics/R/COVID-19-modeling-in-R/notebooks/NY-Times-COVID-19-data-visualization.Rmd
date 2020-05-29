@@ -108,7 +108,7 @@ dfNYDataCounties$DateObject <- as.POSIXct(dfNYDataCounties$Date)
 ```
 
 ```{r}
-summary(as.data.frame(unclass(dfNYDataCounties)))
+summary(as.data.frame(unclass(dfNYDataCounties), stringsAsFactors = TRUE))
 ```
 
 ## US county records
