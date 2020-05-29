@@ -2,14 +2,14 @@
 **Methodological presentation**
 
 The 
-[extended abstract of the presentation](./ExtendedAbstract.md)
+[extended abstract of the presentation](https://github.com/antononcube/SystemModeling/blob/master/Presentations/R-Ladies-Miami-Meetup-May-2020/ExtendedAbstract.md)
 was loosely followed. 
 Here is the presentation mind-map:
 
-[![MainMindMap](./Presentaion-aids/Investigating-COVID-19-with-R-mind-map.png)](./Presentaion-aids/Investigating-COVID-19-with-R-mind-map.pdf)
+[![MainMindMap](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/R-Ladies-Miami-Meetup-May-2020/Presentaion-aids/Investigating-COVID-19-with-R-mind-map.png)](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/R-Ladies-Miami-Meetup-May-2020/Presentaion-aids/Investigating-COVID-19-with-R-mind-map.pdf)
 
 (Note that mind-map's PDF has hyperlinks. Also, see the folder 
-[Presentation-aids](./Presentation-aids)
+[Presentation-aids](https://github.com/antononcube/SystemModeling/tree/master/Presentations/R-Ladies-Miami-Meetup-May-2020/Presentaion-aids).
 )
 
 Approximately 25% of the presentation was based on the R-project 
