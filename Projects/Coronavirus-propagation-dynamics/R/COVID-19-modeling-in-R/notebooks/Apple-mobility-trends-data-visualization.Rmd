@@ -199,11 +199,11 @@ head(dfPlotQuery)
 ```
 
 ```{r, fig.width = 8, fig.hight = 8, warning=FALSE}
-ggplot(dfPlotQuery) +
-  geom_tile( aes( x = j, y = i, fill = x), color = "white") +
-  scale_fill_gradient(low = "white", high = "blue") +
-  xlab("Region") + ylab("Date") + 
-  facet_wrap( ~Type, scales = "free", ncol = 2)
+ggplot2::ggplot(dfPlotQuery) +
+  ggplot2::geom_tile( ggplot2::aes( x = j, y = i, fill = log10(x)), color = "white") +
+  ggplot2::scale_fill_gradient(low = "white", high = "blue") +
+  ggplot2::xlab("Region") + ggplot2::ylab("Date") + 
+  ggplot2::facet_wrap( ~Type, scales = "free", ncol = 2)
 ```
 
 Here we take a "closer look" to one of the plots using a dedicated `d3heatmap` plot:
