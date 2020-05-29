@@ -1,53 +1,39 @@
 # Investigating COVID-19 with R: data analysis and simulations 
-**[R-Ladies Miami Meetup](https://www.meetup.com/rladies-miami/)**   
-May 28th 2020   
-[*Event announcement*](https://www.meetup.com/rladies-miami/events/270611412/)   
+**Methodological presentation**
 
-## In brief
+The 
+[extended abstract of the presentation](./ExtendedAbstract.md)
+was loosely followed. 
+Here is the presentation mind-map:
 
-In this presentation we discuss different aspects of COVID-19 modeling in R.
+[![MainMindMap](./Presentaion-aids/Investigating-COVID-19-with-R-mind-map.png)](./Presentaion-aids/Investigating-COVID-19-with-R-mind-map.pdf)
 
-The presentation has significant technical elements, but most of the workflows are generalized and presented in ways that are easy to understand and transfer to other fields.
+(Note that mind-map's PDF has hyperlinks. Also, see the folder 
+[Presentation-aids](./Presentation-aids)
+)
 
-The presentation has three parts: data analysis, simulations, and framework design.
+Approximately 25% of the presentation was based on the R-project 
+["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R),
+\[AA1\].
 
-1. Data analysis (15-20 min)
+Approximately 30% of the presentation was based on an R-programmed software monad for epidemiology compartmental models,
+[ECMMon-R](https://github.com/antononcube/ECMMon-R), 
+\[AAr2\].
 
-    - Data analysis of data from well known repositories.
+For the rest were used frameworks, simulations, and graphics made with
+[Mathematica](https://www.wolfram.com/mathematica), 
+\[AAr1\].
 
-      - Like, New York Times COVID-19 and Apple COVID-19 Mobility data.
+The presentation was given online (because of COVID-19) using Zoom. 
+[90 people registered](https://www.meetup.com/rladies-miami/events/270611412/).
+Nearly 40 showed up (and maybe 20 stayed throughout.) 
 
-    - Application of different data summarizations, visualizations, and machine learning algorithms.
+Here is a link to the [video recording]().
 
-    - This is the "warm-up" part of the talk and a fair amount of didactic explanations are given.
-
-2. Simulations (25-30 min)
-
-    - Epidemiology models overview.
-
-    - Basic compartmental models: SIR, SEI2R.
-
-    - Advanced single-site models: SEI2HR-Econ.
-
-      - Quarantines modeling.
-
-      - Limited resources modeling.
-  
-      - *Interactive interfaces.*
-
-    - Multi-site modeling and simulations.
-
-    - Typical workflows.
-   
-
-3. Framework design (10-15 min)
-
-    - This is a more code-technical part that discusses the principles behind the main, novel R packages used in the presentation.
-
+[A similar presentation](https://github.com/antononcube/SystemModeling/tree/master/Presentations/UseR!-Meetup-Boston-2020)
+was given six weeks prior for [UseR!-Boston-Meetup](https://www.meetup.com/Boston-useR/events/269304135/).
 
 ## References
-
-[RL] https://www.meetup.com/rladies-miami/
 
 ### Coronavirus 
 
@@ -75,18 +61,16 @@ The presentation has three parts: data analysis, simulations, and framework desi
 ["deSolve: Solvers for Initial Value Problems of Differential Equations ('ODE', 'DAE', 'DDE')"](https://cran.r-project.org/web/packages/deSolve/index.html),
 [CRAN](https://cran.r-project.org). 
 
-\[AA1\] Anton Antonov, 
-["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R), 
-2020,
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
-
-### Repositories
-
 \[JD2\] Jim Duggan, 
 ["SDMR"](https://github.com/JimDuggan/SDMR), 
 2016, 
 [GitHub](https://github.com/JimDuggan).   
 (Resources for text book "System Dynamics Modeling with R".)
+ 
+\[AA1\] Anton Antonov, 
+["COVID-19-modeling-in-R"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R), 
+2020,
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling). 
  
 \[AAr1\] Anton Antonov, 
 [Coronavirus-propagation-dynamics](../../Projects/Coronavirus-propagation-dynamics), 
@@ -97,4 +81,3 @@ The presentation has three parts: data analysis, simulations, and framework desi
 [Epidemiology Compartmental Modeling Monad in R](https://github.com/antononcube/ECMMon-R), 
 2020,
 [ECMMon-R at GitHub](https://github.com/antononcube/ECMMon-R). 
- 
