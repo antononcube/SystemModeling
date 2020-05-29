@@ -13,7 +13,7 @@ Here is the presentation mind-map:
 )
 
 The organizers and I did 
-[a poll for what people want to hear](./Presentaion-aids/R-Ladies-Meetup-2020-05-28-poll.png).
+[a poll for what people want to hear](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/R-Ladies-Miami-Meetup-May-2020/Presentaion-aids/R-Ladies-Meetup-2020-05-28-poll.png).
 After discussing the results of the 15 votes from that poll we decided the presentation to be a methodological one 
 instead of a know-how one.
 
