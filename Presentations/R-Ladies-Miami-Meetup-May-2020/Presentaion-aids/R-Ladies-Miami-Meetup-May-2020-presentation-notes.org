@@ -20,11 +20,8 @@
 - Quick overview of the most interesting parts of the talk in the first 5-10 minutes.
   - So you can go and do something else.
 * MAYBE Who am I?
-- /Basically the host did this for me./
 - I am an applied mathematician.
 - Currently I brand myself as a "Senior data scientist."
-- Writing three books. See
-  - [[https://github.com/antononcube/HowToBeADataScientistImpostor-book]["How to be a data scientist impostor?"]]
 ** MUST [#A] Education
 - MSc Computer Science (Data Bases)
 - MSc Mathematics (Abstract Algebra)
@@ -44,58 +41,62 @@
   - even if you do not like them they are good for you.
 - [ ] If you do not like what you hear please write an (extensive) email about how
   wrong I am to the meetup organizers.
-* TODO Managing expectations 
-- This talk in about Data Science or Statistics only to a point.
+* DONE Managing expectations 
+- [X] This talk in about Data Science or Statistics only to a point.
   - Typically what R is used in.
-- Statistics and Data Science are not adequate enough for this kind of
+- [X] Statistics and Data Science are not adequate enough for this kind of
   prolems and models.
-- Accentuate on what we do when we encounter these kind of problems.
-* TODO The three big pictures
-- [ ] The modelers and decision makers flow chart
+- [X] Accentuate on what we do when we encounter these kind of problems.
+- [X] This is methodological talk not so much of an R know-how
+* DONE The three big pictures
+- [X] The modelers and decision makers flow chart
   - It is important to see and keep in mind what is the big picture we
     are doing our modeling with.
-  - [ ] [[https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Model-development-and-decision-making.jpeg][Model development and decision making]]
-  - [ ] Related grand model: [[https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Epidemic-and-economy-model-combination.jpg][Epidemic and economy model combination]]
-- [ ] COVID-19 from modeling perspective overview.
-- [ ] The three books I am writing; see [[https://github.com/antononcube/HowToBeADataScientistImpostor-book]["How to be a data scientist impostor?"]]
-* TODO Modeling considerations
-- [ ] Two main modeling paradigms.
-- [ ] ABM -- not used in this presentation -- gives a
+  - [X] [[https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Model-development-and-decision-making.jpeg][Model development and decision making]]
+  - [X] Related grand model: [[https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Epidemic-and-economy-model-combination.jpg][Epidemic and economy model combination]]
+- [X] COVID-19 from modeling perspective overview.
+- [X] The three books I am writing; see [[https://github.com/antononcube/HowToBeADataScientistImpostor-book]["How to be a data scientist impostor?"]]
+* DONE Modeling considerations
+- [X] Two main modeling paradigms.
+- [X] ABM -- not used in this presentation -- gives a
   convenient introduction to the building intuition about the modeling
   approach we consider.
 * TODO System Dynamics
-- [X] Made in the 50's at MIT...
-- [X] /System Modeler/ example:
+- [ ] Made in the 50's at MIT...
+- [ ] /System Modeler/ example:
   - Based on /Modelica/
   - Using the "SystemDynamics" package
-- [X] The R book and related GitHub repository
-* TODO Single site models 
+- [ ] The R book and related GitHub repository
+* DONE Single site models 
 - [X] Using the R package "deSolve".
-* TODO Using ~flexdashboard~
+- [X] SIR
+- [X] SEI2HR
+- [X] SEI2HREcon
+* DONE Using ~flexdashboard~
 - [X] For convenience I programmed a few ~flexdashboards~ so they can be
   easily changed depending on user's experimentation needs.
 - [X] Here is a dashboard with for quarantine scenarios...
 - [X] Here is an extension with "Hubei data"...
-* TODO Sensitivity analysis
-- [ ] Loops over quarantine starts and lengths
-  - [ ] 2D
-  - [ ] 3D
+* DONE Sensitivity analysis
+- [X] Loops over quarantine starts and lengths
+  - [X] 2D
+  - [X] 3D
 - [ ] DIP being AUC
   - [ ] Here is DIP in the code...
-* TODO Multi-site models
-- [ ] (Regular) grid graph
-  - [ ] Wave
-  - [ ] Observations
+* DONE Multi-site models
+- [-] (Regular) grid graph
+  - [X] Wave
+  - [X] Observations
   - [ ] Accumulated ISSP
 - [ ] Random graph
-- [ ] Hexagonal graph over USA
-* MAYBE Elements of package development
-- From the poll this seems to be of little interest.
-- But throughout the presentation I am going to talk about this elements.
+- [X] Hexagonal graph over USA
+* MUST Elements of package development
+- [X] From the poll this seems to be of little interest.
+- [ ] But throughout the presentation I am going to talk about this elements.
   - It is inevitable in some sense.
 * TODO Economy model and combination with the Epidemic one
 - [X] Combination of models diagram
-- [X] BEA tables
-- [X] Leontief's Scientific American article
+- [ ] BEA tables
+- [ ] Leontief's Scientific American article
   - [C] /Hosted at MIT it looks like from URL.../
-* TODO Conclusion
+* CANCELED Conclusion
