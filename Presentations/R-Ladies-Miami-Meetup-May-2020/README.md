@@ -1,5 +1,6 @@
 # Investigating COVID-19 with R: data analysis and simulations 
-**Methodological presentation**
+**Methodological presentation**   
+[R-Ladies Miami Meetup, May 28th 2020](https://www.meetup.com/rladies-miami/events/270611412/)   
 
 The 
 [extended abstract of the presentation](https://github.com/antononcube/SystemModeling/blob/master/Presentations/R-Ladies-Miami-Meetup-May-2020/ExtendedAbstract.md)
