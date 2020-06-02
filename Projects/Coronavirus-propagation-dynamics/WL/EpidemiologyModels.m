@@ -468,8 +468,8 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
               deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
               sspf[SP] -> "Severely Symptomatic Population Fraction" ,
-              contactRate[INSP] -> "Contact rate for the normally symptomatic population",
-              contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
+              contactRate[INSP] -> "Contact rate for the infected normally symptomatic population",
+              contactRate[ISSP] -> "Contact rate for the infected severely symptomatic population",
               aip -> "Average infectious period",
               lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
             |>;
@@ -616,8 +616,8 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               deathRate[INSP] -> "Infected Normally Symptomatic Population death rate",
               deathRate[ISSP] -> "Infected Severely Symptomatic Population death rate",
               sspf[SP] -> "Severely Symptomatic Population Fraction" ,
-              contactRate[INSP] -> "Contact rate for the normally symptomatic population",
-              contactRate[ISSP] -> "Contact rate for the severely symptomatic population",
+              contactRate[INSP] -> "Contact rate for the infected normally symptomatic population",
+              contactRate[ISSP] -> "Contact rate for the infected severely symptomatic population",
               aip -> "Average infectious period",
               aincp -> "Average incubation period",
               lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
@@ -860,7 +860,7 @@ SEI2HRModel[___] :=
 
 
 (***********************************************************)
-(* SEI2HREconModel                                          *)
+(* SEI2HREconModel                                         *)
 (***********************************************************)
 
 Clear[SEI2HREconModel];
