@@ -1,7 +1,7 @@
 # System dynamics primer tutorial presentation
-**[Data Science Study Group: South Florida Meetup](https://www.meetup.com/Data-Science-Study-Group-South-Florida)**   
-June 2020   
-***Proposed***
+**[Data Science Study Group: South Florida Meetup](https://www.meetup.com/Data-Science-Study-Group-South-Florida/events/270274812/)**   
+2020-06-17   
+**Tutorial presentation**
 
 ## In brief
 
