@@ -34,11 +34,19 @@ Here is a mind-map that shows presentation's structure:
 
 ## References
 
+### Software
+
+\[VSI1\] Ventana Systems, Inc. [Vensim](http://vensim.com).
+
+\[WRI1\] Wolfram Research, Inc, [System Modeler](https://www.wolfram.com/system-modeler/).
+
 ### Articles, books
 
 \[Wk1\] Wikipedia entry, [System Dynamics](https://en.wikipedia.org/wiki/System_dynamics).
 
-\[JF1\] Jay Forrester 
+\[Wk2\] Wikipedia entry, [Modelica](https://en.wikipedia.org/wiki/Modelica).
+
+\[JF1\] Jay Forrester,
 [Counterintuitive behavior of social systems](https://ocw.mit.edu/courses/sloan-school-of-management/15-988-system-dynamics-self-study-fall-1998-spring-1999/readings/behavior.pdf), 
 (1971), Technology Review 73(3): 52–68
 
