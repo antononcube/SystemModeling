@@ -1,4 +1,4 @@
-# System dynamics primer tutorial presentation
+# System dynamics: a primer
 **[Data Science Study Group: South Florida Meetup](https://www.meetup.com/Data-Science-Study-Group-South-Florida/events/270274812/)**   
 2020-06-17   
 **Tutorial presentation**
@@ -18,7 +18,8 @@ In this tutorial presentation we are going to:
 
 4. Discus philosophical, scientific, and mathematical justifications
 
-5. Describe System Dynamics' approaches of modeling in general
+5. Describe [System Dynamics'](https://en.wikipedia.org/wiki/System_dynamics) 
+approaches of modeling in general
 
 The presentation can be seen as an introduction to System Dynamics: we are going to progress from simple models to more complicated ones.
 
@@ -33,6 +34,30 @@ Here is a mind-map that shows presentation's structure:
 
 ## References
 
+### Articles, books
+
+\[Wk1\] Wikipedia entry, [System Dynamics](https://en.wikipedia.org/wiki/System_dynamics).
+
+\[JF1\] Jay Forrester 
+[Counterintuitive behavior of social systems](https://ocw.mit.edu/courses/sloan-school-of-management/15-988-system-dynamics-self-study-fall-1998-spring-1999/readings/behavior.pdf), 
+(1971), Technology Review 73(3): 52–68
+
+\[BC1\] Lucia Breierova, Mark Choudhari,
+[An Introduction to Sensitivity Analysis](https://ocw.mit.edu/courses/sloan-school-of-management/15-988-system-dynamics-self-study-fall-1998-spring-1999/readings/sensitivityanalysis.pdf), 
+(1996), Massachusetts Institute of Technology.
+
+\[JD1\] Jim Duggan, 
+[System Dynamics Modeling with R](https://www.springer.com/gp/book/9783319340418), 
+2016, Springer.
+
+### Repositories
+
+\[JD2\] Jim Duggan, 
+["SDMR"](https://github.com/JimDuggan/SDMR), 
+2016, 
+[GitHub](https://github.com/JimDuggan).   
+(Resources for text book "System Dynamics Modeling with R".)
+ 
 \[AAr1\] Anton Antonov, 
 [Pets retail dynamics](../../Projects/Pets-retail-dynamics), 
 2020,
