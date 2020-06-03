@@ -38,7 +38,7 @@ Here is a mind-map that shows presentation's structure:
 
 \[VSI1\] Ventana Systems, Inc., [Vensim](http://vensim.com).
 
-\[WRI1\] Wolfram Research, Inc., [Wolfam System Modeler](https://www.wolfram.com/system-modeler/).
+\[WRI1\] Wolfram Research, Inc., [Wolfram System Modeler](https://www.wolfram.com/system-modeler/).
 
 ### Articles, books
 
