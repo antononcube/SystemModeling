@@ -430,7 +430,7 @@ MultiSiteModelStocksPlot[
         epilog = {Red, Dashed, Line[{{focusTime, -0.1 * Max[a2DVals]}, {focusTime, 1.3 * Max[a2DVals]}}]}
       ];
 
-      If[ TrueQ[maxTime===Automatic],
+      If[ TrueQ[maxTime === Automatic],
         maxTime = Max[Cases[aSol, _InterpolatingFunction, Infinity][[1]]["Domain"]]
       ];
 
@@ -549,10 +549,10 @@ SiteIndexSolutionsPlot[
   modelMultiSite_?EpidemiologyModelQ,
   stockNames_ : ( (_String | _StringExpression) | { (_String | _StringExpression) ..} ),
   aSolMultiSite_?AssociationQ,
-  maxTime_?NumberQ,
+  maxTimeArg : (Automatic | _?NumberQ),
   opts : OptionsPattern[]] :=
 
-    Block[{aSol, stockSymbols},
+    Block[{maxTime = maxTimeArg, aSol, stockSymbols},
 
       stockSymbols = Union @ Flatten @ Map[ Cases[GetStocks[modelMultiSite, #], p_[id_] :> p]&, Flatten[{stockNames}] ];
 
@@ -562,6 +562,11 @@ SiteIndexSolutionsPlot[
       ];
 
       aSol = KeySelect[KeyTake[aSolMultiSite, stockSymbols], #[[1]] == siteIndex &];
+
+      If[TrueQ[maxTime === Automatic],
+        (* Assuming all solution functions have the same domain. *)
+        maxTime = Max[Flatten[aSol[[1]]["Domain"]]]
+      ];
 
       Plot[
         Evaluate[Map[#[t] &, Values[aSol]]], {t, 0, maxTime},

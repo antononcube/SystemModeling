@@ -1499,7 +1499,7 @@ ECMMonPlotSolutions[
 ECMMonPlotSolutions[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonPlotSolutions[ stockSpec : ( All | _String | {_String ..} | _StringExpression | {_StringExpression..} ), maxTime_?NumericQ, opts___ ]" <>
+        "The expected signature is one of ECMMonPlotSolutions[ stockSpec : ( All | _String | {_String ..} | _StringExpression | {_StringExpression..} ), maxTime : (Automatic | _?NumericQ), opts___ ]" <>
             " or ECMMonPlotSolutions[opts___].",
         "ECMMonPlotSolutions:"
       ];
@@ -1560,15 +1560,15 @@ ECMMonPlotSiteSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
 ECMMonPlotSiteSolutions[
   cellIDs : ( _Integer | { _Integer..} ),
   stocksSpecArg : All | ( _String | {_String..} | _StringExpression),
-  maxTime_?NumericQ,
+  maxTime : (Automatic | _?NumericQ),
   opts : OptionsPattern[] ][xs_, context_] :=
 
     Block[{stocksSpec = Flatten[{stocksSpecArg}], echoQ, stockSymbols, res},
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotSiteSolutions, "Echo"] ];
 
-      If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
-        Echo["The first argument is expected to be a non-negative number.", "ECMMonPlotSolutions:"];
+      If[ ! ( TrueQ[maxTime === Automatic] || NumericQ[maxTime] && maxTime >= 0 ),
+        Echo["The third argument is expected to be Automatic or a non-negative number.", "ECMMonPlotSolutions:"];
         Return[$ECMMonFailure]
       ];
 
