@@ -70,8 +70,13 @@ Clear[ParametricSolutionsPlots];
 Options[ParametricSolutionsPlots] =
     Join[{"LogPlot" -> False, "Together" -> False, "Derivatives" -> False, "DerivativePrefix" -> "\[CapitalDelta]"}, Options[Plot]];
 
-ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumericQ, opts : OptionsPattern[]] :=
-    Block[{logPlotQ, togetherQ, derivativesQ, derivativesPrefix, plotFunc = Plot, dfunc = Identity, dprefix = "", stockRules},
+ParametricSolutionsPlots[
+  aStocks_Association,
+  aSol_Association,
+  params : (_List | None),
+  tmaxArg : (Automatic | _?NumericQ),
+  opts : OptionsPattern[]] :=
+    Block[{tmax = tmaxArg, logPlotQ, togetherQ, derivativesQ, derivativesPrefix, plotFunc = Plot, dfunc = Identity, dprefix = "", stockRules},
 
       logPlotQ = TrueQ[OptionValue[ParametricSolutionsPlots, "LogPlot"]];
       togetherQ = TrueQ[OptionValue[ParametricSolutionsPlots, "Together"]];
@@ -83,6 +88,10 @@ ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List 
 
       If[logPlotQ, plotFunc = LogPlot];
       If[derivativesQ, dfunc = D[#, t]&; dprefix = derivativesPrefix];
+
+      If[ TrueQ[tmax === Automatic],
+        tmax = Max[Cases[aSol, _InterpolatingFunction, Infinity][[1]]["Domain"]]
+      ];
 
       If[togetherQ,
         List@plotFunc[
