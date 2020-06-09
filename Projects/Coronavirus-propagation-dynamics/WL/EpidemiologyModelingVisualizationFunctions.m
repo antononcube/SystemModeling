@@ -402,10 +402,10 @@ MultiSiteModelStocksPlot[
   model_?EpidemiologyModelQ,
   focusStocksArg : ( All | _String | {_String ..} | _StringExpression | {_StringExpression..} ),
   aSol_?AssociationQ,
-  maxTime_?NumericQ,
+  maxTimeArg : (Automatic | _?NumericQ),
   opts : OptionsPattern[] ] :=
 
-    Block[{focusStocks = Flatten[{focusStocksArg}], focusTime, a3DVals, a2DVals, epilog = {}, stockRules },
+    Block[{focusStocks = Flatten[{focusStocksArg}], maxTime = maxTimeArg, focusTime, a3DVals, a2DVals, epilog = {} },
 
       focusTime = OptionValue[ MultiSiteModelStocksPlot, "FocusTime"];
 
@@ -428,6 +428,10 @@ MultiSiteModelStocksPlot[
 
       If[ NumericQ[focusTime],
         epilog = {Red, Dashed, Line[{{focusTime, -0.1 * Max[a2DVals]}, {focusTime, 1.3 * Max[a2DVals]}}]}
+      ];
+
+      If[ TrueQ[maxTime===Automatic],
+        maxTime = Max[Cases[aSol, _InterpolatingFunction, Infinity][[1]]["Domain"]]
       ];
 
       ListLinePlot[

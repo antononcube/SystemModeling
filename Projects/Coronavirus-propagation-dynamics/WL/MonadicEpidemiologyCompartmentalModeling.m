@@ -786,7 +786,7 @@ SyntaxInformation[ECMMonEvaluateSolutionsOverGraph] = { "ArgumentsPattern" -> { 
 
 Options[ECMMonEvaluateSolutionsOverGraph] =
     Join[
-      { "Population" -> "Infected Normally Symptomatic Population", "TimeRange" -> None },
+      { "Stocks" -> "Infected Normally Symptomatic Population", "TimeRange" -> None },
       Options[EvaluateSolutionsOverGraph]
     ];
 
@@ -795,14 +795,14 @@ ECMMonEvaluateSolutionsOverGraph[___][$ECMMonFailure] := $ECMMonFailure;
 ECMMonEvaluateSolutionsOverGraph[xs_, context_Association] := ECMMonEvaluateSolutionsOverGraph[][xs, context];
 
 ECMMonEvaluateSolutionsOverGraph[ opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{population, timeRange},
+    Block[{stocks, timeRange},
 
-      population = OptionValue[ ECMMonEvaluateSolutionsOverGraph, "Population" ];
+      stocks = OptionValue[ ECMMonEvaluateSolutionsOverGraph, "Stocks" ];
 
-      If[ ! MatchQ[ population, ( _String | { _String ..} | _StringExpression | { _StringExpression ..} ), population ],
+      If[ ! MatchQ[ stocks, ( _String | { _String ..} | _StringExpression | { _StringExpression ..} ), population ],
         Echo[
-          "The value of the option \"Population\" is expected to be a valid population specification: " <>
-              "( maxTime_?NumberQ, {minTime_?NumberQ, maxTime_?NumberQ}, {minTime_?NumberQ, maxTime_?NumberQ, timeStep_?NumberQ} .",
+          "The value of the option \"Stocks\" is expected to be a valid stocks specification: " <>
+              "( _String | { _String ..} | _StringExpression | { _StringExpression ..} ).",
           "ECMMonEvaluateSolutionsOverGraph:"
         ];
         Return[$ECMMonFailure]
@@ -869,6 +869,40 @@ ECMMonEvaluateSolutionsOverGraph[__][___] :=
         "The expected signature is one of ECMMonEvaluateSolutionsOverGraph[  ]"
             <> " or ECMMonEvaluateSolutionsOverGraph[OptionsPattern[]].",
         "ECMMonEvaluateSolutionsOverGraph:"];
+      $ECMMonFailure
+    ];
+
+
+
+(**************************************************************)
+(* ECMMonEvaluateSolutionsOverGrid                            *)
+(**************************************************************)
+
+Clear[ECMMonEvaluateSolutionsOverGrid];
+
+SyntaxInformation[ECMMonEvaluateSolutionsOverGrid] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonEvaluateSolutionsOverGrid] = Options[ECMMonGetSolutionValues];
+
+ECMMonEvaluateSolutionsOverGrid[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonEvaluateSolutionsOverGrid[xs_, context_Association] := ECMMonEvaluateSolutionsOverGrid[][xs, context];
+
+
+ECMMonEvaluateSolutionsOverGrid[ populationSpec_, timeRangeSpec_, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{},
+
+      (*      res = *)
+
+      ECMMonUnit[res, context]
+    ];
+
+ECMMonEvaluateSolutionsOverGrid[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonEvaluateSolutionsOverGrid[  ]"
+            <> " or ECMMonEvaluateSolutionsOverGrid[OptionsPattern[]].",
+        "ECMMonEvaluateSolutionsOverGrid:"];
       $ECMMonFailure
     ];
 
@@ -1094,29 +1128,27 @@ ECMMonSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
     ];
 
 ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{aSol},
+    Block[{aSol, model},
 
       If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
         Echo["The first argument is expected to be a non-negative number.", "ECMMonSimulate:"];
         Return[$ECMMonFailure]
       ];
 
-      Which[
+      model = Fold[ ECMMonBind, ECMMonUnit[xs, context], {ECMMonGetDefaultModel, ECMMonTakeValue}];
 
-        KeyExistsQ[ context, "multiSiteModel"],
-        aSol = Association @ First @ ModelNDSolve[ context["multiSiteModel"], {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ],
-
-        KeyExistsQ[ context, "singleSiteModel"],
-        aSol = Association @ First @ ModelNDSolve[ context["singleSiteModel"], {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ],
-
-        True,
+      If[ TrueQ[ model === $ECMMonFailure ],
         Echo["Cannot find a model.", "ECMMonSimulate:"];
-        $ECMMonFailure
+        Return[$ECMMonFailure];
       ];
 
+      aSol = Association @ First @ ModelNDSolve[ model, {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ];
 
-      ECMMonUnit[aSol, Join[ context, <| "solution" -> aSol |>]]
-
+      If[ !( KeyExistsQ[context, "singleSiteModel"] || KeyExistsQ[context, "multiSiteModel" ] ),
+        ECMMonUnit[aSol, Join[ context, <| "singleSiteModel" -> model, "solution" -> aSol |>]],
+        (* ELSE *)
+        ECMMonUnit[aSol, Join[ context, <| "solution" -> aSol |>]]
+      ]
     ];
 
 ECMMonSimulate[__][___] :=
@@ -1133,11 +1165,27 @@ ECMMonSimulate[__][___] :=
 (* ECMMonGetSolutionValues                                    *)
 (**************************************************************)
 
+Clear[TimeSpecQ];
+TimeSpecQ[spec_] :=
+    ( NumericQ[spec] && spec >= 0 ) || MatchQ[spec, {_?NumericQ}] && spec[[1]] >= 0 ||
+        ( MatchQ[spec, {_?NumericQ, _?NumericQ}] || MatchQ[spec, {_?NumericQ, _?NumericQ, _?NumericQ}] ) && spec[[1]] <= spec[[2]];
+
+Clear[ToTimeRangeSpec];
+ToTimeRangeSpec[timeSpec_?TimeSpecQ] :=
+    Switch[timeSpec,
+
+      _?NumericQ, {0, timeSpec},
+
+      {_?NumericQ}, {timeSpec[[1]], timeSpec[[1]]},
+
+      _, timeSpec
+    ];
+
 Clear[ECMMonGetSolutionValues];
 
 SyntaxInformation[ECMMonGetSolutionValues] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ECMMonGetSolutionValues] = { "Stocks" -> All, "MaxTime" -> 365 };
+Options[ECMMonGetSolutionValues] = { "Stocks" -> All, "TimeSpecification" -> 365 };
 
 ECMMonGetSolutionValues[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -1157,9 +1205,10 @@ ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
 
       time = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
 
-      If[ ! ( NumericQ[time] && time >= 0 ),
+      If[ ! TimeSpecQ[time],
         Echo[
-          "The value of the option \"MaxTime\" is expected to be a non-negative number.",
+          "The value of the option \"TimeSpecification\" is expected to be a non-negative number (corresponding to max time) or a time range specification: " <>
+              "( {minTime_?NumberQ, maxTime_?NumberQ} || {minTime_?NumberQ, maxTime_?NumberQ, step_?NumberQ} ).",
           "ECMMonGetSolutionValues:"];
         Return[$ECMMonFailure]
       ];
@@ -1169,7 +1218,7 @@ ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
 
 ECMMonGetSolutionValues[
   stocksSpecArg : All | ( _String | {_String..} | _StringExpression),
-  maxTime_?NumericQ,
+  timeSpec_?TimeSpecQ,
   opts : OptionsPattern[] ][xs_, context_] :=
 
     Block[{stocksSpec = Flatten[{stocksSpecArg}], multiSiteQ, lsTimes, res},
@@ -1207,10 +1256,10 @@ ECMMonGetSolutionValues[
       ];
 
       If[ multiSiteQ,
-        res = Association @ Map[ # -> EvaluateSolutionsByModelIDs[context["multiSiteModel"], #, context["solution"], {0, maxTime, 1}]&, stocksSpec],
+        res = Association @ Map[ # -> EvaluateSolutionsByModelIDs[context["multiSiteModel"], #, context["solution"], ToTimeRangeSpec[timeSpec] ]&, stocksSpec],
 
         (*ELSE*)
-        lsTimes = Range[0, maxTime];
+        lsTimes = Range @@ ToTimeRangeSpec[timeSpec];
 
         stocksSpec = Union @ Flatten @ Map[ GetStockSymbols[context["singleSiteModel"], #]&, stocksSpec ];
 
@@ -1346,7 +1395,7 @@ SyntaxInformation[ECMMonPlotSolutions] = { "ArgumentsPattern" -> { _, OptionsPat
 
 Options[ECMMonPlotSolutions] =
     Join[
-      { "Stocks" -> All, "MaxTime" -> 365, "Echo" -> True },
+      { "Stocks" -> All, "MaxTime" -> Automatic, "Echo" -> True },
       Options[MultiSiteModelStocksPlot],
       Options[ParametricSolutionsPlots]
     ];
@@ -1369,8 +1418,11 @@ ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
 
       time = OptionValue[ECMMonPlotSolutions, "MaxTime"];
 
-      If[ ! ( NumericQ[time] && time >= 0 ),
-        Echo["The value of the option \"MaxTime\" is expected to be a non-negative number.", "ECMMonPlotSolutions:"];
+      If[ ! ( TrueQ[time===Automatic] || NumericQ[time] && time >= 0 ),
+        Echo[
+          "The value of the option \"MaxTime\" is expected to be a non-negative number otr Automatic.",
+          "ECMMonPlotSolutions:"
+        ];
         Return[$ECMMonFailure]
       ];
 
@@ -1379,17 +1431,20 @@ ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
 
 ECMMonPlotSolutions[
   stocksSpecArg : ( All | _String | {_String ..} | _StringExpression | {_StringExpression..} ),
-  maxTime_?NumericQ,
+  maxTime : ( Automatic | _?NumericQ ),
   opts : OptionsPattern[] ][xs_, context_] :=
 
     Block[{stocksSpec = Flatten[{stocksSpecArg}], echoQ, res, stockSymbols},
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotSolutions, "Echo"] ];
 
-      If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
-        Echo["The first argument is expected to be a non-negative number.", "ECMMonPlotSolutions:"];
+      If[ ! ( TrueQ[maxTime===Automatic] || NumericQ[maxTime] && maxTime >= 0 ),
+        Echo[
+          "The second argument is expected to be Automatic or a non-negative number.",
+          "ECMMonPlotSolutions:"];
         Return[$ECMMonFailure]
       ];
+
 
       Which[
 
