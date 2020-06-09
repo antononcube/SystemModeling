@@ -223,6 +223,27 @@ GenerateMonadAccessors[
 
 
 (**************************************************************)
+(* ECMMonUnit                                                 *)
+(**************************************************************)
+
+Clear[ECMMonUnit];
+
+ECMMonUnit[$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonUnit[] := ECMMon[None, Association[]];
+
+ECMMonUnit[{x_, c : _String | _Association}] := ECMMon[x, c];
+
+ECMMonUnit[x_] := ECMMon[x, Association[]];
+
+ECMMonUnit[x_, c : _String | _Association] := ECMMon[x, c];
+
+ECMMonUnit[x_?EpidemiologyModelQ, c_Association] := ECMMon[x, Join[c, <|"singleSiteModel" -> x|>] ];
+
+ECMMonUnit[___][$ECMMonFailure] := $ECMMonFailure;
+
+
+(**************************************************************)
 (* ECMMonGetDefaultModel                                      *)
 (**************************************************************)
 
@@ -1194,7 +1215,7 @@ ECMMonGetSolutionValues[xs_, context_Association] := ECMMonGetSolutionValues[][x
 ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
     Block[{stocks, time},
 
-      stocks = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
+      stocks = OptionValue[ECMMonGetSolutionValues, "Stocks"];
 
       If[ ! MatchQ[ stocks, All | ( _String | {_String..} | _Symbol | {_Symbol..} ) ],
         Echo[
@@ -1203,7 +1224,7 @@ ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      time = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
+      time = OptionValue[ECMMonGetSolutionValues, "TimeSpecification"];
 
       If[ ! TimeSpecQ[time],
         Echo[
@@ -1272,7 +1293,7 @@ ECMMonGetSolutionValues[
 ECMMonGetSolutionValues[__][___] :=
     Block[{},
       Echo[
-        "The expected signature is one of ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ]" <>
+        "The expected signature is one of ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), timeSpec : { _?NumericQ | {minTime_?NumberQ, maxTime_?NumberQ, step_?NumberQ} }, opts___ ]" <>
             " or ECMMonGetSolutionValues[opts___].",
         "ECMMonGetSolutionValues:"
       ];
@@ -1281,7 +1302,7 @@ ECMMonGetSolutionValues[__][___] :=
 
 
 (**************************************************************)
-(* ECMMonBatchSimulate                         *)
+(* ECMMonBatchSimulate                                        *)
 (**************************************************************)
 
 Clear[ECMMonBatchSimulate];
@@ -1315,7 +1336,7 @@ ECMMonBatchSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      time = OptionValue[ECMMonGetSolutionValues, "MaxTime"];
+      time = OptionValue[ECMMonBatchSimulate, "MaxTime"];
 
       If[ ! ( NumericQ[time] && time >= 0 ),
         Echo[
@@ -1418,7 +1439,7 @@ ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
 
       time = OptionValue[ECMMonPlotSolutions, "MaxTime"];
 
-      If[ ! ( TrueQ[time===Automatic] || NumericQ[time] && time >= 0 ),
+      If[ ! ( TrueQ[time === Automatic] || NumericQ[time] && time >= 0 ),
         Echo[
           "The value of the option \"MaxTime\" is expected to be a non-negative number otr Automatic.",
           "ECMMonPlotSolutions:"
@@ -1438,7 +1459,7 @@ ECMMonPlotSolutions[
 
       echoQ = TrueQ[ OptionValue[ECMMonPlotSolutions, "Echo"] ];
 
-      If[ ! ( TrueQ[maxTime===Automatic] || NumericQ[maxTime] && maxTime >= 0 ),
+      If[ ! ( TrueQ[maxTime === Automatic] || NumericQ[maxTime] && maxTime >= 0 ),
         Echo[
           "The second argument is expected to be Automatic or a non-negative number.",
           "ECMMonPlotSolutions:"];
