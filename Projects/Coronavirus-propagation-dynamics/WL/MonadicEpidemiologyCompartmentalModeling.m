@@ -232,11 +232,13 @@ ECMMonUnit[$ECMMonFailure] := $ECMMonFailure;
 
 ECMMonUnit[] := ECMMon[None, Association[]];
 
-ECMMonUnit[{x_, c : _String | _Association}] := ECMMon[x, c];
+ECMMonUnit[{x_, c_Association}] := ECMMon[x, c];
 
 ECMMonUnit[x_] := ECMMon[x, Association[]];
 
-ECMMonUnit[x_, c : _String | _Association] := ECMMon[x, c];
+ECMMonUnit[x_?EpidemiologyModelQ] := ECMMonUnit[x, Association[]];
+
+ECMMonUnit[x_, c_Association] := ECMMon[x, c];
 
 ECMMonUnit[x_?EpidemiologyModelQ, c_Association] := ECMMon[x, Join[c, <|"singleSiteModel" -> x|>] ];
 
