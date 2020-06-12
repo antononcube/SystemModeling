@@ -56,25 +56,36 @@
   - [X] GitHub
   - [X] Community
   - [X] WordPress
-** TODO [#A] Simple economics model: SEI2HR-Econ [0%] [0/6]
-- [ ] Introduction
-- [ ] Getting the core, simple model
-- [ ] The economical parts of the model
-- [ ] Interactive interfaces
-- [ ] Scenario discussions
-- [ ] Publish
-  - [ ] GitHub
-  - [ ] Community
-  - [ ] WordPress
+** TODO [#A] Simple economics model: SEI2HR [100%] [6/6]
+- [X] Introduction
+- [X] Getting the core, simple model
+- [X] The economical parts of the model
+- [X] Interactive interfaces
+- [X] Scenario discussions
+- [X] Publish
+  - [X] GitHub
+  - [X] Community
+  - [X] WordPress
+** TODO [#A] Simple economics model: SEI2HR-Econ [100%] [6/6]
+- [X] Introduction
+- [X] Getting the core, simple model
+- [X] The economical parts of the model
+- [X] Interactive interfaces
+- [X] Scenario discussions
+- [X] Publish (Version 0.9)
+  - [X] GitHub
+  - [X] Community
+  - [X] WordPress
+- [ ] Finalize version 1.0
 * TODO Packages [0%] [0/5]
-** TODO [#A] Epidemiology models [50%] [3/6]
+** TODO [#A] Epidemiology models [66%] [4/6]
 - [X] SIR
 - [X] SI2R
 - [X] SEI2R
-- [ ] SEI2HR-Econ
+- [X] SEI2HR-Econ
 - [ ] Mutating Coronaviruses
 - [ ] Age compartments
-** TODO [#A] Epidemiology models modifications [50%] [4/8]
+** TODO Epidemiology models modifications [50%] [4/8]
 - [X] Add model ID
 - [X] Additional model manipulation facilitation functions
 - [X] Multi-site compartments extension
@@ -90,28 +101,29 @@
 - [X] Evaluation of solutions over graph vertexes.
   - [X] Core algorithm.
   - [X] Related refactoring.
-** MAYBE [#C] Software monad
-** MAYBE [#C] Conversational agent
+** TODO [#A] Software monad
+** MAYBE [#B] Conversational agent
 * TODO Unit tests [0%] [0/4]
-** TODO [#A] Epidemiology models [60%] [3/5]
+** TODO [#A] Epidemiology models [100%] [5/5]
 - [X] ~SIRModel~
 - [X] ~SI2RModel~
 - [X] ~SEI2RModel~
-- [ ] ~SEI2HREconModel~
-- [ ] ~ModelGridTableForm~
+- [X] ~SEI2HREconModel~
+- [X] ~ModelGridTableForm~
 ** TODO [#B] Core epidemiology models modification functions
 ** TODO [#B] Multi-site compartments model modification
 ** TODO [#A] Multi-site propagation tests
-* TODO Applications [25%] [1/4]
+* TODO Applications [60%] [3/5]
 ** DONE [#A] Basic workflow stencil notebook
-** TODO Economics considerations
-** TODO [#A] SEI2R multi-site compartments examples [66%] [2/3]
+** DONE [#A] SEI2R multi-site compartments examples [100%] [3/3]
 - [X] ~GridGraph~
 - [X] ~RandomGraph~
-- [ ] Large USA cities / airports
-** TODO [#A] SEI2HR-Econ multi-site compartments examples [66%] [2/3]
+- [X] Large USA cities / airports
+** DONE [#A] SEI2HR-Econ multi-site compartments examples [100%] [3/3]
 - [X] ~GridGraph~
 - [X] ~RandomGraph~
-- [ ] Large USA cities / airports
+- [X] Large USA cities / airports
+** TODO Economy model and combinations
+** MAYBE Simulations with local refinements
 
 
