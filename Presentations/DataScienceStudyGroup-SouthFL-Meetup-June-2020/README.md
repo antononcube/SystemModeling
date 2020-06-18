@@ -3,34 +3,19 @@
 2020-06-17   
 **Tutorial presentation**
 
-## In brief
+The 
+[extended abstract of the presentation](./ExtendedAbstract.md)
+was loosely followed. 
+Here is the presentation mind-map:
 
-In this tutorial presentation we are going to:
+[![MainMindMap](./Presentation-aids/System-Dynamics-primer-tutorial-presentation.png)](./Presentation-aids/System-Dynamics-primer-tutorial-presentation.pdf)
 
-1. Discuss the modeling and evolution of different dynamic systems, like:
-   - Pets retail
-   - Coronavirus propagation and related disease
-   - Economy recession cycles
+(Note that mind-map's PDF has hyperlinks. Also, see the folder 
+[Presentation-aids](./Presentation-aids).
+)
 
-2. Overview classic compartmental models in epidemiology
-
-3. Discuss the theory behind the System Dynamics approach using simple examples
-
-4. Discus philosophical, scientific, and mathematical justifications
-
-5. Describe [System Dynamics'](https://en.wikipedia.org/wiki/System_dynamics) 
-approaches of modeling in general
-
-The presentation can be seen as an introduction to System Dynamics: we are going to progress from simple models to more complicated ones.
-
-Our focus is on the modeling strategy and techniques and how they can be implemented using different programming languages and software systems. 
-
-Most of the examples used to illustrate the theoretical concepts and practical aspects will have graphics visualizations. 
-The more important examples will have interactive interfaces.
-
-Here is a mind-map that shows presentation's structure:
-
-![](./Presentation-aids/System-Dynamics-primer-tutorial-presentation.png)
+The presentation was given online over WebEx. Approximately 40 people registered and approximately 15 showed up.
+(The presentation was not recorded.)
 
 ## References
 
