@@ -2,19 +2,20 @@
 
 ## In brief
 
-In the project we spell out in the detail the set-ups, assumptions, and equations of different models 
-applied to situations that manifested the 
+In the project we spell out in detail set-ups, assumptions, and equations of different models 
+applied to situations that manifest(ed) the 
 [law of unintended consequences](https://en.wikipedia.org/wiki/Unintended_consequences).
 
 ## Cobra effect
 
-**Cobra Effect short description:** 
+[**Cobra effect:**](https://en.wikipedia.org/wiki/Cobra_effect)
 A century or so ago the British government of Delhi wanted to reduce the number of cobras 
 seen in the city. So, they established a Cobra Bounty Program (CBP). 
 Initially CBP seemed to work, but then citizens of Delhi started breeding cobras. 
 When the government learned about the cobra breeding they cancelled CBP. 
 The cobra breeders released the cobras they had in their "cobra farms." 
-So, Delhi ended up with much more cobras than when CBP started.
+So, Delhi ended up with much more cobras than when CBP started. 
+
 
 ### True story?
 
@@ -27,7 +28,7 @@ plied until suddenly you could find them everywhere-in the
 streets, in houses, on the fields, and in the stables. The state
 authorities stepped in and promised a head fee for each dead
 cobra. At first, the situation changed according to expectations.
-The citizen's organized "cobra hunts" and the number of cobras
+The citizens organized "cobra hunts" and the number of cobras
 dropped markedly. There was even a new profession that 
 developed -- professional cobra hunters could be frequently seen.
 
