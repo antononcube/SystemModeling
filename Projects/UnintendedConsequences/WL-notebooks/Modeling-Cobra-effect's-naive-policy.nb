@@ -1,0 +1,1286 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     54614,       1278]
+NotebookOptionsPosition[     46459,       1148]
+NotebookOutlinePosition[     46885,       1165]
+CellTagsIndexPosition[     46842,       1162]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Modeling Cobra effect\[CloseCurlyQuote]s naive policy", "Title",
+ CellChangeTimes->{{3.8011440828528347`*^9, 3.8011440931574707`*^9}, {
+  3.8011441240291224`*^9, 3.8011441257268267`*^9}, {3.801502412266103*^9, 
+  3.801502414120528*^9}, {3.8015024664807663`*^9, 3.80150247133992*^9}, {
+  3.801519296732335*^9, 3.801519318568289*^9}, {3.801519354084745*^9, 
+  3.801519408580996*^9}, {3.801519460826442*^9, 3.801519479741158*^9}, {
+  3.80151951947464*^9, 3.801519526167582*^9}, {3.801519582981853*^9, 
+  3.8015196000586853`*^9}, {3.8015196440028152`*^9, 
+  3.801519662474674*^9}},ExpressionUUID->"a32c1aee-5506-4ddc-9131-\
+2b65eb60eb62"],
+
+Cell["Version 0.1", "Subtitle",
+ CellChangeTimes->{{3.7950123770513983`*^9, 3.795012381169182*^9}, {
+  3.795103452719776*^9, 3.7951034535738287`*^9}, {3.795114180451474*^9, 
+  3.7951141812029037`*^9}, {3.7952563921941767`*^9, 3.795256392785343*^9}, {
+  3.795565063030241*^9, 3.795565064862945*^9}, {3.79559984358601*^9, 
+  3.79559984394436*^9}, {3.795602474394536*^9, 3.7956024749788*^9}, {
+  3.80114413726899*^9, 
+  3.8011441374264917`*^9}},ExpressionUUID->"08313e76-fbbe-4ed9-9b93-\
+38a69a8a679c"],
+
+Cell[TextData[{
+ "Anton Antonov\n",
+ ButtonBox["MathematicaForPrediction at WordPress",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematicaforprediction.wordpress.com"], None},
+  ButtonNote->"https://mathematicaforprediction.wordpress.com"],
+ "\n",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "\nJune 2020"
+}], "Text",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGCQAGIQvflC9cSe4teOqfWaU0G0nfrkm8uBNP/Kp3dB9Gz5
+/YKzK187Gi1wEAbRwv/ercqoe+2o0rBsNYhuMr+6A0QvaVy5G0TPUmqf2zn3
+teO6ib3zQLS3gvo6ED2t0wNM+z5fuK8XSD/48RBMvz+5/3M/kP6Z8QJMb+9Z
+0x6y77Wj1xXHDhBtc6teZO+J144sbn9EQfSm7S9Xh5167Wjhp7EGRAvPZf0Y
+f/G1o9DmvWD63nrOC9GXXzvGLCgA0z6dj+8X3X7t2GzE8QBET3PWTv5277Wj
+xAqGFBD91sLRSvDBa8dTW2+A6SKVqZfalN44PhPWvQyiz7ManjkPpBeWLgbT
+Z3a58h60eOO4YMdGMK2/yUZByvKNo5FCvhqIDq3cpnvR4Y3jOcmLYPryD/bk
+fLc3jovcpFJAdJBjf4Z00BvHizdvgWkAGJXOFw==
+  
+  "],ExpressionUUID->"ce7af033-ccfc-455c-8f21-828c3a51ec36"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.801145793598536*^9, 
+  3.801145795567462*^9}},ExpressionUUID->"22557de3-2774-4ac7-8233-\
+21c7f83c6fd5"],
+
+Cell["\<\
+ As System Dynamics practitioners we should be very interested in modeling \
+the so called Cobra effect, which originated in Delhi, [Wk1, SD1, SD2]. Cobra \
+effect is instance of the \[OpenCurlyDoubleQuote]principle of unintended \
+consequences\[CloseCurlyDoubleQuote], [Wk2].\
+\>", "Text",
+ CellChangeTimes->{{3.801586398805151*^9, 3.801586423116865*^9}, {
+  3.801586457931513*^9, 3.801586516860115*^9}, {3.801586760280243*^9, 
+  3.801586793828219*^9}, {3.801586828434367*^9, 3.8015868327088737`*^9}, {
+  3.801587662253078*^9, 3.801587700492796*^9}, {3.801587971543294*^9, 
+  3.8015879783510237`*^9}},ExpressionUUID->"e8221bdb-b081-4f48-afce-\
+e37e5aed6c68"],
+
+Cell[TextData[{
+ StyleBox["Cobra Effect description:",
+  FontWeight->"Bold"],
+ " A century or so ago the British government of Delhi wanted to reduced the \
+number of cobras seen in the city. So, they established a Cobra Bounty \
+Program (CBP). Initially CBP seemed to work, but then citizens of Delhi \
+started breeding cobras. When the government learned about the cobra breeding \
+they cancelled CBP. The cobra breeders released the cobras they had in their \
+\"cobra farms.\" So, Delhi ended up with much more cobras than when CBP \
+started."
+}], "Text",
+ CellChangeTimes->{{3.8015864404267683`*^9, 3.801586452894911*^9}, {
+  3.801586539708375*^9, 
+  3.801586611440593*^9}},ExpressionUUID->"8856bc85-5cbd-4b9d-860c-\
+bc6ca395f8a7"],
+
+Cell[CellGroupData[{
+
+Cell["True story?", "Subsection",
+ CellChangeTimes->{{3.801658848729907*^9, 
+  3.801658851024349*^9}},ExpressionUUID->"cb73528e-42db-4343-b7a8-\
+ac88c34eaac9"],
+
+Cell["\<\
+I choose to believe that story -- it sounds plausible and I found a \
+confirming excerpt in the book \[OpenCurlyDoubleQuote]Preparing the 21st \
+Century Church\[CloseCurlyDoubleQuote], [LB1]. There is a documented similar \
+policy by the French in Hanoi about a similar \[OpenCurlyDoubleQuote]rats \
+problem\[CloseCurlyDoubleQuote], [MV1].\
+\>", "Text",
+ CellChangeTimes->{{3.80158685920387*^9, 3.801586886596942*^9}, {
+   3.801587215328334*^9, 3.80158721702601*^9}, 3.8015877287523203`*^9, {
+   3.801587776476428*^9, 3.801587804074548*^9}, {3.801588181957068*^9, 
+   3.801588242650477*^9}, {3.801589699523348*^9, 3.801589702227336*^9}, {
+   3.801658801287673*^9, 
+   3.801658829168243*^9}},ExpressionUUID->"e5d89386-97b4-4186-acee-\
+483beb3d1716"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Notebook structure", "Subsection",
+ CellChangeTimes->{{3.8016588367697773`*^9, 
+  3.80165884447648*^9}},ExpressionUUID->"9514e6f0-ee8b-44c4-a288-\
+eb03ad1eb135"],
+
+Cell["The notebook has the following structure:", "Text",
+ CellChangeTimes->{{3.801658888758054*^9, 3.801658918997904*^9}, {
+  3.80165895595496*^9, 
+  3.801658956224799*^9}},ExpressionUUID->"ef940031-c5a3-4813-825b-\
+0644694ea480"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+The next section, \[OpenCurlyDoubleQuote]Modeling considerations\
+\[CloseCurlyDoubleQuote] has an extensive discussion about the model \
+assumptions, scope, and processes.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 
+  3.80165899840172*^9}},ExpressionUUID->"55b15a79-eecb-4012-a23c-\
+ecd57114e50b"],
+
+Cell["The section \[OpenCurlyDoubleQuote]Model\[CloseCurlyDoubleQuote] lists \
+the stocks, rates, and equations.", "ItemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+  3.8016589504533777`*^9}, {3.801659001540824*^9, 3.80165903490149*^9}, {
+  3.8016591059985657`*^9, 3.801659119116436*^9}, {3.801659331321042*^9, 
+  3.8016593385648127`*^9}},ExpressionUUID->"f05b7def-71d5-4123-b13d-\
+29b47efbe08f"],
+
+Cell["The section \[OpenCurlyDoubleQuote]Equations explanations\
+\[CloseCurlyDoubleQuote]:", "ItemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+  3.8016589504533777`*^9}, {3.801659001540824*^9, 3.80165903490149*^9}, {
+  3.8016591059985657`*^9, 3.801659119116436*^9}, {3.801659331321042*^9, 
+  3.801659352715316*^9}},ExpressionUUID->"34b5f7a8-e62a-423f-b92a-\
+fcf0e60063a2"],
+
+Cell[CellGroupData[{
+
+Cell["describes in detail the equations,", "SubitemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+   3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+   3.8016589504533777`*^9}, {3.801659001540824*^9, 3.801659056119034*^9}, 
+   3.8016591206915417`*^9},ExpressionUUID->"c6852350-d2ee-4016-8405-\
+aea65b1b5df0"],
+
+Cell["\<\
+provides rationale for the numerical values of the stocks and rates.\
+\>", "SubitemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+  3.8016589504533777`*^9}, {3.801659001540824*^9, 
+  3.801659123912695*^9}},ExpressionUUID->"279741b7-12cf-4a62-893e-\
+567170c37100"]
+}, Open  ]],
+
+Cell["\<\
+The section \[OpenCurlyDoubleQuote]Simulation\[CloseCurlyDoubleQuote] \
+provides example simulation runs and interactive interfaces for additional, \
+more comprehensive simulation studies.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+  3.8016589504533777`*^9}, {3.801659001540824*^9, 
+  3.801659203518824*^9}},ExpressionUUID->"ff27aed5-cbee-4f4b-abe4-\
+4dd49bf664d0"],
+
+Cell["\<\
+The last section \[OpenCurlyDoubleQuote]Discussion and extensions\
+\[CloseCurlyDoubleQuote] brings up different points that should considered or \
+addressed, and outlines possible model extensions.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.801657541298492*^9, 3.801657580236126*^9}, {
+  3.801658882840445*^9, 3.801658909480255*^9}, {3.801658941667211*^9, 
+  3.8016589504533777`*^9}, {3.801659001540824*^9, 
+  3.801659287194498*^9}},ExpressionUUID->"e9a184af-dd76-4a7d-aa0e-\
+74234cc80f01"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Model considerations", "Section",
+ CellChangeTimes->{{3.8011458044101343`*^9, 
+  3.801145811688671*^9}},ExpressionUUID->"1e075412-2948-4beb-9800-\
+914b643debea"],
+
+Cell["\<\
+Here is the casual loops graph that describes the naive policy makers Cobra \
+Management Policy:\
+\>", "Text",
+ CellChangeTimes->{{3.801586349075589*^9, 
+  3.801586386289748*^9}},ExpressionUUID->"94c2ccd5-193c-41d5-958b-\
+c29127f1e8b7"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsEdges", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     TemplateBox[{"\"Cobra Hunters\"", "\"Free Cobras\"", "\"-\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"Money per Dead Cobra\"", "\"Cobra Hunters\"", "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"Free Cobras\"", "\"Bitten Population\"", "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"Wildermess\"", "\"Free Cobras\"", "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{
+      "\"Bitten Population\"", "\"Pressure for Cobra Management Policy\"", 
+       "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{
+      "\"Pressure for Cobra Management Policy\"", "\"Cobra Hunters\"", 
+       "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"General Population\"", "\"Bitten Population\"", "\"+\""},
+      
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"General Population\"", "\"Cobra Hunters\"", "\"+\""},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"\"Bitten Population\"", "\"General Population\"", "\"-\""},
+      
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     RowBox[{"\"\<Cobra Bounty Policy Budget\>\"", 
+      OverscriptBox["\[DirectedEdge]", "\"\<+\>\""], 
+      "\"\<Money per Dead Cobra\>\""}], ",", 
+     RowBox[{"\"\<Pressure for Cobra Management Policy\>\"", 
+      OverscriptBox["\[DirectedEdge]", "\"\<+\>\""], 
+      "\"\<Cobra Bounty Policy Budget\>\""}]}], "}"}]}], ";"}], "\n", 
+ RowBox[{"Graph", "[", 
+  RowBox[{"lsEdges", ",", 
+   RowBox[{"GraphLayout", "\[Rule]", "\"\<SpringEmbedding\>\""}], ",", 
+   RowBox[{"EdgeLabels", "\[Rule]", 
+    RowBox[{"Placed", "[", 
+     RowBox[{"\"\<EdgeTag\>\"", ",", "\"\<Middle\>\""}], "]"}]}], ",", 
+   RowBox[{"EdgeLabelStyle", "\[Rule]", 
+    RowBox[{"Directive", "[", 
+     RowBox[{"16", ",", 
+      RowBox[{"Background", "\[Rule]", "Yellow"}]}], "]"}]}], ",", 
+   RowBox[{"VertexLabels", "\[Rule]", 
+    RowBox[{"Placed", "[", 
+     RowBox[{"\"\<Name\>\"", ",", "Above"}], "]"}]}], ",", 
+   RowBox[{"VertexLabelStyle", "\[Rule]", 
+    RowBox[{"Directive", "[", 
+     RowBox[{"14", ",", "Bold", ",", 
+      RowBox[{"Background", "\[Rule]", "None"}]}], "]"}]}], ",", 
+   RowBox[{"EdgeShapeFunction", "\[Rule]", 
+    RowBox[{"GraphElementData", "[", 
+     RowBox[{"\"\<FilledArrow\>\"", ",", 
+      RowBox[{"\"\<ArrowSize\>\"", "\[Rule]", "0.015"}]}], "]"}]}], ",", 
+   RowBox[{"ImageSize", "\[Rule]", "1000"}]}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"AutoCollapse", "[", "]"}]}], "Input",
+ CellChangeTimes->{{3.801567636005905*^9, 3.801567662264027*^9}, {
+  3.8015678312729397`*^9, 3.801567843199901*^9}, {3.801567876480612*^9, 
+  3.801567952643055*^9}, {3.801586341897642*^9, 3.801586344968605*^9}},
+ CellLabel->"In[50]:=",ExpressionUUID->"bc5dbeda-6953-4810-9682-01690928ef77"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Load packages", "Section",
+ CellChangeTimes->{{3.801501910642558*^9, 
+  3.801501912565534*^9}},ExpressionUUID->"dfb6b563-764c-4da9-b449-\
+ea10787a9452"],
+
+Cell[BoxData[
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/\
+MonadicEpidemiologyCompartmentalModeling.m\>\"", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.799864440300516*^9, 3.799864459155436*^9}},
+ CellLabel->"In[53]:=",ExpressionUUID->"77f581e7-3ddb-427c-8725-070a5254a8df"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Model", "Section",
+ CellChangeTimes->{{3.8011458144678307`*^9, 3.8011458161549387`*^9}, {
+  3.8011458721365757`*^9, 3.801145909407564*^9}, {3.801502511795907*^9, 
+  3.80150251220372*^9}},ExpressionUUID->"417814b8-fd58-4888-a776-\
+3183f92cf0f8"],
+
+Cell[CellGroupData[{
+
+Cell["Time horizon and time unit", "Subsection",
+ CellChangeTimes->{{3.8011465413416*^9, 
+  3.801146554808156*^9}},ExpressionUUID->"1ed3ad7a-a68b-4b19-a587-\
+513aac9a7d19"],
+
+Cell["\<\
+Let us consider the Cobra Bounty Hunting Policy (CBHP) is planned to be in \
+place for six months, at most a year. The time grid we consider has a unit \
+one week -- every week we gather statistics CBHP performance and expenses.\
+\>", "Text",
+ CellChangeTimes->{{3.801146557766962*^9, 3.801146673624496*^9}, {
+  3.8011467751578407`*^9, 
+  3.801146777868981*^9}},ExpressionUUID->"dc7925c2-bb31-4000-b8f3-\
+a01acbd542b8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Stocks", "Subsection",
+ CellChangeTimes->{{3.8011457975357647`*^9, 
+  3.801145798840775*^9}},ExpressionUUID->"0a0fbe92-31cc-4966-b022-\
+1dbbd3d74b34"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"aStocks", "=", 
+   RowBox[{"<|", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"TP", "[", "t", "]"}], "\[Rule]", "\"\<Total Population\>\""}], 
+     ",", 
+     RowBox[{
+      RowBox[{"GP", "[", "t", "]"}], "\[Rule]", 
+      "\"\<General Populatin (Citizens)\>\""}], ",", 
+     RowBox[{
+      RowBox[{"BP", "[", "t", "]"}], "->", "\"\<Bitten Population\>\""}], ",", 
+     RowBox[{
+      RowBox[{"CH", "[", "t", "]"}], "->", "\"\<Cobra Hunters\>\""}], ",", 
+     RowBox[{
+      RowBox[{"FC", "[", "t", "]"}], "->", "\"\<Free Cobras\>\""}], ",", 
+     RowBox[{
+      RowBox[{"DC", "[", "t", "]"}], "->", "\"\<Dead Cobras\>\""}], ",", 
+     RowBox[{
+      RowBox[{"MPDC", "[", "t", "]"}], "\[Rule]", 
+      "\"\<Money Payed for Dead Cobras\>\""}]}], "|>"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GridTableForm", "[", 
+  RowBox[{"List", "@@@", 
+   RowBox[{"Normal", "[", "aStocks", "]"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.801146082415286*^9, 3.801146129686289*^9}, {
+  3.801146177578898*^9, 3.801146330772765*^9}, {3.8011479069290457`*^9, 
+  3.801147939135777*^9}, {3.8015026236008797`*^9, 3.801502665755701*^9}, {
+  3.801503524821212*^9, 3.801503530029276*^9}, {3.801564975408215*^9, 
+  3.8015649862750607`*^9}},
+ CellLabel->"In[54]:=",ExpressionUUID->"deafb74d-5634-487c-9966-18bfd3e5226d"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsInitialConditions", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"GP", "[", "0", "]"}], "\[Equal]", "200000"}], ",", 
+     RowBox[{
+      RowBox[{"BP", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+     RowBox[{
+      RowBox[{"CH", "[", "0", "]"}], "\[Equal]", "10"}], ",", 
+     RowBox[{
+      RowBox[{"FC", "[", "0", "]"}], "\[Equal]", "3000"}], ",", 
+     RowBox[{
+      RowBox[{"DC", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+     RowBox[{
+      RowBox[{"MPDC", "[", "0", "]"}], "\[Equal]", "0"}]}], "}"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.801149044979487*^9, 3.801149105006999*^9}, 
+   3.801150665466977*^9, {3.801151157584346*^9, 3.801151158654091*^9}, 
+   3.801158308335297*^9, {3.801158875917831*^9, 3.8011588771638117`*^9}, {
+   3.80115891817293*^9, 3.801158919093309*^9}, {3.801502753946788*^9, 
+   3.801502760133024*^9}, 3.801503538319069*^9},
+ CellLabel->"In[56]:=",ExpressionUUID->"f79881de-8079-4160-b13f-0cd6f0937687"],
+
+Cell[TextData[{
+ "Delhi had ",
+ Cell[BoxData[
+  FormBox["200000", TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "2813dd4f-c9e0-463c-846a-2bd084e3292a"],
+ " citizens a century ago: ",
+ ButtonBox["https://unchronicle.un.org/article/delhi-forever-city",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://unchronicle.un.org/article/delhi-forever-city"], None},
+  ButtonNote->"https://unchronicle.un.org/article/delhi-forever-city"],
+ " ."
+}], "Text",
+ CellChangeTimes->{{3.801157885223713*^9, 3.801157915353588*^9}, {
+  3.8011580032609253`*^9, 
+  3.80115800837922*^9}},ExpressionUUID->"18bee5bd-2fe9-4b24-a06b-\
+ced63dd547b5"],
+
+Cell[TextData[{
+ ButtonBox["Current Delhi ",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Delhi"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/Delhi"],
+ "population is estimated to be: ",
+ Cell[BoxData[
+  FormBox["16.3*^6", TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "01215f25-ece4-4a96-897c-c8d750c19846"],
+ " and territory ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"1484", " ", 
+    SuperscriptBox["km", "2"]}], TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "394c3738-eef4-474a-be22-f1465fc09ae0"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.801502187587981*^9, 3.801502207118181*^9}, {
+  3.801502290424901*^9, 3.8015022904256687`*^9}, {3.801502325403311*^9, 
+  3.8015023609081717`*^9}},ExpressionUUID->"5c538f89-2fcd-4155-9029-\
+1567e48262fa"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rates", "Subsection",
+ CellChangeTimes->{{3.8011458204860992`*^9, 
+  3.801145821746106*^9}},ExpressionUUID->"e680cd43-ed50-40da-94d9-\
+bafebfde657b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"aRates", "=", 
+   RowBox[{"<|", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"cbr", "[", 
+       RowBox[{"GP", ",", "FC"}], "]"}], "\[Rule]", 
+      "\"\<Cobra bites rate\>\""}], ",", "\[IndentingNewLine]", 
+     RowBox[{"mpdc", "\[Rule]", "\"\<Money Payed per Dead Cobra\>\""}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"fcbr", "[", "FC", "]"}], "->", 
+      "\"\<Free Cobras Breeding Rate (number of cobras per week)\>\""}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"chrr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}], "\[Rule]", 
+      "\"\<Cobra Hunters Recruiting Rate (number of people per week)\>\""}], 
+     ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"chsr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}], "\[Rule]", 
+      "\"\<Cobra Hunters Success Rate (number of cobras per week)\>\""}], ",",
+      "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"fcd", "[", "FC", "]"}], "\[Rule]", 
+      "\"\<free cobra density\>\""}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"chdr", "[", 
+       RowBox[{"CH", ",", "FC", ",", "M"}], "]"}], "->", 
+      "\"\<Cobra Hunters Disengagement Rate (number of people per \
+week)\>\""}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\[Kappa]", "[", "CH", "]"}], "\[Rule]", 
+      "\"\<Capacity for Cobra Hunters\>\""}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\[Kappa]", "[", "MPDC", "]"}], "\[Rule]", 
+      "\"\<Capacity of Money Payed For Dead Cobras\>\""}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "FC", "]"}], "\[Rule]", 
+      "\"\<Mortality of Free Cobras\>\""}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "CH", "]"}], "\[Rule]", 
+      "\"\<Mortality of Cobra Hunters\>\""}]}], "\[IndentingNewLine]", 
+    "|>"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GridTableForm", "[", 
+  RowBox[{"List", "@@@", 
+   RowBox[{"Normal", "[", "aRates", "]"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.801146339008091*^9, 3.8011464651781473`*^9}, {
+   3.801146495576273*^9, 3.801146536549238*^9}, {3.801146682929205*^9, 
+   3.801146707184692*^9}, {3.8011468359090633`*^9, 3.801146913805331*^9}, {
+   3.8011475706925983`*^9, 3.801147578725094*^9}, {3.801147615535612*^9, 
+   3.801147679066576*^9}, {3.801147768516687*^9, 3.8011479048125668`*^9}, {
+   3.801147958489156*^9, 3.801147981819763*^9}, {3.801148246134116*^9, 
+   3.8011482517807503`*^9}, {3.801148332354719*^9, 3.8011483365055017`*^9}, {
+   3.801149511557106*^9, 3.801149543450885*^9}, {3.801150797465876*^9, 
+   3.801150798387429*^9}, {3.8011582129672623`*^9, 3.801158237625943*^9}, {
+   3.801229166595755*^9, 3.801229173186165*^9}, 3.801503538321924*^9, 
+   3.801564484618804*^9},
+ CellLabel->"In[57]:=",ExpressionUUID->"780fa26a-470b-41d0-ac47-3bcfa38cd575"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aRateRules", "=", 
+   RowBox[{"<|", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"cbr", "[", 
+       RowBox[{"GP", ",", "FC"}], "]"}], "\[Rule]", "0.5"}], ",", 
+     RowBox[{"mpdc", "\[Rule]", "1"}], ",", 
+     RowBox[{
+      RowBox[{"fcbr", "[", "FC", "]"}], "\[Rule]", 
+      FractionBox["0.3", "52"]}], ",", 
+     RowBox[{
+      RowBox[{"fcd", "[", "FC", "]"}], "\[Rule]", "0.00016"}], ",", 
+     RowBox[{
+      RowBox[{"chrr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}], "\[Rule]", "0.005"}], ",", 
+     RowBox[{
+      RowBox[{"chsr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}], "\[Rule]", "60"}], ",", 
+     RowBox[{
+      RowBox[{"chdr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}], "\[Rule]", "0.01"}], ",", 
+     RowBox[{
+      RowBox[{"\[Kappa]", "[", "CH", "]"}], "\[Rule]", "10000"}], ",", 
+     RowBox[{
+      RowBox[{"\[Kappa]", "[", "MPDC", "]"}], "\[Rule]", 
+      RowBox[{"10", "^", "6"}]}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "TP", "]"}], "\[Rule]", 
+      RowBox[{"4", 
+       FractionBox["7.3", 
+        RowBox[{"1000", "*", "52"}]]}]}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "FC", "]"}], "\[Rule]", 
+      FractionBox["0.1", "52"]}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "CH", "]"}], "\[Rule]", 
+      FractionBox["0.1", "52"]}], ",", 
+     RowBox[{"cityArea", "\[Rule]", "1.9*^7"}]}], "|>"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.801148857257813*^9, 3.8011490413665133`*^9}, {
+   3.8011495482222443`*^9, 3.801149557658731*^9}, {3.801150050813105*^9, 
+   3.801150052884432*^9}, {3.801150187625428*^9, 3.80115018893083*^9}, 
+   3.8011503094769583`*^9, {3.801150422552805*^9, 3.8011504369319677`*^9}, {
+   3.801150501698*^9, 3.801150504069816*^9}, {3.801150547879821*^9, 
+   3.801150598290091*^9}, {3.8011506778422728`*^9, 3.8011506781778517`*^9}, {
+   3.801150739639832*^9, 3.801150740586454*^9}, {3.80115080458685*^9, 
+   3.801150805417815*^9}, {3.801150999441293*^9, 3.801150999655369*^9}, 
+   3.80115106032493*^9, {3.80115804451705*^9, 3.801158080088917*^9}, {
+   3.801158252927706*^9, 3.801158278610368*^9}, {3.801158348835943*^9, 
+   3.801158351860176*^9}, {3.8011588312768927`*^9, 3.8011588326697493`*^9}, {
+   3.8011588906210814`*^9, 3.801158892411634*^9}, {3.8011591838901176`*^9, 
+   3.801159213670671*^9}, {3.8011592442815447`*^9, 3.801159246777512*^9}, 
+   3.8011593203457203`*^9, 3.8011593827723017`*^9, {3.801159537530374*^9, 
+   3.8011595510952272`*^9}, 3.801159751846572*^9, {3.801228711999609*^9, 
+   3.801228738940064*^9}, 3.801228925637645*^9, 3.8015035383398237`*^9, {
+   3.801503724837544*^9, 3.8015037772507477`*^9}, {3.801503837857616*^9, 
+   3.801503839634038*^9}, 3.801520389673131*^9, {3.801522554153269*^9, 
+   3.8015225543096323`*^9}, {3.801522657553146*^9, 3.8015226586996613`*^9}, {
+   3.8015229100295973`*^9, 3.8015229299529676`*^9}, 3.801523062581949*^9, {
+   3.8015232103416557`*^9, 3.801523234652709*^9}, {3.801523285290868*^9, 
+   3.801523286482378*^9}, 3.801564488780995*^9, {3.801564700566324*^9, 
+   3.801564723368915*^9}, {3.801564767935295*^9, 3.801564783636345*^9}, 
+   3.8015648282328663`*^9, {3.801564876156864*^9, 3.801564887745623*^9}, {
+   3.801565020684032*^9, 3.801565029790827*^9}, {3.8015650696177883`*^9, 
+   3.801565069976503*^9}, {3.801565173838002*^9, 3.801565204528976*^9}, {
+   3.8015652726156683`*^9, 3.801565289546727*^9}, {3.80156643497208*^9, 
+   3.8015664351054373`*^9}, {3.801566473795054*^9, 3.8015664744019747`*^9}, {
+   3.801566536593915*^9, 3.801566537391584*^9}, {3.801566578288612*^9, 
+   3.8015666091551857`*^9}, {3.8015666476212254`*^9, 3.801566648115746*^9}, {
+   3.8015666789080153`*^9, 3.801566694792882*^9}, 3.801566742202347*^9, {
+   3.8015671787876577`*^9, 3.80156718069788*^9}},
+ CellLabel->"In[59]:=",ExpressionUUID->"ce1e41df-e852-4931-af91-82b03e88c017"],
+
+Cell[CellGroupData[{
+
+Cell["Population density", "Subsubsection",
+ CellChangeTimes->{{3.8015028854042053`*^9, 
+  3.801502889993347*^9}},ExpressionUUID->"113de042-350c-436f-a06c-\
+6f7caeeced73"],
+
+Cell["Current population density:", "Text",
+ CellChangeTimes->{{3.801519724182082*^9, 
+  3.8015197298970537`*^9}},ExpressionUUID->"fe5f5fe7-de44-4fd5-b392-\
+da6888ff55a8"],
+
+Cell["Persons per area unit:", "Text",
+ CellChangeTimes->{{3.801520020206439*^9, 3.801520025223735*^9}, {
+  3.801520060705905*^9, 
+  3.8015200613816757`*^9}},ExpressionUUID->"3c8deb0c-1fb2-4f58-978d-\
+d78f4a8ebae6"],
+
+Cell[BoxData[
+ RowBox[{"16.3*^6", "/", 
+  RowBox[{"UnitConvert", "[", 
+   RowBox[{
+    RowBox[{"Quantity", "[", 
+     RowBox[{"1484.0", ",", 
+      RowBox[{"\"\<Kilometers\>\"", "^", "2"}]}], "]"}], ",", 
+    RowBox[{"\"\<Meters\>\"", "^", "2"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.8015197348470984`*^9, 3.8015197678768663`*^9}, {
+  3.8015199161937513`*^9, 3.801519925604237*^9}},
+ CellLabel->"In[60]:=",ExpressionUUID->"9b14185a-0bf4-453c-87cc-1ec5248b66c4"],
+
+Cell["Area per person:", "Text",
+ CellChangeTimes->{{3.801520007707073*^9, 
+  3.801520016977257*^9}},ExpressionUUID->"d3a1050e-9045-42af-9351-\
+981b00293cb1"],
+
+Cell[BoxData[
+ RowBox[{"areaPerPerson", "=", 
+  RowBox[{
+   RowBox[{"UnitConvert", "[", 
+    RowBox[{
+     RowBox[{"Quantity", "[", 
+      RowBox[{"1484.0", ",", 
+       RowBox[{"\"\<Kilometers\>\"", "^", "2"}]}], "]"}], ",", 
+     RowBox[{"\"\<Meters\>\"", "^", "2"}]}], "]"}], "/", 
+   "16.3*^6"}]}]], "Input",
+ CellChangeTimes->{{3.8015197348470984`*^9, 3.8015197678768663`*^9}, {
+  3.8015199161937513`*^9, 3.801519925604237*^9}, {3.8015199747709827`*^9, 
+  3.8015199808988028`*^9}, {3.801520223294421*^9, 3.801520227546854*^9}},
+ CellLabel->"In[61]:=",ExpressionUUID->"55f110c8-1f57-480d-877a-3791ebb94eb8"],
+
+Cell[BoxData[
+ SqrtBox["areaPerPerson"]], "Input",
+ CellChangeTimes->{{3.8015218246063223`*^9, 3.801521833762896*^9}},
+ CellLabel->"In[62]:=",ExpressionUUID->"493128c9-481a-447b-a957-c899968e7117"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Delhi area", "Subsubsection",
+ CellChangeTimes->{{3.801502926332519*^9, 
+  3.801502928548705*^9}},ExpressionUUID->"f75f3736-8164-470a-9bc4-\
+18536fe3d49b"],
+
+Cell["\<\
+Estimate what was Delhi\[CloseCurlyQuote]s area a century ago as the number \
+of citizens (a century ago) multiplied by the current day density:\
+\>", "Text",
+ CellChangeTimes->{{3.8011587920899277`*^9, 3.801158821936263*^9}, {
+  3.8015201830752497`*^9, 
+  3.801520218726583*^9}},ExpressionUUID->"7bde1a99-b599-4a9e-aa0d-\
+73913d38928f"],
+
+Cell[BoxData[
+ RowBox[{"delhiArea", "=", 
+  RowBox[{"200000", " ", "areaPerPerson"}]}]], "Input",
+ CellChangeTimes->{{3.801502897176881*^9, 3.8015029392657022`*^9}, {
+  3.801519820426674*^9, 3.801519843589871*^9}, {3.80152009973484*^9, 
+  3.801520101556306*^9}, {3.801520232081716*^9, 3.801520257484297*^9}},
+ CellLabel->"In[63]:=",ExpressionUUID->"90b52878-5c35-4294-8fd4-c47ee93a589d"],
+
+Cell[BoxData[
+ RowBox[{"delhiArea", "=", "1.9*^7"}]], "Input",
+ CellChangeTimes->{{3.801520259921155*^9, 3.801520276023769*^9}},
+ CellLabel->"In[64]:=",ExpressionUUID->"60ccfc0a-e639-4c76-a22a-d43e20742af9"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Free cobras density", "Subsubsection",
+ CellChangeTimes->{{3.801158753107813*^9, 
+  3.8011587605327168`*^9}},ExpressionUUID->"09e1dbb2-cdbf-44d2-bc79-\
+923ac1c03bf4"],
+
+Cell["How many free cobras per square meter:", "Text",
+ CellChangeTimes->{{3.801158769085544*^9, 3.801158787713132*^9}, {
+  3.801520301606557*^9, 
+  3.801520302146639*^9}},ExpressionUUID->"6dd3d837-59e3-4f98-a40c-\
+b33c350146b5"],
+
+Cell[BoxData[
+ RowBox[{"3000", "/", "delhiArea"}]], "Input",
+ CellChangeTimes->{{3.801158578951277*^9, 3.8011586945621367`*^9}, {
+   3.8011588847155657`*^9, 3.80115888506174*^9}, {3.8011592392763977`*^9, 
+   3.801159240691506*^9}, 3.801520248654088*^9, {3.801520282887005*^9, 
+   3.801520295845276*^9}},
+ CellLabel->"In[65]:=",ExpressionUUID->"2e766a45-3525-4205-a9ae-513cbf7ef87a"],
+
+Cell["\<\
+If the free cobras are uniformly distributed: how much area per cobra: \
+\>", "Text",
+ CellChangeTimes->{{3.801520603977826*^9, 3.801520630415513*^9}, {
+  3.801520724466639*^9, 
+  3.801520769152341*^9}},ExpressionUUID->"0d142729-074b-4912-a40b-\
+ed2193c9f19f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Quantity", "[", 
+   RowBox[{"delhiArea", ",", 
+    RowBox[{"\"\<Meters\>\"", "^", "2"}]}], "]"}], "/", "3000"}]], "Input",
+ CellLabel->"In[66]:=",ExpressionUUID->"55eda2d8-b5b3-4cde-8955-f4407a63ed68"],
+
+Cell[BoxData[
+ RowBox[{"UnitConvert", "[", 
+  RowBox[{"%", ",", 
+   RowBox[{"\"\<Kilometers\>\"", "^", "2"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.801520637688962*^9, 3.801520705129352*^9}, {
+  3.801520784618211*^9, 3.8015207872433767`*^9}},
+ CellLabel->"In[67]:=",ExpressionUUID->"8e4904c7-0190-4f28-9233-c97640cbc1b2"],
+
+Cell[BoxData[
+ SqrtBox["%%"]], "Input",
+ CellChangeTimes->{{3.801520833373971*^9, 3.8015208373612432`*^9}},
+ CellLabel->"In[68]:=",ExpressionUUID->"472167b1-b93f-4696-8435-63bf91258b74"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Equations", "Subsection",
+ CellChangeTimes->{{3.801145824153899*^9, 
+  3.801145826605729*^9}},ExpressionUUID->"c157b57f-71df-4317-829e-\
+7c34df5290aa"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"freeCobraDensityTerm", "=", 
+   RowBox[{
+    RowBox[{"FC", "[", "t", "]"}], "/", "cityArea"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.8015030046594*^9, 3.801503027134502*^9}, 
+   3.8015033246858377`*^9, {3.80150378229128*^9, 3.801503783305483*^9}},
+ CellLabel->"In[69]:=",ExpressionUUID->"f991ab69-4a7c-4365-9715-8ebe57677737"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"populationDensityTerm", "=", 
+   RowBox[{
+    RowBox[{"GP", "[", "t", "]"}], "/", "cityArea"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.801503482766624*^9, 3.801503491047193*^9}, 
+   3.801503538341709*^9, 3.8015037860880823`*^9},
+ CellLabel->"In[70]:=",ExpressionUUID->"793fd5a1-3109-42d8-9750-83e71f09a806"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"huntersDensityTerm", "=", 
+   RowBox[{
+    RowBox[{"CH", "[", "t", "]"}], "/", "cityArea"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.8015214910329027`*^9, 3.8015215093471518`*^9}},
+ CellLabel->"In[71]:=",ExpressionUUID->"63eaa104-7ef1-460c-8962-d5b973411c9d"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"bittenPopulationTerm", "=", 
+   RowBox[{"Min", "[", 
+    RowBox[{
+     RowBox[{"GP", "[", "t", "]"}], ",", 
+     RowBox[{"freeCobraDensityTerm", "*", 
+      RowBox[{"GP", "[", "t", "]"}], "*", 
+      RowBox[{"cbr", "[", 
+       RowBox[{"GP", ",", "FC"}], "]"}]}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.801502710556448*^9, 3.801502735135642*^9}, 
+   3.80150280529254*^9, 3.8015030321129313`*^9, 3.801503321228755*^9, 
+   3.8015033953537397`*^9, {3.8015034644117928`*^9, 3.801503495732006*^9}, 
+   3.80150353834239*^9, {3.8015216243922453`*^9, 3.801521631884233*^9}, {
+   3.801521717319669*^9, 3.801521718724928*^9}, 3.8015217693459597`*^9, {
+   3.801522317562151*^9, 3.801522330790978*^9}, {3.80152290090613*^9, 
+   3.8015229031772547`*^9}, 3.801522962500167*^9, {3.801523085239743*^9, 
+   3.801523085714642*^9}, {3.801523532480373*^9, 3.801523549759984*^9}, {
+   3.801564390972851*^9, 3.801564391199349*^9}},
+ CellLabel->"In[72]:=",ExpressionUUID->"b0618662-1ebf-44d8-95d3-76342f34b40f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"killedFreeCobrasTerm", "=", 
+   RowBox[{"Min", "[", 
+    RowBox[{
+     RowBox[{"FC", "[", "t", "]"}], ",", 
+     RowBox[{"freeCobraDensityTerm", "*", 
+      RowBox[{"CH", "[", "t", "]"}], "*", 
+      RowBox[{"chsr", "[", 
+       RowBox[{"CH", ",", "FC"}], "]"}]}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.801159052793337*^9, 3.8011590902335367`*^9}, 
+   3.801229299749741*^9, 3.8015030347002563`*^9, 3.8015033212307463`*^9, 
+   3.8015034073040333`*^9, {3.801521401188726*^9, 3.801521419705151*^9}, {
+   3.801521514771965*^9, 3.8015215220031633`*^9}, {3.801522423031412*^9, 
+   3.801522423688641*^9}, {3.8015225725813227`*^9, 3.801522580274486*^9}, {
+   3.801522956763089*^9, 3.8015229571668873`*^9}, {3.8015230932272873`*^9, 
+   3.8015230945539093`*^9}},
+ CellLabel->"In[73]:=",ExpressionUUID->"35a5b98b-be57-4a5c-ab1a-54847a7ec722"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"cobraHunterRecruitingTerm", "=", 
+   RowBox[{
+    RowBox[{"GP", "[", "t", "]"}], 
+    RowBox[{"(", 
+     RowBox[{"1", "-", 
+      FractionBox[
+       RowBox[{"CH", "[", "t", "]"}], 
+       RowBox[{"\[Kappa]", "[", "CH", "]"}]]}], ")"}], "*", 
+    RowBox[{"chrr", "[", 
+     RowBox[{"CH", ",", "FC"}], "]"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.801503515326868*^9, 3.801503516089244*^9}, {
+  3.801503596791423*^9, 3.801503633800877*^9}, {3.8015665561024923`*^9, 
+  3.801566557822365*^9}},
+ CellLabel->"In[74]:=",ExpressionUUID->"83c84a5c-8e2d-4119-a3fd-9ce5381e07d1"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsEquations", "=", 
+   RowBox[{"{", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{"GP", "'"}], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", "bittenPopulationTerm"}], "-", 
+       "cobraHunterRecruitingTerm", "-", 
+       RowBox[{
+        RowBox[{"\[Mu]", "[", "TP", "]"}], "*", 
+        RowBox[{"GP", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"DC", "'"}], "[", "t", "]"}], "\[Equal]", 
+      "killedFreeCobrasTerm"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"BP", "'"}], "[", "t", "]"}], "==", 
+      RowBox[{"bittenPopulationTerm", "+", 
+       RowBox[{
+        RowBox[{"\[Mu]", "[", "CH", "]"}], "*", 
+        RowBox[{"CH", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"FC", "'"}], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", "killedFreeCobrasTerm"}], "-", 
+       RowBox[{
+        RowBox[{"FC", "[", "t", "]"}], "*", 
+        RowBox[{"\[Mu]", "[", "FC", "]"}]}], "+", 
+       RowBox[{
+        RowBox[{"FC", "[", "t", "]"}], "*", 
+        RowBox[{"fcbr", "[", "FC", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"CH", "'"}], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"-", 
+         RowBox[{"CH", "[", "t", "]"}]}], "*", 
+        RowBox[{"chdr", "[", 
+         RowBox[{"CH", ",", "FC"}], "]"}]}], "-", 
+       RowBox[{
+        RowBox[{"\[Mu]", "[", "CH", "]"}], "*", 
+        RowBox[{"CH", "[", "t", "]"}]}], "+", "cobraHunterRecruitingTerm"}]}],
+      ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"MPDC", "'"}], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{"killedFreeCobrasTerm", "*", "mpdc"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"TP", "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"GP", "[", "t", "]"}], "+", 
+       RowBox[{"CH", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GridTableForm", "[", 
+  RowBox[{"List", "/@", "lsEquations"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.801146919409972*^9, 3.8011469227374887`*^9}, {
+   3.801147476664239*^9, 3.801147477326961*^9}, {3.801147529989621*^9, 
+   3.801147611778512*^9}, {3.801147686368335*^9, 3.801147751877709*^9}, {
+   3.801147948789435*^9, 3.801147950926894*^9}, {3.801148062258259*^9, 
+   3.801148065093193*^9}, {3.801148102894411*^9, 3.801148104063925*^9}, {
+   3.8011481582681627`*^9, 3.801148298949741*^9}, {3.80114879532364*^9, 
+   3.8011488116697407`*^9}, {3.801148910682604*^9, 3.801148913529153*^9}, {
+   3.8011494737559547`*^9, 3.801149508473768*^9}, {3.801149601267302*^9, 
+   3.801149609928059*^9}, {3.801150116041131*^9, 3.801150182326173*^9}, {
+   3.8011502450483713`*^9, 3.801150264081493*^9}, {3.8011504682740173`*^9, 
+   3.8011504785093107`*^9}, {3.801150813879156*^9, 3.801150815003121*^9}, {
+   3.8011510070230503`*^9, 3.801151007169545*^9}, 3.801158052549749*^9, {
+   3.8011581418110027`*^9, 3.8011581421912603`*^9}, {3.801158286059855*^9, 
+   3.801158290221727*^9}, {3.80115906590865*^9, 3.801159139755679*^9}, {
+   3.801159179487599*^9, 3.8011591809645557`*^9}, {3.8011593075709953`*^9, 
+   3.8011593092821627`*^9}, {3.8011593859280443`*^9, 3.801159386304078*^9}, {
+   3.801228767224828*^9, 3.801228791972631*^9}, {3.8012288246789722`*^9, 
+   3.801228856154579*^9}, {3.801228890210867*^9, 3.801228908380362*^9}, {
+   3.8012292997545853`*^9, 3.8012292997570467`*^9}, {3.801502675364242*^9, 
+   3.801502681183362*^9}, {3.801502724059795*^9, 3.8015027443617992`*^9}, {
+   3.8015027837827597`*^9, 3.8015027872248173`*^9}, 3.801503538344804*^9, {
+   3.8015036291271343`*^9, 3.801503641568141*^9}, 3.8015644952761497`*^9, {
+   3.801564937246192*^9, 3.801564949520772*^9}, {3.8015650369921713`*^9, 
+   3.8015650473534718`*^9}, {3.801565126384492*^9, 3.801565133264215*^9}},
+ CellLabel->"In[75]:=",ExpressionUUID->"baa393b0-96a8-4ebd-81e7-f2ebe04b087b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["All together", "Subsection",
+ CellChangeTimes->{{3.801148849064856*^9, 
+  3.801148853632203*^9}},ExpressionUUID->"aa3dffc5-7de1-4a6e-b67b-\
+79e4d803a6de"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "CobraPolicy", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"CobraPolicy", "[", "]"}], ":=", "\[IndentingNewLine]", 
+   RowBox[{"<|", 
+    RowBox[{
+     RowBox[{"\"\<Stocks\>\"", "\[Rule]", "aStocks"}], ",", 
+     RowBox[{"\"\<Rates\>\"", "\[Rule]", "aRates"}], ",", 
+     RowBox[{"\"\<Equations\>\"", "\[Rule]", "lsEquations"}], ",", 
+     RowBox[{"\"\<RateRules\>\"", "\[Rule]", "aRateRules"}], ",", 
+     RowBox[{
+     "\"\<InitialConditions\>\"", "\[Rule]", "lsInitialConditions"}]}], 
+    "|>"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.8011491230094833`*^9, 3.801149206180606*^9}},
+ CellLabel->"In[77]:=",ExpressionUUID->"9bf5d5de-8824-4ac0-bf56-683e5bce755a"],
+
+Cell[BoxData[
+ RowBox[{"ModelGridTableForm", "[", 
+  RowBox[{"CobraPolicy", "[", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.801149211177257*^9, 3.801149219972797*^9}},
+ CellLabel->"In[79]:=",ExpressionUUID->"d15e913f-1edb-4fed-bd88-64c7da880112"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Equations explanations", "Section",
+ CellChangeTimes->{{3.8015025950817013`*^9, 
+  3.8015025996156273`*^9}},ExpressionUUID->"b8a8902b-2329-493f-a97b-\
+49e0571928bc"],
+
+Cell["TBD...", "Text",
+ CellChangeTimes->{{3.801659385353043*^9, 
+  3.801659386612653*^9}},ExpressionUUID->"f08ea6a8-bf7f-4cb3-9932-\
+edbc7004ad06"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Simulation", "Section",
+ CellChangeTimes->{{3.801148315050685*^9, 3.8011483195055113`*^9}, {
+  3.801148367511649*^9, 
+  3.80114836943478*^9}},ExpressionUUID->"e07e9bd4-e832-4318-9157-\
+c8f45e10113a"],
+
+Cell[BoxData[
+ RowBox[{"ModelNDSolveEquations", "[", 
+  RowBox[{"CobraPolicy", "[", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.8011492348485413`*^9, 3.801149286285302*^9}, {
+  3.8011494119929256`*^9, 3.8011494402815533`*^9}, {3.8011503708920927`*^9, 
+  3.8011503727236967`*^9}},
+ CellLabel->"In[80]:=",ExpressionUUID->"63fd8e5c-5e34-4fc1-b1b2-de43fe90b286"],
+
+Cell[BoxData[
+ RowBox[{"aSol", "=", 
+  RowBox[{"Association", "@", 
+   RowBox[{
+    RowBox[{"ModelNDSolve", "[", 
+     RowBox[{
+      RowBox[{"CobraPolicy", "[", "]"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"t", ",", "52"}], "}"}]}], "]"}], "\[LeftDoubleBracket]", "1", 
+    "\[RightDoubleBracket]"}]}]}]], "Input",
+ CellChangeTimes->{{3.8011492348485413`*^9, 3.801149268596066*^9}, {
+  3.80114990809303*^9, 3.8011499129053383`*^9}, {3.8011500227893267`*^9, 
+  3.8011500241486683`*^9}},
+ CellLabel->"In[81]:=",ExpressionUUID->"3ca34848-088a-4513-8a24-85846cef6b3d"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsTimeGrid", "=", 
+   RowBox[{"Range", "[", 
+    RowBox[{"0", ",", "52"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Map", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"ListLinePlot", "[", 
+     RowBox[{
+      RowBox[{"Transpose", "[", 
+       RowBox[{"{", 
+        RowBox[{"lsTimeGrid", ",", 
+         RowBox[{"#", "[", "lsTimeGrid", "]"}]}], "}"}], "]"}], ",", 
+      RowBox[{"PlotRange", "\[Rule]", "All"}]}], "]"}], "&"}], ",", "aSol"}], 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.801149915272428*^9, 3.801150031528388*^9}, {
+  3.8011502152906427`*^9, 3.801150215581142*^9}, {3.8011503441164083`*^9, 
+  3.80115035426225*^9}, {3.801150387316846*^9, 3.801150391344709*^9}, {
+  3.8011504867574997`*^9, 3.80115048772334*^9}, {3.801150694222961*^9, 
+  3.801150705616145*^9}, {3.801150748111408*^9, 3.801150760191111*^9}, {
+  3.801151173773714*^9, 3.801151180321055*^9}, {3.8011581646252327`*^9, 
+  3.8011581649382553`*^9}, {3.80115829840166*^9, 3.801158298781796*^9}, {
+  3.801158907722509*^9, 3.8011589081247387`*^9}, {3.801522342379356*^9, 
+  3.80152234264856*^9}, {3.801522602595851*^9, 3.8015226031576767`*^9}, {
+  3.801523174240806*^9, 3.801523174981679*^9}, {3.8015647965079813`*^9, 
+  3.801564796686738*^9}},
+ CellLabel->"In[82]:=",ExpressionUUID->"cfe1e263-d51d-42fa-ae90-1fcef6970549"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.8015866502429237`*^9, 
+  3.801586665552643*^9}},ExpressionUUID->"29393a25-df1f-4db9-a744-\
+705d35afb588"],
+
+Cell[TextData[{
+ "[Wk1] Wikipedia entry, ",
+ ButtonBox["Cobra effect",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Cobra_effect"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/Cobra_effect"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.8015866685911827`*^9, 
+  3.801586709147583*^9}},ExpressionUUID->"c47abb95-57d9-4387-a059-\
+f76c6acf417b"],
+
+Cell[TextData[{
+ "[Wk2] Wikipedia entry, ",
+ ButtonBox["Unintended consequences",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Unintended_consequences"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/Unintended_consequences"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.801586712613247*^9, 3.801586744845566*^9}, {
+  3.801586840604766*^9, 
+  3.801586843498274*^9}},ExpressionUUID->"332bb87c-873d-4189-af27-\
+234783b1fb76"],
+
+Cell[TextData[{
+ "[SD1] Stephen J. Dubner,  (2012). ",
+ ButtonBox["\"The Cobra Effect: A New Freakonomics Radio Podcast\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://freakonomics.com/podcast/the-cobra-effect-a-new-freakonomics-\
+radio-podcast/"], None},
+  ButtonNote->
+   "https://freakonomics.com/podcast/the-cobra-effect-a-new-freakonomics-\
+radio-podcast/"],
+ ". Freakonomics, LLC. "
+}], "Text",
+ CellChangeTimes->{{3.8015878552999887`*^9, 3.801587895311537*^9}, {
+  3.801587959575183*^9, 
+  3.801587961080791*^9}},ExpressionUUID->"10f85e73-dcfa-4d3c-9b9c-\
+f9be086ee9fe"],
+
+Cell[TextData[{
+ "[SD2] Stephen J. Dubner, (2012). ",
+ ButtonBox["\"The Cobra Effect (Ep. 96): Full Transcript\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://freakonomics.com/2012/10/11/the-cobra-effect-full-transcript/\
+"], None},
+  ButtonNote->
+   "https://freakonomics.com/2012/10/11/the-cobra-effect-full-transcript/"],
+ ",  Freakonomics, LLC."
+}], "Text",
+ CellChangeTimes->{{3.801587415592737*^9, 3.801587489967248*^9}, {
+  3.801587529422286*^9, 3.801587549033733*^9}, {3.801587600554269*^9, 
+  3.8015876446449347`*^9}, {3.801587912042397*^9, 
+  3.801587952622429*^9}},ExpressionUUID->"7783497c-a622-437b-84d9-\
+7bd4dc68048d"],
+
+Cell["\<\
+[LB1] Leslie H. Brickman, (2002). Preparing the 21st Century Church. p.\
+\[NonBreakingSpace]326. ISBN\[NonBreakingSpace]978-1-59160-167-8.\
+\>", "Text",
+ CellChangeTimes->{{3.801588143301819*^9, 
+  3.801588162831819*^9}},ExpressionUUID->"4022823b-899c-441d-855c-\
+1e0e9ec9b245"],
+
+Cell["\<\
+[MV1] Michael Vann, (2003). Of Rats, Rice, and Race: The Great Hanoi Rat \
+Massacre, an Episode in French Colonial History. French Colonial History. 4. \
+191-203. 10.1353/fch.2003.0027. \
+\>", "Text",
+ CellChangeTimes->{{3.801586846557926*^9, 3.801586846637166*^9}, {
+  3.801587220806439*^9, 3.801587227601136*^9}, {3.801587964614592*^9, 
+  3.801587964862371*^9}},ExpressionUUID->"15319523-93d6-4ddf-b0f8-\
+5792827c0708"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1790, 1312},
+WindowMargins->{{Automatic, 721}, {Automatic, 17}},
+Magnification:>1.25 Inherited,
+FrontEndVersion->"12.1 for Mac OS X x86 (64-bit) (June 9, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"5e93cddf-c2e0-440b-8390-68b754ec4d9e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 640, 9, 123, "Title",ExpressionUUID->"a32c1aee-5506-4ddc-9131-2b65eb60eb62"],
+Cell[1223, 33, 499, 8, 67, "Subtitle",ExpressionUUID->"08313e76-fbbe-4ed9-9b93-38a69a8a679c"],
+Cell[1725, 43, 1073, 25, 131, "Text",ExpressionUUID->"ce7af033-ccfc-455c-8f21-828c3a51ec36"],
+Cell[CellGroupData[{
+Cell[2823, 72, 157, 3, 84, "Section",ExpressionUUID->"22557de3-2774-4ac7-8233-21c7f83c6fd5"],
+Cell[2983, 77, 669, 11, 73, "Text",ExpressionUUID->"e8221bdb-b081-4f48-afce-e37e5aed6c68"],
+Cell[3655, 90, 735, 14, 102, "Text",ExpressionUUID->"8856bc85-5cbd-4b9d-860c-bc6ca395f8a7"],
+Cell[CellGroupData[{
+Cell[4415, 108, 159, 3, 67, "Subsection",ExpressionUUID->"cb73528e-42db-4343-b7a8-ac88c34eaac9"],
+Cell[4577, 113, 758, 13, 73, "Text",ExpressionUUID->"e5d89386-97b4-4186-acee-483beb3d1716"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5372, 131, 167, 3, 67, "Subsection",ExpressionUUID->"9514e6f0-ee8b-44c4-a288-eb03ad1eb135"],
+Cell[5542, 136, 231, 4, 44, "Text",ExpressionUUID->"ef940031-c5a3-4813-825b-0644694ea480"],
+Cell[CellGroupData[{
+Cell[5798, 144, 377, 8, 40, "ItemNumbered",ExpressionUUID->"55b15a79-eecb-4012-a23c-ecd57114e50b"],
+Cell[6178, 154, 500, 7, 40, "ItemNumbered",ExpressionUUID->"f05b7def-71d5-4123-b13d-29b47efbe08f"],
+Cell[6681, 163, 476, 7, 40, "ItemNumbered",ExpressionUUID->"34b5f7a8-e62a-423f-b92a-fcf0e60063a2"],
+Cell[CellGroupData[{
+Cell[7182, 174, 360, 5, 33, "SubitemNumbered",ExpressionUUID->"c6852350-d2ee-4016-8405-aea65b1b5df0"],
+Cell[7545, 181, 375, 7, 33, "SubitemNumbered",ExpressionUUID->"279741b7-12cf-4a62-893e-567170c37100"]
+}, Open  ]],
+Cell[7935, 191, 492, 9, 40, "ItemNumbered",ExpressionUUID->"ff27aed5-cbee-4f4b-abe4-4dd49bf664d0"],
+Cell[8430, 202, 501, 9, 40, "ItemNumbered",ExpressionUUID->"e9a184af-dd76-4a7d-aa0e-74234cc80f01"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8992, 218, 167, 3, 84, "Section",ExpressionUUID->"1e075412-2948-4beb-9800-914b643debea"],
+Cell[9162, 223, 246, 6, 44, "Text",ExpressionUUID->"94c2ccd5-193c-41d5-958b-c29127f1e8b7"],
+Cell[9411, 231, 4611, 106, 255, "Input",ExpressionUUID->"bc5dbeda-6953-4810-9682-01690928ef77"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14059, 342, 158, 3, 84, "Section",ExpressionUUID->"dfb6b563-764c-4da9-b449-ea10787a9452"],
+Cell[14220, 347, 400, 7, 57, "Input",ExpressionUUID->"77f581e7-3ddb-427c-8725-070a5254a8df",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14657, 359, 250, 4, 84, "Section",ExpressionUUID->"417814b8-fd58-4888-a776-3183f92cf0f8"],
+Cell[CellGroupData[{
+Cell[14932, 367, 172, 3, 67, "Subsection",ExpressionUUID->"1ed3ad7a-a68b-4b19-a587-513aac9a7d19"],
+Cell[15107, 372, 429, 8, 73, "Text",ExpressionUUID->"dc7925c2-bb31-4000-b8f3-a01acbd542b8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15573, 385, 156, 3, 67, "Subsection",ExpressionUUID->"0a0fbe92-31cc-4966-b022-1dbbd3d74b34"],
+Cell[15732, 390, 1336, 31, 90, "Input",ExpressionUUID->"deafb74d-5634-487c-9966-18bfd3e5226d"],
+Cell[17071, 423, 996, 23, 37, "Input",ExpressionUUID->"f79881de-8079-4160-b13f-0cd6f0937687"],
+Cell[18070, 448, 655, 17, 44, "Text",ExpressionUUID->"18bee5bd-2fe9-4b24-a06b-ced63dd547b5"],
+Cell[18728, 467, 835, 23, 44, "Text",ExpressionUUID->"5c538f89-2fcd-4155-9029-1567e48262fa"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19600, 495, 155, 3, 67, "Subsection",ExpressionUUID->"e680cd43-ed50-40da-94d9-bafebfde657b"],
+Cell[19758, 500, 2890, 61, 376, "Input",ExpressionUUID->"780fa26a-470b-41d0-ac47-3bcfa38cd575"],
+Cell[22651, 563, 3830, 72, 106, "Input",ExpressionUUID->"ce1e41df-e852-4931-af91-82b03e88c017"],
+Cell[CellGroupData[{
+Cell[26506, 639, 171, 3, 56, "Subsubsection",ExpressionUUID->"113de042-350c-436f-a06c-6f7caeeced73"],
+Cell[26680, 644, 171, 3, 44, "Text",ExpressionUUID->"fe5f5fe7-de44-4fd5-b392-da6888ff55a8"],
+Cell[26854, 649, 215, 4, 44, "Text",ExpressionUUID->"3c8deb0c-1fb2-4f58-978d-d78f4a8ebae6"],
+Cell[27072, 655, 467, 10, 37, "Input",ExpressionUUID->"9b14185a-0bf4-453c-87cc-1ec5248b66c4"],
+Cell[27542, 667, 158, 3, 44, "Text",ExpressionUUID->"d3a1050e-9045-42af-9351-981b00293cb1"],
+Cell[27703, 672, 611, 13, 37, "Input",ExpressionUUID->"55f110c8-1f57-480d-877a-3791ebb94eb8"],
+Cell[28317, 687, 197, 3, 39, "Input",ExpressionUUID->"493128c9-481a-447b-a957-c899968e7117"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28551, 695, 161, 3, 56, "Subsubsection",ExpressionUUID->"f75f3736-8164-470a-9bc4-18536fe3d49b"],
+Cell[28715, 700, 347, 7, 44, "Text",ExpressionUUID->"7bde1a99-b599-4a9e-aa0d-73913d38928f"],
+Cell[29065, 709, 387, 6, 37, "Input",ExpressionUUID->"90b52878-5c35-4294-8fd4-c47ee93a589d"],
+Cell[29455, 717, 207, 3, 37, "Input",ExpressionUUID->"60ccfc0a-e639-4c76-a22a-d43e20742af9"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[29699, 725, 172, 3, 56, "Subsubsection",ExpressionUUID->"09e1dbb2-cdbf-44d2-bc79-923ac1c03bf4"],
+Cell[29874, 730, 229, 4, 44, "Text",ExpressionUUID->"6dd3d837-59e3-4f98-a40c-b33c350146b5"],
+Cell[30106, 736, 382, 6, 37, "Input",ExpressionUUID->"2e766a45-3525-4205-a9ae-513cbf7ef87a"],
+Cell[30491, 744, 270, 6, 44, "Text",ExpressionUUID->"0d142729-074b-4912-a40b-ed2193c9f19f"],
+Cell[30764, 752, 236, 5, 37, "Input",ExpressionUUID->"55eda2d8-b5b3-4cde-8955-f4407a63ed68"],
+Cell[31003, 759, 324, 6, 37, "Input",ExpressionUUID->"8e4904c7-0190-4f28-9233-c97640cbc1b2"],
+Cell[31330, 767, 186, 3, 39, "Input",ExpressionUUID->"472167b1-b93f-4696-8435-63bf91258b74"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31565, 776, 157, 3, 67, "Subsection",ExpressionUUID->"c157b57f-71df-4317-829e-7c34df5290aa"],
+Cell[31725, 781, 364, 7, 37, "Input",ExpressionUUID->"f991ab69-4a7c-4365-9715-8ebe57677737"],
+Cell[32092, 790, 344, 7, 37, "Input",ExpressionUUID->"793fd5a1-3109-42d8-9750-83e71f09a806"],
+Cell[32439, 799, 295, 6, 37, "Input",ExpressionUUID->"63eaa104-7ef1-460c-8962-d5b973411c9d"],
+Cell[32737, 807, 1034, 19, 37, "Input",ExpressionUUID->"b0618662-1ebf-44d8-95d3-76342f34b40f"],
+Cell[33774, 828, 878, 17, 37, "Input",ExpressionUUID->"35a5b98b-be57-4a5c-ab1a-54847a7ec722"],
+Cell[34655, 847, 608, 15, 59, "Input",ExpressionUUID->"83c84a5c-8e2d-4119-a3fd-9ce5381e07d1"],
+Cell[35266, 864, 4077, 86, 272, "Input",ExpressionUUID->"baa393b0-96a8-4ebd-81e7-f2ebe04b087b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[39380, 955, 160, 3, 67, "Subsection",ExpressionUUID->"aa3dffc5-7de1-4a6e-b67b-79e4d803a6de"],
+Cell[39543, 960, 742, 16, 90, "Input",ExpressionUUID->"9bf5d5de-8824-4ac0-bf56-683e5bce755a"],
+Cell[40288, 978, 249, 4, 37, "Input",ExpressionUUID->"d15e913f-1edb-4fed-bd88-64c7da880112"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40586, 988, 171, 3, 84, "Section",ExpressionUUID->"b8a8902b-2329-493f-a97b-49e0571928bc"],
+Cell[40760, 993, 148, 3, 44, "Text",ExpressionUUID->"f08ea6a8-bf7f-4cb3-9932-edbc7004ad06"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40945, 1001, 205, 4, 84, "Section",ExpressionUUID->"e07e9bd4-e832-4318-9157-c8f45e10113a"],
+Cell[41153, 1007, 360, 6, 37, "Input",ExpressionUUID->"63fd8e5c-5e34-4fc1-b1b2-de43fe90b286"],
+Cell[41516, 1015, 568, 13, 37, "Input",ExpressionUUID->"3ca34848-088a-4513-8a24-85846cef6b3d"],
+Cell[42087, 1030, 1333, 27, 64, "Input",ExpressionUUID->"cfe1e263-d51d-42fa-ae90-1fcef6970549"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[43457, 1062, 157, 3, 84, "Section",ExpressionUUID->"29393a25-df1f-4db9-a744-705d35afb588"],
+Cell[43617, 1067, 380, 11, 44, "Text",ExpressionUUID->"c47abb95-57d9-4387-a059-f76c6acf417b"],
+Cell[44000, 1080, 460, 12, 44, "Text",ExpressionUUID->"332bb87c-873d-4189-af27-234783b1fb76"],
+Cell[44463, 1094, 592, 15, 44, "Text",ExpressionUUID->"10f85e73-dcfa-4d3c-9b9c-f9be086ee9fe"],
+Cell[45058, 1111, 648, 15, 44, "Text",ExpressionUUID->"7783497c-a622-437b-84d9-7bd4dc68048d"],
+Cell[45709, 1128, 288, 6, 44, "Text",ExpressionUUID->"4022823b-899c-441d-855c-1e0e9ec9b245"],
+Cell[46000, 1136, 431, 8, 44, "Text",ExpressionUUID->"15319523-93d6-4ddf-b0f8-5792827c0708"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
