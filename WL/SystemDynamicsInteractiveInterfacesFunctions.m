@@ -103,13 +103,15 @@ ParametricSolutionsPlots[
           ],
           {t, 0, tmax},
           PlotLegends -> Map[ If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ] &, Keys[aSol]],
-          Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]
+          Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]],
+          PlotRange -> All
         ],
         (*ELSE*)
         KeyValueMap[
           plotFunc[#2, {t, 0, tmax},
             PlotLabel -> If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ],
-            Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]]] &,
+            Evaluate[FilterRules[Flatten[{opts}], Options[Plot]]],
+            PlotRange -> All] &,
           If[ Length[params] == 0 || TrueQ[params === None],
             Map[dfunc[#[t]] &, aSol],
             Map[dfunc[#[Sequence @@ params][t]] &, aSol]
