@@ -313,9 +313,9 @@ SyntaxInformation[GetStocks] = { "ArgumentsPattern" -> { _, _., OptionsPattern[]
 
 Options[GetStocks] = Options[StringMatchQ];
 
-GetStocks[ model_Association, opts : OptionsPattern[] ] := GetStocks[ model, __ ~~ __, opts ];
+GetStocks[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStocks[ model, __ ~~ __, opts ];
 
-GetStocks[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetStocks[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
     RetrieveModelEntities[ model, "Stocks", descr, opts];
 
 
@@ -323,9 +323,9 @@ Clear[GetStockSymbols];
 
 SyntaxInformation[GetStockSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetStockSymbols[ model_Association, opts : OptionsPattern[] ] := GetStockSymbols[ model, __ ~~ __, opts ];
+GetStockSymbols[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStockSymbols[ model, __ ~~ __, opts ];
 
-GetStockSymbols[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetStockSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
     RetrieveModelEntitySymbols[ model, "Stocks", descr, opts];
 
 
@@ -345,9 +345,9 @@ SyntaxInformation[GetRates] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] 
 
 Options[GetRates] = Options[StringMatchQ];
 
-GetRates[ model_Association, opts : OptionsPattern[] ] := GetRates[ model, __ ~~ __, opts ];
+GetRates[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetRates[ model, __ ~~ __, opts ];
 
-GetRates[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetRates[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
     RetrieveModelEntities[ model, "Rates", descr, opts];
 
 
@@ -355,9 +355,9 @@ Clear[GetRateSymbols];
 
 SyntaxInformation[GetRateSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
 
-GetRateSymbols[ model_Association, opts : OptionsPattern[] ] := GetRateSymbols[ model, __ ~~ __, opts ];
+GetRateSymbols[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetRateSymbols[ model, __ ~~ __, opts ];
 
-GetRateSymbols[ model_Association, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetRateSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
     RetrieveModelEntitySymbols[ model, "Rates", descr, opts];
 
 
@@ -390,7 +390,7 @@ ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : Options
 (*    Block[{},*)
 (*    ];*)
 
-ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
+ToSiteCompartmentsModel[model_?EpidemiologyModelQ, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
     Block[{allPops, migrPops, coreModel, eqs, newTerms},
 
       migrPops = OptionValue[ToSiteCompartmentsModel, "MigratingPopulations"];
