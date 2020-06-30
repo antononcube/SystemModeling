@@ -683,9 +683,9 @@ ECMMonExtendByGraph[__][___] :=
 
 Clear[ECMMonExtendByAdjacencyMatrix];
 
-SyntaxInformation[ECMMonExtendByAdjacencyMatrix] = { "ArgumentsPattern" -> { _., _., _., OptionsPattern[] } };
+SyntaxInformation[ECMMonExtendByAdjacencyMatrix] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
 
-Options[ECMMonExtendByAdjacencyMatrix] = { "AdjacencyMatrix" -> None };
+Options[ECMMonExtendByAdjacencyMatrix] = { "AdjacencyMatrix" -> None, "MigratingPopulations" -> Automatic };
 
 ECMMonExtendByAdjacencyMatrix[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -704,10 +704,10 @@ ECMMonExtendByAdjacencyMatrix[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      ECMMonExtendByAdjacencyMatrix[ adjacencyMatrix ][xs, context]
+      ECMMonExtendByAdjacencyMatrix[ adjacencyMatrix, opts ][xs, context]
     ];
 
-ECMMonExtendByAdjacencyMatrix[ matAdj_?MatrixQ ][xs_, context_] :=
+ECMMonExtendByAdjacencyMatrix[ matAdj_?MatrixQ, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{ singleSiteModel, modelMultiSite},
 
       If[ !KeyExistsQ[ context, "singleSiteModel"],
@@ -719,7 +719,7 @@ ECMMonExtendByAdjacencyMatrix[ matAdj_?MatrixQ ][xs_, context_] :=
 
       (* Maybe we should also make a corresponding grid object. *)
 
-      modelMultiSite = ToSiteCompartmentsModel[ singleSiteModel, matAdj, "MigratingPopulations" -> Automatic ];
+      modelMultiSite = ToSiteCompartmentsModel[ singleSiteModel, matAdj, FilterRules[{opts}, Options[ToSiteCompartmentsModel]] ];
 
       ECMMonUnit[modelMultiSite, Join[context, <| "singleSiteModel" -> singleSiteModel, "multiSiteModel" -> modelMultiSite, "adjacencyMatrix" -> matAdj |>]]
 
@@ -1449,7 +1449,7 @@ ECMMonPlotSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure]
       ];
 
-      ECMMonPlotSolutions[ stocks, time, opts][xs, context]
+      ECMMonPlotSolutions[ stocks, time, opts ][xs, context]
     ];
 
 ECMMonPlotSolutions[
