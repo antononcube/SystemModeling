@@ -78,6 +78,12 @@ specified with nt to the right hand side of the equations eqs.";
 MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
 the migration terms for the total populations TPs and populations Ps.";
 
+MakeAgeGroupMortalityTerms::usage = "MakeAgeGroupMortalityTerms[m_?VectorQ, SP_List, opts___] gives an association \
+of age group mortality terms.";
+
+MakeAgeGroupMixingTerms::usage = "MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, opts___] \
+gives an association of age groups infection terms.";
+
 GetStocks::usage = "GetStocks[m_Association, d:(_String | _StringExpression)] get stocks
 in the model m that correspond to the descriptions d.";
 
@@ -185,7 +191,7 @@ MakeCoreMultiSiteModel[___] :=
 Clear[MakeMigrationTerms];
 
 MakeMigrationTerms::"nargs" = "The first argument is expected to be a matrix. \
-If there is not fourth argument then the second and third argument are expected to be lists of stock functions. \
+If there is no fourth argument then the second and third argument are expected to be lists of stock functions. \
 If a fourth argument is given then the second and third arguments are expected to be lists of stock symbols.";
 
 MakeMigrationTerms[mat_SparseArray, args__] :=
@@ -229,6 +235,105 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
 MakeMigrationTerms[___] :=
     Block[{},
       Message[ MakeMigrationTerms::"nargs" ];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* MakeAgeGroupMortalityTerms                              *)
+(***********************************************************)
+
+Clear[MakeAgeGroupMortalityTerms];
+
+Options[MakeAgeGroupMortalityTerms] = {"AgeGroupNames" -> Automatic};
+
+MakeAgeGroupMortalityTerms::"nargs" = "The first argument is expected to be a vector. \
+If there is no third argument then the second argument is expected to be a list \
+of stock functions. If a third argument is given then the second  \
+arguments is expected to a stock symbol.";
+
+MakeAgeGroupMortalityTerms[vecMortality_?VectorQ, SP_Symbol, t_Symbol, opts : OptionsPattern[]] :=
+    Block[{agn, SPs},
+      agn = OptionValue[MakeAgeGroupMortalityTerms, "AgeGroupNames"];
+
+      If[TrueQ[agn === Automatic],
+        agn = Range[Dimensions[vecMortality][[1]]]
+      ];
+
+      SPs = SP /@ agn;
+      MakeAgeGroupMortalityTerms[vecMortality, Through[SPs[t]], opts]
+    ];
+
+MakeAgeGroupMortalityTerms[vecMortality_?VectorQ, SPs_List, opts : OptionsPattern[]] :=
+    Block[{},
+      AssociationThread[SPs -> Thread[-SPs * vecMortality]]
+    ] /; Length[vecMortality] == Length[SPs];
+
+MakeAgeGroupMortalityTerms[___] :=
+    Block[{},
+      Message[MakeAgeGroupMortalityTerms::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* MakeAgeGroupMixingTerms                                 *)
+(***********************************************************)
+
+Clear[MakeAgeGroupMixingTerms];
+
+Options[MakeAgeGroupMixingTerms] = {"AgeGroupNames" -> Automatic};
+
+MakeAgeGroupMixingTerms::"nargs" = "The first argument is expected to be a symmetric matrix. \
+If there is no fourth argument then the second and third argument are expected to be lists \
+of stock functions. If a fourth argument is given then the second and third \
+arguments are expected to be lists of stock symbols.";
+
+MakeAgeGroupMixingTerms[matMixing_SparseArray, matContactRates_SparseArray, args__] :=
+    MakeAgeGroupMixingTerms[Normal[matMixing], Normal[matContactRates], args] /; MatrixQ[matMixing] && MatrixQ[matContactRates];
+
+MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_Symbol, SP_Symbol, IP_Symbol, t_Symbol, opts : OptionsPattern[]] :=
+    Block[{agn, SPs, IPs},
+
+      agn = OptionValue[MakeAgeGroupMixingTerms, "AgeGroupNames"];
+
+      If[TrueQ[agn === Automatic],
+        agn = Range[Dimensions[matMixing][[1]]]
+      ];
+
+      SPs = SP /@ agn;
+      IPs = IP /@ agn;
+
+      MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[0], Through[SPs[t]], Through[IPs[t]]]
+    ];
+
+MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, t_Symbol] :=
+    MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[0], Through[SPs[t]], Through[IPs[t]]];
+
+MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, opts : OptionsPattern[]] :=
+    Block[{n = Dimensions[matMixing][[2]], res},
+
+      res =
+          Total /@ Association[
+            Table[SPs[[i]] ->
+                Table[
+                  Which[
+                    TrueQ[matMixing[[j, i]] == 0] && TrueQ[matMixing[[i, j]] == 0], 0,
+
+                    True,
+                    -((SPs[[i]] IPs[[j]] matMixing[[i, j]] matContactRates[[i, j]]) / TP)
+                  ], {j, n}], {i, n}]
+          ];
+
+      res
+
+    ] /; (Dimensions[matMixing] == Dimensions[matContactRates] &&
+        SymmetricMatrixQ[matMixing] &&
+        Dimensions[matMixing][[1]] == Length[SPs] == Length[IPs]);
+
+MakeAgeGroupMixingTerms[___] :=
+    Block[{},
+      Message[MakeAgeGroupMixingTerms::"nargs"];
       $Failed
     ];
 
@@ -362,12 +467,12 @@ GetRateSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression)
 
 
 (***********************************************************)
-(* GeoCompartmentsModel                                    *)
+(* ToSiteCompartmentsModel                                 *)
 (***********************************************************)
 
-(*matMigration - constanst matrix*)
-(*matMigration - time depedent*)
-(*matMigration -  *)
+(* matMigration - constant matrix *)
+(* matMigration - time dependent *)
+(* matMigration -  *)
 
 Clear[ToSiteCompartmentsModel];
 
