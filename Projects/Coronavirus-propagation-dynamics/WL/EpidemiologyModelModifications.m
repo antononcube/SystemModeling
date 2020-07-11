@@ -304,11 +304,11 @@ MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_Symbol,
       SPs = SP /@ agn;
       IPs = IP /@ agn;
 
-      MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[0], Through[SPs[t]], Through[IPs[t]]]
+      MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[t], Through[SPs[t]], Through[IPs[t]], opts]
     ];
 
-MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, t_Symbol] :=
-    MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[0], Through[SPs[t]], Through[IPs[t]]];
+MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_Symbol, SPs_List, IPs_List, t_Symbol] :=
+    MakeAgeGroupMixingTerms[matMixing, matContactRates, TP[t], Through[SPs[t]], Through[IPs[t]]];
 
 MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, opts : OptionsPattern[]] :=
     Block[{n = Dimensions[matMixing][[2]], res},
