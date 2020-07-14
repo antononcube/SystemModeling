@@ -63,9 +63,21 @@ BeginPackage["DataIngestionFunctions`"];
 
 XLSSheetToDataset::usage = "Convert a list of lists into a Dataset object";
 
+ConvertToExportSheet::usage = "Convert a dataset into a matrix that can be exported as XLS sheet.";
+
+ExportToXLSFile::usage = "Export a complicated data structure into an XLS file. \
+Associations of datasets are converted to an XLS with multiple tabs.";
+
 Begin["`Private`"];
 
+
+(************************************************************)
+(* XLSSheetToDataset                                        *)
+(************************************************************)
+
 Clear[XLSSheetToDataset];
+
+SyntaxInformation[XLSSheetToDataset] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
 Options[XLSSheetToDataset] = {
   "SheetOffset" -> 12, "TableRowsOffset" -> 9, "TableColumnsOffset" -> 1,
@@ -101,6 +113,87 @@ XLSSheetToDataset[sheet : {_List ..}, opts : OptionsPattern[]] :=
 
       Dataset[lsDataRows][All, AssociationThread[lsColumnNames, #] &]
     ];
+
+
+(**************************************************************)
+(* ConvertToExportSheet                                       *)
+(**************************************************************)
+
+Clear[ConvertToExportSheet];
+
+SyntaxInformation[ConvertToExportSheet] = { "ArgumentsPattern" -> { _ } };
+
+ConvertToExportSheet[ data : ( _?VectorQ | _?MatrixQ ) ] := data;
+
+ConvertToExportSheet[ data : Association[ (_?AtomQ -> _?AtomQ) .. ] ] :=
+    Prepend[ List @@@ Normal[data], {"Key", "Value"} ] ;
+
+ConvertToExportSheet[ dataArg_Dataset ] :=
+    Block[{data = dataArg, namedRowsQ, firstRecord, colNames},
+
+      If[ AssociationQ[Normal[data]],
+        namedRowsQ = True;
+        data = data[Values];
+      ];
+
+      firstRecord = Normal[data[1, All]];
+      colNames = If[ AssociationQ[firstRecord], Keys[firstRecord], None ];
+
+      Which[
+        TrueQ[colNames === None],
+        data = Normal @ data,
+
+        Length[colNames] > 0,
+
+        data = Normal[data[Values]];
+        data = Prepend[data, colNames],
+
+        True,
+        Return[$Failed]
+      ];
+
+      data
+    ];
+
+
+(************************************************************)
+(* ExportToXLSFile                                          *)
+(************************************************************)
+
+Clear[SheetDataQ];
+SheetDataQ[x_] := MatchQ[x, _?VectorQ | _?MatrixQ | _Dataset | _Association ];
+SheetDataQ[___] := False;
+
+Clear[ExportToXLSFile];
+
+SyntaxInformation[ExportToXLSFile] = { "ArgumentsPattern" -> { _, _, OptionsPattern[] } };
+
+ExportToXLSFile::"nargs" = "The first argument is expected to be a file name; \
+the second argument is expected to be a dataset, a list of datasets, or an association with values that are datasets;
+the rest of the arguments are passed to Export.";
+
+ExportToXLSFile[ file_String, ds_Dataset, opts:OptionsPattern[] ] :=
+    Block[{},
+      Export[ file, ConvertToExportSheet[ds], "Data", opts ]
+    ];
+
+ExportToXLSFile[ file_String, lsData : List[ _?SheetDataQ .. ], opts:OptionsPattern[] ] :=
+    Export[file, ConvertToExportSheet /@ lsData, "Data", opts];
+
+ExportToXLSFile[ file_String, aDatasets : (Association | List)[ (_ -> _?SheetDataQ) .. ], opts:OptionsPattern[] ] :=
+    Block[{aRes},
+
+      aRes = ConvertToExportSheet /@ aDatasets;
+
+      Export[file, Normal[aRes], "Data", opts]
+    ];
+
+ExportToXLSFile[___] :=
+    Block[{},
+      Message[ExportToXLSFile::"nargs"];
+      $Failed
+    ];
+
 
 End[]; (* `Private` *)
 
