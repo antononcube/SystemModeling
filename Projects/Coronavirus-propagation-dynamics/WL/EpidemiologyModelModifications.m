@@ -113,6 +113,8 @@ of the model m according to the rules rrs.";
 
 ToAssociation::usage = "ToAssociation[ eqs : { _Equal..} ] converts a list equations into an association.";
 
+CoerceAnnotatedSymbol::usage = "CoerceAnnotatedSymbol[x] coverts a subscript symbols to non-subscript ones.";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
@@ -633,7 +635,7 @@ SetRateRules[___] :=
 
 
 (***********************************************************)
-(* Add ID                                                  *)
+(* To associations                                         *)
 (***********************************************************)
 
 Clear[ToAssociation];
@@ -649,6 +651,13 @@ ToAssociation[___] :=
       $Failed
     ];
 
+
+(***********************************************************)
+(* CoerceAnnotatedSymbol                                   *)
+(***********************************************************)
+
+Clear[CoerceAnnotatedSymbol];
+CoerceAnnotatedSymbol[x : (Subscript[s_Symbol, j_])] := ToExpression[SymbolName[s] <> ToString[j]];
 
 End[]; (* `Private` *)
 
