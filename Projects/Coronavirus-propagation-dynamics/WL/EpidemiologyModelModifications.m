@@ -72,8 +72,8 @@ makes core multi-site model.";
 EquationPosition::usage = "EquationPosition[eqs:{_Equal..}, lhs_] finds the element of eqs that has \
 the specified left hand side lhs.";
 
-AddTermsToEquations::usage = "AddTermsToEquations[eqs:{_Equal..}, nt_Association] adds the corresponding new terms in
-specified with nt to the right hand side of the equations eqs.";
+AddTermsToEquations::usage = "AddTermsToEquations[eqs:{_Equal..}, nt_Association] adds the corresponding \
+new terms in specified with nt to the right hand side of the equations eqs.";
 
 MakeMigrationTerms::usage = "MakeMigrationTerms[m_?MatrixQ, TPs_List, Ps_List] gives an association with \
 the migration terms for the total populations TPs and populations Ps.";
@@ -84,32 +84,36 @@ of age group mortality terms.";
 MakeAgeGroupMixingTerms::usage = "MakeAgeGroupMixingTerms[matMixing_?MatrixQ, matContactRates_?MatrixQ, TP_, SPs_List, IPs_List, opts___] \
 gives an association of age groups infection terms.";
 
-GetStocks::usage = "GetStocks[m_Association, d:(_String | _StringExpression)] get stocks
+GetStocks::usage = "GetStocks[m_Association, d:(_String | _StringExpression)] get stocks \
 in the model m that correspond to the descriptions d.";
 
-GetStockSymbols::usage = "GetStockSymbols[m_Association, d:(_String | _StringExpression)] get
+GetStockSymbols::usage = "GetStockSymbols[m_Association, d:(_String | _StringExpression)] get \
 stock symbols in the model m that correspond to the descriptions d.";
 
-GetPopulations::usage = "GetPopulations[m_Association, d:(_String | _StringExpression)] get populations
+GetPopulations::usage = "GetPopulations[m_Association, d:(_String | _StringExpression)] get populations \
 in the model m that correspond to the descriptions d. A synonym of GetStocks.";
 
-GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d:(_String | _StringExpression)] get
+GetPopulationSymbols::usage = "GetPopulationSymbols[m_Association, d:(_String | _StringExpression)] get \
 population symbols in the model m that correspond to the descriptions d. A synonym of GetStockSymbols.";
 
 GetRates::usage = "GetRates[m_Association, d:(_String | _StringExpression)] get rates in the model m \
 that correspond to the descriptions d.";
 
-GetRateSymbols::usage = "GetRateSymbols[m_Association, d:(_String | _StringExpression)] get rates symbols in
+GetRateSymbols::usage = "GetRateSymbols[m_Association, d:(_String | _StringExpression)] get rates symbols in \
 the model m that correspond to the descriptions d.";
 
 ToSiteCompartmentsModel::usage = "ToSiteCompartmentsModel[singleCellModel_Association, mat_?MatrixQ, opts___] \
 makes a multi-cell model based on singleCellModel using the population migration matrix mat.";
 
-SetInitialConditions::usage = "SetInitialConditions[ m_Association, ics_Associations] changes the initial
+AssignInitialConditions::usage = "AssignInitialConditions[ m_Association, ics_Associations ] changes the initial \
 conditions of the model m according to the rules ics.";
 
-SetRateRules::usage = "SetRateRules[ m_Association, rrs_Associations] changes the rate rules
+SetInitialConditions::usage = "Synonym of AssignInitialConditions.";
+
+AssignRateRules::usage = "AssignRateRules[ m_Association, rrs_Associations ] changes the rate rules \
 of the model m according to the rules rrs.";
+
+SetRateRules::usage = "Synonym of AssignRateRules.";
 
 ToAssociation::usage = "ToAssociation[ eqs : { _Equal..} ] converts a list equations into an association.";
 
@@ -559,17 +563,17 @@ ToSiteCompartmentsModel[___] :=
 (* Initial conditions setter                               *)
 (***********************************************************)
 
-Clear[SetInitialConditions];
+Clear[AssignInitialConditions];
 
-SetInitialConditions::"nargs" = "The first argument is expected to be a model association. \
+AssignInitialConditions::"nargs" = "The first argument is expected to be a model association. \
 The second argument is expected to be an associations of initial condition rules.";
 
-SetInitialConditions::"ninit" = "The model does not have initial conditions.";
+AssignInitialConditions::"ninit" = "The model does not have initial conditions.";
 
-SetInitialConditions[model_?EpidemiologyModelQ, lsInitConds : { _Equal .. } ] :=
-    SetInitialConditions[ model, Association @ ReplaceAll[ lsInitConds, Equal[x_, y_] :> Rule[x, y] ] ];
+AssignInitialConditions[model_?EpidemiologyModelQ, lsInitConds : { _Equal .. } ] :=
+    AssignInitialConditions[ model, Association @ ReplaceAll[ lsInitConds, Equal[x_, y_] :> Rule[x, y] ] ];
 
-SetInitialConditions[model_?EpidemiologyModelQ, aInitConds_Association] :=
+AssignInitialConditions[model_?EpidemiologyModelQ, aInitConds_Association] :=
     Block[{lsInitConds, pos},
 
       If[ !KeyExistsQ[model, "InitialConditions"],
@@ -594,25 +598,29 @@ SetInitialConditions[model_?EpidemiologyModelQ, aInitConds_Association] :=
       Join[model, <|"InitialConditions" -> lsInitConds|>]
     ];
 
-SetInitialConditions[___] :=
+AssignInitialConditions[___] :=
     Block[{},
-      Message[SetInitialConditions::"nargs"];
+      Message[AssignInitialConditions::"nargs"];
       $Failed
     ];
+
+(*---------------------------------------------------------*)
+Clear[SetInitialConditions];
+SetInitialConditions = AssignInitialConditions;
 
 
 (***********************************************************)
 (* Rate rules setter                                       *)
 (***********************************************************)
 
-Clear[SetRateRules];
+Clear[AssignRateRules];
 
-SetRateRules::"nargs" = "The first argument is expected to be a model association. \
+AssignRateRules::"nargs" = "The first argument is expected to be a model association. \
 The second argument is expected to be an association of rate rules.";
 
-SetRateRules::"nrrs" = "The model does not have rate rules.";
+AssignRateRules::"nrrs" = "The model does not have rate rules.";
 
-SetRateRules[model_?EpidemiologyModelQ, aRateRules_Association] :=
+AssignRateRules[model_?EpidemiologyModelQ, aRateRules_Association] :=
     Block[{lsRateRules},
 
       If[ !KeyExistsQ[model, "RateRules"],
@@ -627,11 +635,15 @@ SetRateRules[model_?EpidemiologyModelQ, aRateRules_Association] :=
       Join[model, <|"RateRules" -> lsRateRules|>]
     ];
 
-SetRateRules[___] :=
+AssignRateRules[___] :=
     Block[{},
-      Message[SetRateRules::"nargs"];
+      Message[AssignRateRules::"nargs"];
       $Failed
     ];
+
+(*---------------------------------------------------------*)
+Clear[SetRateRules];
+SetRateRules = AssignRateRules;
 
 
 (***********************************************************)
