@@ -61,6 +61,8 @@
 
 BeginPackage["DataIngestionFunctions`"];
 
+ConvertToDataset::usage = "Convert a list of lists into a dataset.";
+
 XLSSheetToDataset::usage = "Convert a list of lists into a Dataset object";
 
 ConvertToExportSheet::usage = "Convert a dataset into a matrix that can be exported as XLS sheet.";
@@ -69,6 +71,26 @@ ExportToXLSFile::usage = "Export a complicated data structure into an XLS file. 
 Associations of datasets are converted to an XLS with multiple tabs.";
 
 Begin["`Private`"];
+
+(************************************************************)
+(* ConvertToDataset                                         *)
+(************************************************************)
+
+Clear[ConvertToDataset];
+
+Options[ConvertToDataset] = {"ColumnNames" -> True};
+
+ConvertToDataset[arr_?MatrixQ, opts : OptionsPattern[]] :=
+    Block[{columnNamesQ},
+
+      columnNamesQ = TrueQ[OptionValue[ConvertToDataset, "ColumnNames"]];
+
+      If[columnNamesQ,
+        Dataset[Rest[arr]][All, AssociationThread[First[arr], #] &],
+        (*ELSE*)
+        Dataset[arr]
+      ]
+    ];
 
 
 (************************************************************)
@@ -172,15 +194,15 @@ ExportToXLSFile::"nargs" = "The first argument is expected to be a file name; \
 the second argument is expected to be a dataset, a list of datasets, or an association with values that are datasets;
 the rest of the arguments are passed to Export.";
 
-ExportToXLSFile[ file_String, ds_Dataset, opts:OptionsPattern[] ] :=
+ExportToXLSFile[ file_String, ds_Dataset, opts : OptionsPattern[] ] :=
     Block[{},
       Export[ file, ConvertToExportSheet[ds], "Data", opts ]
     ];
 
-ExportToXLSFile[ file_String, lsData : List[ _?SheetDataQ .. ], opts:OptionsPattern[] ] :=
+ExportToXLSFile[ file_String, lsData : List[ _?SheetDataQ .. ], opts : OptionsPattern[] ] :=
     Export[file, ConvertToExportSheet /@ lsData, "Data", opts];
 
-ExportToXLSFile[ file_String, aDatasets : (Association | List)[ (_ -> _?SheetDataQ) .. ], opts:OptionsPattern[] ] :=
+ExportToXLSFile[ file_String, aDatasets : (Association | List)[ (_ -> _?SheetDataQ) .. ], opts : OptionsPattern[] ] :=
     Block[{aRes},
 
       aRes = ConvertToExportSheet /@ aDatasets;
