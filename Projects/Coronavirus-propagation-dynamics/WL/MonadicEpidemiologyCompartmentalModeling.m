@@ -1206,7 +1206,7 @@ ToTimeRangeSpec[timeSpec_?TimeSpecQ] :=
 
 Clear[ECMMonGetSolutionValues];
 
-SyntaxInformation[ECMMonGetSolutionValues] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+SyntaxInformation[ECMMonGetSolutionValues] = { "ArgumentsPattern" -> { _., _., OptionsPattern[] } };
 
 Options[ECMMonGetSolutionValues] = { "Stocks" -> All, "TimeSpecification" -> 365 };
 
