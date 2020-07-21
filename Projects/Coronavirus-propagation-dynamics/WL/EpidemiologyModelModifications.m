@@ -670,6 +670,8 @@ ToAssociation[___] :=
 
 Clear[CoerceAnnotatedSymbol];
 CoerceAnnotatedSymbol[x : (Subscript[s_Symbol, j_])] := ToExpression[SymbolName[s] <> ToString[j]];
+CoerceAnnotatedSymbol[x : (Subscript[s_Symbol, j__])] := ToExpression[SymbolName[s] <> StringRiffle[ToString /@ {j}, ""]];
+CoerceAnnotatedSymbol[x_] := x;
 
 End[]; (* `Private` *)
 
