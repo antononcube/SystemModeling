@@ -397,6 +397,9 @@ RetrieveModelEntities[model_Association, key_, opts : OptionsPattern[]] :=
 RetrieveModelEntities[model_Association, key_, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
     Keys[Select[model[key], StringMatchQ[#, descr, opts]&]];
 
+RetrieveModelEntities[model_Association, key_, descr : (_Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
+    Select[ Keys[model[key]], MemberQ[Flatten[{descr}], #] || MemberQ[Flatten[{descr}], Head[#]]& ];
+
 
 Clear[RetrieveModelEntitySymbols];
 
@@ -413,6 +416,15 @@ RetrieveModelEntitySymbols[model_Association, key_, descr : (_String | _StringEx
       Cases[RetrieveModelEntities[model, key, descr, opts], p_Symbol[_] :> p ]
     ];
 
+RetrieveModelEntitySymbols[model_Association, key_, dSym_Symbol, opts : OptionsPattern[] ] :=
+    RetrieveModelEntitySymbols[model, key, {dSym}, opts];
+
+RetrieveModelEntitySymbols[model_Association, key_, dSym : {_Symbol..}, opts : OptionsPattern[] ] :=
+    Join[
+      Cases[RetrieveModelEntities[model, key, dSym, opts], ( p_Symbol[id_][_] /; MemberQ[dSym, p] ) :> p[id] ],
+      Cases[RetrieveModelEntities[model, key, dSym, opts], ( p_Symbol[_] /; MemberQ[dSym, p] ) :> p ]
+    ];
+
 
 (***********************************************************)
 (* Get stocks symbols                                      *)
@@ -426,7 +438,7 @@ Options[GetStocks] = Options[StringMatchQ];
 
 GetStocks[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStocks[ model, __ ~~ __, opts ];
 
-GetStocks[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetStocks[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntities[ model, "Stocks", descr, opts];
 
 
@@ -436,7 +448,7 @@ SyntaxInformation[GetStockSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPat
 
 GetStockSymbols[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStockSymbols[ model, __ ~~ __, opts ];
 
-GetStockSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetStockSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntitySymbols[ model, "Stocks", descr, opts];
 
 
@@ -458,7 +470,7 @@ Options[GetRates] = Options[StringMatchQ];
 
 GetRates[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetRates[ model, __ ~~ __, opts ];
 
-GetRates[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetRates[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntities[ model, "Rates", descr, opts];
 
 
@@ -468,7 +480,7 @@ SyntaxInformation[GetRateSymbols] = { "ArgumentsPattern" -> { _, _., OptionsPatt
 
 GetRateSymbols[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetRateSymbols[ model, __ ~~ __, opts ];
 
-GetRateSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression), opts : OptionsPattern[] ] :=
+GetRateSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntitySymbols[ model, "Rates", descr, opts];
 
 
