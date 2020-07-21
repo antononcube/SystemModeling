@@ -1240,7 +1240,7 @@ ECMMonGetSolutionValues[ opts : OptionsPattern[] ][xs_, context_] :=
     ];
 
 ECMMonGetSolutionValues[
-  stocksSpecArg : All | ( _String | {_String..} | _StringExpression),
+  stocksSpecArg : All | ( _String | {_String..} | _StringExpression | _Symbol | {_Symbol..} ),
   timeSpec_?TimeSpecQ,
   opts : OptionsPattern[] ][xs_, context_] :=
 
@@ -1268,14 +1268,14 @@ ECMMonGetSolutionValues[
         multiSiteQ && TrueQ[stocksSpecArg === All],
         stocksSpec = Union[ Values[context["multiSiteModel"]["Stocks"]] ],
 
-        multiSiteQ && MatchQ[stocksSpec, {_StringExpression..}],
-        stocksSpec = Flatten[ StringCases[ Union[ Values[context["multiSiteModel"]["Stocks"]] ], #]& /@ stocksSpec ],
+        multiSiteQ && MatchQ[stocksSpec, {_StringExpression..} | {_Symbol..}],
+        stocksSpec = GetStocks[ context["multiSiteModel"], stocksSpec ] /. context["multiSiteModel"]["Stocks"],
 
         !multiSiteQ && TrueQ[stocksSpecArg === All],
         stocksSpec = Union[ Values[context["singleSiteModel"]["Stocks"]] ],
 
-        !multiSiteQ && MatchQ[stocksSpec, {_StringExpression..}],
-        stocksSpec = Flatten[ StringCases[ Union[ Values[context["singleSiteModel"]["Stocks"]] ], #]& /@ stocksSpec ]
+        !multiSiteQ && MatchQ[stocksSpec, {_StringExpression..} | {_Symbol..}],
+        stocksSpec = GetStocks[ context["singleSiteModel"], stocksSpec ] /. context["singleSiteModel"]["Stocks"]
       ];
 
       If[ multiSiteQ,
