@@ -117,7 +117,7 @@ SetRateRules::usage = "Synonym of AssignRateRules.";
 
 ToAssociation::usage = "ToAssociation[ eqs : { _Equal..} ] converts a list equations into an association.";
 
-CoerceAnnotatedSymbol::usage = "CoerceAnnotatedSymbol[x] coverts a subscript symbols to non-subscript ones.";
+CoerceAnnotatedSymbols::usage = "CoerceAnnotatedSymbols[x] coverts subscript symbols to non-subscript ones.";
 
 Begin["`Private`"];
 
@@ -665,13 +665,23 @@ ToAssociation[___] :=
 
 
 (***********************************************************)
-(* CoerceAnnotatedSymbol                                   *)
+(* CoerceAnnotatedSymbols                                  *)
 (***********************************************************)
 
-Clear[CoerceAnnotatedSymbol];
-CoerceAnnotatedSymbol[x : (Subscript[s_Symbol, j_])] := ToExpression[SymbolName[s] <> ToString[j]];
-CoerceAnnotatedSymbol[x : (Subscript[s_Symbol, j__])] := ToExpression[SymbolName[s] <> StringRiffle[ToString /@ {j}, ""]];
-CoerceAnnotatedSymbol[x_] := x;
+Clear[CoerceAnnotatedSymbols];
+
+CoerceAnnotatedSymbols[x : (Subscript[s_Symbol, j_])] := ToExpression[SymbolName[s] <> ToString[j]];
+CoerceAnnotatedSymbols[x : (Subscript[s_Symbol, j__])] := ToExpression[SymbolName[s] <> StringRiffle[ToString /@ {j}, ""]];
+
+CoerceAnnotatedSymbols[ model_?EpidemiologyModelQ ] :=
+    Block[{aAnnotatedNameToName},
+      aAnnotatedNameToName = Association @ Map[# -> CoerceAnnotatedSymbols[#] &, Join[ Head /@ Keys[model["Stocks"]], Keys[model["RateRules"]] ] ];
+      Map[ If[ AssociationQ[#], Association[ Normal[#] /. aAnnotatedNameToName], # /. aAnnotatedNameToName ]&, model ]
+    ];
+
+CoerceAnnotatedSymbols[x : (_List | _Association) ] := CoerceAnnotatedSymbols /@ x;
+
+CoerceAnnotatedSymbols[x_] := x;
 
 End[]; (* `Private` *)
 
