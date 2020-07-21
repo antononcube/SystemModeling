@@ -147,8 +147,8 @@ SyntaxInformation[ConvertToExportSheet] = { "ArgumentsPattern" -> { _ } };
 
 ConvertToExportSheet[ data : ( _?VectorQ | _?MatrixQ ) ] := data;
 
-ConvertToExportSheet[ data : Association[ (_?AtomQ -> _?AtomQ) .. ] ] :=
-    Prepend[ List @@@ Normal[data], {"Key", "Value"} ] ;
+ConvertToExportSheet[ data_Association ] :=
+    Prepend[ Map[ ToString@*InputForm, List @@@ Normal[data], {2}], {"Key", "Value"} ] ;
 
 ConvertToExportSheet[ dataArg_Dataset ] :=
     Block[{data = dataArg, namedRowsQ, firstRecord, colNames},
