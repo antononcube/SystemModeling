@@ -675,7 +675,7 @@ CoerceAnnotatedSymbols[x : (Subscript[s_Symbol, j__])] := ToExpression[SymbolNam
 
 CoerceAnnotatedSymbols[ model_?EpidemiologyModelQ ] :=
     Block[{aAnnotatedNameToName},
-      aAnnotatedNameToName = Association @ Map[# -> CoerceAnnotatedSymbols[#] &, Join[ Head /@ Keys[model["Stocks"]], Keys[model["RateRules"]] ] ];
+      aAnnotatedNameToName = Association @ Map[# -> CoerceAnnotatedSymbols[#] &, Union @ Join[ Head /@ Keys[model["Stocks"]], Keys[model["RateRules"]], Keys[model["Rates"]] ] ];
       Map[ If[ AssociationQ[#], Association[ Normal[#] /. aAnnotatedNameToName], # /. aAnnotatedNameToName ]&, model ]
     ];
 
