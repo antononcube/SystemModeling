@@ -152,6 +152,8 @@ ECMMonSimulate::usage = "ECMMonSimulate";
 
 ECMMonBatchSimulate::usage = "ECMMonBatchSimulate";
 
+ECMMonCalibrate::usage = "ECMMonCalibrate";
+
 ECMMonGetSolutionValues::usage = "ECMMonGetSolutionValues[ stockSpec : All | ( _String | {_String..} | _StringExpression ), maxTime_?NumericQ, opts___ ] \
 gets the solution values for specified stocks and maximum time.";
 
@@ -1403,6 +1405,156 @@ ECMMonBatchSimulate[__][___] :=
             " ECMMonBatchSimulate[ stockSpec : ( All | _String | {_String..} | _StringExpression | {_StringExpression ..} ), params : { _Association .. } | <| ( _ -> { _?NumberQ ..} ) .. |>, maxTime_?NumericQ, opts___ ]" <>
             " or ECMMonBatchSimulate[opts___].",
         "ECMMonBatchSimulate:"
+      ];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonCalibrate                                        *)
+(**************************************************************)
+
+Clear[ECMMonCalibrate];
+
+SyntaxInformation[ECMMonCalibrate] = { "ArgumentsPattern" -> { _., _., OptionsPattern[] } };
+
+Options[ECMMonCalibrate] =
+    Join[
+      { "Target" -> None, "Parameters" -> All, "StockWeights" -> Automatic, DistanceFunction -> EuclideanDistance },
+      { Method -> {"NelderMead", "PostProcess" -> False} },
+      DeleteCases[ Options[NMinimize], Method -> _ ]
+    ];
+
+ECMMonCalibrate[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonCalibrate[xs_, context_Association] := ECMMonCalibrate[][xs, context];
+
+ECMMonCalibrate[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{target, params},
+
+      target = OptionValue[ECMMonCalibrate, "Target"];
+
+      If[ ! MatchQ[ target, <| ( _ -> { _?NumberQ .. } ) .. |> ],
+        Echo[
+          "The value of the option \"Target\" is expected to be a list of associations or an association of stocks numerical lists.",
+          "ECMMonBatchSimulate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      params = OptionValue[ECMMonCalibrate, "Parameters"];
+
+      If[ ! MatchQ[ params, { _Association .. } | <| ( _ -> { _?NumberQ .. } ) .. |> ],
+        Echo[
+          "The value of the option \"Parameters\" is expected to be a list of associations or an association of parameter numerical lists.",
+          "ECMMonCalibrate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonCalibrate[ target, params, opts][xs, context]
+    ];
+
+ECMMonCalibrate[
+  targetArg : <| ( _ -> _?VectorQ ) .. |>,
+  params : <| ( _ -> { _?NumericQ .. } ) .. |>,
+  opts : OptionsPattern[] ][xs_, context_] :=
+
+    Block[{ target = targetArg,
+      model, distFunc, stockWeights,
+      maxTime, ecmObj, modelEvalFunc, objFunc,
+      lsProcessedParams, lsTargetStocks, res},
+
+      (*-----------------------------------------------------*)
+
+      distFunc = OptionValue[ECMMonCalibrate, DistanceFunction];
+
+      stockWeights = OptionValue[ECMMonCalibrate, "StockWeights" ];
+      If[ !( TrueQ[ stockWeights === Automatic ] || AssociationQ[stockWeights] ),
+        Echo[ "The value of the options \"StockWeights\" expected to be an association or Automatic.", "ECMMonCalibrate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      (*-----------------------------------------------------*)
+
+      model = Fold[ ECMMonBind, ECMMonUnit[xs, context], {ECMMonGetDefaultModel, ECMMonTakeValue}];
+
+      If[ TrueQ[ model === $ECMMonFailure ],
+        Return[$ECMMonFailure];
+      ];
+
+      target = KeyTake[ target, Join[ GetStocks[model], GetStockSymbols[model]] ];
+      If[ Length[target] == 0,
+        Echo[ "None of the keys of the first argument are known stocks.", "ECMMonCalibrate:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ Length[target] < Length[targetArg],
+        Echo[ "Some of the keys of the first argument are not known stocks.", "ECMMonCalibrate:"];
+      ];
+
+      If[ !( Apply[Equal, Map[ Length, Values[target] ] ] && Apply[ And, VectorQ[#, NumericQ]& /@ Values[target] ] ),
+        Echo[
+          "The first argument is expected to be an association of target numerical vectors that have same length.",
+          "ECMMonCalibrate:"
+        ];
+        Return[$ECMMonFailure]
+      ];
+
+      (*-----------------------------------------------------*)
+      If[ TrueQ[stockWeights === Automatic],
+        stockWeights = <||>
+      ];
+      stockWeights = Join[ AssociationThread[ Keys[target], 1 ], stockWeights ];
+
+      maxTime = Length[target[[1]]] - 1; (* Time starts from 0.*)
+
+      ecmObj = ECMMonUnit[xs, context];
+
+      lsTargetStocks = Keys[target];
+
+      modelEvalFunc[x_?NumberQ, args___] :=
+          Block[{p},
+            p = AssociationThread[ Keys[params], {x, args}];
+
+            Fold[
+              ECMMonBind,
+              ecmObj,
+              {
+                ECMMonAssignRateRules[ p ],
+                ECMMonSimulate[maxTime],
+                ECMMonGetSolutionValues[ lsTargetStocks, maxTime ],
+                ECMMonTakeValue
+              }
+            ]
+          ];
+
+      stockWeights = KeyTake[stockWeights, Keys[target]];
+
+      objFunc[x_?NumberQ, args___] :=
+          Block[{res},
+            res = modelEvalFunc[x, args];
+            Dot[
+              Values[stockWeights],
+              MapThread[ distFunc, { Values @ KeyTake[res, Keys[target] ], Values[target] } ]
+            ]
+          ];
+
+      (*-----------------------------------------------------*)
+
+      lsProcessedParams = KeyValueMap[ Min[#2] <= #1 <= Max[#2]&, params ];
+
+      res = NMinimize[ { objFunc[Evaluate[Sequence @@ Keys[params]]], Sequence @@ lsProcessedParams }, Keys[params], FilterRules[ {opts}, Options[NMinimize] ] ];
+
+      ECMMonUnit[res, context]
+    ];
+
+
+ECMMonCalibrate[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of" <>
+            " ECMMonCalibrate[ target_Association, params : { _Association .. } | <| ( _ -> { _?NumberQ ..} ) .. |>, maxTime_?NumericQ, opts___ ]" <>
+            " or ECMMonCalibrate[opts___].",
+        "ECMMonCalibrate:"
       ];
       $ECMMonFailure
     ];
