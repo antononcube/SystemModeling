@@ -147,6 +147,9 @@ SyntaxInformation[ConvertToExportSheet] = { "ArgumentsPattern" -> { _ } };
 
 ConvertToExportSheet[ data : ( _?VectorQ | _?MatrixQ ) ] := data;
 
+ConvertToExportSheet[ data : ( _TimeSeries | _TemporalData ) ] :=
+    Prepend[ data["Path"], { "Time", "Value" } ];
+
 ConvertToExportSheet[ data_Association ] :=
     Prepend[ Map[ ToString@*InputForm, List @@@ Normal[data], {2}], {"Key", "Value"} ] ;
 
