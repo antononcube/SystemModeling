@@ -84,6 +84,8 @@ EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMul
 
 SiteIndexSolutionsPlot::usage = "SiteIndexSolutionsPlot[siteIndex_Integer, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, maxTime_?NumberQ, opts : OptionsPattern[]]";
 
+PrefixGroupsSolutionsListPlot::usage = "PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals_Association, opts : OptionsPattern[] ].";
+
 Begin["`Private`"];
 
 Needs["EpidemiologyModels`"];
@@ -576,6 +578,46 @@ SiteIndexSolutionsPlot[
     ];
 
 
+(**************************************************************)
+(* PrefixGroupsSolutionsListPlot                              *)
+(**************************************************************)
+
+Clear[PrefixGroupsSolutionsListPlot];
+
+Options[PrefixGroupsSolutionsListPlot] = Options[ListPlot];
+
+PrefixGroupsSolutionsListPlot[
+  model_?EpidemiologyModelQ,
+  aSolVals_Association,
+  opts : OptionsPattern[]] :=
+
+    Block[{aSolStocks, aSolVals2, aSolCurves},
+
+      aSolStocks =
+          GroupBy[
+            Normal[model["Stocks"]],
+            StringCases[SymbolName[Head[#[[1]]]], StartOfString ~~ x : ( LetterCharacter ..) :> x][[1]] &,
+            StringRiffle[Fold[LongestCommonSubsequence, First[#], Rest[#]] & @ StringSplit[#[[All, 2]]], " "] &
+          ];
+
+      aSolVals2 =
+          GroupBy[
+            Normal[aSolVals],
+            StringCases[SymbolName[#[[1]]], StartOfString ~~ x : ( LetterCharacter ..) :> x][[1]] &,
+            Total[#[[All, 2]]] &
+          ];
+
+      aSolCurves =
+          KeyMap[StringRiffle[{#, # /. aSolStocks}, ", "] &, aSolVals2];
+
+      ListLinePlot[
+        Association @ KeyValueMap[#1 -> Tooltip[#2, #1, FilterRules[{opts}, Options[Tooltip]] ] &, aSolCurves],
+        FilterRules[{opts}, Options[ListLinePlot]],
+        PlotRange -> All, PlotTheme -> "Detailed",
+        PlotLegends -> Keys[aSolCurves], ImageSize -> Medium
+      ]
+
+    ];
 End[]; (* `Private` *)
 
 EndPackage[]
