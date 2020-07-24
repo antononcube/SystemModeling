@@ -84,6 +84,8 @@ EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMul
 
 SiteIndexSolutionsPlot::usage = "SiteIndexSolutionsPlot[siteIndex_Integer, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, maxTime_?NumberQ, opts : OptionsPattern[]]";
 
+ToPrefixGroupsSolutions::usage = "ToPrefixGroupsSolutions[model_?EpidemiologyModelQ, aSolVals_Association].";
+
 PrefixGroupsSolutionsListPlot::usage = "PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals_Association, opts : OptionsPattern[] ].";
 
 Begin["`Private`"];
@@ -579,19 +581,13 @@ SiteIndexSolutionsPlot[
 
 
 (**************************************************************)
-(* PrefixGroupsSolutionsListPlot                              *)
+(* ToPrefixGroupsSolutions                                    *)
 (**************************************************************)
 
-Clear[PrefixGroupsSolutionsListPlot];
+Clear[ToPrefixGroupsSolutions];
 
-Options[PrefixGroupsSolutionsListPlot] = Options[ListPlot];
-
-PrefixGroupsSolutionsListPlot[
-  model_?EpidemiologyModelQ,
-  aSolVals_Association,
-  opts : OptionsPattern[]] :=
-
-    Block[{aSolStocks, aSolVals2, aSolCurves},
+ToPrefixGroupsSolutions[model_?EpidemiologyModelQ, aSolVals : Association[ (_ -> {_?NumericQ ..}) .. ] ] :=
+    Block[{aSolStocks, aSolVals2},
 
       aSolStocks =
           GroupBy[
@@ -607,10 +603,29 @@ PrefixGroupsSolutionsListPlot[
             Total[#[[All, 2]]] &
           ];
 
-      aSolCurves =
-          KeyMap[StringRiffle[{#, # /. aSolStocks}, ", "] &, aSolVals2];
+      KeyMap[StringRiffle[{#, # /. aSolStocks}, ", "] &, aSolVals2]
+    ];
 
-      ListLinePlot[
+
+(**************************************************************)
+(* PrefixGroupsSolutionsListPlot                              *)
+(**************************************************************)
+
+Clear[PrefixGroupsSolutionsListPlot];
+
+Options[PrefixGroupsSolutionsListPlot] = Options[ListPlot];
+
+PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals : Association[ (_ -> {_?NumericQ ..}) .. ], opts : OptionsPattern[]] :=
+    Block[{aSolCurves},
+      aSolCurves = ToPrefixGroupsSolutions[ model, aSolVals ];
+
+      PrefixGroupsSolutionsListPlot[aSolCurves, opts]
+    ];
+
+PrefixGroupsSolutionsListPlot[ aSolCurves : Association[ (_ -> (_?VectorQ | _?MatrixQ)) .. ], opts : OptionsPattern[]] :=
+    Block[{},
+
+      ListPlot[
         Association @ KeyValueMap[#1 -> Tooltip[#2, #1, FilterRules[{opts}, Options[Tooltip]] ] &, aSolCurves],
         FilterRules[{opts}, Options[ListLinePlot]],
         PlotRange -> All, PlotTheme -> "Detailed",
