@@ -613,7 +613,13 @@ ToPrefixGroupsSolutions[model_?EpidemiologyModelQ, aSolVals : Association[ (_ ->
 
 Clear[PrefixGroupsSolutionsListPlot];
 
-Options[PrefixGroupsSolutionsListPlot] = Options[ListPlot];
+SyntaxInformation[PrefixGroupsSolutionsListPlot] = { "ArgumentsPattern" -> {_, _., OptionsPattern[]} };
+
+Options[PrefixGroupsSolutionsListPlot] =
+    Join[
+      { "DateListPlot" -> False, "StartDate" -> Automatic },
+      Union @ Join[ Options[ListPlot], Options[DateListPlot] ]
+    ];
 
 PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals : Association[ (_ -> {_?NumericQ ..}) .. ], opts : OptionsPattern[]] :=
     Block[{aSolCurves},
@@ -622,16 +628,28 @@ PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals : Association[
       PrefixGroupsSolutionsListPlot[aSolCurves, opts]
     ];
 
-PrefixGroupsSolutionsListPlot[ aSolCurves : Association[ (_ -> (_?VectorQ | _?MatrixQ)) .. ], opts : OptionsPattern[]] :=
-    Block[{},
+PrefixGroupsSolutionsListPlot[ aSolCurvesArg : Association[ (_ -> (_?VectorQ | _?MatrixQ)) .. ], opts : OptionsPattern[]] :=
+    Block[{ aSolCurves = aSolCurvesArg, dateListPlotQ, startDate, listPlotFunc = ListPlot, listPlotFuncOpts},
 
-      ListPlot[
+      dateListPlotQ = TrueQ[OptionValue[PrefixGroupsSolutionsListPlot, "DateListPlot"]];
+
+      startDate = OptionValue[PrefixGroupsSolutionsListPlot, "StartDate"];
+      If[ TrueQ[startDate === Automatic], startDate = Take[Date[], 3] ];
+
+      If[ dateListPlotQ, listPlotFunc = DateListPlot ];
+
+      listPlotFuncOpts = FilterRules[{opts}, Options[listPlotFunc]];
+
+      If[ MatchQ[aSolCurves, Association[(_ -> _?VectorQ) ..] ],
+        aSolCurves = Map[Transpose[{DatePlus[startDate, #] & /@ Range[0, Length[#] - 1], #}] &, aSolCurves]
+      ];
+
+      listPlotFunc[
         Association @ KeyValueMap[#1 -> Tooltip[#2, #1, FilterRules[{opts}, Options[Tooltip]] ] &, aSolCurves],
-        FilterRules[{opts}, Options[ListLinePlot]],
+        listPlotFuncOpts,
         PlotRange -> All, PlotTheme -> "Detailed",
         PlotLegends -> Keys[aSolCurves], ImageSize -> Medium
       ]
-
     ];
 
 
