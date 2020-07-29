@@ -600,8 +600,11 @@ AssignInitialConditions[model_?EpidemiologyModelQ, aInitConds_Association] :=
               Function[{ics, icRule},
                 pos = EquationPosition[lsInitConds, icRule[[1]]];
                 If[IntegerQ[pos],
-                  ReplacePart[ics, pos -> icRule[[1]] == icRule[[2]]]
-                ]],
+                  ReplacePart[ics, pos -> icRule[[1]] == icRule[[2]]],
+                  (*ELSE*)
+                  ics
+                ]
+              ],
               lsInitConds,
               Normal[aInitConds]
             ]
