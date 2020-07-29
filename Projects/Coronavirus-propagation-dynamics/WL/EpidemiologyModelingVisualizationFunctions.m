@@ -84,6 +84,8 @@ EconomicsStockPlots::usage = "EconomicsStockPlots[grHexagonCells_Graph, modelMul
 
 SiteIndexSolutionsPlot::usage = "SiteIndexSolutionsPlot[siteIndex_Integer, modelMultiSite_?EpidemiologyModelQ, aSolMultiSite_?AssociationQ, maxTime_?NumberQ, opts : OptionsPattern[]]";
 
+ToTimeSeries::usage = "Makes data into time series.";
+
 ToPrefixGroupsSolutions::usage = "ToPrefixGroupsSolutions[model_?EpidemiologyModelQ, aSolVals_Association].";
 
 PrefixGroupsSolutionsListPlot::usage = "PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals_Association, opts : OptionsPattern[] ].";
@@ -577,6 +579,33 @@ SiteIndexSolutionsPlot[
         opts,
         PlotRange -> All, PlotTheme -> "Detailed",
         PlotLegends -> Keys[aSol], ImageSize -> Medium]
+    ];
+
+
+(**************************************************************)
+(* Add time axis                                              *)
+(**************************************************************)
+
+Clear[ToTimeSeries];
+
+ToTimeSeries::"nargs" = "The first argument is expected to be a numeric vector or a list or a association \
+of numeric vectors. The second argument is expected to be a date specification, a number, or a date object.";
+
+ToTimeSeries[ data_?VectorQ, startDate : (_List | _DateObject | _?NumberQ )] :=
+    Block[{},
+      TimeSeries @ Transpose[{DatePlus[startDate, #] & /@ Range[0, Length[data] - 1], data}]
+    ] /; VectorQ[data, NumericQ];
+
+ToTimeSeries[ data : Association[ (_ -> _?VectorQ) ..], startDate : (_List | _DateObject | _?NumberQ )] :=
+    Map[ ToTimeSeries[#, startDate]&, data ];
+
+ToTimeSeries[ data : List[ (_ -> _?VectorQ) ..], startDate : (_List | _DateObject | _?NumberQ )] :=
+    Map[ #[[1]] -> ToTimeSeries[#[[2]], startDate] &, data ];
+
+ToTimeSeries[___] :=
+    Block[{},
+      Message[ToTimeSeries::"nargs"];
+      $Failed
     ];
 
 
