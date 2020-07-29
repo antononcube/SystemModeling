@@ -634,13 +634,13 @@ PrefixGroupsSolutionsListPlot[ aSolCurvesArg : Association[ (_ -> (_?VectorQ | _
       dateListPlotQ = TrueQ[OptionValue[PrefixGroupsSolutionsListPlot, "DateListPlot"]];
 
       startDate = OptionValue[PrefixGroupsSolutionsListPlot, "StartDate"];
-      If[ TrueQ[startDate === Automatic], startDate = Take[Date[], 3] ];
+      If[ TrueQ[startDate === Automatic], startDate = AbsoluteTime @ Take[Date[], 3] ];
 
       If[ dateListPlotQ, listPlotFunc = DateListPlot ];
 
       listPlotFuncOpts = FilterRules[{opts}, Options[listPlotFunc]];
 
-      If[ MatchQ[aSolCurves, Association[(_ -> _?VectorQ) ..] ],
+      If[ dateListPlotQ && MatchQ[aSolCurves, Association[(_ -> _?VectorQ) ..] ],
         aSolCurves = Map[Transpose[{DatePlus[startDate, #] & /@ Range[0, Length[#] - 1], #}] &, aSolCurves]
       ];
 
