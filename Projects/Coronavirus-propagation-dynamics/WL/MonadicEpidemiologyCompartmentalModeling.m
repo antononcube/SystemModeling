@@ -1033,8 +1033,11 @@ ECMMonAssignInitialConditions[ opts : OptionsPattern[] ][xs_, context_] :=
       $ECMMonFailure
     ];
 
-ECMMonAssignInitialConditions[ aCoordsToValues_Association, stockName_String, opts : OptionsPattern[] ][xs_, context_] :=
-    ECMMonAssignInitialConditionsByGridAggregation[ aCoordsToValues, stockName, opts ][xs, context];
+ECMMonAssignInitialConditions[ stockVals: { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonAssignInitialConditions[ Association[stockVals], opts ][xs, context];
+
+ECMMonAssignInitialConditions[ stockVal_Rule, opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonAssignInitialConditions[ <|stockVal|>, opts ][xs, context];
 
 ECMMonAssignInitialConditions[ aStockValues_Association ][xs_, context_] :=
     Block[{ model, aContextAddition },
@@ -1044,12 +1047,12 @@ ECMMonAssignInitialConditions[ aStockValues_Association ][xs_, context_] :=
 
         KeyExistsQ[ context, "multiSiteModel"],
         model = context["multiSiteModel"];
-        model = SetInitialConditions[ model, aStockValues ];
+        model = AssignInitialConditions[ model, aStockValues ];
         aContextAddition = <| "multiSiteModel" -> model |>,
 
         KeyExistsQ[ context, "singleSiteModel"],
         model = context["singleSiteModel"];
-        model = SetInitialConditions[ model, aStockValues ];
+        model = AssignInitialConditions[ model, aStockValues ];
         aContextAddition = <| "singleSiteModel" -> model |>,
 
         True,
@@ -1060,6 +1063,9 @@ ECMMonAssignInitialConditions[ aStockValues_Association ][xs_, context_] :=
       ECMMonUnit[model, Join[context, aContextAddition]]
 
     ];
+
+ECMMonAssignInitialConditions[ aCoordsToValues_Association, stockName_String, opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonAssignInitialConditionsByGridAggregation[ aCoordsToValues, stockName, opts ][xs, context];
 
 ECMMonAssignInitialConditions[__][___] :=
     Block[{},
@@ -1091,6 +1097,12 @@ ECMMonAssignRateRules[ opts : OptionsPattern[] ][xs_, context_] :=
       $ECMMonFailure
     ];
 
+ECMMonAssignRateRules[ rateVals: { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonAssignRateRules[ Association[rateVals], opts ][xs, context];
+
+ECMMonAssignRateRules[ rateVal_Rule, opts : OptionsPattern[] ][xs_, context_] :=
+    ECMMonAssignRateRules[ <|rateVal|>, opts ][xs, context];
+
 ECMMonAssignRateRules[ aRateRules_Association ][xs_, context_] :=
     Block[{ model, aContextAddition },
 
@@ -1098,12 +1110,12 @@ ECMMonAssignRateRules[ aRateRules_Association ][xs_, context_] :=
 
         KeyExistsQ[ context, "multiSiteModel"],
         model = context["multiSiteModel"];
-        model = SetRateRules[ model, aRateRules ];
+        model = AssignRateRules[ model, aRateRules ];
         aContextAddition = <| "multiSiteModel" -> model |>,
 
         KeyExistsQ[ context, "singleSiteModel"],
         model = context["singleSiteModel"];
-        model = SetRateRules[ model, aRateRules ];
+        model = AssignRateRules[ model, aRateRules ];
         aContextAddition = <| "singleSiteModel" -> model |>,
 
         True,
