@@ -1033,7 +1033,7 @@ ECMMonAssignInitialConditions[ opts : OptionsPattern[] ][xs_, context_] :=
       $ECMMonFailure
     ];
 
-ECMMonAssignInitialConditions[ stockVals: { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
+ECMMonAssignInitialConditions[ stockVals : { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
     ECMMonAssignInitialConditions[ Association[stockVals], opts ][xs, context];
 
 ECMMonAssignInitialConditions[ stockVal_Rule, opts : OptionsPattern[] ][xs_, context_] :=
@@ -1097,7 +1097,7 @@ ECMMonAssignRateRules[ opts : OptionsPattern[] ][xs_, context_] :=
       $ECMMonFailure
     ];
 
-ECMMonAssignRateRules[ rateVals: { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
+ECMMonAssignRateRules[ rateVals : { _Rule .. }, opts : OptionsPattern[] ][xs_, context_] :=
     ECMMonAssignRateRules[ Association[rateVals], opts ][xs, context];
 
 ECMMonAssignRateRules[ rateVal_Rule, opts : OptionsPattern[] ][xs_, context_] :=
@@ -1145,7 +1145,7 @@ Clear[ECMMonSimulate];
 
 SyntaxInformation[ECMMonSimulate] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ECMMonSimulate] = Join[ { "MaxTime" -> 365 }, Options[NDSolve] ];
+Options[ECMMonSimulate] = Join[ { "MaxTime" -> 365, "TimeVariable" -> Automatic }, Options[NDSolve] ];
 
 ECMMonSimulate[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -1165,7 +1165,14 @@ ECMMonSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
     ];
 
 ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
-    Block[{aSol, model},
+    Block[{aSol, model, timeVar},
+
+      timeVar = OptionValue[ECMMonSimulate, "TimeVariable"];
+      If[ TrueQ[ timeVar === Automatic ], timeVar = Global`t];
+      If[ ! Developer`SymbolQ[timeVar],
+        Echo["The value of the option \"TimeVariable\" is expected to be a symbol.", "ECMMonSimulate:"];
+        Return[$ECMMonFailure]
+      ];
 
       If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
         Echo["The first argument is expected to be a non-negative number.", "ECMMonSimulate:"];
@@ -1179,7 +1186,7 @@ ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
         Return[$ECMMonFailure];
       ];
 
-      aSol = Association @ First @ ModelNDSolve[ model, {Global`t, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ];
+      aSol = Association @ First @ ModelNDSolve[ model, {timeVar, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ];
 
       If[ !( KeyExistsQ[context, "singleSiteModel"] || KeyExistsQ[context, "multiSiteModel" ] ),
         ECMMonUnit[aSol, Join[ context, <| "singleSiteModel" -> model, "solution" -> aSol |>]],
@@ -1325,7 +1332,11 @@ Clear[ECMMonBatchSimulate];
 
 SyntaxInformation[ECMMonBatchSimulate] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
 
-Options[ECMMonBatchSimulate] = { "Stocks" -> All, "Parameters" -> All, "MaxTime" -> 365 };
+Options[ECMMonBatchSimulate] =
+    Union @ Join[
+      { "Stocks" -> All, "Parameters" -> All, "MaxTime" -> 365 },
+      Options[ECMMonSimulate]
+    ];
 
 ECMMonBatchSimulate[___][$ECMMonFailure] := $ECMMonFailure;
 
@@ -1398,7 +1409,7 @@ ECMMonBatchSimulate[
                         ECMMonUnit[xs, context],
                         {
                           ECMMonAssignRateRules[ p ],
-                          ECMMonSimulate[maxTime],
+                          ECMMonSimulate[maxTime, FilterRules[{opts}, Options[ECMMonSimulate]] ],
                           ECMMonGetSolutionValues[ stockSpec, maxTime ],
                           ECMMonTakeValue
                         }
@@ -1434,6 +1445,7 @@ Options[ECMMonCalibrate] =
     Join[
       { "Target" -> None, "Parameters" -> All, "StockWeights" -> Automatic, DistanceFunction -> EuclideanDistance },
       { Method -> {"NelderMead", "PostProcess" -> False} },
+      Options[ECMMonSimulate],
       DeleteCases[ Options[NMinimize], Method -> _ ]
     ];
 
@@ -1532,7 +1544,7 @@ ECMMonCalibrate[
               ecmObj,
               {
                 ECMMonAssignRateRules[ p ],
-                ECMMonSimulate[maxTime],
+                ECMMonSimulate[maxTime, FilterRules[{opts}, Options[ECMMonSimulate]] ],
                 ECMMonGetSolutionValues[ lsTargetStocks, maxTime ],
                 ECMMonTakeValue
               }
