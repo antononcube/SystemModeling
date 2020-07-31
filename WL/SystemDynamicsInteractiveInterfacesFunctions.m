@@ -48,6 +48,9 @@ BeginPackage["SystemDynamicsInteractiveInterfacesFunctions`"];
 ParametricSolutionsPlots::usage = "ParametricSolutionsPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumericQ, opts : OptionsPattern[]] \
 uses Plot over an association of parametrized functions aSol for the stocks aStocks with function parameters params for time range {0, tmax}.";
 
+ParametricSolutionsListPlots::usage = "ParametricSolutionsListPlots[aStocks_Association, aSol_Association, params : (_List | None), tmax_?NumericQ, opts : OptionsPattern[]] \
+uses ListPlot or DateListPlot over an association of parametrized functions aSol for the stocks aStocks with function parameters params for time range {0, tmax}.";
+
 ParametricFunctionValues::usage = "ParametricFunctionValues[pf_ParametricFunction, pars_?AssociationQ, tspec : {tmin_?NumericQ, tmax_?NumericQ, tstep_?NumericQ}] \
 evaluates the parametric function pf with parameters pars over the times specified by tspec.";
 
@@ -119,6 +122,93 @@ ParametricSolutionsPlots[
         ]
       ]
 
+    ];
+
+
+(**************************************************************)
+(* ParametricSolutionsListPlots                               *)
+(**************************************************************)
+
+Clear[ParametricSolutionsListPlots];
+
+Options[ParametricSolutionsListPlots] =
+    Join[
+      { "LogPlot" -> False, "Together" -> False, "Derivatives" -> False, "DerivativePrefix" -> "\[CapitalDelta]" },
+      { "DateListPlot" -> False, "StartDate" -> Automatic, Joined -> True },
+      Union @ Join[ Options[ListPlot], Options[DateListPlot] ]
+    ];
+
+ParametricSolutionsListPlots[
+  aStocks_Association,
+  aSol_Association,
+  params : (_List | None),
+  tmaxArg : (Automatic | _?NumericQ),
+  opts : OptionsPattern[]] :=
+    Block[{ tmax = tmaxArg, logPlotQ, togetherQ, derivativesQ, derivativesPrefix,
+      dateListPlotQ, startDate, listPlotFuncOpts,
+      listPlotFunc = ListPlot, dfunc = Identity, dprefix = "", stockRules,
+      ts, aSolCurves },
+
+      logPlotQ = TrueQ[OptionValue[ParametricSolutionsListPlots, "LogPlot"]];
+      togetherQ = TrueQ[OptionValue[ParametricSolutionsListPlots, "Together"]];
+      derivativesQ = TrueQ[OptionValue[ParametricSolutionsListPlots, "Derivatives"]];
+      derivativesPrefix = OptionValue[ParametricSolutionsListPlots, "DerivativePrefix"];
+
+      dateListPlotQ = TrueQ[OptionValue[ParametricSolutionsListPlots, "DateListPlot"]];
+
+      startDate = OptionValue[ParametricSolutionsListPlots, "StartDate"];
+      If[ TrueQ[startDate === Automatic], startDate = AbsoluteTime @ Take[Date[], 3] ];
+
+      Which[
+        logPlotQ && dateListPlotQ, listPlotFunc = DateListLogPlot,
+
+        !logPlotQ && dateListPlotQ, listPlotFunc = DateListPlot,
+
+        logPlotQ, listPlotFunc = LogPlot
+      ];
+
+      listPlotFuncOpts = FilterRules[{opts}, Options[listPlotFunc]];
+
+      stockRules = Normal[aStocks];
+      stockRules[[All, 1]] = stockRules[[All, 1]] /. {x_Symbol[id_][v_Symbol] :> x[id]["t"], x_Symbol[v_Symbol] :> x["t"]};
+
+      If[derivativesQ, dfunc = Differences[#]&; dprefix = derivativesPrefix];
+
+      If[ TrueQ[tmax === Automatic],
+        tmax = Max[Cases[aSol, _InterpolatingFunction, Infinity][[1]]["Domain"]]
+      ];
+
+      ts = Range[0, tmax, 1];
+
+      aSolCurves =
+          Map[
+            If[ Length[params] == 0 || TrueQ[params === None],
+              dfunc[#[ts]],
+              dfunc[#[Sequence @@ params][ts]]
+            ]&,
+            aSol
+          ];
+
+      If[ dateListPlotQ,
+        aSolCurves = Map[Transpose[{DatePlus[startDate, #] & /@ Range[0, Length[#] - 1], #}] &, aSolCurves]
+      ];
+
+      If[togetherQ,
+        List @ listPlotFunc[
+          Association @ KeyValueMap[#1 -> Tooltip[#2, #1, FilterRules[{opts}, Options[Tooltip]] ] &, aSolCurves],
+          PlotLegends -> Map[ If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ] &, Keys[aSolCurves]],
+          Evaluate[FilterRules[Flatten[{opts}], Options[listPlotFunc]]],
+          PlotRange -> All
+        ],
+        (*ELSE*)
+        KeyValueMap[
+          listPlotFunc[#2,
+            PlotLabel -> If[ Length[aStocks] == 0, Row[{dprefix, #1["t"]}], Row[{dprefix, #1["t"], ",", Spacer[3], dprefix, #1["t"] /. stockRules}] ],
+            Evaluate[FilterRules[Flatten[{opts}], Options[listPlotFunc]]],
+            PlotRange -> All] &,
+          aSolCurves
+        ]
+      ]
     ];
 
 
