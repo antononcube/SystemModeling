@@ -247,7 +247,7 @@ TrapezoidalRuleAccumulate[points : {{_?NumericQ, _?NumericQ} ..}] :=
 
 
 (**************************************************************)
-(* StockVariabilityPlot                                  *)
+(* StockVariabilityPlot                                       *)
 (**************************************************************)
 
 Clear[StockVariabilityPlot];
