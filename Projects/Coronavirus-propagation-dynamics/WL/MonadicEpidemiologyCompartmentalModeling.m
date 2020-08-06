@@ -1167,13 +1167,6 @@ ECMMonSimulate[ opts : OptionsPattern[] ][xs_, context_] :=
 ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
     Block[{aSol, model, timeVar},
 
-      timeVar = OptionValue[ECMMonSimulate, "TimeVariable"];
-      If[ TrueQ[ timeVar === Automatic ], timeVar = Global`t];
-      If[ ! Developer`SymbolQ[timeVar],
-        Echo["The value of the option \"TimeVariable\" is expected to be a symbol.", "ECMMonSimulate:"];
-        Return[$ECMMonFailure]
-      ];
-
       If[ ! ( NumericQ[maxTime] && maxTime >= 0 ),
         Echo["The first argument is expected to be a non-negative number.", "ECMMonSimulate:"];
         Return[$ECMMonFailure]
@@ -1184,6 +1177,16 @@ ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
       If[ TrueQ[ model === $ECMMonFailure ],
         Echo["Cannot find a model.", "ECMMonSimulate:"];
         Return[$ECMMonFailure];
+      ];
+
+      timeVar = OptionValue[ECMMonSimulate, "TimeVariable"];
+      If[ TrueQ[ timeVar === Automatic ],
+        timeVar = ReverseSortBy[Tally[Cases[Keys[model["Stocks"]], _Symbol, Infinity]], #[[2]] &][[1, 1]];
+        If[ ! Developer`SymbolQ[timeVar], timeVar = Global`t ]
+      ];
+      If[ ! Developer`SymbolQ[timeVar],
+        Echo["The value of the option \"TimeVariable\" is expected to be a symbol or Automatic.", "ECMMonSimulate:"];
+        Return[$ECMMonFailure]
       ];
 
       aSol = Association @ First @ ModelNDSolve[ model, {timeVar, 0, maxTime}, FilterRules[{opts}, Options[NDSolve]] ];
