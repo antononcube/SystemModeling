@@ -80,6 +80,7 @@ Needs["EpidemiologyModelModifications`"];
 Needs["EpidemiologyModelingSimulationFunctions`"];
 Needs["EpidemiologyModelingVisualizationFunctions`"];
 Needs["SystemDynamicsInteractiveInterfacesFunctions`"];
+Needs["MonadicEpidemiologyCompartmentalModeling`"];
 
 
 (**************************************************************)
@@ -160,21 +161,22 @@ StockAndDataDateListPlot[
               ECMMonSetSingleSiteModel[model2],
               ECMMonAssignRateRules[aCalibrationParameters],
               ECMMonSimulate[maxTime]
-            }];
+            }
+          ];
+
+      If[ TrueQ[ecmObj === $ECMMonFailure], Return[$Failed] ];
 
       (* Find plot label *)
-
       plotLabel = Cases[{opts}, HoldPattern[PlotLabel -> _]];
       If[Length[plotLabel] == 0, plotLabel = stock, plotLabel = plotLabel[[1, 2]]];
 
       (* Visualize *)
       Legended[
         Show[{
-          DateListPlot[tsCalibrationDataPadded, FilterRules[{opts}, DateListPlot],
-            PlotRange -> {0, Automatic}, opts1, opts2],
+          DateListPlot[tsCalibrationDataPadded, FilterRules[{opts}, Options[DateListPlot]], PlotRange -> {0, Automatic}, opts1, opts2],
           PrefixGroupsSolutionsListPlot[
             model2,
-            Map[diffFunc, Fold[ ECMMonBind, ecmObj, {ECMMonGetSolutionValues[stock, maxTime], ECMMonTakeValue}]],
+            Map[diffFunc, Fold[ ECMMonBind, ecmObj, {ECMMonGetSolutionValues[stock, maxTime], ECMMonTakeValue}] ],
             "DateListPlot" -> True,
             "StartDate" -> tsCalibrationDataPadded["Times"][[1]],
             PlotLegends -> None]
