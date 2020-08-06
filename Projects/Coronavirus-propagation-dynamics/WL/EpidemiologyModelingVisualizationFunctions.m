@@ -642,6 +642,12 @@ ToPrefixGroupsSolutions[model_?EpidemiologyModelQ, aSolVals : Association[ (_ ->
 
 Clear[PrefixGroupsSolutionsListPlot];
 
+PrefixGroupsSolutionsListPlot::"nargs" =
+    "The expected signatures are \
+PrefixGroupsSolutionsListPlot[model_?EpidemiologyModelQ, aSolVals : Association[ (_ -> {_?NumericQ ..}) .. ], opts : OptionsPattern[]] \
+or \
+PrefixGroupsSolutionsListPlot[ aSolCurvesArg : Association[ (_ -> (_?VectorQ | _?MatrixQ)) .. ], opts : OptionsPattern[]] .";
+
 SyntaxInformation[PrefixGroupsSolutionsListPlot] = { "ArgumentsPattern" -> {_, _., OptionsPattern[]} };
 
 Options[PrefixGroupsSolutionsListPlot] =
@@ -681,6 +687,11 @@ PrefixGroupsSolutionsListPlot[ aSolCurvesArg : Association[ (_ -> (_?VectorQ | _
       ]
     ];
 
+PrefixGroupsSolutionsListPlot[___] :=
+    Block[{},
+      Message[PrefixGroupsSolutionsListPlot::"nargs"];
+      $Failed
+    ];
 
 End[]; (* `Private` *)
 
