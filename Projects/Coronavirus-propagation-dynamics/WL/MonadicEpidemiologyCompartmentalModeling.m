@@ -163,6 +163,10 @@ ECMMonPlotSiteSolutions::usage = "ECMMonPlotSiteSolutions";
 
 ECMMonEvaluateSolutionsOverGraph::usage = "ECMMonEvaluateSolutionsOverGraph";
 
+ECMMonExportModel::usage = "ECMMonExportModel[fileName_String] exports the default monad model into file.";
+
+ECMMonImportModel::usage = "ECMMonImportModel[fileName_String] imports model from a file.";
+
 Begin["`Private`"];
 
 Needs["StateMonadCodeGenerator`"];
@@ -1180,10 +1184,12 @@ ECMMonSimulate[ maxTime_?NumericQ, opts : OptionsPattern[] ][xs_, context_] :=
       ];
 
       timeVar = OptionValue[ECMMonSimulate, "TimeVariable"];
+
       If[ TrueQ[ timeVar === Automatic ],
         timeVar = ReverseSortBy[Tally[Cases[Keys[model["Stocks"]], _Symbol, Infinity]], #[[2]] &][[1, 1]];
         If[ ! Developer`SymbolQ[timeVar], timeVar = Global`t ]
       ];
+
       If[ ! Developer`SymbolQ[timeVar],
         Echo["The value of the option \"TimeVariable\" is expected to be a symbol or Automatic.", "ECMMonSimulate:"];
         Return[$ECMMonFailure]
@@ -1735,7 +1741,7 @@ ECMMonPlotSiteSolutions[ opts : OptionsPattern[] ][xs_, context_] :=
 
       If[ ! MatchQ[ cellIDs, _Integer | {_Integer..} ],
         Echo[
-          "The value of the option \"CellIDs\" is expected match the pattern: ( _Integer | {_String..} ).",
+          "The value of the option \"CellIDs\" is expected to match the pattern: ( _Integer | {_String..} ).",
           "ECMMonPlotSiteSolutions:"];
         Return[$ECMMonFailure]
       ];
@@ -1810,6 +1816,170 @@ ECMMonPlotSiteSolutions[__][___] :=
       $ECMMonFailure
     ];
 
+
+(**************************************************************)
+(* ECMMonExportModel                                          *)
+(**************************************************************)
+
+Clear[ECMMonExportModel];
+
+SyntaxInformation[ECMMonExportModel] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonExportModel] = { "FileName" -> Automatic, "Directory" -> Automatic };
+
+ECMMonExportModel[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonExportModel[][xs_, context_] := ECMMonExportModel[Automatic][xs, context];
+
+ECMMonExportModel[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{fileName},
+
+      fileName = OptionValue[ECMMonExportModel, "FileName"];
+
+      If[ ! ( TrueQ[fileName === Automatic] || StringQ[fileName] ),
+        Echo[
+          "The value of the option \"FileName\" is expected to be a string or Automatic.",
+          "ECMMonExportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      ECMMonExportModel[ fileName, opts][xs, context]
+    ];
+
+ECMMonExportModel[ Automatic, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{fileName, dateTime},
+
+      dateTime = StringReplace[DateString["ISODateTime"], ":" -> "."];
+
+      fileName = "ECMMon-model-" <> dateTime <> ".m";
+
+      ECMMonExportModel[fileName, opts][xs, context]
+    ];
+
+ECMMonExportModel[ fileNameArg_String, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{fileName = fileNameArg, dirName, res, model, modelType},
+
+      dirName = OptionValue[ECMMonExportModel, "Directory"];
+
+      If[ ! ( TrueQ[dirName === Automatic] || StringQ[dirName] ),
+        Echo[
+          "The value of the option \"Directory\" is expected to be a string or Automatic.",
+          "ECMMonExportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ MemberQ[{Automatic, None}, dirName], dirName = Directory[] ];
+
+      If[ ! FileExistsQ[dirName],
+        Echo["The directory \"" <> dirName <> "\" does not exist.", "ECMMonImportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      If[ ! TrueQ[ FileType[dirName] === Directory ],
+        Echo["The location \"" <> dirName <> "\" is not a directory.", "ECMMonImportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      model = Fold[ ECMMonBind, ECMMonUnit[xs, context], { ECMMonGetDefaultModel, ECMMonTakeValue }];
+
+      modelType =
+          Which[
+            KeyExistsQ[context, "multiSiteModel"], "multiSiteModel",
+            KeyExistsQ[context, "singleSiteModel"], "singleSiteModel",
+            True, None
+          ];
+
+      model = Append[ model, "ECMMonModelType" -> modelType ];
+
+      If[ Length[FileNameSplit[fileName]] == 1,
+        fileName = FileNameJoin[{ dirName, fileName }]
+      ];
+
+      res = Export[ fileName, model ];
+
+      ECMMonUnit[res, context]
+    ];
+
+ECMMonExportModel[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonExportModel[ fileName : (_String | Automatic), opts___] or ECMMonExportModel[opts___].",
+        "ECMMonExportModel:"
+      ];
+      $ECMMonFailure
+    ];
+
+
+(**************************************************************)
+(* ECMMonImportModel                                          *)
+(**************************************************************)
+
+Clear[ECMMonImportModel];
+
+SyntaxInformation[ECMMonImportModel] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
+
+Options[ECMMonImportModel] = { "FileName" -> None };
+
+ECMMonImportModel[___][$ECMMonFailure] := $ECMMonFailure;
+
+ECMMonImportModel[ opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{fileName},
+
+      fileName = OptionValue[ECMMonImportModel, "FileName"];
+
+      fileName =
+          If[ ! StringQ[fileName],
+            Echo[
+              "The value of the option \"FileName\" is expected to be a string.",
+              "ECMMonImportModel:"];
+            Return[$ECMMonFailure]
+          ];
+
+      ECMMonImportModel[ fileName, opts][xs, context]
+    ];
+
+ECMMonImportModel[ fileName_String, opts : OptionsPattern[] ][xs_, context_] :=
+    Block[{res, model, modelType},
+
+      If[ !FileExistsQ[fileName],
+        Echo["The file \"" <> fileName <> "\" does not exist.", "ECMMonImportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      model = Get[ fileName ];
+
+      If[ !EpidemiologyModelQ[model],
+        Echo["The import from file \"" <> fileName <> "\" is not an ECMMon model.", "ECMMonImportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      modelType = Lookup[model, "ECMMonModelType", "singleSiteModel"];
+      model = KeyDrop[ model, "ECMMonModelType"];
+
+      If[ !EpidemiologyFullModelQ[model],
+        Echo["The import from file \"" <> fileName <> "\" is an ECMMon model, but not a full model.", "ECMMonImportModel:"];
+      ];
+
+      If[ !MemberQ[ {"singleSiteModel", "multiSiteModel"}, modelType ],
+        Echo[
+          "Unknown model type " <> modelType <> " in the file \"" <> fileName <> "\". " <>
+              "The model type is expected to be one of \"singleSiteModel\" or \"multiSiteModel\".",
+          "ECMMonImportModel:"];
+        Return[$ECMMonFailure]
+      ];
+
+      (* Maybe it is better to ECMMonSetSingleSiteModel and ECMMonSetMultiSiteModel . *)
+      ECMMonUnit[res, Join[ context, <| modelType -> model |> ] ]
+    ];
+
+ECMMonImportModel[__][___] :=
+    Block[{},
+      Echo[
+        "The expected signature is one of ECMMonImportModel[ fileName_String, opts___] or ECMMonImportModel[opts___].",
+        "ECMMonImportModel:"
+      ];
+      $ECMMonFailure
+    ];
 
 
 End[]; (* `Private` *)
