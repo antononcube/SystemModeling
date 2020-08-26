@@ -1,0 +1,44 @@
+#+TITLE: Translation of WL ODE systems to R ODE functions
+#+AUTHOR: Anton Antonov, github.com/antononcube
+
+* Introduction 
+** Mission statement
+- The goal of this project is make a translator of a list of Ordinary Differential Equations (ODEs) written in Wolfram Language (WL) into an ODE system computation function in R that can be utilized by the R-package "deSolve". 
+** Motivation 
+- Generally speaking, making mathematical models that involve systems of ODEs is much easier to in WL than other system.
+- Also, WL's numerical ODEs solver ~NDSolve~ is one of the most advanced general differential equations solvers.
+- For variety of reasons it is of great interest to be able to translate ODEs models developed in WL into other programming languages, especially if those other programming languages have inferior to WL abilities for specification and modeling of system of ODEs.
+- R is such a programming language.
+  - The R-package "deSolve" is very good but not as great as WL's ~NDSolve~.
+  - The R-package "Shiny" and related services and infrastructure provided by RStudio Inc provide a great way of communicating the results computational model in interactive and portable manner.
+* Components
+- The project has two components:
+  1) a parser and
+  2) a code generator.
+- The parser is based on a Extended Backus-Naur Form (EBNF) grammar for parsing WL system of ODE's.
+- Using the Abstract Syntax Trees (ASTs) produced by the parser the code generator produces code for different programming languages.
+  - R is the most important target.
+* Work plan [0%] [0/1]
+** TODO Parser of WL ODEs [0%] [0/4]
+- [ ] Develop a EBNF grammar for parsing WL ODEs.
+- [ ] Implement a corresponding parser.
+  - Say in, WL, Java, Scala, Raku.
+- [ ] Write a suitably large unit tests for the parser.
+** TODO Code generator
+- [ ] Write code generation for the derived AST.
+- [ ] Experiment with hooking up the generated code to ~ECMMon-R~.
+** TODO Documentation
+- [ ] Parser elements
+- [ ] Code generation elements
+- [ ] Vignette (user guide)
+- [ ] Diagrams
+** TODO Unit tests [0%] [0/2]
+*** TODO Parser
+- [ ] Initial set for development purposes.
+- [ ] More comprehensive set with suitable coverage.
+*** TODO Generated R code
+- [ ] Simple systems of ODEs.
+- [ ] Complex, real-life systems of ODEs.
+* References
+- [RS1] RStudio, [[https://shiny.rstudio.com][Shiny]].
+- [AAr1] Anton Antonov, [[https://github.com/antononcube/ECMMon-R]["Epidemiology Compartmental Modeling Monad R package"]], (2020), [[https://github.com/antononcube][GitHub/antononcube]].
