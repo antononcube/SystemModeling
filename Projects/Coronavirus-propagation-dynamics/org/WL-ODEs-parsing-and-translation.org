@@ -5,12 +5,12 @@
 ** Mission statement
 - The goal of this project is make a translator of a list of Ordinary Differential Equations (ODEs) written in Wolfram Language (WL) into an ODE system computation function in R that can be utilized by the R-package "deSolve". 
 ** Motivation 
-- Generally speaking, making mathematical models that involve systems of ODEs is much easier to in WL than other system.
+- Generally speaking, making mathematical models that involve systems of ODEs is much easier to do in WL than other systems.
 - Also, WL's numerical ODEs solver ~NDSolve~ is one of the most advanced general differential equations solvers.
-- For variety of reasons it is of great interest to be able to translate ODEs models developed in WL into other programming languages, especially if those other programming languages have inferior to WL abilities for specification and modeling of system of ODEs.
+- For variety of reasons it is of great interest to be able to translate ODEs models developed with WL into other programming languages, especially if those other programming languages have inferior to WL abilities for specification, simulation, and analysis of ODE systems.
 - R is such a programming language.
-  - The R-package "deSolve" is very good but not as great as WL's ~NDSolve~.
-  - The R-package "Shiny" and related services and infrastructure provided by RStudio Inc provide a great way of communicating the results computational model in interactive and portable manner.
+  - The R-package "deSolve" is very good, but not as great as WL's ~NDSolve~.
+  - The R-package "Shiny" and related services and infrastructure provided by RStudio Inc. give a great way of communicating the results of computational models in an interactive and portable manner.
 * Components
 - The project has two components:
   1) a parser and
@@ -20,12 +20,13 @@
   - R is the most important target.
 * Work plan [0%] [0/1]
 ** TODO Parser of WL ODEs [0%] [0/4]
-- [ ] Develop a EBNF grammar for parsing WL ODEs.
+- [ ] Develop an EBNF grammar for parsing WL ODEs.
 - [ ] Implement a corresponding parser.
-  - Say in, WL, Java, Scala, Raku.
+  - Say, in WL, Java, Scala, Raku.
 - [ ] Write a suitably large unit tests for the parser.
+  - For development purposes
 ** TODO Code generator
-- [ ] Write code generation for the derived AST.
+- [ ] Write suitable code generation routines for the derived AST.
 - [ ] Experiment with hooking up the generated code to ~ECMMon-R~.
 ** TODO Documentation
 - [ ] Parser elements
