@@ -88,6 +88,9 @@ using the time variable var with symbols in the context con.";
 SEI2HREconModel::usage = "SEI2HREconModel[var, con] generates economics SEI2HR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
+SEI4RModel::usage = "SEI4RModel[var, con] generates SEI4R model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
 ModelGridTableForm::usage = "Displays the model legibly.";
 
 Begin["`Private`"];
@@ -1077,6 +1080,170 @@ SEI2HREconModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ]
 SEI2HREconModel[___] :=
     Block[{},
       Message[SEI2HREconModel::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* SEI4RModel                                              *)
+(***********************************************************)
+
+Clear[SEI4RModel];
+
+SyntaxInformation[SEI4RModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SEI4RModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+SEI4RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+
+Options[SEI4RModel] = Options[SEI2RModel];
+
+SEI4RModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
+      aNewStocks, aNewRates, lsNewEquations, model, newModel,
+      newBySeverelyInfectedTerm, newByNormallyInfectedTerm, newlyInfectedTerm, peopleDyingPerDay, pos},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEI4RModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SEI4RModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEI4RModel, "BirthsTerm"] ];
+
+      tpRepr = OptionValue[ SEI4RModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SEI4RModel::"ntpval"];
+        $Failed
+      ];
+
+      model = SEI2RModel[ t, context, FilterRules[ Join[ {"InitialConditions" -> True, "RateRules" -> True}, {opts}], Options[SEI2RModel] ] ];
+
+      newModel = model;
+
+      With[{
+        (* standard *)
+        TP = ToExpression[ context <> "TP"],
+        SP = ToExpression[ context <> "SP"],
+        EP = ToExpression[ context <> "EP"],
+        INSP = ToExpression[ context <> "INSP"],
+        ISSP = ToExpression[ context <> "ISSP"],
+        RP = ToExpression[ context <> "RP"],
+        MLP = ToExpression[ context <> "MLP"],
+        deathRate = ToExpression[ context <> "\[Mu]"],
+        sspf = ToExpression[ context <> "sspf"],
+        contactRate = ToExpression[ context <> "\[Beta]"],
+        aip = ToExpression[ context <> "aip"],
+        aincp = ToExpression[ context <> "aincp"],
+        lpcr = ToExpression[ context <> "lpcr"],
+        (* new *)
+        IAP = ToExpression[ context <> "IAP"],
+        ICIP = ToExpression[ context <> "ICIP"],
+        DIP = ToExpression[ context <> "DIP"],
+        nspf = ToExpression[ context <> "nspf" ],
+        cipf = ToExpression[ context <> "cipf" ]
+      },
+
+        (* Stocks *)
+        aNewStocks = <|
+          IAP[t] -> "Infected Asymptomatic Population",
+          ICIP[t] -> "Infected Critically Ill Population",
+          DIP[t] -> "Deceased Infected Population"|>;
+
+        newModel["Stocks"] = Join[ newModel["Stocks"], aNewStocks ];
+
+        (* New Rates *)
+        aNewRates = <|
+          deathRate[IAP] -> "Infected Asymptomatic Population death rate",
+          deathRate[ICIP] -> "Infected Critically Ill Population death rate",
+          contactRate[IAP] -> "Contact rate for the infected asymptomatic population",
+          contactRate[ICIP] -> "Contact rate for the infected critically ill population",
+          nspf[SP] -> "Normally symptomatic population fraction",
+          cipf[SP] -> "Critically ill population fraction"
+        |>;
+
+        newModel["Rates"] = Join[ newModel["Rates"], aNewRates ];
+
+        (* New and changed Equations *)
+        newlyInfectedTerm =
+            contactRate[IAP] / TP[t] * SP[t] * IAP[t] +
+                contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] +
+                contactRate[INSP] / TP[t] * SP[t] * INSP[t] +
+                contactRate[ICIP] / TP[t] * SP[t] * ICIP[t];
+
+        peopleDyingPerDay =
+            deathRate[IAP] * IAP[t] +
+                deathRate[ISSP] * ISSP[t] +
+                deathRate[INSP] * INSP[t] +
+                deathRate[ICIP] * ICIP[t];
+
+        lsNewEquations = {
+          If[ birthsTermQ,
+            SP'[t] == deathRate[TP] * TP[t] - newlyInfectedTerm - deathRate[TP] * SP[t],
+            (* ELSE *)
+            SP'[t] == - newlyInfectedTerm - deathRate[TP] * SP[t]
+          ],
+          EP'[t] == newlyInfectedTerm - (deathRate[TP] + (1 / aincp) ) * EP[t],
+          IAP'[t] == (1 - sspf[SP] - nspf[SP] - cipf[SP]) * (1 / aincp) * EP[t] - (1 / aip) * IAP[t] - deathRate[IAP] * IAP[t],
+          INSP'[t] == nspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * INSP[t] - deathRate[INSP] * INSP[t],
+          ISSP'[t] == sspf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ISSP[t] - deathRate[ISSP] * ISSP[t],
+          ICIP'[t] == cipf[SP] * (1 / aincp) * EP[t] - (1 / aip) * ICIP[t] - deathRate[ICIP] * ICIP[t],
+          RP'[t] == (1 / aip) * (IAP[t] + INSP[t] + ISSP[t] + ICIP[t]) - deathRate[TP] * RP[t],
+          DIP'[t] == peopleDyingPerDay,
+          MLP'[t] == lpcr[ISSP, INSP] * (ISSP[t] + INSP[t] + ICIP[t] + peopleDyingPerDay)
+        };
+
+        Which[
+          MemberQ[{Constant, "Constant"}, tpRepr],
+          lsNewEquations = lsNewEquations /. TP[t] -> TP[0],
+
+          tpRepr == "SumSubstitution",
+          lsNewEquations = lsNewEquations /. TP[t] -> ( SP[t] + EP[t] + IAP[t] + INSP[t] + ISSP[t] + ICIP[t] + RP[t] )
+        ];
+
+        pos = Position[ model["Equations"], #]& /@ lsNewEquations[[All, 1]];
+        pos = Flatten @ Map[ If[ Length[#] == 0, {}, First @ Flatten @ # ]&, pos ];
+        newModel["Equations"] = Join[ Delete[newModel["Equations"], List /@ pos], lsNewEquations ];
+
+        (* New Initial conditions *)
+        If[ addInitialConditionsQ,
+          newModel["InitialConditions"] =
+              Join[
+                newModel["InitialConditions"],
+                {
+                  IAP[0] == 0,
+                  ICIP[0] == 0,
+                  DIP[0] == 0
+                }
+              ];
+        ];
+
+        (* New Rate Rules *)
+        If[ addRateRulesQ,
+          newModel["RateRules"] =
+              Join[
+                newModel["RateRules"],
+                <|
+                  deathRate[IAP] -> deathRate[INSP],
+                  deathRate[ICIP] -> deathRate[ISSP],
+                  contactRate[IAP] -> contactRate[INSP],
+                  contactRate[ICIP] -> contactRate[ISSP],
+                  nspf[SP] -> 0.55,
+                  sspf[SP] -> 0.2,
+                  cipf[SP] -> 0.05
+                |>
+              ];
+        ];
+
+        newModel
+      ]
+    ];
+
+SEI4RModel[___] :=
+    Block[{},
+      Message[SEI4RModel::"nargs"];
       $Failed
     ];
 
