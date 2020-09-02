@@ -79,6 +79,9 @@ using the time variable var with symbols in the context con.";
 SI2RModel::usage = "SI2RModel[var, con] generates SI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
+SEIRModel::usage = "SEIRModel[var, con] generates SEIR model stocks, rates, and equations \
+using the time variable var with symbols in the context con.";
+
 SEI2RModel::usage = "SEI2RModel[var, con] generates SEI2R model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
@@ -549,6 +552,113 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 SI2RModel[___] :=
     Block[{},
       Message[SI2RModel::"nargs"];
+      $Failed
+    ];
+
+
+(***********************************************************)
+(* SEIR                                                   *)
+(***********************************************************)
+(*
+   Initially I "programmed" this model by just modifying the full SEI2R code.
+   But it is better the SEIR implementation to be done with (self contained) model modification.
+   The "SEIR as modified SEI2R" is what is implemented. To verify used the comparison:
+
+     Merge[{model2SEIR, modelSEIR}, If[AssociationQ[#[[1]]], Complement @@ Map[Normal, #], Complement @@ #] &]
+
+   with the code modified SEI2R.
+*)
+
+Clear[SEIRModel];
+
+SyntaxInformation[SEIRModel] = { "ArgumentsPattern" -> { _, _., OptionsPattern[] } };
+
+SEIRModel::"nargs" = "The first argument is expected to be a (time variable) symbol. \
+The second optional argument is expected to be context string.";
+
+SEIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
+Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
+
+Options[SEIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
+
+SEIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
+    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, tpRepr,
+      model, lsRepRules, lsDropSymbols, m2},
+
+      addInitialConditionsQ = TrueQ[ OptionValue[ SEIRModel, "InitialConditions" ] ];
+
+      addRateRulesQ = TrueQ[ OptionValue[ SEIRModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEIRModel, "BirthsTerm"] ];
+
+      tpRepr = OptionValue[ SEIRModel, "TotalPopulationRepresentation" ];
+      If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
+      If[ !MemberQ[ {Constant, "Constant", "SumSubstitution", "AlgebraicEquation"}, tpRepr ],
+        Message[SEIRModel::"ntpval"];
+        $Failed
+      ];
+
+      With[{
+        SP = ToExpression[ context <> "SP"],
+        INSP = ToExpression[ context <> "INSP"],
+        ISSP = ToExpression[ context <> "ISSP"],
+        IP = ToExpression[ context <> "IP"],
+        RP = ToExpression[ context <> "RP"],
+        MLP = ToExpression[ context <> "MLP"],
+        deathRate = ToExpression[ context <> "\[Mu]"],
+        contactRate = ToExpression[ context <> "\[Beta]"],
+        aip = ToExpression[ context <> "aip"],
+        aincp = ToExpression[ context <> "aincp"],
+        lpcr = ToExpression[ context <> "lpcr"],
+        sspf = ToExpression[ context <> "sspf"]
+      },
+
+        (*
+        Below we modify the SEI2R model by essentially zeroing sspf[SP] and ISSP[t].
+        Additional corrections of descriptions and and equations were applied.
+        *)
+
+        model = SEI2RModel[ t, context, FilterRules[ Join[ {"InitialConditions" -> True, "RateRules" -> True}, {opts}], Options[SEIRModel] ] ];
+
+        lsRepRules = {
+          sspf[SP] -> 0,
+          ISSP[t] -> 0, INSP[t] -> IP[t], INSP[0] -> IP[0],
+          INSP'[t] -> IP'[t], contactRate[INSP] -> contactRate[IP], deathRate[INSP] -> deathRate[IP],
+          lpcr[ISSP, INSP] -> lpcr[IP]
+        };
+
+        lsDropSymbols = {sspf[SP], contactRate[ISSP], deathRate[ISSP], ISSP[0] == 1};
+
+        m2 = model;
+
+        m2["Stocks"] = KeyDrop[m2["Stocks"], ISSP[t]];
+        m2["Stocks"] = KeyMap[# /. lsRepRules &, m2["Stocks"]];
+        m2["Stocks"] = Join[m2["Stocks"], <|IP[t] -> "Infected Population"|>];
+
+        m2["Rates"] = KeyDrop[m2["Rates"], lsDropSymbols];
+        m2["Rates"] = KeyMap[# /. lsRepRules &, m2["Rates"]];
+        m2["Rates"] =
+            Join[
+              m2["Rates"],
+              <|
+                deathRate[IP] -> "Infected Population death rate",
+                contactRate[IP] -> "Contact rate for the infected population"
+              |>
+            ];
+
+        m2["RateRules"] = KeyDrop[m2["RateRules"], lsDropSymbols];
+        m2["Equations"] = DeleteCases[m2["Equations"], Equal[ISSP'[t], __]];
+        m2["Equations"] = Map[# /. lsRepRules &, m2["Equations"]];
+        m2["InitialConditions"] = DeleteCases[m2["InitialConditions"], ISSP[0] == 1] /. lsRepRules;
+        m2["RateRules"] = Association[Normal[m2["RateRules"]] /. lsRepRules];
+
+        m2
+      ]
+    ];
+
+SEIRModel[___] :=
+    Block[{},
+      Message[SEIRModel::"nargs"];
       $Failed
     ];
 
