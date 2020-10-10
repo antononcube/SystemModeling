@@ -72,7 +72,6 @@ stocks, rates, equations, initial conditions, and rate rules ?";
 MalariaModel::usage = "MalariaModel[var, con] generates malaria model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
-
 SIRModel::usage = "SIRModel[var, con] generates SIR model stocks, rates, and equations \
 using the time variable var with symbols in the context con.";
 
