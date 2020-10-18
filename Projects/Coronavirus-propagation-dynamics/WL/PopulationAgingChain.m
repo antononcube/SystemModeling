@@ -64,6 +64,7 @@ PopulationAgingChain::"sopt" = "The value of the option \"`1`\" is expected to b
 
 Options[PopulationAgingChain] := {
   "AgeBreaks" -> Automatic,
+  "AgeGroupNames" -> False,
   "PopulationSymbolName" -> "P",
   "ImmigrationSymbolName" -> "R",
   "MaturationSymbolName" -> "M",
@@ -78,9 +79,9 @@ Options[PopulationAgingChain] := {
 };
 
 PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{lsAgeBreaks, lsAgeGroups, aAgeGroups, aSymbolNames,
-      aStocks, aRates, lsEquations, n, firstFerYear, lastFerYear,
-      aRes, aRateRules, aInitialConditions},
+    Block[{lsAgeBreaks, lsAgeGroups, ageGroupNamesQ, aAgeGroups, aSymbolNames,
+      aStocks, aRates, lsEquations, n, firstFerYear, lastFerYear, ind, indp,
+      aRes},
 
       (* Age breaks *)
       lsAgeBreaks = OptionValue[ PopulationAgingChain, "AgeBreaks" ];
@@ -96,6 +97,9 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
       ];
 
       lsAgeBreaks = Union[ lsAgeBreaks, {0, Infinity}];
+
+      (* Age group names *)
+      ageGroupNamesQ = TrueQ[ OptionValue[ PopulationAgingChain, "AgeGroupNames" ] ];
 
       (* All symbol name options *)
       aSymbolNames = Association @ Map[ # -> OptionValue[ PopulationAgingChain, #]&, Select[ Keys[Options[PopulationAgingChain]], StringMatchQ[#, __ ~~ "SymbolName" ]& ] ];
@@ -118,7 +122,10 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
       lsAgeGroups = Partition[ lsAgeBreaks, 2, 1];
       lsAgeGroups = Prepend[Map[# + {1, 0} &, Rest @ lsAgeGroups], First @ lsAgeGroups];
 
-      aAgeGroups = AssociationThread[ Map[ToString, lsAgeGroups], lsAgeGroups];
+      If[ ageGroupNamesQ,
+        aAgeGroups = AssociationThread[ Map[ ToString[#[[1]]] <> "-" <> ToString[#[[2]]]&, lsAgeGroups], lsAgeGroups],
+        aAgeGroups = AssociationThread[ Range[0, Length[lsAgeGroups] - 1], lsAgeGroups]
+      ];
 
       With[{
         P = ToExpression[ context <> aSymbolNames["PopulationSymbolName"]],
@@ -155,23 +162,27 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                 Table[
                   Join[
                     MapThread[
-                      Function[{agName, ag, ind},
+                      Function[{agName, ag, i},
+                        ind = Keys[aAgeGroups][[i+1]];
+                        indp = If[ i > 0, Keys[aAgeGroups][[i]]];
+
                         aRates =
                             Join[
                               aRates,
-                              <| deathRate[S, ind] -> "Death rate for " <> agName,
-                                M[S, ind] -> "Maturation rate for " <> agName,
-                                I[S, ind] -> "Immigration rate for " <> agName |>
+                              <| deathRate[S, ind] -> "Death rate for age group " <> ToString[agName],
+                                M[S, ind] -> "Maturation rate for age group " <> ToString[agName],
+                                I[S, ind] -> "Immigration rate for age group " <> ToString[agName] |>
                             ];
+
                         Which[
-                          ind == 0,
+                          i == 0,
                           P[S, ind][t] == birthRate[S] + I[S, ind] - deathRate[S, ind] - M[S, ind],
 
-                          ind < n,
-                          P[S, ind][t] == M[S, ind - 1] + I[S, ind] - deathRate[S, ind] - M[S, ind],
+                          i < n,
+                          P[S, ind][t] == M[S, indp] + I[S, ind] - deathRate[S, ind] - M[S, ind],
 
-                          ind == n,
-                          P[S, ind][t] == M[S, n - 1] + I[S, n] - deathRate[S, n]
+                          i == n,
+                          P[S, ind][t] == M[S, indp] + I[S, ind] - deathRate[S, ind]
                         ]
                       ],
                       {Keys[aAgeGroups], Values[aAgeGroups], Range[0, Length[aAgeGroups] - 1]}
