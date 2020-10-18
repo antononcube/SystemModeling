@@ -74,18 +74,19 @@ Options[PopulationAgingChain] := {
   "ChildbearingYearSymbolName" -> "CY",
   "ChildbearingWeightsSymbolName" -> "w",
   "SexRatioSymbolName" -> "\[Sigma]",
-  "FirstChildbearingYear" -> Automatic,
-  "LastChildbearingYear" -> Automatic
+  "FirstChildbearingYear" -> 13,
+  "LastChildbearingYear" -> 50
 };
 
 PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{lsAgeBreaks, lsAgeGroups, ageGroupNamesQ, aAgeGroups, aSymbolNames,
-      aStocks, aRates, lsEquations, n, firstFerYear, lastFerYear, ind, indp,
+    Block[{lsAgeBreaks, firstFerYear, lastFerYear,
+      lsAgeGroups, ageGroupNamesQ, aAgeGroups, aSymbolNames,
+      aStocks, aRates, aFertileRanges, aFertileFractions, lsEquations, n, ind, indp,
       aRes},
 
       (* Age breaks *)
       lsAgeBreaks = OptionValue[ PopulationAgingChain, "AgeBreaks" ];
-      If[ TrueQ[ lsAgeBreaks === Automatic ], lsAgeBreaks = Range[0, 85, 10] ];
+      If[ TrueQ[ lsAgeBreaks === Automatic ], lsAgeBreaks = Range[0, 80, 10] ];
       If[ ! ( VectorQ[ lsAgeBreaks, NumberQ] && Apply[ And, # >= 0 & /@ lsAgeBreaks ]),
         Message[PopulationAgingChain::abv];
         Return[$Failed]
@@ -141,10 +142,7 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
 
         (* Stocks *)
         aStocks =
-            <|TF[t] -> "Total Fertility" ,
-              CY["first"] -> "First Childbearing Year",
-              CY["last"] -> "Last Childbearing Year",
-              P[t] -> "Population"|>;
+            <|TF[t] -> "Total Fertility"|>;
 
         (* Rates  *)
         aRates =
@@ -154,8 +152,17 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
 
         (* Equations  *)
         n = Length[aAgeGroups] - 1;
-        If[ TrueQ[ firstFerYear === Automatic ], firstFerYear = CY["first"] ];
-        If[ TrueQ[ lastFerYear === Automatic ], lastFerYear = CY["last"] ];
+        If[ TrueQ[ firstFerYear === Automatic ], firstFerYear = 13 ];
+        If[ TrueQ[ lastFerYear === Automatic ], lastFerYear = 50 ];
+
+        (* Here for each age group we find the proportion of it that has fertile females *)
+        aFertileRanges =
+            First /@ Select[Map[IntervalIntersection[Interval[{13, 50}], Interval[#]] &, aAgeGroups], Length[#] > 0 &];
+
+        aFertileFractions =
+            Association@
+                KeyValueMap[#1 -> (#2[[2]] - #2[[1]] + 1) / (
+                  aAgeGroups[#1][[2]] - aAgeGroups[#1][[1]] + 1) &, aFertileRanges];
 
         lsEquations =
             Join @@
@@ -163,8 +170,14 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                   Join[
                     MapThread[
                       Function[{agName, ag, i},
-                        ind = Keys[aAgeGroups][[i+1]];
+                        ind = Keys[aAgeGroups][[i + 1]];
                         indp = If[ i > 0, Keys[aAgeGroups][[i]]];
+
+                        aStocks =
+                            Join[
+                              aStocks,
+                              <| P[S, ind] -> "Population of sex " <> S <> " in age group " <> ToString[agName] |>
+                            ];
 
                         aRates =
                             Join[
@@ -188,8 +201,10 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                       {Keys[aAgeGroups], Values[aAgeGroups], Range[0, Length[aAgeGroups] - 1]}
                     ],
                     {
-                      birthRate[S] == sr[S] * ( TF / (lastFerYear - firstFerYear + 1 ) ) * Sum[ w[a] * P["female", a], {a, firstFerYear, lastFerYear}],
-                      Sum[ w[a], {a, firstFerYear, lastFerYear}] == 1
+                      birthRate[S] ==
+                          sr[S] * ( TF / (lastFerYear - firstFerYear + 1 ) ) *
+                              Total[ Table[ w[a] * aFertileFractions[a] * P["female", a], {a, Keys[aFertileFractions]}]],
+                      Total[Table[ w[a], {a, Keys[aFertileFractions]}]] == 1
                     }
                   ],
                   {S, {"male", "female"}}
