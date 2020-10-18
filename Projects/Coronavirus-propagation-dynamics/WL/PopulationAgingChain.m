@@ -70,9 +70,13 @@ Options[PopulationAgingChain] := {
   "MaturationSymbolName" -> "M",
   "BirthRateSymbolName" -> "\[Lambda]",
   "DeathRateSymbolName" -> "\[Mu]",
+  "ExitRateSymbolName" -> "\[Xi]",
   "TotalFertilitySymbolName" -> "TF",
   "ChildbearingYearSymbolName" -> "CY",
   "ChildbearingWeightsSymbolName" -> "w",
+  "YearsPerCohortSymbolName" -> "YPC",
+  "SurvivalFractionSymbolName" -> "SF",
+  "FractionalDeathRateSymbolName" -> "FDR",
   "SexRatioSymbolName" -> "\[Sigma]",
   "FirstChildbearingYear" -> 13,
   "LastChildbearingYear" -> 50
@@ -134,10 +138,14 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
         M = ToExpression[ context <> aSymbolNames["MaturationSymbolName"]],
         birthRate = ToExpression[ context <> aSymbolNames["BirthRateSymbolName"]],
         deathRate = ToExpression[ context <> aSymbolNames["DeathRateSymbolName"]],
+        exitRate = ToExpression[ context <> aSymbolNames["ExitRateSymbolName"]],
         TF = ToExpression[ context <> aSymbolNames["TotalFertilitySymbolName"]],
         CY = ToExpression[ context <> aSymbolNames["ChildbearingYearSymbolName"]],
         w = ToExpression[ context <> aSymbolNames["ChildbearingWeightsSymbolName"]],
-        sr = ToExpression[ context <> aSymbolNames["SexRatioSymbolName"]]
+        sr = ToExpression[ context <> aSymbolNames["SexRatioSymbolName"]],
+        YPC = ToExpression[ context <> aSymbolNames["YearsPerCohortSymbolName"]],
+        SF = ToExpression[ context <> aSymbolNames["SurvivalFractionSymbolName"]],
+        FDR = ToExpression[ context <> aSymbolNames["FractionalDeathRateSymbolName"]]
       },
 
         (* Stocks *)
@@ -145,10 +153,7 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
             <|TF[t] -> "Total Fertility"|>;
 
         (* Rates  *)
-        aRates =
-            <|
-              birthRate -> "Birth rate"
-            |>;
+        aRates = <||>;
 
         (* Equations  *)
         n = Length[aAgeGroups] - 1;
@@ -182,9 +187,13 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                         aRates =
                             Join[
                               aRates,
-                              <| deathRate[S, ind] -> "Death rate for age group " <> ToString[agName],
-                                M[S, ind] -> "Maturation rate for age group " <> ToString[agName],
-                                I[S, ind] -> "Immigration rate for age group " <> ToString[agName] |>
+                              <|birthRate[S] -> "Birth rate for sex " <> S,
+                                deathRate[S, ind] -> "Death rate for age group " <> ToString[agName],
+                                M[S, ind][t] -> "Maturation rate for age group " <> ToString[agName],
+                                I[S, ind] -> "Immigration rate for age group " <> ToString[agName],
+                                exitRate[S, ind][t] -> "Exit rate for age group " <> ToString[agName],
+                                FDR[S, ind] -> "Fractional death rate for age group " <> ToString[agName],
+                                YPC[ind] -> "Years in age group " <> ToString[agName]|>
                             ];
 
                         Which[
@@ -203,12 +212,21 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                     {
                       birthRate[S] ==
                           sr[S] * ( TF / (lastFerYear - firstFerYear + 1 ) ) *
-                              Total[ Table[ w[a] * aFertileFractions[a] * P["female", a], {a, Keys[aFertileFractions]}]],
-                      Total[Table[ w[a], {a, Keys[aFertileFractions]}]] == 1
-                    }
+                              Total[ Table[ w[a] * aFertileFractions[a] * P["female", a], {a, Keys[aFertileFractions]}]]
+                    },
+                    Table[ M[S, ind][t] == exitRate[S, ind][t] * SF[S, ind], {ind, Keys[aAgeGroups]} ],
+                    Table[ SF[S, ind] == Exp[ - FDR[S, ind] ] * YPC[ind], {ind, Keys[aAgeGroups]} ],
+                    Table[ exitRate[S, ind][t] == P[S, ind][t] / YPC[ind], {ind, Keys[aAgeGroups]} ]
                   ],
                   {S, {"male", "female"}}
                 ];
+
+        lsEquations =
+            Join[
+              lsEquations,
+              {Total[Table[ w[a], {a, Keys[aFertileFractions]}]] == 1},
+              Table[ YPC[ind] == aAgeGroups[ind][[2]] - aAgeGroups[ind][[1]] + 1, {ind, Keys[aAgeGroups]}]
+            ];
 
         (* Result *)
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations, "AgeGroups" -> aAgeGroups |>;
