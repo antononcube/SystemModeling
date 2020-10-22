@@ -181,7 +181,7 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
                         aStocks =
                             Join[
                               aStocks,
-                              <| P[S, ind] -> "Population of sex " <> S <> " in age group " <> ToString[agName] |>
+                              <| P[S, ind][t] -> "Population of sex " <> S <> " in age group " <> ToString[agName] |>
                             ];
 
                         aRates =
@@ -198,13 +198,13 @@ PopulationAgingChain[ t_Symbol, context_String : "Global`", opts : OptionsPatter
 
                         Which[
                           i == 0,
-                          P[S, ind][t] == birthRate[S] + I[S, ind] - deathRate[S, ind] - M[S, ind],
+                          P[S, ind]'[t] == birthRate[S] + I[S, ind] - deathRate[S, ind] - M[S, ind],
 
                           i < n,
-                          P[S, ind][t] == M[S, indp] + I[S, ind] - deathRate[S, ind] - M[S, ind],
+                          P[S, ind]'[t] == M[S, indp] + I[S, ind] - deathRate[S, ind] - M[S, ind],
 
                           i == n,
-                          P[S, ind][t] == M[S, indp] + I[S, ind] - deathRate[S, ind]
+                          P[S, ind]'[t] == M[S, indp] + I[S, ind] - deathRate[S, ind]
                         ]
                       ],
                       {Keys[aAgeGroups], Values[aAgeGroups], Range[0, Length[aAgeGroups] - 1]}
