@@ -80,6 +80,12 @@ If[Length[DownValues[EpidemiologyModelingSimulationFunctions`AggregateForCellIDs
 
 Clear[MultiSiteModelReadData];
 
+MultiSiteModelReadData::usage = "MultiSiteModelReadData[] imports from GitHub the following USA data: \
+1) counties names, codes, populations, and geo-locations;
+2) airports names, codes, and geo-locations;
+3) airport to airport number of people traveled in the year 2018;
+4) New York Times COVID-19 data of cases and death per county per date.";
+
 MultiSiteModelReadData[] :=
     Block[{dsUSACountyRecords, dsUSAAirportRecords, dsUSAAirportToAirportTravelers, dsNYDataCounties, dsNYDataCountiesLastDay},
 
