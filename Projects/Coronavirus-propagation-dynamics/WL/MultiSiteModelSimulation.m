@@ -84,7 +84,7 @@ MultiSiteModelReadData::usage = "MultiSiteModelReadData[] imports from GitHub th
 1) counties names, codes, populations, and geo-locations;
 2) airports names, codes, and geo-locations;
 3) airport to airport number of people traveled in the year 2018;
-4) New York Times COVID-19 data of cases and death per county per date.";
+4) New York Times COVID-19 data of cases and deaths per date and county.";
 
 MultiSiteModelReadData[] :=
     Block[{dsUSACountyRecords, dsUSAAirportRecords, dsUSAAirportToAirportTravelers, dsNYDataCounties, dsNYDataCountiesLastDay},
@@ -116,6 +116,10 @@ MultiSiteModelReadData[] :=
 (**************************************************************)
 
 Clear[MultiSiteModelSimulation];
+
+MultiSiteModelSimulation::usage = "MultiSiteModelSimulation[ aParams_Association, aData_Association, singleSiteModel, opts___] \
+computes epidemiology modeling simulations using the parameters in aParams and data in aData \
+by scaling the single site compartmental model singeSiteModel with a grid-graph over USA";
 
 SyntaxInformation[MultiSiteModelSimulation] = { "ArgumentsPattern" -> { _, _., _., OptionsPattern[] } };
 
