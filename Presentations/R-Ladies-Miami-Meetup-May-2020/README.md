@@ -34,7 +34,7 @@ The presentation was given online (because of COVID-19) using Zoom.
 [90 people registered](https://www.meetup.com/rladies-miami/events/270611412/).
 Nearly 40 showed up (and maybe 20 stayed throughout.) 
 
-Here is a link to the [video recording](https://www.youtube.com/watch?v=V5GSIEuq2NI).
+Here is a link to the [video recording](https://youtu.be/-Nsmu-cKtAU).
 
 [A similar presentation](https://github.com/antononcube/SystemModeling/tree/master/Presentations/UseR!-Meetup-Boston-2020)
 was given six weeks prior for [UseR!-Boston-Meetup](https://www.meetup.com/Boston-useR/events/269304135/).
