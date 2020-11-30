@@ -48,6 +48,18 @@
      - [ ] How the number of equations change by changing parameters or set-up?
    - [ ] If agent based modeling is used:
      - [ ] How many agents are considered?
+** Implementation [%] [/]
+1) [ ] Is the model implemented in a Mathematica package?
+2) [ ] What are the components of the model?
+3) [ ] Are the model equations hard-coded?
+4) [ ] Are there hard-coded:
+   - [ ] Data elements
+   - [ ] Equations
+   - [ ] Parameters
+5) [ ] What parameters are needed to generate the model equations?
+6) [ ] In which Mathematica context(s) the model equations have variables in?
+7) [ ] Is the model placed in a source code version control system?
+8) [ ] What are the stages of the model building?
 ** Hand-out [%] [/]
 1) [ ] What are the files needed to run the model?
 2) [ ] Are there additional packages to be obtained or downloaded?
