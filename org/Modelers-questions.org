@@ -1,0 +1,120 @@
+#+TITLE: Modeler questions
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@posteo.net
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED 
+#+OPTIONS: toc:0 num:0
+
+* Introduction
+- In this document are listed questions for different aspects of system models.
+  - System Dynamics is the main modeling paradigm.
+** Why those questions?
+- A modeler should think that people who use modeler's models are doing
+  the modeler a favor.
+- Also, for each model a certain sense of model ownership has to be formed.
+  - That makes model management easier (by humans of databases.) 
+- The questions below are gathered from those perspectives.
+** Why the questions discuss notebooks?
+- The following questions assume that models are developed and run
+  with Mathematica.
+- Currently most of SystemModeling models are (mostly) run through
+  Mathematica notebooks.
+** System Dynamics models
+- Most of the SystemModeling models are System Dynamics models. 
+- Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
+* Questions [%] [/]  
+** Modeling [0%] [0/5]
+1) [ ] What is confidence that the model reflect reality?
+   - [ ] Are the individual equations described?
+   - [ ] What are the (major) model assumptions?
+   - [ ] What are the (major) model simplifications?
+   - [ ] How easy would it be to calibrate the model?
+2) [ ] If multiple age groups are used:
+   - [ ] Does the model work with different number of age groups?
+   - [ ] Does the model work with a contact matrix parameter?
+   - [ ] What are the units of the contact matrix entries?
+3) [ ] Stocks
+   - [ ] Where the stocks are defined and explained?
+   - [ ] Is there a dictionary for the stocks in the model?
+   - [ ] Are there specifications for the physical units of each stock?
+   - [ ] Are the stocks expected value ranges?
+4) [ ] Rates
+   - [ ] Where are the rates defined and explained?
+   - [ ] Is there a dictionary for the rates in the model?
+   - [ ] Are there specifications for the physical units of each rate?
+   - [ ] Are the rates expected ranges?
+5) [ ] What is the size of the model?
+   - [ ] If compartmental modeling is used:
+     - [ ] How many ordinary differential equations the model has?
+     - [ ] How the number of equations change by changing parameters or set-up?
+   - [ ] If agent based modeling is used:
+     - [ ] How many agents are considered?
+** Hand-out [%] [/]
+1) [ ] What are the files needed to run the model?
+2) [ ] Are there additional packages to be obtained or downloaded?
+3) [ ] Are there additional data files to be obtained or downloaded?
+** Execution [0%] [0/6]
+3) [ ] What version of Mathematica the model was developed on?
+4) [ ] What is the last version of Mathematica used with the model?
+5) [ ] What operating systems the model code can/was/should be executed on?
+6) [ ] Is the model code supposed to be run as is?
+   - [ ] Is some additional set-up work is needed.
+   - [ ] Where is this additional set-up work described?
+7) [ ] Does the model code have:
+   - [ ] Set up notebook(s) or script(s)
+   - [ ] Running execution notebook(s) or script(s)
+   - [ ] Package dependencies
+8) [ ] Are there any global variables in the model execution workflow?
+   - [ ] Global environment variables:
+     - [ ] Operating System
+     - [ ] Mathematica
+   - [ ] Global notebook variables
+9) [ ] What parts of notebooks or code have to be changed?
+10) [ ] Does the model execution have code defined in the running notebook?
+    - [ ] If yes, why is that code defined in the notebook?
+      - [ ] For verification that "things are working as expected"
+      - [ ] For calibration computations intermediate insight or direction determination
+      - [ ] For visualization 
+      - [ ] For debugging
+    - [  ] Why the functions defined in the notebook are not in a package?
+** Data feeding [0%] [0/6]
+1) [ ] Where the data for the model is located?
+2) [ ] How is the data ingested in the model code?
+3) [ ] In what format the data should be?
+4) [ ] Are different data-facets in different formats?
+5) [ ] What is the required data pre-processing?
+6) [ ] What is data's pedigree?
+   - [ ] Who provided it?
+   - [ ] How it was collected?
+   - [ ] What is the methodology of processing the raw data?
+   - [ ] Is it updated or reviewed?
+** Calibration parameters [0%] [0/7]
+1) [ ] Which are the tuning or calibration parameters?
+2) [ ] Where the calibration parameters defined and/or explained?
+3) [ ] What ranges of the calibration parameters should be considered?
+4) [ ] Has calibration of the model been done or attempted?
+5) [ ] How long the calibration process should take?
+6) [ ] What the calibration targets?
+7) [ ] Is pre-processing needed for the data used to calibrate against?
+8) [ ] Should stocks be aggregated in some way in order to use the
+   calibration targets?
+9) [ ] Should the model be enhanced with additional equations i
+** Numerical computations  [%] [/]
+1) [ ] What are the expected precision and accuracy goals for the
+   simulation runs?
+2) [ ] What ODE solvers should be used?
+3) [ ] What ODE algorithms parameters have to be specified?
+** Testing [0%] [0/2]
+1) [ ] Does the model have unit tests?
+   - [ ] Expected outcomes tests
+   - [ ] No-brainer tests
+   - [ ] Consistency tests
+2) [ ] Does the data have unit tests?
+   - [ ] What are the expected data size(s)?
+   - [ ] What are the expected data properties?
+   - [ ] Is the data expected to have missing values?
+   - [ ] Are there expected distributions of different variables found
+     in data?
+   - [ ] Other types of tests
+** Possible issues
+1) List possible issues when executing the model.
+
