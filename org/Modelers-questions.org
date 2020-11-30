@@ -23,7 +23,7 @@
 - Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
 * Questions [%] [/]  
 ** Modeling [0%] [0/5]
-1) [ ] What is confidence that the model reflect reality?
+1) [ ] What is the confidence that the model reflects reality?
    - [ ] Are the individual equations described?
    - [ ] What are the (major) model assumptions?
    - [ ] What are the (major) model simplifications?
