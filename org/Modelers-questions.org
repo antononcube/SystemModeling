@@ -21,7 +21,7 @@
 ** System Dynamics models
 - Most of the SystemModeling models are System Dynamics models. 
 - Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
-* Questions [%] [/]  
+* Questions [%] [/]
 ** Modeling [0%] [0/5]
 1) [ ] What is the confidence that the model reflects reality?
    - [ ] Are the individual equations described?
@@ -85,7 +85,7 @@
     - [ ] If yes, why is that code defined in the notebook?
       - [ ] For verification that "things are working as expected"
       - [ ] For calibration computations intermediate insight or direction determination
-      - [ ] For visualization 
+      - [ ] For visualization
       - [ ] For debugging
     - [  ] Why the functions defined in the notebook are not in a package?
 ** Data feeding [0%] [0/6]
@@ -99,17 +99,23 @@
    - [ ] How it was collected?
    - [ ] What is the methodology of processing the raw data?
    - [ ] Is it updated or reviewed?
-** Calibration parameters [0%] [0/7]
+** Calibration parameters [0%] [0/11]
 1) [ ] Which are the tuning or calibration parameters?
 2) [ ] Where the calibration parameters defined and/or explained?
 3) [ ] What ranges of the calibration parameters should be considered?
-4) [ ] Has calibration of the model been done or attempted?
-5) [ ] How long the calibration process should take?
-6) [ ] What the calibration targets?
-7) [ ] Is pre-processing needed for the data used to calibrate against?
-8) [ ] Should stocks be aggregated in some way in order to use the
-   calibration targets?
-9) [ ] Should the model be enhanced with additional equations i
+4) [ ] Which parameters have highest sensitivity?
+5) [ ] Which parameters are most important?
+   - [ ] Have most impact on the results of interest
+   - [ ] Influence the system dynamics or evolution the most
+   - [ ] From economics perspective
+6) [ ] Has calibration of the model been done or attempted?
+7) [ ] How long the calibration process should take?
+8) [ ] What the calibration targets?
+9) [ ] Is pre-processing needed for the data used to calibrate against?
+10) [ ] Should stocks be aggregated in some way in order to use the
+    calibration targets?
+11) [ ] Should the model be enhanced with additional equations in
+    order to calibrate with certain type of targets?
 ** Numerical computations  [%] [/]
 1) [ ] What are the expected precision and accuracy goals for the
    simulation runs?
@@ -129,4 +135,3 @@
    - [ ] Other types of tests
 ** Possible issues
 1) List possible issues when executing the model.
-
