@@ -1,0 +1,117 @@
+#+TITLE: Calibrators questions
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@posteo.net
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED
+#+OPTIONS: toc:0 num:0
+
+* Introduction
+- In this document are listed questions for different aspects of system models calibration.
+  - System Dynamics is the main modeling paradigm.
+** Roles
+- There are three types of people dealing with the models:
+  - Modeler, who develops and implements the model and prepares it for calibration.
+  - Calibrator, who calibrates the model with different data for different parameters.
+  - Stakeholder, who requires different features of the model and outcomes from different scenario play-outs.
+- There are two main calibration scenarios:
+  - Modeler and Calibrator are the same person
+  - Modeler and Calibrator are different persons
+- Model development and calibration is most likely going to be an iterative process.
+- Hence it is good idea to keep track (a journal) of the model decisions, calibration process, problems encountered and their resolution, etc.
+** Process
+- It is assumed that each model calibration is done either for model development purposes or for a scenario play-out study.
+- It is assumed in this document that the model has matured development-wise and model calibration is done in a (more) formal way.
+  - Stakeholder requires certain scenarios to be investigated.
+  - Modeler prepares the model for those scenarios
+  - Stakeholder and Modeler formulate a *calibration request*.
+  - Calibrator uses the specifications from the calibration request to:
+    - Calibrate the model
+    - Derive model outcomes results
+    - Provide model qualitative results
+    - Provide model sensitivity analysis results
+** Calibration request
+- The calibration request should specify:
+  - Data to be used
+  - Calibration parameters
+  - Model outcomes to focus on
+  - Model properties to focus on
+** Why those questions?
+- The list of questions below should help both Modeler and Calibrator to:
+  - Have a more streamlined process of communication
+  - Address problems of model application and deployment
+  - Keep track of model evolution due to iterative model-and-calibrate processes
+** Why the questions discuss notebooks?
+- The following questions assume that models are developed and run
+  with Mathematica.
+- Currently most of SystemModeling models are (mostly) run through
+  Mathematica notebooks.
+** System Dynamics models
+- Most of the SystemModeling models are System Dynamics models.
+- Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
+* Questions [%] [/]
+** Modeling [0%] [0/4]
+- [ ] Did you have to change the model in order to calibrate it?
+- [ ] Were new stocks added?
+- [ ] Were new parameters added?
+** Implementation [0%] [0/2]
+- [ ] Did you implement new:
+  - [ ] Visualization routines
+  - [ ] Model outcomes statistics routines
+  - [ ] Model introspection routines
+- [ ] Where the new implementations are placed:
+  - [ ] Notebooks
+  - [ ] Packages
+  - [ ] Source version control repositories
+** Hand-out [0%] [0/4]
+*** Before calibration
+1) [ ] Did you get a (detailed) calibration request?
+2) [ ] What is the formulation of the calibration request?
+3) [ ] How did you get the model code?
+4) [ ] How did you get the data?
+5) [ ] Did you get any special calibration instructions?
+6) [ ] Did you get directions for results, targets, or parameters to focus on?
+*** After calibration
+1) [ ] What/which files have the calibration results?
+2) [ ] Are special representation routines/packages needed to read and interpret the calibration results?
+** Execution [0%] [0/6]
+1) [ ] What version of Mathematica the model was calibrated with?
+2) [ ] What operating systems the model was calibrated in?
+3) [ ] How long did it take you make the first run of the model?
+** Data feeding [0%] [0/2]
+1) [ ] Was data pre-processing needed?
+2) [ ] Is the calibration data different from the data the model was developed with?
+** Calibration parameters [0%] [0/6]
+1) [ ] Which calibration parameters were on focus?
+   - Requested by the stakeholder(s).
+2) [ ] Which calibration parameters did you use?
+3) [ ] Did the calibration parameters have:
+   - [ ] Specified general ranges
+   - [ ] Prescribed range subsets of interest
+4) [ ] Did you use all calibration parameters specified in calibration request?
+5) [ ] Which calibration parameters were:
+   - Most important
+   - Most sensitive
+   - Most difficult to deal with
+6) [ ] Did the model dynamics changed in an expected way with the calibration parameters?
+** Numerical computations  [0%] [0/3]
+1) [ ] Did you use particular algorithm specifications?
+2) [ ] Did you change the precision and accuracy goals?
+   - [ ] Multiple change
+   - [ ] Decreased
+   - [ ] Increased
+3) [ ] Did you observe changes of system behavior while changing:
+   - [ ] Computational algorithms
+   - [ ] Precision or accuracy
+   - [ ] Order of computations
+** Testing [0%] [0/2]
+*** Before calibration
+1) [ ] Did the model have units?
+2) [ ] Did the data have unit tests?
+3) [ ] Did you run model unit tests?
+4) [ ] Did the data pass unit tests?
+*** After calibration
+1) [ ] Were the pre-calibration unit tests adequate?
+2) [ ] Did you create new unit tests?
+3) [ ] Do you propose new unit tests?
+** Possible issues
+1) What issues were encountered when executing the model?
+
