@@ -74,7 +74,7 @@ EpidemiologyModelQ[model_] :=
 
 Clear[ModelStockDependencies];
 
-SyntaxInformation[ModelStockDependencies] = {"ArgumentsPattern" -> {_, _, _., OptionsPattern[]}};
+SyntaxInformation[ModelStockDependencies] = {"ArgumentsPattern" -> {_, _, _., _., OptionsPattern[]}};
 
 ModelStockDependencies::nargs = "The first argument is expected to be a list of equations. \
 The second argument is expected to be a list of stocks. \
@@ -87,14 +87,19 @@ Options[ModelStockDependencies] =
 ModelStockDependencies[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelStockDependencies[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
-ModelStockDependencies[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
-    Block[{aLHSIndexes, aRHSIndexes, inclEqIndexesQ = False},
+ModelStockDependencies[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelStockDependencies[lsEquations, lsStocks, lsStocks, tvar, opts];
+
+ModelStockDependencies[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    Block[{aLHSIndexes, aRHSIndexes, inclEqIndexesQ = False, lsModelStocks},
+
+      lsModelStocks = Union[lsStocksFrom, lsStocksTo];
 
       aLHSIndexes =
           Association@
               Map[
                 Function[{s},
-                  s -> Fold[If[FreeQ[lsModelEquations[[#2, 1]], s], #1, Append[#1, #2], #1] &, {}, Range[Length[lsModelEquations]]]
+                  s -> Fold[If[FreeQ[lsEquations[[#2, 1]], s], #1, Append[#1, #2], #1] &, {}, Range[Length[lsEquations]]]
                 ],
                 lsModelStocks
               ];
@@ -103,7 +108,7 @@ ModelStockDependencies[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_
           Association@
               Map[
                 Function[{s},
-                  s -> Fold[If[FreeQ[lsModelEquations[[#2, 2]], s], #1, Append[#1, #2], #1] &, {}, Range[Length[lsModelEquations]]]],
+                  s -> Fold[If[FreeQ[lsEquations[[#2, 2]], s], #1, Append[#1, #2], #1] &, {}, Range[Length[lsEquations]]]],
                 lsModelStocks
               ];
 
@@ -117,8 +122,8 @@ ModelStockDependencies[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_
 
       Join @@
           Map[
-            FocusStockDependencies[lsModelEquations, lsModelStocks, aLHSIndexes, aRHSIndexes, #, tvar, "IncludeEquationIndexes" -> inclEqIndexesQ, opts] &,
-            lsModelStocks
+            FocusStockDependencies[lsEquations, lsStocksFrom, aLHSIndexes, aRHSIndexes, #, tvar, "IncludeEquationIndexes" -> inclEqIndexesQ, opts] &,
+            lsStocksTo
           ]
     ];
 
@@ -142,7 +147,7 @@ FocusStockDependencies[
   lsStocks_List,
   aLHSIndexes_?AssociationQ,
   aRHSIndexes_?AssociationQ,
-  focusStock_Symbol,
+  focusStock_,
   tvar_Symbol,
   opts : OptionsPattern[]] :=
 
@@ -195,11 +200,14 @@ Options[ModelDependencyGraphEdges] = Options[ModelStockDependencies];
 ModelDependencyGraphEdges[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraphEdges[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
-ModelDependencyGraphEdges[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+ModelDependencyGraphEdges[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraphEdges[lsEquations, lsStocks, lsStocks, tvar, opts];
+
+ModelDependencyGraphEdges[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_List, tvar_Symbol, opts : OptionsPattern[]] :=
     Flatten @
         KeyValueMap[
           Thread[DirectedEdge[#1[[2]], #[[1]], #2]] &,
-          ModelStockDependencies[lsModelEquations, lsModelStocks, tvar, FilterRules[{opts}, Options[ModelStockDependencies]]]
+          ModelStockDependencies[lsEquations, lsStocksFrom, lsStocksTo, tvar, FilterRules[{opts}, Options[ModelStockDependencies]]]
         ];
 
 ModelDependencyGraphEdges[___] :=
@@ -226,12 +234,18 @@ Options[ModelDependencyGraph] = Join[ Options[ModelStockDependencies], Options[G
 ModelDependencyGraph[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraph[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
-ModelDependencyGraph[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+ModelDependencyGraph[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraph[lsEquations, lsStocks, lsStocks, tvar, opts];
+
+ModelDependencyGraph[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_List, tvar_Symbol, opts : OptionsPattern[]] :=
     Block[{lsSSRules},
 
-      lsSSRules = ModelDependencyGraphEdges[lsModelEquations, lsModelStocks, tvar, opts];
+      lsSSRules = ModelDependencyGraphEdges[lsEquations, lsStocksFrom, lsStocksTo, tvar, opts];
 
-      Graph[lsSSRules, Sequence @@ FilterRules[{opts}, Options[Graph]], VertexLabels -> "Name", EdgeLabels -> "EdgeTag"]
+      Graph[
+        lsSSRules,
+        Sequence @@ FilterRules[{opts}, Options[Graph]],
+        GraphLayout -> "GravityEmbedding", VertexLabels -> "Name", EdgeLabels -> "EdgeTag"]
     ];
 
 ModelDependencyGraph[___] :=
