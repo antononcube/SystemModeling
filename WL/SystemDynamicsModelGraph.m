@@ -46,10 +46,27 @@ BeginPackage["ModelStockDependencies`"];
 ModelStockDependencies::usage = "ModelStockDependencies[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
 finds the dependencies of the stocks modelStocks over the variable tvar through the equations modelEqs.";
 
-ModelGraph::usage = "ModelGraph[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
+ModelDependencyGraphEdges::usage = "ModelDependencyGraphEdges[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
+makes dependency rules of the stocks modelStocks over the variable tvar through the equations modelEqs.";
+
+ModelDependencyGraph::usage = "ModelDependencyGraph[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
 makes a graph for the dependencies of the stocks modelStocks over the variable tvar through the equations modelEqs.";
 
 Begin["`Private`"];
+
+(***********************************************************)
+(* EpidemiologyModelQ                                      *)
+(***********************************************************)
+
+Clear[EpidemiologyModelQ];
+EpidemiologyModelQ[model_] :=
+    AssociationQ[model] &&
+        Length[ Intersection[ Keys[model], { "Stocks", "Rates", "Equations" } ] ] == 3 &&
+        AssociationQ[model["Stocks"]] &&
+        AssociationQ[model["Rates"]] &&
+        MatchQ[model["Equations"], { _Equal .. }];
+
+
 
 (**************************************************************)
 (* ModelStockDependencies                                     *)
@@ -57,13 +74,18 @@ Begin["`Private`"];
 
 Clear[ModelStockDependencies];
 
-SyntaxInformation[ModelStockDependencies] = {"ArgumentsPattern" -> {_, _, _, OptionsPattern[]}};
+SyntaxInformation[ModelStockDependencies] = {"ArgumentsPattern" -> {_, _, _., OptionsPattern[]}};
 
 ModelStockDependencies::nargs = "The first argument is expected to be a list of equations. \
 The second argument is expected to be a list of stocks. \
 The third argument is expected to be symbol.";
 
-Options[ModelStockDependencies] = {"ExpandEquations" -> False, "IncludeEquationIndexes" -> Automatic};
+Options[ModelStockDependencies] =
+    { "ExpandEquations" -> False,
+      "IncludeEquationIndexes" -> Automatic };
+
+ModelStockDependencies[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelStockDependencies[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
 ModelStockDependencies[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
     Block[{aLHSIndexes, aRHSIndexes, inclEqIndexesQ = False},
@@ -120,7 +142,7 @@ FocusStockDependencies[
   lsStocks_List,
   aLHSIndexes_?AssociationQ,
   aRHSIndexes_?AssociationQ,
-  focusStock_,
+  focusStock_Symbol,
   tvar_Symbol,
   opts : OptionsPattern[]] :=
 
@@ -137,13 +159,15 @@ FocusStockDependencies[
                 Function[{s},
                   With[{s2 = s[tvar]},
                     {focusStock, s} ->
-                        Flatten@MapThread[Thread[#2 -> Cases[expandFunc[#1], (Times[f__, s2] | Times[s2, f__]) :> f, Infinity]] &, {lsStockEquations, aLHSIndexes[focusStock]}]
+                        Flatten[ Join[
+                          MapThread[Thread[#2 -> Cases[expandFunc[#1], (Times[f__, s2] | Times[s2, f__]) :> Times[f], Infinity]] &, {lsStockEquations, aLHSIndexes[focusStock]}],
+                          MapThread[Thread[#2 -> Cases[expandFunc[#1], (Plus[__, s2, ___] | Plus[___, s2, __]) -> 1, Infinity]] &, {lsStockEquations, aLHSIndexes[focusStock]}]
+                        ] ]
                   ]
                 ],
                 lsStocks
               ];
 
-      aRes = Map[Select[#, Length[#[[2]]] > 0 &] &, aRes];
       aRes = Select[aRes, Length[#] > 0 &];
 
       If[! inclEqIndexesQ,
@@ -155,36 +179,67 @@ FocusStockDependencies[
 
 
 (**************************************************************)
-(* ModelGraph                                                 *)
+(* ModelDependencyGraphEdges                                       *)
 (**************************************************************)
 
-Clear[ModelGraph];
+Clear[ModelDependencyGraphEdges];
 
-SyntaxInformation[ModelGraph] = {"ArgumentsPattern" -> {_, _, _, OptionsPattern[]}};
+SyntaxInformation[ModelDependencyGraphEdges] = {"ArgumentsPattern" -> {_, _, _., OptionsPattern[]}};
 
-ModelGraph::nargs = "The first argument is expected to be a list of equations. \
+ModelDependencyGraphEdges::nargs = "The first argument is expected to be a list of equations. \
 The second argument is expected to be a list of stocks. \
 The third argument is expected to be symbol.";
 
-Options[ModelGraph] = Join[ Options[ModelStockDependencies], Options[Graph]];
+Options[ModelDependencyGraphEdges] = Options[ModelStockDependencies];
 
-ModelGraph[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
-    Block[{lsSSRules},
-      lsSSRules =
-          Flatten@KeyValueMap[Thread[DirectedEdge[#1[[2]], #[[1]], #2]] &,
-            ModelStockDependencies[lsModelEquations, lsModelStocks, tvar, FilterRules[{opts}, Options[ModelStockDependencies]]]
-          ];
+ModelDependencyGraphEdges[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraphEdges[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
-      Graph[lsSSRules,
-        FilterRules[{opts}, Options[Graph]],
-        VertexLabels -> "Name", EdgeLabels -> "EdgeTag"]
-    ];
+ModelDependencyGraphEdges[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    Flatten @
+        KeyValueMap[
+          Thread[DirectedEdge[#1[[2]], #[[1]], #2]] &,
+          ModelStockDependencies[lsModelEquations, lsModelStocks, tvar, FilterRules[{opts}, Options[ModelStockDependencies]]]
+        ];
 
-ModelGraph[___] :=
+ModelDependencyGraphEdges[___] :=
     Block[{},
-      Message[ModelGraph::nargs];
+      Message[ModelDependencyGraphEdges::nargs];
       $Failed
     ];
+
+
+(**************************************************************)
+(* ModelDependencyGraph                                       *)
+(**************************************************************)
+
+Clear[ModelDependencyGraph];
+
+SyntaxInformation[ModelDependencyGraph] = {"ArgumentsPattern" -> {_, _, _., OptionsPattern[]}};
+
+ModelDependencyGraph::nargs = "The first argument is expected to be a list of equations. \
+The second argument is expected to be a list of stocks. \
+The third argument is expected to be symbol.";
+
+Options[ModelDependencyGraph] = Join[ Options[ModelStockDependencies], Options[Graph]];
+
+ModelDependencyGraph[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraph[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
+
+ModelDependencyGraph[lsModelEquations : {_Equal ..}, lsModelStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    Block[{lsSSRules},
+
+      lsSSRules = ModelDependencyGraphEdges[lsModelEquations, lsModelStocks, tvar, opts];
+
+      Graph[lsSSRules, Sequence @@ FilterRules[{opts}, Options[Graph]], VertexLabels -> "Name", EdgeLabels -> "EdgeTag"]
+    ];
+
+ModelDependencyGraph[___] :=
+    Block[{},
+      Message[ModelDependencyGraph::nargs];
+      $Failed
+    ];
+
 
 End[]; (* `Private` *)
 
