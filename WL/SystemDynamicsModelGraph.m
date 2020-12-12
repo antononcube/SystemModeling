@@ -38,8 +38,89 @@
 (* :Package Version: 0.1 *)
 (* :Mathematica Version: 12.0 *)
 (* :Copyright: (c) 2020 Anton Antonov *)
-(* :Keywords: *)
-(* :Discussion: *)
+(* :Keywords: dependency graph, call graph, ODE, equations system *)
+(* :Discussion:
+
+   # In brief
+
+   This package provides functions for making dependency graphs for the stocks in System Dynamics models.
+   (I.e. the variable dependent functions in systems of ODEs.)
+
+   # Usage example
+
+   Here is list of (epidemiology compartmental model) equations:
+
+   ```mathematica
+   lsEqs = {
+     Derivative[1][SP][t] == -((IP[t] SP[t] \[Beta][IP])/TP[t]) - SP[t] \[Mu][TP],
+     Derivative[1][EP][t] == (IP[t] SP[t] \[Beta][IP])/TP[t] - EP[t] (1/aincp + \[Mu][TP]),
+     Derivative[1][IP][t] == EP[t]/aincp - IP[t]/aip - IP[t] \[Mu][IP],
+     Derivative[1][RP][t] == IP[t]/aip - RP[t] \[Mu][TP],
+     TP[t] == Max[0, EP[t] + IP[t] + RP[t] + SP[t]]}
+   ```
+
+   Here is a graph of the dependencies between the populations:
+
+   ```mathematica
+   ModelDependencyGraph[lsEqs, {SP, EP, IP, RP, TP}, t]
+   ```
+
+   The function `ModelDependencyGraph` takes all options of `Graph`:
+
+   ```mathematica
+   ModelDependencyGraph[lsEqs, {SP, EP, IP, RP, TP}, t,
+     GraphLayout -> "GravityEmbedding", VertexLabels -> "Name",
+     VertexLabelStyle -> Directive[Red, Bold, 16], EdgeLabelStyle -> Directive[Blue, 16]]
+   ```
+
+   Here is graph for "focus" stocks-sources to "focus" stocks-destinations:
+
+   ```mathetica
+   ModelDependencyGraph[lsEqs, {IP, SP}, {EP}, t]
+   ```
+
+   Compare with:
+
+   ```mathematica
+   ModelDependencyGraph[lsEqs, {EP}, {IP, SP}, t]
+   ```
+
+   # Interfacing
+
+   This functions of this package works with the models from the package [AAp1].
+
+   Here is a model from [AAp1]:
+
+   ```mathematica
+   model = SEIRModel[t, "TotalPopulationRepresentation" -> "AlgebraicEquation"]
+   ```
+
+   Here we find the stocks dependencies:
+
+   ```mathematica
+   ModelStockDependencies[model, t]
+   ```
+
+   Here we make the corresponding graph:
+
+   ```
+   ModelDependencyGraph[model, t]
+   ```
+
+   # References
+
+   [AAp1] Anton Antonov, "Epidemiology models Mathematica package", (2020), SystemsModeling at GitHub/antononcube.
+          https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m
+
+
+TODO:
+  1. [X] Usage examples
+  2. [ ] Make unit tests
+  3. [ ] Adding tooltips
+  4. [ ] Functions to deal with large models.
+  5. [ ] Describe the reasons to use or not use Simplify, Expand, Gather, etc.
+
+*)
 
 BeginPackage["ModelStockDependencies`"];
 
