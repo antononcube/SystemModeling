@@ -160,7 +160,7 @@ Here we replace the symbolically represented rates with concrete values:
 Here we solve the system of ODEs:
 
 ```mathematica
-sol = First@NDSolve[{lsEqs3, SP[0] == 99998, EP[0] == 0, IP[0] == 1, RP[0] == 0,MLP[0] == 0, TP[0] == 100000}, Union[First /@ lsEdges], {t, 0, 365}]
+sol = First@NDSolve[{lsEqsGen2, SP[0] == 99998, EP[0] == 0, IP[0] == 1, RP[0] == 0,MLP[0] == 0, TP[0] == 100000}, Union[First /@ lsEdges], {t, 0, 365}]
 ```
 
 ![1p9civying0hn](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1p9civying0hn.png)
