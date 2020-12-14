@@ -30,8 +30,8 @@
 
     Mathematica is a registered trademark of Wolfram Research, Inc.
 *)
-(* :Title: ModelStockDependencies *)
-(* :Context: ModelStockDependencies` *)
+(* :Title: SystemDynamicsModelGraph *)
+(* :Context: SystemDynamicsModelGraph` *)
 (* :Author: Anton Antonov *)
 (* :Date: 2020-12-05 *)
 
@@ -98,7 +98,7 @@
    Here we find the stocks dependencies:
 
    ```mathematica
-   ModelStockDependencies[model, t]
+   SystemDynamicsModelGraph[model, t]
    ```
 
    Here we make the corresponding graph:
@@ -123,12 +123,12 @@ TODO:
 
 *)
 
-BeginPackage["ModelStockDependencies`"];
+BeginPackage["SystemDynamicsModelGraph`"];
 
 ModelHeuristicStocks::usage = "ModelHeuristicStocks[modelEqs : {_Equal ..}] \
 find heuristically the stocks in a list of equations.";
 
-ModelStockDependencies::usage = "ModelStockDependencies[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
+SystemDynamicsModelGraph::usage = "SystemDynamicsModelGraph[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
 finds the dependencies of the stocks modelStocks over the variable tvar through the equations modelEqs.";
 
 ModelDependencyGraphEdges::usage = "ModelDependencyGraphEdges[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
@@ -192,31 +192,31 @@ ModelHeuristicStocks[___] :=
 
 
 (**************************************************************)
-(* ModelStockDependencies                                     *)
+(* SystemDynamicsModelGraph                                     *)
 (**************************************************************)
 
-Clear[ModelStockDependencies];
+Clear[SystemDynamicsModelGraph];
 
-SyntaxInformation[ModelStockDependencies] = {"ArgumentsPattern" -> {_, _, _., _., OptionsPattern[]}};
+SyntaxInformation[SystemDynamicsModelGraph] = {"ArgumentsPattern" -> {_, _, _., _., OptionsPattern[]}};
 
-ModelStockDependencies::nargs = "The first argument is expected to be a list of equations. \
+SystemDynamicsModelGraph::nargs = "The first argument is expected to be a list of equations. \
 The second argument is expected to be a list of stocks. \
 The third argument is expected to be symbol.";
 
-Options[ModelStockDependencies] =
+Options[SystemDynamicsModelGraph] =
     { "ExpandEquations" -> False,
       "IncludeEquationIndexes" -> Automatic };
 
-ModelStockDependencies[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
-    ModelStockDependencies[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
+SystemDynamicsModelGraph[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
+    SystemDynamicsModelGraph[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
-ModelStockDependencies[lsEquations : {_Equal ..}, Automatic, tvar_Symbol, opts : OptionsPattern[]] :=
-    ModelStockDependencies[lsEquations, ModelHeuristicStocks[lsEquations, tvar], tvar, opts];
+SystemDynamicsModelGraph[lsEquations : {_Equal ..}, Automatic, tvar_Symbol, opts : OptionsPattern[]] :=
+    SystemDynamicsModelGraph[lsEquations, ModelHeuristicStocks[lsEquations, tvar], tvar, opts];
 
-ModelStockDependencies[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
-    ModelStockDependencies[lsEquations, lsStocks, lsStocks, tvar, opts];
+SystemDynamicsModelGraph[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
+    SystemDynamicsModelGraph[lsEquations, lsStocks, lsStocks, tvar, opts];
 
-ModelStockDependencies[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_List, tvar_Symbol, opts : OptionsPattern[]] :=
+SystemDynamicsModelGraph[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_List, tvar_Symbol, opts : OptionsPattern[]] :=
     Block[{aLHSIndexes, aRHSIndexes, inclEqIndexesQ = False, lsModelStocks},
 
       lsModelStocks = Union[lsStocksFrom, lsStocksTo];
@@ -238,7 +238,7 @@ ModelStockDependencies[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_
                 lsModelStocks
               ];
 
-      inclEqIndexesQ = OptionValue[ModelStockDependencies, "IncludeEquationIndexes"];
+      inclEqIndexesQ = OptionValue[SystemDynamicsModelGraph, "IncludeEquationIndexes"];
 
       If[TrueQ[inclEqIndexesQ === Automatic],
         inclEqIndexesQ = ! Apply[And, Length[#] == 1 & /@ Values[aLHSIndexes]],
@@ -253,9 +253,9 @@ ModelStockDependencies[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_
           ]
     ];
 
-ModelStockDependencies[___] :=
+SystemDynamicsModelGraph[___] :=
     Block[{},
-      Message[ModelStockDependencies::nargs];
+      Message[SystemDynamicsModelGraph::nargs];
       $Failed
     ];
 
@@ -266,7 +266,7 @@ ModelStockDependencies[___] :=
 
 Clear[FocusStockDependencies];
 
-Options[FocusStockDependencies] = Options[ModelStockDependencies];
+Options[FocusStockDependencies] = Options[SystemDynamicsModelGraph];
 
 FocusStockDependencies[
   lsModelEquations : {_Equal ..},
@@ -321,7 +321,7 @@ ModelDependencyGraphEdges::nargs = "The first argument is expected to be a list 
 The second argument is expected to be a list of stocks. \
 The third argument is expected to be symbol.";
 
-Options[ModelDependencyGraphEdges] = Options[ModelStockDependencies];
+Options[ModelDependencyGraphEdges] = Options[SystemDynamicsModelGraph];
 
 ModelDependencyGraphEdges[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraphEdges[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
@@ -336,7 +336,7 @@ ModelDependencyGraphEdges[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocks
     Flatten @
         KeyValueMap[
           Thread[DirectedEdge[#1[[2]], #[[1]], #2]] &,
-          ModelStockDependencies[lsEquations, lsStocksFrom, lsStocksTo, tvar, FilterRules[{opts}, Options[ModelStockDependencies]]]
+          SystemDynamicsModelGraph[lsEquations, lsStocksFrom, lsStocksTo, tvar, FilterRules[{opts}, Options[SystemDynamicsModelGraph]]]
         ];
 
 ModelDependencyGraphEdges[___] :=
@@ -358,7 +358,7 @@ ModelDependencyGraph::nargs = "The first argument is expected to be a list of eq
 The second argument is expected to be a list of stocks. \
 The third argument is expected to be symbol.";
 
-Options[ModelDependencyGraph] = Join[ Options[ModelStockDependencies], Options[Graph]];
+Options[ModelDependencyGraph] = Join[ Options[SystemDynamicsModelGraph], Options[Graph]];
 
 ModelDependencyGraph[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraph[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
