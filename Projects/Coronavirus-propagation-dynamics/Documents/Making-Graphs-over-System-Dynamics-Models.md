@@ -189,12 +189,24 @@ CallGraph`CallGraph[Context[ModelDependencyGraph], "PrivateContexts" -> False, "
 
 ### Packages
 
-[AAp1] Anton Antonov, ["System Dynamics Model Graph Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m), (2020), [SystemsModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).         
+[AAp1] Anton Antonov, 
+["System Dynamics Model Graph Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m),
+(2020),
+[SystemsModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).         
 
-[AAp2] Anton Antonov, ["Epidemiology models Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), (2020), [SystemsModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).         
+[AAp2] Anton Antonov, 
+["Epidemiology models Mathematica package"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), 
+(2020),
+[SystemsModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).         
 
-[AAp3] Anton Antonov, ["Call graph generation for context functions Mathematica package"](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/CallGraph.m), (2018), [MathematicaForPrediction at GitHub/antononcube](https://github.com/antononcube/MathematicaForPrediction).
+[AAp3] Anton Antonov, 
+["Call graph generation for context functions Mathematica package"](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/CallGraph.m), 
+(2018), 
+[MathematicaForPrediction at GitHub/antononcube](https://github.com/antononcube/MathematicaForPrediction).
 
 ### Articles
 
-[AA1] Anton Antonov, ["Call graph generation for context functions"](https://mathematicaforprediction.wordpress.com/2019/01/01/call-graph-generation-for-context-functions/), (2019), MathematicaForPrediction at WordPress.
+[AA1] Anton Antonov, 
+["Call graph generation for context functions"](https://mathematicaforprediction.wordpress.com/2019/01/01/call-graph-generation-for-context-functions/), 
+(2019), 
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com/2019/01/01/call-graph-generation-for-context-functions/).
