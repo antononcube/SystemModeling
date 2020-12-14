@@ -7,7 +7,9 @@ December 2020
 
 ## Introduction
 
-In this document we give usage examples for the functions of the package, ["SystemDynamicsModelGraph.m"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m), [[AAp1](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m)]. The package provides functions for making dependency graphs for the stocks in [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models. The primary motivation for creating the functions in this package is to have the ability to introspect, proofread, and verify the (typical) ODE models made in SD.
+In this document we give usage examples for the functions of the package, 
+["SystemDynamicsModelGraph.m"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m), 
+[[AAp1](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m)]. The package provides functions for making dependency graphs for the stocks in [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) models. The primary motivation for creating the functions in this package is to have the ability to introspect, proofread, and verify the (typical) ODE models made in SD.
 
 A more detailed explanation is:
 
@@ -48,7 +50,8 @@ ModelDependencyGraph[lsEqs, {EP, IP, RP, SP, TP}, t]
 
 ![08d1a9tfgog31](./Diagrams/Making-Graphs-over-System-Dynamics-Models/08d1a9tfgog31.png)
 
-When second argument given to ModelDependencyGraph is Automatic the stocks in the equations are heuristically found with the function ModelHeuristicStocks:
+When the second argument given to `ModelDependencyGraph` is `Automatic` the stocks in the equations are heuristically 
+found with the function `ModelHeuristicStocks`:
 
 ```mathematica
 ModelHeuristicStocks[lsEqs, t]
@@ -56,7 +59,7 @@ ModelHeuristicStocks[lsEqs, t]
 (*{EP, IP, RP, SP, TP}*)
 ```
 
-Also, the function ModelDependencyGraph takes all options of Graph:
+Also, the function `ModelDependencyGraph` takes all options of `Graph`:
 
 ```mathematica
 ModelDependencyGraph[lsEqs, Automatic, t, 
@@ -67,7 +70,7 @@ ModelDependencyGraph[lsEqs, Automatic, t,
 
 ### Dependencies only
 
-The dependencies in the model can be found with the function ModelDependencyGraphEdges:
+The dependencies in the model can be found with the function `ModelDependencyGraphEdges`:
 
 ```mathematica
 lsEdges = ModelDependencyGraphEdges[lsEqs, Automatic, t]
@@ -91,7 +94,7 @@ gr = ModelDependencyGraph[lsEqs, {IP, SP}, {EP}, t]
 
 ![13di08vbzgsyi](./Diagrams/Making-Graphs-over-System-Dynamics-Models/13di08vbzgsyi.png)
 
-Compare with the graph in which positions of sources and destinations are swapped:
+Compare with the graph in which the argument positions of sources and destinations of the previous command are swapped:
 
 ```mathematica
 ModelDependencyGraph[lsEqs, {EP}, {IP, SP}, t]
@@ -103,7 +106,7 @@ ModelDependencyGraph[lsEqs, {EP}, {IP, SP}, t]
 
 The functions of this package work with the models from the package ["EpidemiologyModels.m"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m), [[AAp2](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m)].
 
-Here is a model from [AAp2]:
+Here is a model from \[AAp2\]:
 
 ```mathematica
 model = SEIRModel[t, "TotalPopulationRepresentation" -> "AlgebraicEquation"];
@@ -122,9 +125,10 @@ ModelDependencyGraph[model, t]
 
 ## Generating equations from graph specifications
 
-A related, dual, or inverse task to the generation of graphs from systems of ODEs is the generation of system of ODEs from graphs.
+A related, dual, or inverse task to the generation of graphs from systems of ODEs is 
+the generation of system of ODEs from graphs.
 
-Here is a model specifications through graph edges (using DirectedEdge): 
+Here is a model specifications through graph edges (using `DirectedEdge`): 
 
 ![0qp613dyiglzo](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0qp613dyiglzo.png)
 
@@ -136,7 +140,7 @@ grModel = Graph[lsEdges, VertexLabels -> "Name", EdgeLabels -> "EdgeTag", ImageS
 
 ![1vrnyvwpgmcz9](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1vrnyvwpgmcz9.png)
 
-Here we generate the system of ODEs using the function ModelGraphEquations:
+Here we generate the system of ODEs using the function `ModelGraphEquations`:
 
 ```mathematica
 lsEqsGen = ModelGraphEquations[grModel, t];
@@ -145,7 +149,7 @@ ResourceFunction["GridTableForm"][List /@ lsEqsGen, TableHeadings -> {"Equations
 
 ![1dl7z5ohgof6h](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1dl7z5ohgof6h.png)
 
-**Remark:** ModelGraphEquations works with both graph and list of edges as a first argument.
+**Remark:** `ModelGraphEquations` works with both graph and list of edges as a first argument.
 
 Here we replace the symbolically represented rates with concrete values: 
 
@@ -173,7 +177,7 @@ ListLinePlot[sol[[All, 2]], PlotLegends -> sol[[All, 1]]]
 
 The functionalities provided by the presented package ["SystemDynamicsModelGraph.m"](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m), [[AAp1](https://github.com/antononcube/SystemModeling/blob/master/WL/SystemDynamicsModelGraph.m)], resemble in spirit those of the package ["CallGraph.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/CallGraph.m), [[AAp3](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/CallGraph.m)]. 
 
-Here is call graph for the functions in the package [AAp1] made with the function CallGraph from the package [AAp3]:
+Here is call graph for the functions in the package [AAp1] made with the function `CallGraph` from the package [AAp3]:
 
 ```mathematica
 CallGraph`CallGraph[Context[ModelDependencyGraph], "PrivateContexts" -> False, "UsageTooltips" -> True]
