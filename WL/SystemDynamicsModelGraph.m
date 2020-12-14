@@ -407,8 +407,10 @@ Clear[ModelGraphEquations];
 
 SyntaxInformation[ModelGraphEquations] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
 
-ModelGraphEquations::nargs = "The first argument is expected to be a list of directed edges with weights. \
+ModelGraphEquations::nargs = "The first argument is expected to be a list of directed edges with weights or a graph object. \
 The second argument is expected to be symbol.";
+
+ModelGraphEquations[ gr_Graph, tvar_Symbol ] := ModelGraphEquations[ EdgeList @ gr, tvar];
 
 ModelGraphEquations[ lsEdges : { DirectedEdge[ _, _, _] .. }, tvar_Symbol ] :=
     Block[{aGroups},
