@@ -75,7 +75,7 @@
 
    Here is graph for "focus" stocks-sources to "focus" stocks-destinations:
 
-   ```mathetica
+   ```mathematica
    ModelDependencyGraph[lsEqs, {IP, SP}, {EP}, t]
    ```
 
@@ -83,6 +83,14 @@
 
    ```mathematica
    ModelDependencyGraph[lsEqs, {EP}, {IP, SP}, t]
+   ```
+
+   # Dependencies only
+
+   The dependencies in the model can be found with the function ModelDependencyGraphEdges:
+
+   ```mathematica
+   ModelDependencyGraphEdges[lsEqs, Automatic, t]
    ```
 
    # Interfacing
@@ -120,6 +128,7 @@ TODO:
   4. [ ] Adding tooltips
   5. [ ] Functions to deal with large models.
   6. [ ] Describe the reasons to use or not use Simplify, Expand, Gather, etc.
+  7. [ ] Make a system of ODEs from graph edges.
 
 *)
 
@@ -136,6 +145,9 @@ makes dependency rules of the stocks modelStocks over the variable tvar through 
 
 ModelDependencyGraph::usage = "ModelDependencyGraph[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
 makes a graph for the dependencies of the stocks modelStocks over the variable tvar through the equations modelEqs.";
+
+ModelGraphEquations::usage = "ModelGraphEquations[ edges_ : { DirectedEdge[_, _, _].. }, tvar_Symbol ] \
+generates model equations for a list directed edges.";
 
 Begin["`Private`"];
 
@@ -192,7 +204,7 @@ ModelHeuristicStocks[___] :=
 
 
 (**************************************************************)
-(* SystemDynamicsModelGraph                                     *)
+(* SystemDynamicsModelGraph                                   *)
 (**************************************************************)
 
 Clear[SystemDynamicsModelGraph];
@@ -310,7 +322,7 @@ FocusStockDependencies[
 
 
 (**************************************************************)
-(* ModelDependencyGraphEdges                                       *)
+(* ModelDependencyGraphEdges                                  *)
 (**************************************************************)
 
 Clear[ModelDependencyGraphEdges];
@@ -383,6 +395,33 @@ ModelDependencyGraph[lsEquations : {_Equal ..}, lsStocksFrom_List, lsStocksTo_Li
 ModelDependencyGraph[___] :=
     Block[{},
       Message[ModelDependencyGraph::nargs];
+      $Failed
+    ];
+
+
+(**************************************************************)
+(* ModelGraphEquations                                        *)
+(**************************************************************)
+
+Clear[ModelGraphEquations];
+
+SyntaxInformation[ModelGraphEquations] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
+
+ModelGraphEquations::nargs = "The first argument is expected to be a list of directed edges with weights. \
+The second argument is expected to be symbol.";
+
+ModelGraphEquations[ lsEdges : { DirectedEdge[ _, _, _] .. }, tvar_Symbol ] :=
+    Block[{aGroups},
+
+      aGroups = GroupBy[ lsEdges, #[[2]]&, List @@@ #&];
+
+      KeyValueMap[ Derivative[1][#1][tvar] == Dot[ Through[ #2[[All,1]] [tvar] ], #2[[All,3]] ]&, aGroups]
+
+    ];
+
+ModelGraphEquations[___] :=
+    Block[{},
+      Message[ModelGraphEquations::nargs];
       $Failed
     ];
 
