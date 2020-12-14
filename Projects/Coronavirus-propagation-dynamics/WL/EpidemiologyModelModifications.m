@@ -200,9 +200,6 @@ MakeMigrationTerms::"nargs" = "The first argument is expected to be a matrix. \
 If there is no fourth argument then the second and third argument are expected to be lists of stock functions. \
 If a fourth argument is given then the second and third arguments are expected to be lists of stock symbols.";
 
-MakeMigrationTerms[mat_SparseArray, args__] :=
-    MakeMigrationTerms[Normal[mat], args ] /; MatrixQ[mat];
-
 MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, t_Symbol] :=
     MakeMigrationTerms[mat, Through[TPs, t], Through[Ps[t]] ];
 
@@ -236,7 +233,43 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
 
       res
 
-    ] /; Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
+    ] /; TrueQ[Head[mat] =!= SparseArray] && Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
+
+MakeMigrationTerms[mat_SparseArray, TPs_List, Ps_List] :=
+    Block[{res, lsRules, aRules, aGroups1, aGroups2, aGroups, NewTermCoeff},
+
+      lsRules = Most @ ArrayRules[mat];
+      aRules = Association @ lsRules;
+
+      aGroups1 = GroupBy[lsRules, #[[1, 1]]&, #[[All, 1, 2]]& ];
+      aGroups2 = GroupBy[lsRules, #[[1, 2]]&, #[[All, 1, 1]]& ];
+      aGroups = Merge[ {aGroups1, aGroups2}, Union[Join @@ ##] & ];
+
+      NewTermCoeff[ i_, j_ ] :=
+          Block[{mij = Lookup[aRules, Key@{i, j}, 0], mji = Lookup[aRules, Key@{j, i}, 0]},
+            Which[
+
+              TrueQ[mji == 0] && TrueQ[mij == 0],
+              0,
+
+              TrueQ[mji == 0],
+              - Min[ Ps[[i]] / TPs[[i]] * mij, TPs[[i]] ],
+
+              TrueQ[mij == 0],
+              Min[ Ps[[j]] / TPs[[j]] * mji, TPs[[j]] ],
+
+              True,
+              Min[ Ps[[j]] / TPs[[j]] * mji, TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mij, TPs[[i]] ]
+            ]
+          ];
+
+      res = Total /@ Association[ KeyValueMap[ Function[{k,v}, Ps[[k]] -> Map[ NewTermCoeff[k, #]&, v]], aGroups ] ];
+
+      res = AssociationThread[ Keys[res] /. p_[id_][__] :> p[id], Values[res]];
+
+      res
+
+    ] /; MatrixQ[mat] && Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
 
 MakeMigrationTerms[___] :=
     Block[{},
