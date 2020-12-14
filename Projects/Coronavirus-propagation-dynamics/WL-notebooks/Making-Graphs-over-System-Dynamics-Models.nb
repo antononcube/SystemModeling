@@ -1,0 +1,1240 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     48450,       1232]
+NotebookOptionsPosition[     40939,       1116]
+NotebookOutlinePosition[     41335,       1132]
+CellTagsIndexPosition[     41292,       1129]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Making Graphs over System Dynamics Models", "Title",
+ CellChangeTimes->{{3.816875054054543*^9, 3.816875084712932*^9}, {
+  3.816875117616564*^9, 
+  3.816875120518721*^9}},ExpressionUUID->"89a1d09d-8e83-4466-8308-\
+f897e01a5a45"],
+
+Cell[TextData[{
+ "Anton Antonov\n",
+ ButtonBox["MathematicaForPrediction at WordPress",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematicaforprediction.wordpress.com"], None},
+  ButtonNote->"https://mathematicaforprediction.wordpress.com"],
+ "\n",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "\nDecember 2020"
+}], "Text",
+ CellChangeTimes->{{3.684459659869226*^9, 3.684459689296801*^9}, {
+   3.6845155325985403`*^9, 3.684515567176887*^9}, {3.687635085972608*^9, 
+   3.687635098019555*^9}, {3.690153303468515*^9, 3.690153309203142*^9}, {
+   3.690153414663026*^9, 3.6901534372970753`*^9}, {3.706473708222974*^9, 
+   3.706473716424033*^9}, {3.706473841222692*^9, 3.706473842266795*^9}, {
+   3.706482165059485*^9, 3.7064821670616302`*^9}, {3.7064866859934*^9, 
+   3.706486687262814*^9}, {3.723666493392177*^9, 3.723666498057164*^9}, {
+   3.72912349199539*^9, 3.729123503883547*^9}, {3.7299623353036737`*^9, 
+   3.729962337259548*^9}, {3.733651336175424*^9, 3.733651341928109*^9}, {
+   3.734691456302718*^9, 3.734691459519575*^9}, {3.73893299111051*^9, 
+   3.738932992256166*^9}, {3.740775193352*^9, 3.7407752000205193`*^9}, {
+   3.741354450038199*^9, 3.741354454772191*^9}, {3.776198292660699*^9, 
+   3.776198297408679*^9}, {3.776347745531959*^9, 3.776347749108109*^9}, {
+   3.7878518821790524`*^9, 3.787851885553787*^9}, {3.788034305896751*^9, 
+   3.78803435547268*^9}, {3.792079213702311*^9, 3.7920792145344*^9}, {
+   3.795024664249124*^9, 3.795024672821122*^9}, 3.79517792429384*^9, {
+   3.8050182704709167`*^9, 3.805018274622464*^9}, {3.812621181036306*^9, 
+   3.81262118648168*^9}, {3.816875155631854*^9, 
+   3.81687515775714*^9}},ExpressionUUID->"d4a77095-2ef2-4dee-9953-\
+05ef085caa9b"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.816875933896059*^9, 
+  3.816875937574563*^9}},ExpressionUUID->"389a59a3-fce3-46aa-8057-\
+ced4032e3ccf"],
+
+Cell[TextData[{
+ "In this document we give usage examples for the functions of the package, \
+",
+ ButtonBox["\"SystemDynamicsModelGraph.m\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"],
+ ", [",
+ ButtonBox["AAp1",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"],
+ "]. The package provides functions for making dependency graphs for the \
+stocks in ",
+ ButtonBox["System Dynamics (SD)",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/System_dynamics"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/System_dynamics"],
+ " models. The primary motivation for creating the functions in this package \
+is to have the ability to introspect, proofread, and verify the (typical) ODE \
+models made in SD."
+}], "Text",
+ CellChangeTimes->{{3.816877347510391*^9, 3.8168773492937098`*^9}, {
+  3.816877388970848*^9, 3.816877388971307*^9}, {3.8168774326231613`*^9, 
+  3.816877465034541*^9}, {3.816941787472887*^9, 3.816942033349205*^9}, {
+  3.816942159606303*^9, 3.816942167357435*^9}, {3.8169457679628773`*^9, 
+  3.816945796877516*^9}, {3.816945957463118*^9, 
+  3.816945994271594*^9}},ExpressionUUID->"bde86fae-0a3a-4f1f-a24d-\
+0b7b2aea9d02"],
+
+Cell["A more detailed explanation is:", "Text",
+ CellChangeTimes->{{3.816877347510391*^9, 3.8168773492937098`*^9}, {
+  3.816877388970848*^9, 3.816877388971307*^9}, {3.8168774326231613`*^9, 
+  3.816877465034541*^9}, {3.816941787472887*^9, 3.816942033349205*^9}, {
+  3.816942159606303*^9, 3.816942167357435*^9}, {3.8169457679628773`*^9, 
+  3.816945903538352*^9}, {3.816945999761491*^9, 3.816946033287548*^9}, {
+  3.816946074585992*^9, 3.8169460790990953`*^9}, {3.8169461169436617`*^9, 
+  3.81694617542666*^9}, {3.8169462706103897`*^9, 
+  3.8169462802294197`*^9}},ExpressionUUID->"3adb09da-912d-4450-8390-\
+675258bf901f"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "For a given SD system ",
+ Cell[BoxData[
+  FormBox["S", TraditionalForm]],ExpressionUUID->
+  "760eb08d-e462-4bb9-b34d-55a757cfaaef"],
+ " of Ordinary Differential Equations (ODEs) we make Mathematica graph \
+objects that represent the interaction of variable dependent functions in ",
+ Cell[BoxData[
+  FormBox["S", TraditionalForm]],ExpressionUUID->
+  "437f7d21-68ea-4476-98bb-71318b01b6e8"],
+ ". "
+}], "Item",
+ CellChangeTimes->{{3.816877347510391*^9, 3.8168773492937098`*^9}, {
+   3.816877388970848*^9, 3.816877388971307*^9}, {3.8168774326231613`*^9, 
+   3.816877465034541*^9}, {3.816941787472887*^9, 3.816942033349205*^9}, {
+   3.816942159606303*^9, 3.816942167357435*^9}, {3.8169457679628773`*^9, 
+   3.816945903538352*^9}, {3.816945999761491*^9, 3.816946033287548*^9}, {
+   3.816946074585992*^9, 3.8169460790990953`*^9}, {3.8169461169436617`*^9, 
+   3.81694620696741*^9}, 3.816946237433506*^9, {3.816946285674362*^9, 
+   3.8169462976221237`*^9}},ExpressionUUID->"b5f9912e-abc1-48fe-80f9-\
+61eacc4a6b68"],
+
+Cell[TextData[{
+ "Those graph objects give alternative (and hopefully convenient) way of \
+visualizing the model of ",
+ Cell[BoxData[
+  FormBox["S", TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "4d849149-de74-4b8f-9af3-05e0d5f8737f"],
+ ". "
+}], "Item",
+ CellChangeTimes->{{3.816877347510391*^9, 3.8168773492937098`*^9}, {
+  3.816877388970848*^9, 3.816877388971307*^9}, {3.8168774326231613`*^9, 
+  3.816877465034541*^9}, {3.816941787472887*^9, 3.816942033349205*^9}, {
+  3.816942159606303*^9, 3.816942167357435*^9}, {3.8169457679628773`*^9, 
+  3.816945903538352*^9}, {3.816945999761491*^9, 3.816946033287548*^9}, {
+  3.816946074585992*^9, 3.8169460790990953`*^9}, {3.8169461169436617`*^9, 
+  3.816946178234785*^9}, {3.81694621690176*^9, 3.816946219140712*^9}, {
+  3.8169463145195217`*^9, 
+  3.81694634734793*^9}},ExpressionUUID->"9adb2c53-6974-42e7-a26a-\
+57442bec051e"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Load packages", "Section",
+ CellChangeTimes->{{3.816875939734743*^9, 
+  3.8168759428394833`*^9}},ExpressionUUID->"7a4ade72-b3c0-4483-98d6-\
+6da17f333f6f"],
+
+Cell["The following commands load the packages [AAp1, AAp2, AAp3]:", "Text",
+ CellChangeTimes->{{3.816877477241558*^9, 3.816877499842265*^9}, {
+  3.816906315578279*^9, 
+  3.816906317839354*^9}},ExpressionUUID->"b42fa3ce-87a6-429e-aa73-\
+5594ec515170"],
+
+Cell[BoxData[{
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/WL/\
+SystemDynamicsModelGraph.m\>\"", "]"}], "\n", 
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m\>\"", 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/\
+master/Misc/CallGraph.m\>\"", "]"}]}], "Code",
+ CellChangeTimes->{{3.816876683902032*^9, 3.816876687750443*^9}, 
+   3.8168774740724277`*^9, {3.81690630916584*^9, 3.81690630945955*^9}},
+ CellLabel->
+  "In[145]:=",ExpressionUUID->"16623e0d-649a-47aa-b587-37661ca07e1b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Usage examples", "Section",
+ CellChangeTimes->{{3.816876021074045*^9, 
+  3.816876024943706*^9}},ExpressionUUID->"f63a66ec-62e6-483f-9053-\
+436f947c6c23"],
+
+Cell[CellGroupData[{
+
+Cell["Equations", "Subsection",
+ CellChangeTimes->{{3.816876039718728*^9, 
+  3.816876041864251*^9}},ExpressionUUID->"1e321d5c-6549-4ca5-8e17-\
+1ac1a3ba4144"],
+
+Cell[TextData[{
+ "Here is a system of ODEs of a slightly modified ",
+ ButtonBox["SEIR model",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#\
+The_SEIR_model"], None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_\
+SEIR_model"],
+ ": "
+}], "Text",
+ CellChangeTimes->{{3.816945300606086*^9, 3.816945337630682*^9}, {
+  3.8169453826090937`*^9, 3.816945393926772*^9}, {3.8169455324823503`*^9, 
+  3.816945532482724*^9}},ExpressionUUID->"ed83248f-b3c1-4d35-801a-\
+d4a42158739c"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsEqs", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"Derivative", "[", "1", "]"}], "[", "SP", "]"}], "[", "t", 
+       "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"IP", "[", "t", "]"}], " ", 
+            RowBox[{"SP", "[", "t", "]"}], " ", 
+            RowBox[{"\[Beta]", "[", "IP", "]"}]}], ")"}], "/", 
+          RowBox[{"TP", "[", "t", "]"}]}], ")"}]}], "-", 
+       RowBox[{
+        RowBox[{"SP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}], ",", 
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"Derivative", "[", "1", "]"}], "[", "EP", "]"}], "[", "t", 
+       "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"IP", "[", "t", "]"}], " ", 
+          RowBox[{"SP", "[", "t", "]"}], " ", 
+          RowBox[{"\[Beta]", "[", "IP", "]"}]}], ")"}], "/", 
+        RowBox[{"TP", "[", "t", "]"}]}], "-", 
+       RowBox[{
+        RowBox[{"EP", "[", "t", "]"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"1", "/", "aincp"}], "+", 
+          RowBox[{"\[Mu]", "[", "TP", "]"}]}], ")"}]}]}]}], ",", 
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"Derivative", "[", "1", "]"}], "[", "IP", "]"}], "[", "t", 
+       "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"EP", "[", "t", "]"}], "/", "aincp"}], "-", 
+       RowBox[{
+        RowBox[{"IP", "[", "t", "]"}], "/", "aip"}], "-", 
+       RowBox[{
+        RowBox[{"IP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "IP", "]"}]}]}]}], ",", 
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"Derivative", "[", "1", "]"}], "[", "RP", "]"}], "[", "t", 
+       "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"IP", "[", "t", "]"}], "/", "aip"}], "-", 
+       RowBox[{
+        RowBox[{"RP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}], ",", 
+     RowBox[{
+      RowBox[{"TP", "[", "t", "]"}], "\[Equal]", 
+      RowBox[{"Max", "[", 
+       RowBox[{"0", ",", 
+        RowBox[{
+         RowBox[{"EP", "[", "t", "]"}], "+", 
+         RowBox[{"IP", "[", "t", "]"}], "+", 
+         RowBox[{"RP", "[", "t", "]"}], "+", 
+         RowBox[{"SP", "[", "t", "]"}]}]}], "]"}]}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<GridTableForm\>\"", "]"}], "[", 
+  RowBox[{
+   RowBox[{"List", "/@", "lsEqs"}], ",", 
+   RowBox[{"TableHeadings", "\[Rule]", 
+    RowBox[{"{", "\"\<Equations\>\"", "}"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.8168760426108027`*^9, 3.8168760518214817`*^9}, {
+  3.8168761129318037`*^9, 3.816876136265485*^9}, {3.816876574627803*^9, 
+  3.816876582885387*^9}},
+ CellLabel->
+  "In[148]:=",ExpressionUUID->"66a3924e-da14-4db4-b100-d970893c8bf0"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Model graph", "Subsection",
+ CellChangeTimes->{{3.81687665466085*^9, 
+  3.816876656786772*^9}},ExpressionUUID->"d6ad13cf-517f-4f65-8a6e-\
+60db08c44aee"],
+
+Cell["Here is a graph of the dependencies between the populations:", "Text",
+ CellChangeTimes->{
+  3.816876711162485*^9},ExpressionUUID->"c66ff2fb-8b2b-413e-9833-\
+f3de0cbd669d"],
+
+Cell[BoxData[
+ RowBox[{"ModelDependencyGraph", "[", 
+  RowBox[{"lsEqs", ",", 
+   RowBox[{"{", 
+    RowBox[{"EP", ",", "IP", ",", "RP", ",", "SP", ",", "TP"}], "}"}], ",", 
+   "t"}], "]"}]], "Input",
+ CellChangeTimes->{{3.8168767035574503`*^9, 3.816876717900189*^9}, {
+   3.816905837097795*^9, 3.8169058395040817`*^9}, 3.816905978661436*^9},
+ CellLabel->
+  "In[150]:=",ExpressionUUID->"204ee65f-49e4-46ed-9eeb-7513e1e822e6"],
+
+Cell[TextData[{
+ "When second argument given to ",
+ StyleBox["ModelDependencyGraph", "Program"],
+ " is Automatic the stocks in the equations are heuristically found with the \
+function ",
+ StyleBox["ModelHeuristicStocks", "Program"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.816905907736761*^9, 3.816905965776566*^9}, {
+  3.8169060143205843`*^9, 
+  3.8169060169422007`*^9}},ExpressionUUID->"1cbb328a-106b-49ae-ae93-\
+3730b581e517"],
+
+Cell[BoxData[
+ RowBox[{"ModelHeuristicStocks", "[", 
+  RowBox[{"lsEqs", ",", "t"}], "]"}]], "Input",
+ CellLabel->
+  "In[151]:=",ExpressionUUID->"267a3b09-b616-419d-92aa-b6b1e6da9b30"],
+
+Cell[TextData[{
+ "Also, the function ",
+ StyleBox["ModelDependencyGraph", "Program"],
+ " takes all options of ",
+ StyleBox["Graph", "Program"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.8168767035574503`*^9, 3.816876745617689*^9}, {
+  3.8169060246369467`*^9, 
+  3.816906027055475*^9}},ExpressionUUID->"eb7a0611-8b2f-492e-8dd6-\
+ae38a3d2182d"],
+
+Cell[BoxData[
+ RowBox[{"ModelDependencyGraph", "[", 
+  RowBox[{"lsEqs", ",", "Automatic", ",", "t", ",", "\[IndentingNewLine]", 
+   RowBox[{"GraphLayout", "\[Rule]", "\"\<GravityEmbedding\>\""}], ",", 
+   RowBox[{"VertexLabels", "\[Rule]", "\"\<Name\>\""}], ",", 
+   RowBox[{"VertexLabelStyle", "\[Rule]", 
+    RowBox[{"Directive", "[", 
+     RowBox[{"Red", ",", "Bold", ",", "16"}], "]"}]}], ",", 
+   RowBox[{"EdgeLabelStyle", "\[Rule]", 
+    RowBox[{"Directive", "[", 
+     RowBox[{"Blue", ",", "16"}], "]"}]}], ",", 
+   RowBox[{"ImageSize", "\[Rule]", "Large"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.8168767035574503`*^9, 3.81687672446943*^9}, {
+  3.816876756138183*^9, 3.8168767926010427`*^9}, {3.816905885484477*^9, 
+  3.8169058888372393`*^9}},
+ CellLabel->
+  "In[152]:=",ExpressionUUID->"efeff962-aaa2-4741-a097-055da876859f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Dependencies only", "Subsection",
+ CellChangeTimes->{{3.816906167525754*^9, 
+  3.81690618318568*^9}},ExpressionUUID->"fabbd02a-b1ea-4403-9697-\
+dc04217c0d91"],
+
+Cell[TextData[{
+ "The dependencies in the model can be found with the function ",
+ StyleBox["ModelDependencyGraphEdges", "Program"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.816906220356365*^9, 3.81690624319433*^9}, {
+  3.816942414391547*^9, 
+  3.8169424176512957`*^9}},ExpressionUUID->"bbf2ce78-0e49-4f5b-b542-\
+bdb69dbe230f"],
+
+Cell[BoxData[
+ RowBox[{"lsEdges", "=", 
+  RowBox[{"ModelDependencyGraphEdges", "[", 
+   RowBox[{"lsEqs", ",", "Automatic", ",", "t"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.81690604867176*^9, 3.81690607875169*^9}, {
+  3.81690622647777*^9, 3.816906233340047*^9}, {3.8169427891454372`*^9, 
+  3.8169427925979557`*^9}},
+ CellLabel->
+  "In[153]:=",ExpressionUUID->"166e53ae-9392-4a41-aeca-0bbc48ad75b7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsEdges", "\[LeftDoubleBracket]", "4", "\[RightDoubleBracket]"}], "//",
+   "FullForm"}]], "Input",
+ CellChangeTimes->{{3.816942794749192*^9, 3.816942810788763*^9}, {
+  3.816942847871512*^9, 3.81694285941287*^9}},
+ CellLabel->
+  "In[154]:=",ExpressionUUID->"88a32ef6-4d07-4309-96d3-261c5a34c911"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Focus stocks", "Subsection",
+ CellChangeTimes->{{3.816876827452938*^9, 
+  3.8168768347993402`*^9}},ExpressionUUID->"fc53f53e-b730-41b2-860e-\
+0f127ca40dfe"],
+
+Cell["\<\
+Here is a graph for a set of \[OpenCurlyDoubleQuote]focus\
+\[CloseCurlyDoubleQuote] stocks-sources to a set of \
+\[OpenCurlyDoubleQuote]focus\[CloseCurlyDoubleQuote] stocks-destinations:\
+\>", "Text",
+ CellChangeTimes->{{3.816876836628734*^9, 3.816876846755031*^9}, {
+  3.8169455441960773`*^9, 
+  3.816945556064949*^9}},ExpressionUUID->"9e98cc7b-0096-4aaf-a9fb-\
+d075864dd5cb"],
+
+Cell[BoxData[
+ RowBox[{"gr", "=", 
+  RowBox[{"ModelDependencyGraph", "[", 
+   RowBox[{"lsEqs", ",", 
+    RowBox[{"{", 
+     RowBox[{"IP", ",", "SP"}], "}"}], ",", 
+    RowBox[{"{", "EP", "}"}], ",", "t"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.8168768496329412`*^9, 3.816876849633819*^9}, {
+  3.8168786252020607`*^9, 3.816878642527094*^9}, {3.8169452610861483`*^9, 
+  3.816945265495241*^9}},
+ CellLabel->
+  "In[155]:=",ExpressionUUID->"5adf1a2d-f958-4b29-93a2-0ecab8c800e0"],
+
+Cell["\<\
+Compare with the graph in which positions of sources and destinations are \
+swapped:\
+\>", "Text",
+ CellChangeTimes->{
+  3.81687685943363*^9, {3.816945562027379*^9, 
+   3.816945603890522*^9}},ExpressionUUID->"40359216-f5b3-483b-8bb1-\
+2c0c8414338b"],
+
+Cell[BoxData[
+ RowBox[{"ModelDependencyGraph", "[", 
+  RowBox[{"lsEqs", ",", 
+   RowBox[{"{", "EP", "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"IP", ",", "SP"}], "}"}], ",", "t"}], "]"}]], "Input",
+ CellChangeTimes->{{3.816876868402379*^9, 3.816876868403822*^9}},
+ CellLabel->
+  "In[156]:=",ExpressionUUID->"3efc8484-fcf5-44f9-baa5-7e29ba2637ca"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Additional interfacing", "Section",
+ CellChangeTimes->{
+  3.816876878480115*^9, {3.81694506314834*^9, 3.81694506624161*^9}, 
+   3.816945147941495*^9, 
+   3.8169452288519487`*^9},ExpressionUUID->"c52d111e-b54f-45a8-893f-\
+6c5bdbad99cc"],
+
+Cell[TextData[{
+ "The functions of this package work with the models from the package ",
+ ButtonBox["\"EpidemiologyModels.m\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ ", [",
+ ButtonBox["AAp2",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ "]."
+}], "Text",
+ CellChangeTimes->{{3.8168768880878*^9, 3.816876892861877*^9}, {
+  3.816877278011529*^9, 3.816877278145941*^9}, {3.8169456171651917`*^9, 
+  3.816945620653584*^9}, {3.816945665709424*^9, 
+  3.816945705197991*^9}},ExpressionUUID->"0042995b-9b01-43e8-94f5-\
+72971dad53b9"],
+
+Cell["Here is a model from [AAp2]:", "Text",
+ CellChangeTimes->{{3.8168769707876863`*^9, 3.81687698506758*^9}, {
+  3.816877281937862*^9, 
+  3.816877282016499*^9}},ExpressionUUID->"07bca25d-58a4-4355-b0e7-\
+81ce49e2b8b7"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"model", "=", 
+   RowBox[{"SEIRModel", "[", 
+    RowBox[{"t", ",", 
+     RowBox[{
+     "\"\<TotalPopulationRepresentation\>\"", "\[Rule]", 
+      "\"\<AlgebraicEquation\>\""}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ModelGridTableForm", "[", "model", "]"}]}], "Input",
+ CellChangeTimes->{{3.8168769799688*^9, 3.8168769799700737`*^9}, {
+  3.816877284065304*^9, 3.816877295583893*^9}},
+ CellLabel->
+  "In[157]:=",ExpressionUUID->"05bb59b8-075b-4f0e-9a37-e8df9f34ef81"],
+
+Cell["Here we make the corresponding graph:", "Text",
+ CellChangeTimes->{{3.816877075594769*^9, 
+  3.816877076812889*^9}},ExpressionUUID->"5de506e5-799a-48ce-8715-\
+5afd818766d1"],
+
+Cell[BoxData[
+ RowBox[{"ModelDependencyGraph", "[", 
+  RowBox[{"model", ",", "t"}], "]"}]], "Input",
+ CellChangeTimes->{{3.816877094270157*^9, 3.816877094270948*^9}, 
+   3.816942337889535*^9},
+ CellLabel->
+  "In[159]:=",ExpressionUUID->"1a9c7aa5-6e7d-4648-aec1-84bfc516a396"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Generating equations from graph specifications", "Section",
+ CellChangeTimes->{{3.816942260553502*^9, 3.8169422653796062`*^9}, {
+  3.8169442770753107`*^9, 3.8169442820808287`*^9}, {3.8169457136139383`*^9, 
+  3.816945730712819*^9}},ExpressionUUID->"e4ff0ad6-5d85-496e-9bda-\
+6cc06f2383e9"],
+
+Cell["\<\
+A related, dual, or inverse task to the generation of graphs from systems of \
+ODEs is the generation of system of ODEs from graphs.\
+\>", "Text",
+ CellChangeTimes->{{3.816942268563363*^9, 3.816942275234729*^9}, {
+  3.8169424608980207`*^9, 3.816942505965269*^9}, {3.8169441718031883`*^9, 
+  3.816944271089259*^9}},ExpressionUUID->"73d80a83-9be7-4145-866c-\
+bbc2a193445a"],
+
+Cell[TextData[{
+ "Here is a model specifications through graph edges (using ",
+ StyleBox["DirectedEdge", "Program"],
+ "): "
+}], "Text",
+ CellChangeTimes->{{3.816943914343202*^9, 3.816943947598649*^9}, {
+  3.816944526389955*^9, 
+  3.81694452689618*^9}},ExpressionUUID->"b677acbe-6cbd-4d8f-bc8a-\
+15ed374a9857"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsEdges", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     TemplateBox[{"EP", "EP", 
+       RowBox[{
+         RowBox[{"-", 
+           FractionBox["1", "aincp"]}], "-", 
+         RowBox[{"\[Mu]", "[", "TP", "]"}]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"IP", "EP", 
+       FractionBox[
+        RowBox[{
+          RowBox[{"SP", "[", "t", "]"}], " ", 
+          RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+        RowBox[{"TP", "[", "0", "]"}]]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"SP", "EP", 
+       FractionBox[
+        RowBox[{
+          RowBox[{"IP", "[", "t", "]"}], " ", 
+          RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+        RowBox[{"TP", "[", "0", "]"}]]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"EP", "IP", 
+       FractionBox["1", "aincp"]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"IP", "IP", 
+       RowBox[{"-", 
+         FractionBox["1", "aip"]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"IP", "IP", 
+       RowBox[{"-", 
+         RowBox[{"\[Mu]", "[", "IP", "]"}]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"IP", "RP", 
+       FractionBox["1", "aip"]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"RP", "RP", 
+       RowBox[{"-", 
+         RowBox[{"\[Mu]", "[", "TP", "]"}]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"IP", "SP", 
+       RowBox[{"-", 
+         FractionBox[
+          RowBox[{
+            RowBox[{"SP", "[", "t", "]"}], " ", 
+            RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+          RowBox[{"TP", "[", "0", "]"}]]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"SP", "SP", 
+       RowBox[{"-", 
+         FractionBox[
+          RowBox[{
+            RowBox[{"IP", "[", "t", "]"}], " ", 
+            RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+          RowBox[{"TP", "[", "0", "]"}]]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )], ",", 
+     TemplateBox[{"SP", "SP", 
+       RowBox[{"-", 
+         RowBox[{"\[Mu]", "[", "TP", "]"}]}]},
+      "DirectedEdge",
+      DisplayFunction->(RowBox[{#, 
+         OverscriptBox["\[DirectedEdge]", 
+          
+          StyleBox[#3, ScriptSizeMultipliers -> 0.1, 
+           ImageSizeMultipliers -> {0.02, 0.02}]], #2}]& )]}], "}"}]}], ";"}]],\
+ "Input",
+ CellChangeTimes->{{3.816943602341202*^9, 3.816943603567934*^9}, 
+   3.8169439549698687`*^9},
+ CellLabel->
+  "In[160]:=",ExpressionUUID->"bc56cfdb-f574-4d86-801d-790e94e4520c"],
+
+Cell["Here is the corresponding graph:", "Text",
+ CellChangeTimes->{{3.816944530597707*^9, 
+  3.8169445363465137`*^9}},ExpressionUUID->"6b9f0b2c-8252-4b00-a395-\
+80b2b801bac0"],
+
+Cell[BoxData[
+ RowBox[{"grModel", "=", 
+  RowBox[{"Graph", "[", 
+   RowBox[{"lsEdges", ",", 
+    RowBox[{"VertexLabels", "\[Rule]", "\"\<Name\>\""}], ",", 
+    RowBox[{"EdgeLabels", "\[Rule]", "\"\<EdgeTag\>\""}], ",", 
+    RowBox[{"ImageSize", "\[Rule]", "Large"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.816944411559935*^9, 3.81694445139672*^9}, {
+  3.8169444827514343`*^9, 3.816944505239708*^9}},
+ CellLabel->
+  "In[161]:=",ExpressionUUID->"e588eb6a-8c9b-4663-a444-9bbbba7508d6"],
+
+Cell[TextData[{
+ "Here we generate the system of ODEs using the function ",
+ StyleBox["ModelGraphEquations", "Program"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.81694395978267*^9, 3.816943982789554*^9}, {
+  3.816944543345173*^9, 
+  3.8169445552461557`*^9}},ExpressionUUID->"e811be8a-b8d7-4a49-8c5d-\
+928e9e1ef979"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsEqsGen", "=", 
+   RowBox[{"ModelGraphEquations", "[", 
+    RowBox[{"grModel", ",", "t"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<GridTableForm\>\"", "]"}], "[", 
+  RowBox[{
+   RowBox[{"List", "/@", "lsEqsGen"}], ",", 
+   RowBox[{"TableHeadings", "\[Rule]", 
+    RowBox[{"{", "\"\<Equations\>\"", "}"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.8169433166801577`*^9, 3.81694332540736*^9}, {
+   3.81694338028579*^9, 3.816943386192493*^9}, {3.816944038917427*^9, 
+   3.816944083815914*^9}, 3.8169445095404673`*^9},
+ CellLabel->
+  "In[162]:=",ExpressionUUID->"05d3bd99-f6a1-43a2-9e20-f2979a1b7ab4"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " ",
+ StyleBox["ModelGraphEquations", "Program"],
+ " works with both graph and list of edges as a first argument."
+}], "Text",
+ CellChangeTimes->{{3.816944560254167*^9, 
+  3.816944630128319*^9}},ExpressionUUID->"663abd5e-3ce3-4a12-9d05-\
+ad42156d035f"],
+
+Cell["\<\
+Here we replace the symbolically represented rates with concrete values: \
+\>", "Text",
+ CellChangeTimes->{{3.816944093367198*^9, 
+  3.8169441316855183`*^9}},ExpressionUUID->"2249ed10-7163-461e-a265-\
+e98603c946cc"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lsEqsGen2", "=", 
+   RowBox[{"lsEqsGen", "//.", 
+    RowBox[{"\[LeftAssociation]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "TP", "]"}], "\[Rule]", 
+       FractionBox["1", "45625"]}], ",", 
+      RowBox[{
+       RowBox[{"\[Mu]", "[", "IP", "]"}], "\[Rule]", 
+       FractionBox["0.01`", "aip"]}], ",", 
+      RowBox[{
+       RowBox[{"\[Beta]", "[", "IP", "]"}], "\[Rule]", "0.15`"}], ",", 
+      RowBox[{"aip", "\[Rule]", "26"}], ",", 
+      RowBox[{"aincp", "\[Rule]", "6"}], ",", 
+      RowBox[{
+       RowBox[{"lpcr", "[", "IP", "]"}], "\[Rule]", "1"}]}], 
+     "\[RightAssociation]"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<GridTableForm\>\"", "]"}], "[", 
+  RowBox[{
+   RowBox[{"List", "/@", "lsEqsGen2"}], ",", 
+   RowBox[{"TableHeadings", "\[Rule]", 
+    RowBox[{"{", "\"\<Equations\>\"", "}"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.816943775787497*^9, 3.816943825106736*^9}, {
+  3.816944089602372*^9, 3.816944091511756*^9}, {3.816944137671657*^9, 
+  3.81694414744769*^9}},
+ CellLabel->
+  "In[164]:=",ExpressionUUID->"89c00b57-b836-4f30-b2e9-c56fe14aaf19"],
+
+Cell["Here we solve the system of ODEs:", "Text",
+ CellChangeTimes->{{3.816944151890843*^9, 3.8169441654585953`*^9}, {
+  3.8169448621978073`*^9, 
+  3.816944877835185*^9}},ExpressionUUID->"e5519aca-ac32-44b5-afb3-\
+9a0cd0ab8208"],
+
+Cell[BoxData[
+ RowBox[{"sol", "=", 
+  RowBox[{"First", "@", 
+   RowBox[{"NDSolve", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"lsEqs3", ",", 
+       RowBox[{
+        RowBox[{"SP", "[", "0", "]"}], "\[Equal]", "99998"}], ",", 
+       RowBox[{
+        RowBox[{"EP", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"IP", "[", "0", "]"}], "\[Equal]", "1"}], ",", 
+       RowBox[{
+        RowBox[{"RP", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"MLP", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"TP", "[", "0", "]"}], "\[Equal]", "100000"}]}], "}"}], ",", 
+     RowBox[{"Union", "[", 
+      RowBox[{"First", "/@", "lsEdges"}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", "0", ",", "365"}], "}"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.816943391865299*^9, 3.81694341713025*^9}, {
+  3.816943479873663*^9, 3.816943483978331*^9}, {3.816943698272354*^9, 
+  3.816943714045073*^9}, {3.816943817335387*^9, 3.816943847427114*^9}, {
+  3.816943885015627*^9, 3.816943887342976*^9}},
+ CellLabel->
+  "In[166]:=",ExpressionUUID->"4e7f7b88-c75a-40d5-a86d-dacff2033a5b"],
+
+Cell["Here we plot the results:", "Text",
+ CellChangeTimes->{{3.816944885889305*^9, 
+  3.8169448898393784`*^9}},ExpressionUUID->"e36e17c7-dc16-4ee5-bfcd-\
+d38a54ccaabc"],
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{"sol", "\[LeftDoubleBracket]", 
+    RowBox[{"All", ",", "2"}], "\[RightDoubleBracket]"}], ",", 
+   RowBox[{"PlotLegends", "\[Rule]", 
+    RowBox[{"sol", "\[LeftDoubleBracket]", 
+     RowBox[{"All", ",", "1"}], "\[RightDoubleBracket]"}]}]}], "]"}]], "Input",\
+
+ CellChangeTimes->{{3.81694383348112*^9, 3.8169438973108597`*^9}},
+ CellLabel->
+  "In[167]:=",ExpressionUUID->"26475fc4-a3fd-46ae-95a0-d40d975d0359"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Call graph", "Section",
+ CellChangeTimes->{{3.816878005347543*^9, 
+  3.8168780083511343`*^9}},ExpressionUUID->"f356e52e-3291-4c7d-ab7d-\
+6796f17052b0"],
+
+Cell[TextData[{
+ "The functionalities provided by the presented package ",
+ ButtonBox["\"SystemDynamicsModelGraph.m\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"],
+ ", [",
+ ButtonBox["AAp1",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"],
+ "], resemble in spirit those of the package ",
+ ButtonBox["\"CallGraph.m\[CloseCurlyDoubleQuote]",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+Misc/CallGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/\
+CallGraph.m"],
+ ", [",
+ ButtonBox["AAp3",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+Misc/CallGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/\
+CallGraph.m"],
+ "]. "
+}], "Text",
+ CellChangeTimes->{{3.816906336165511*^9, 3.81690637395475*^9}, {
+  3.81690653949848*^9, 3.816906647593278*^9}, {3.816942064751504*^9, 
+  3.81694210425634*^9}},ExpressionUUID->"193b4458-4f4a-4c92-baa4-\
+75e2b8aba7b5"],
+
+Cell[TextData[{
+ "Here is call graph for the functions in the package [AAp1] made with the \
+function ",
+ StyleBox["CallGraph", "Program"],
+ " from the package [AAp3]:"
+}], "Text",
+ CellChangeTimes->{{3.8169062568970823`*^9, 3.8169062612167807`*^9}, {
+  3.8169063016507483`*^9, 3.816906330990756*^9}, {3.8169066035599957`*^9, 
+  3.816906682401063*^9}},ExpressionUUID->"41cc0b01-00d0-4708-92ec-\
+71257c17adc6"],
+
+Cell[BoxData[
+ RowBox[{"CallGraph`CallGraph", "[", 
+  RowBox[{
+   RowBox[{"Context", "[", "ModelDependencyGraph", "]"}], ",", 
+   RowBox[{"\"\<PrivateContexts\>\"", "\[Rule]", "False"}], ",", 
+   RowBox[{"\"\<UsageTooltips\>\"", "\[Rule]", "True"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.816878014068657*^9, 3.816878156148085*^9}, {
+  3.816878192439535*^9, 3.816878213982267*^9}, {3.816881959050227*^9, 
+  3.816881987095529*^9}, {3.816906263625716*^9, 3.816906268124661*^9}},
+ CellLabel->
+  "In[168]:=",ExpressionUUID->"644bec1d-0296-4d1d-b427-5c8df45348af"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.8168751644855137`*^9, 
+  3.816875167600843*^9}},ExpressionUUID->"902c9431-a0e7-4496-9e41-\
+b76ea8c6d168"],
+
+Cell[CellGroupData[{
+
+Cell["Packages", "Subsection",
+ CellChangeTimes->{{3.8168751698057823`*^9, 
+  3.816875172483418*^9}},ExpressionUUID->"8f54c700-da01-4f43-97ba-\
+5fcf2efe5977"],
+
+Cell[TextData[{
+ "[AAp1] Anton Antonov, ",
+ ButtonBox["\"System Dynamics Model Graph Mathematica package\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsModelGraph.m"],
+ ", (2020), ",
+ ButtonBox["SystemsModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ ".         "
+}], "Text",
+ CellChangeTimes->{{3.816875392357788*^9, 3.816875398600902*^9}, {
+  3.816941751708481*^9, 
+  3.816941777490115*^9}},ExpressionUUID->"1d5d75d8-ff4c-4194-ad50-\
+a68ed72e26ce"],
+
+Cell[TextData[{
+ "[AAp2] Anton Antonov, ",
+ ButtonBox["\"Epidemiology models Mathematica package\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ ", (2020), ",
+ ButtonBox["SystemsModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ ".         "
+}], "Text",
+ CellChangeTimes->{{3.8168771111898603`*^9, 
+  3.816877154968302*^9}},ExpressionUUID->"a27aaf07-6e72-4ade-a1a7-\
+fd94bbe35af8"],
+
+Cell[TextData[{
+ "[AAp3] Anton Antonov, ",
+ ButtonBox["\"Call graph generation for context functions Mathematica package\
+\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+Misc/CallGraph.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/\
+CallGraph.m"],
+ ", (2018), ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.816941631702607*^9, 3.8169416365738497`*^9}, {
+  3.816941667962451*^9, 
+  3.816941711989193*^9}},ExpressionUUID->"ba778c64-0bdb-4ad2-aba4-\
+5d318bc88f0d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Articles", "Subsection",
+ CellChangeTimes->{{3.816875175138522*^9, 
+  3.816875177332263*^9}},ExpressionUUID->"8728dca7-e5a0-4732-aa3b-\
+f02b313d67fa"],
+
+Cell[TextData[{
+ "[AA1] Anton Antonov, ",
+ ButtonBox["\"Call graph generation for context\[NonBreakingSpace]functions\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://mathematicaforprediction.wordpress.com/2019/01/01/call-graph-\
+generation-for-context-functions/"], None},
+  ButtonNote->
+   "https://mathematicaforprediction.wordpress.com/2019/01/01/call-graph-\
+generation-for-context-functions/"],
+ ", (2019), MathematicaForPrediction at WordPress."
+}], "Text",
+ CellChangeTimes->{{3.816875239142981*^9, 3.816875246037168*^9}, {
+  3.816875351105201*^9, 
+  3.816875388406329*^9}},ExpressionUUID->"140d7a74-6cd9-497f-8aa7-\
+5b1b443b6544"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Export", "Section",
+ CellChangeTimes->{{3.7925802491878033`*^9, 
+  3.7925802500430098`*^9}},ExpressionUUID->"bb95f02f-e6af-44e4-aa3b-\
+0779f21104c0"],
+
+Cell[BoxData[
+ RowBox[{"SetDirectory", "[", 
+  RowBox[{"NotebookDirectory", "[", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.787869226097657*^9, 3.787869234619795*^9}},
+ CellLabel->
+  "In[169]:=",ExpressionUUID->"4ce5f9dd-389d-4ffe-b8e9-a84a5e0f7e76"],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<M2MD`\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.787867887165537*^9, 3.787867895537777*^9}},
+ CellLabel->
+  "In[170]:=",ExpressionUUID->"09c549c3-bbb2-40d7-955a-f40bd770311a"],
+
+Cell[BoxData[
+ RowBox[{"Options", "[", "MDExport", "]"}]], "Input",
+ CellChangeTimes->{{3.787868342135927*^9, 3.7878683424727993`*^9}, {
+  3.787868381320599*^9, 3.787868385784712*^9}},
+ CellLabel->
+  "In[171]:=",ExpressionUUID->"a3f91f63-21fb-4695-a2a9-dd23f58fd194"],
+
+Cell[BoxData[
+ RowBox[{"fileName", "=", 
+  RowBox[{"StringReplace", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"FileNameSplit", "[", 
+      RowBox[{"NotebookFileName", "[", "]"}], "]"}], "\[LeftDoubleBracket]", 
+     RowBox[{"-", "1"}], "\[RightDoubleBracket]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"\"\<.nb\>\"", "~~", "EndOfString"}], "->", "\"\<.md\>\""}], 
+     "}"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.7878678839976263`*^9, 3.787867955368351*^9}, {
+  3.787868011346472*^9, 3.787868014427517*^9}, {3.7878683619937572`*^9, 
+  3.787868363704116*^9}, {3.787868405577346*^9, 3.787868428816819*^9}, {
+  3.788089833569029*^9, 3.788089847412901*^9}, {3.788089930604616*^9, 
+  3.788089947949142*^9}, {3.788090081610413*^9, 3.78809008426838*^9}, {
+  3.788882474036006*^9, 3.78888247943267*^9}, {3.788882566803999*^9, 
+  3.788882599856888*^9}},
+ CellLabel->
+  "In[172]:=",ExpressionUUID->"68bc4fd8-c7e6-497c-8b0a-99de647a3e36"],
+
+Cell[BoxData[
+ RowBox[{"SeedRandom", "[", "2323", "]"}]], "Input",
+ CellChangeTimes->{{3.788254866605153*^9, 3.788254869010036*^9}},
+ CellLabel->
+  "In[173]:=",ExpressionUUID->"cd487814-9fc9-45ff-99dc-f1a9f78a9adf"],
+
+Cell[BoxData[
+ RowBox[{"Options", "[", "MDExport", "]"}]], "Input",
+ CellChangeTimes->{{3.788882741025703*^9, 3.788882744623519*^9}},
+ CellLabel->
+  "In[174]:=",ExpressionUUID->"72f737cc-6c98-4745-a489-de418bbc2c3b"],
+
+Cell[BoxData[
+ RowBox[{"MDExport", "[", 
+  RowBox[{"fileName", ",", 
+   RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7878678839976263`*^9, 3.787867955368351*^9}, {
+  3.787868011346472*^9, 3.787868014427517*^9}, {3.7878683619937572`*^9, 
+  3.787868363704116*^9}, {3.787868405577346*^9, 3.787868428816819*^9}, {
+  3.788089833569029*^9, 3.788089847412901*^9}, {3.788089930604616*^9, 
+  3.788089947949142*^9}},
+ CellLabel->
+  "In[175]:=",ExpressionUUID->"14bb7815-11d0-40c1-bc42-62b541e6d7f1"],
+
+Cell[BoxData[
+ RowBox[{"SystemOpen", "[", "fileName", "]"}]], "Input",
+ CellChangeTimes->{{3.787869278940383*^9, 3.787869291906027*^9}, {
+  3.788089915805559*^9, 3.788089918167675*^9}, {3.788089952687037*^9, 
+  3.788089956262328*^9}, {3.7888826137631397`*^9, 3.788882614749709*^9}},
+ CellLabel->
+  "In[176]:=",ExpressionUUID->"9d30e1d7-3c70-4117-a49b-025551f56cbd"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1699, 1279},
+WindowMargins->{{864, Automatic}, {Automatic, 33}},
+FrontEndVersion->"12.1 for Mac OS X x86 (64-bit) (June 19, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"00fc1058-6c6d-4f6a-9937-641a5eb4c5a5"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 233, 4, 98, "Title",ExpressionUUID->"89a1d09d-8e83-4466-8308-f897e01a5a45"],
+Cell[816, 28, 1876, 34, 104, "Text",ExpressionUUID->"d4a77095-2ef2-4dee-9953-05ef085caa9b"],
+Cell[CellGroupData[{
+Cell[2717, 66, 157, 3, 67, "Section",ExpressionUUID->"389a59a3-fce3-46aa-8057-ced4032e3ccf"],
+Cell[2877, 71, 1599, 37, 58, "Text",ExpressionUUID->"bde86fae-0a3a-4f1f-a24d-0b7b2aea9d02"],
+Cell[4479, 110, 618, 9, 35, "Text",ExpressionUUID->"3adb09da-912d-4450-8390-675258bf901f"],
+Cell[CellGroupData[{
+Cell[5122, 123, 1024, 20, 32, "Item",ExpressionUUID->"b5f9912e-abc1-48fe-80f9-61eacc4a6b68"],
+Cell[6149, 145, 894, 18, 32, "Item",ExpressionUUID->"9adb2c53-6974-42e7-a26a-57442bec051e"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7092, 169, 160, 3, 67, "Section",ExpressionUUID->"7a4ade72-b3c0-4483-98d6-6da17f333f6f"],
+Cell[7255, 174, 251, 4, 35, "Text",ExpressionUUID->"b42fa3ce-87a6-429e-aa73-5594ec515170"],
+Cell[7509, 180, 747, 14, 91, "Code",ExpressionUUID->"16623e0d-649a-47aa-b587-37661ca07e1b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8293, 199, 159, 3, 67, "Section",ExpressionUUID->"f63a66ec-62e6-483f-9053-436f947c6c23"],
+Cell[CellGroupData[{
+Cell[8477, 206, 157, 3, 54, "Subsection",ExpressionUUID->"1e321d5c-6549-4ca5-8e17-1ac1a3ba4144"],
+Cell[8637, 211, 587, 15, 35, "Text",ExpressionUUID->"ed83248f-b3c1-4d35-801a-d4a42158739c"],
+Cell[9227, 228, 2968, 86, 73, "Input",ExpressionUUID->"66a3924e-da14-4db4-b100-d970893c8bf0"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12232, 319, 158, 3, 54, "Subsection",ExpressionUUID->"d6ad13cf-517f-4f65-8a6e-60db08c44aee"],
+Cell[12393, 324, 178, 3, 35, "Text",ExpressionUUID->"c66ff2fb-8b2b-413e-9833-f3de0cbd669d"],
+Cell[12574, 329, 423, 9, 30, "Input",ExpressionUUID->"204ee65f-49e4-46ed-9eeb-7513e1e822e6"],
+Cell[13000, 340, 429, 11, 35, "Text",ExpressionUUID->"1cbb328a-106b-49ae-ae93-3730b581e517"],
+Cell[13432, 353, 183, 4, 30, "Input",ExpressionUUID->"267a3b09-b616-419d-92aa-b6b1e6da9b30"],
+Cell[13618, 359, 339, 10, 35, "Text",ExpressionUUID->"eb7a0611-8b2f-492e-8dd6-ae38a3d2182d"],
+Cell[13960, 371, 836, 16, 52, "Input",ExpressionUUID->"efeff962-aaa2-4741-a097-055da876859f"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14833, 392, 164, 3, 54, "Subsection",ExpressionUUID->"fabbd02a-b1ea-4403-9697-dc04217c0d91"],
+Cell[15000, 397, 325, 8, 35, "Text",ExpressionUUID->"bbf2ce78-0e49-4f5b-b542-bdb69dbe230f"],
+Cell[15328, 407, 401, 8, 30, "Input",ExpressionUUID->"166e53ae-9392-4a41-aeca-0bbc48ad75b7"],
+Cell[15732, 417, 330, 7, 30, "Input",ExpressionUUID->"88a32ef6-4d07-4309-96d3-261c5a34c911"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16099, 429, 162, 3, 54, "Subsection",ExpressionUUID->"fc53f53e-b730-41b2-860e-0f127ca40dfe"],
+Cell[16264, 434, 387, 8, 35, "Text",ExpressionUUID->"9e98cc7b-0096-4aaf-a9fb-d075864dd5cb"],
+Cell[16654, 444, 477, 11, 30, "Input",ExpressionUUID->"5adf1a2d-f958-4b29-93a2-0ecab8c800e0"],
+Cell[17134, 457, 259, 7, 35, "Text",ExpressionUUID->"40359216-f5b3-483b-8bb1-2c0c8414338b"],
+Cell[17396, 466, 345, 8, 30, "Input",ExpressionUUID->"3efc8484-fcf5-44f9-baa5-7e29ba2637ca"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17790, 480, 241, 5, 67, "Section",ExpressionUUID->"c52d111e-b54f-45a8-893f-6c5bdbad99cc"],
+Cell[18034, 487, 1112, 25, 35, "Text",ExpressionUUID->"0042995b-9b01-43e8-94f5-72971dad53b9"],
+Cell[19149, 514, 220, 4, 35, "Text",ExpressionUUID->"07bca25d-58a4-4355-b0e7-81ce49e2b8b7"],
+Cell[19372, 520, 517, 13, 52, "Input",ExpressionUUID->"05bb59b8-075b-4f0e-9a37-e8df9f34ef81"],
+Cell[19892, 535, 179, 3, 35, "Text",ExpressionUUID->"5de506e5-799a-48ce-8715-5afd818766d1"],
+Cell[20074, 540, 275, 6, 30, "Input",ExpressionUUID->"1a9c7aa5-6e7d-4648-aec1-84bfc516a396"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[20386, 551, 294, 4, 67, "Section",ExpressionUUID->"e4ff0ad6-5d85-496e-9bda-6cc06f2383e9"],
+Cell[20683, 557, 381, 7, 35, "Text",ExpressionUUID->"73d80a83-9be7-4145-866c-bbc2a193445a"],
+Cell[21067, 566, 309, 8, 35, "Text",ExpressionUUID->"b677acbe-6cbd-4d8f-bc8a-15ed374a9857"],
+Cell[21379, 576, 4413, 122, 52, InheritFromParent,ExpressionUUID->"bc56cfdb-f574-4d86-801d-790e94e4520c"],
+Cell[25795, 700, 176, 3, 35, "Text",ExpressionUUID->"6b9f0b2c-8252-4b00-a395-80b2b801bac0"],
+Cell[25974, 705, 486, 10, 30, "Input",ExpressionUUID->"e588eb6a-8c9b-4663-a444-9bbbba7508d6"],
+Cell[26463, 717, 313, 8, 35, "Text",ExpressionUUID->"e811be8a-b8d7-4a49-8c5d-928e9e1ef979"],
+Cell[26779, 727, 686, 15, 52, "Input",ExpressionUUID->"05d3bd99-f6a1-43a2-9e20-f2979a1b7ab4"],
+Cell[27468, 744, 313, 9, 35, "Text",ExpressionUUID->"663abd5e-3ce3-4a12-9d05-ad42156d035f"],
+Cell[27784, 755, 225, 5, 35, "Text",ExpressionUUID->"2249ed10-7163-461e-a265-e98603c946cc"],
+Cell[28012, 762, 1172, 29, 74, "Input",ExpressionUUID->"89c00b57-b836-4f30-b2e9-c56fe14aaf19"],
+Cell[29187, 793, 228, 4, 35, "Text",ExpressionUUID->"e5519aca-ac32-44b5-afb3-9a0cd0ab8208"],
+Cell[29418, 799, 1165, 28, 30, "Input",ExpressionUUID->"4e7f7b88-c75a-40d5-a86d-dacff2033a5b"],
+Cell[30586, 829, 169, 3, 35, "Text",ExpressionUUID->"e36e17c7-dc16-4ee5-bfcd-d38a54ccaabc"],
+Cell[30758, 834, 476, 11, 30, "Input",ExpressionUUID->"26475fc4-a3fd-46ae-95a0-d40d975d0359"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31271, 850, 157, 3, 67, "Section",ExpressionUUID->"f356e52e-3291-4c7d-ab7d-6796f17052b0"],
+Cell[31431, 855, 1550, 42, 35, "Text",ExpressionUUID->"193b4458-4f4a-4c92-baa4-75e2b8aba7b5"],
+Cell[32984, 899, 409, 9, 35, "Text",ExpressionUUID->"41cc0b01-00d0-4708-92ec-71257c17adc6"],
+Cell[33396, 910, 561, 10, 30, "Input",ExpressionUUID->"644bec1d-0296-4d1d-b427-5c8df45348af"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[33994, 925, 157, 3, 67, "Section",ExpressionUUID->"902c9431-a0e7-4496-9e41-b76ea8c6d168"],
+Cell[CellGroupData[{
+Cell[34176, 932, 158, 3, 54, "Subsection",ExpressionUUID->"8f54c700-da01-4f43-97ba-5fcf2efe5977"],
+Cell[34337, 937, 810, 21, 35, "Text",ExpressionUUID->"1d5d75d8-ff4c-4194-ad50-a68ed72e26ce"],
+Cell[35150, 960, 827, 20, 35, "Text",ExpressionUUID->"a27aaf07-6e72-4ade-a1a7-fd94bbe35af8"],
+Cell[35980, 982, 844, 22, 35, "Text",ExpressionUUID->"ba778c64-0bdb-4ad2-aba4-5d318bc88f0d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[36861, 1009, 156, 3, 54, "Subsection",ExpressionUUID->"8728dca7-e5a0-4732-aa3b-f02b313d67fa"],
+Cell[37020, 1014, 653, 15, 35, "Text",ExpressionUUID->"140d7a74-6cd9-497f-8aa7-5b1b443b6544"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37722, 1035, 155, 3, 67, "Section",ExpressionUUID->"bb95f02f-e6af-44e4-aa3b-0779f21104c0"],
+Cell[37880, 1040, 253, 5, 30, "Input",ExpressionUUID->"4ce5f9dd-389d-4ffe-b8e9-a84a5e0f7e76"],
+Cell[38136, 1047, 219, 4, 30, "Input",ExpressionUUID->"09c549c3-bbb2-40d7-955a-f40bd770311a"],
+Cell[38358, 1053, 267, 5, 30, "Input",ExpressionUUID->"a3f91f63-21fb-4695-a2a9-dd23f58fd194"],
+Cell[38628, 1060, 948, 20, 30, "Input",ExpressionUUID->"68bc4fd8-c7e6-497c-8b0a-99de647a3e36"],
+Cell[39579, 1082, 215, 4, 30, "Input",ExpressionUUID->"cd487814-9fc9-45ff-99dc-f1a9f78a9adf"],
+Cell[39797, 1088, 216, 4, 30, "Input",ExpressionUUID->"72f737cc-6c98-4745-a489-de418bbc2c3b"],
+Cell[40016, 1094, 527, 10, 30, "Input",ExpressionUUID->"14bb7815-11d0-40c1-bc42-62b541e6d7f1"],
+Cell[40546, 1106, 365, 6, 30, "Input",ExpressionUUID->"9d30e1d7-3c70-4117-a49b-025551f56cbd"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
