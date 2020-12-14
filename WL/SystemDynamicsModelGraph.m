@@ -128,7 +128,7 @@ TODO:
   4. [ ] Adding tooltips
   5. [ ] Functions to deal with large models.
   6. [ ] Describe the reasons to use or not use Simplify, Expand, Gather, etc.
-  7. [ ] Make a system of ODEs from graph edges.
+  7. [X] Make a system of ODEs from graph edges.
 
 *)
 
