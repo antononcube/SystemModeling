@@ -38,7 +38,7 @@ lsEqs = {Derivative[1][SP][t] == -((IP[t] SP[t] \[Beta][IP])/TP[t]) - SP[t] \[Mu
 ResourceFunction["GridTableForm"][List /@ lsEqs, TableHeadings -> {"Equations"}]
 ```
 
-![01xbi9kqh0cfv](./Diagrams/Making-Graphs-over-System-Dynamics-Models/01xbi9kqh0cfv.png)
+![01xbi9kqh0cfv](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/01xbi9kqh0cfv.png)
 
 ### Model graph
 
@@ -48,7 +48,7 @@ Here is a graph of the dependencies between the populations:
 ModelDependencyGraph[lsEqs, {EP, IP, RP, SP, TP}, t]
 ```
 
-![08d1a9tfgog31](./Diagrams/Making-Graphs-over-System-Dynamics-Models/08d1a9tfgog31.png)
+![08d1a9tfgog31](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/08d1a9tfgog31.png)
 
 When the second argument given to `ModelDependencyGraph` is `Automatic` the stocks in the equations are heuristically 
 found with the function `ModelHeuristicStocks`:
@@ -66,7 +66,7 @@ ModelDependencyGraph[lsEqs, Automatic, t,
   GraphLayout -> "GravityEmbedding", VertexLabels -> "Name", VertexLabelStyle -> Directive[Red, Bold, 16], EdgeLabelStyle -> Directive[Blue, 16], ImageSize -> Large]
 ```
 
-![0nbr2tt4704fd](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0nbr2tt4704fd.png)
+![0nbr2tt4704fd](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0nbr2tt4704fd.png)
 
 ### Dependencies only
 
@@ -76,13 +76,13 @@ The dependencies in the model can be found with the function `ModelDependencyGra
 lsEdges = ModelDependencyGraphEdges[lsEqs, Automatic, t]
 ```
 
-![0oqkkrnakv89r](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0oqkkrnakv89r.png)
+![0oqkkrnakv89r](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0oqkkrnakv89r.png)
 
 ```mathematica
 lsEdges[[4]] // FullForm
 ```
 
-![0x9s286b3noms](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0x9s286b3noms.png)
+![0x9s286b3noms](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0x9s286b3noms.png)
 
 ### Focus stocks
 
@@ -92,7 +92,7 @@ Here is a graph for a set of “focus” stocks-sources to a set of “focus” 
 gr = ModelDependencyGraph[lsEqs, {IP, SP}, {EP}, t]
 ```
 
-![13di08vbzgsyi](./Diagrams/Making-Graphs-over-System-Dynamics-Models/13di08vbzgsyi.png)
+![13di08vbzgsyi](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/13di08vbzgsyi.png)
 
 Compare with the graph in which the argument positions of sources and destinations of the previous command are swapped:
 
@@ -100,7 +100,7 @@ Compare with the graph in which the argument positions of sources and destinatio
 ModelDependencyGraph[lsEqs, {EP}, {IP, SP}, t]
 ```
 
-![009we6s5tmxek](./Diagrams/Making-Graphs-over-System-Dynamics-Models/009we6s5tmxek.png)
+![009we6s5tmxek](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/009we6s5tmxek.png)
 
 ## Additional interfacing
 
@@ -113,7 +113,7 @@ model = SEIRModel[t, "TotalPopulationRepresentation" -> "AlgebraicEquation"];
 ModelGridTableForm[model]
 ```
 
-![0aojbcw5zogfw](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0aojbcw5zogfw.png)
+![0aojbcw5zogfw](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0aojbcw5zogfw.png)
 
 Here we make the corresponding graph:
 
@@ -121,7 +121,7 @@ Here we make the corresponding graph:
 ModelDependencyGraph[model, t]
 ```
 
-![1v1sbwz9d6peq](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1v1sbwz9d6peq.png)
+![1v1sbwz9d6peq](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/1v1sbwz9d6peq.png)
 
 ## Generating equations from graph specifications
 
@@ -130,7 +130,7 @@ the generation of system of ODEs from graphs.
 
 Here is a model specifications through graph edges (using `DirectedEdge`): 
 
-![0qp613dyiglzo](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0qp613dyiglzo.png)
+![0qp613dyiglzo](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0qp613dyiglzo.png)
 
 Here is the corresponding graph:
 
@@ -138,7 +138,7 @@ Here is the corresponding graph:
 grModel = Graph[lsEdges, VertexLabels -> "Name", EdgeLabels -> "EdgeTag", ImageSize -> Large]
 ```
 
-![1vrnyvwpgmcz9](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1vrnyvwpgmcz9.png)
+![1vrnyvwpgmcz9](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/1vrnyvwpgmcz9.png)
 
 Here we generate the system of ODEs using the function `ModelGraphEquations`:
 
@@ -147,15 +147,15 @@ lsEqsGen = ModelGraphEquations[grModel, t];
 ResourceFunction["GridTableForm"][List /@ lsEqsGen, TableHeadings -> {"Equations"}]
 ```
 
-![1dl7z5ohgof6h](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1dl7z5ohgof6h.png)
+![1dl7z5ohgof6h](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/1dl7z5ohgof6h.png)
 
 **Remark:** `ModelGraphEquations` works with both graph and list of edges as a first argument.
 
 Here we replace the symbolically represented rates with concrete values: 
 
-![08ewn5gxhx8d5](./Diagrams/Making-Graphs-over-System-Dynamics-Models/08ewn5gxhx8d5.png)
+![08ewn5gxhx8d5](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/08ewn5gxhx8d5.png)
 
-![1e4wq9d04yhro](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1e4wq9d04yhro.png)
+![1e4wq9d04yhro](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/1e4wq9d04yhro.png)
 
 Here we solve the system of ODEs:
 
@@ -163,7 +163,7 @@ Here we solve the system of ODEs:
 sol = First@NDSolve[{lsEqsGen2, SP[0] == 99998, EP[0] == 0, IP[0] == 1, RP[0] == 0,MLP[0] == 0, TP[0] == 100000}, Union[First /@ lsEdges], {t, 0, 365}]
 ```
 
-![1p9civying0hn](./Diagrams/Making-Graphs-over-System-Dynamics-Models/1p9civying0hn.png)
+![1p9civying0hn](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/1p9civying0hn.png)
 
 Here we plot the results:
 
@@ -171,7 +171,7 @@ Here we plot the results:
 ListLinePlot[sol[[All, 2]], PlotLegends -> sol[[All, 1]]]
 ```
 
-![13xvmif6i6o2n](./Diagrams/Making-Graphs-over-System-Dynamics-Models/13xvmif6i6o2n.png)
+![13xvmif6i6o2n](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/13xvmif6i6o2n.png)
 
 ## Call graph
 
@@ -183,7 +183,7 @@ Here is call graph for the functions in the package [AAp1] made with the functio
 CallGraph`CallGraph[Context[ModelDependencyGraph], "PrivateContexts" -> False, "UsageTooltips" -> True]
 ```
 
-![0c1vpbf585pe9](./Diagrams/Making-Graphs-over-System-Dynamics-Models/0c1vpbf585pe9.png)
+![0c1vpbf585pe9](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Making-Graphs-over-System-Dynamics-Models/0c1vpbf585pe9.png)
 
 ## References
 
