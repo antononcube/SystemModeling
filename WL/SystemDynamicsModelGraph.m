@@ -1,5 +1,5 @@
 (*
-    System dynamics model graph Mathematica package
+    System Dynamics Model Graph Mathematica package
     Copyright (C) 2020  Anton Antonov
 
     This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 (* :Package Version: 0.1 *)
 (* :Mathematica Version: 12.0 *)
 (* :Copyright: (c) 2020 Anton Antonov *)
-(* :Keywords: dependency graph, call graph, ODE, equations system *)
+(* :Keywords: dependency graph, call graph, ODE, equations system, System Dynamics *)
 (* :Discussion:
 
    # In brief
@@ -115,14 +115,18 @@
 
 TODO:
   1. [X] Usage examples
-  2. [ ] Make unit tests
-  3. [ ] Adding tooltips
-  4. [ ] Functions to deal with large models.
-  5. [ ] Describe the reasons to use or not use Simplify, Expand, Gather, etc.
+  2. [X] Automatic stocks
+  3. [ ] Make unit tests
+  4. [ ] Adding tooltips
+  5. [ ] Functions to deal with large models.
+  6. [ ] Describe the reasons to use or not use Simplify, Expand, Gather, etc.
 
 *)
 
 BeginPackage["ModelStockDependencies`"];
+
+ModelHeuristicStocks::usage = "ModelHeuristicStocks[modelEqs : {_Equal ..}] \
+find heuristically the stocks in a list of equations.";
 
 ModelStockDependencies::usage = "ModelStockDependencies[ modelEqs : {_Equal ..}, modelStocks_List, tvar_Symbol, opts___] \
 finds the dependencies of the stocks modelStocks over the variable tvar through the equations modelEqs.";
@@ -148,6 +152,44 @@ EpidemiologyModelQ[model_] :=
         MatchQ[model["Equations"], { _Equal .. }];
 
 
+(**************************************************************)
+(* ModelHeuristicStocks                                       *)
+(**************************************************************)
+
+Clear[ModelHeuristicStocks];
+
+SyntaxInformation[ModelHeuristicStocks] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}};
+
+ModelHeuristicStocks::nargs = "The first argument is expected to be a list of equations. \
+The second argument is expected to be symbol.";
+
+ModelHeuristicStocks[ model_?EpidemiologyModelQ ] := Head /@ Keys[model["Stocks"]];
+
+ModelHeuristicStocks[ lsEquations : {_Equal..}, tvar_Symbol ] :=
+    Block[{lsLHS, lsSymbols},
+
+      lsLHS = First /@ lsEquations;
+
+      lsSymbols =
+          Union @
+              Join[
+                Cases[ lsLHS, (f_[tvar]) :> f, Infinity],
+                Cases[ lsLHS, (f_[s___][tvar]) :> f[s], Infinity],
+
+                Cases[ lsLHS, (Derivative[1][f_][tvar]) :> f, Infinity],
+                Cases[ lsLHS, (Derivative[1][f_[s___]][tvar]) :> f[s], Infinity],
+
+                Cases[ lsLHS, (Subscript[s___][tvar]) :> Subscript[s], Infinity]
+              ];
+      DeleteCases[lsSymbols, Derivative[__][__] ]
+    ];
+
+ModelHeuristicStocks[___] :=
+    Block[{},
+      Message[ModelHeuristicStocks::nargs];
+      $Failed
+    ];
+
 
 (**************************************************************)
 (* ModelStockDependencies                                     *)
@@ -167,6 +209,9 @@ Options[ModelStockDependencies] =
 
 ModelStockDependencies[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelStockDependencies[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
+
+ModelStockDependencies[lsEquations : {_Equal ..}, Automatic, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelStockDependencies[lsEquations, ModelHeuristicStocks[lsEquations, tvar], tvar, opts];
 
 ModelStockDependencies[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelStockDependencies[lsEquations, lsStocks, lsStocks, tvar, opts];
@@ -281,6 +326,9 @@ Options[ModelDependencyGraphEdges] = Options[ModelStockDependencies];
 ModelDependencyGraphEdges[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraphEdges[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
 
+ModelDependencyGraphEdges[lsEquations : {_Equal ..}, Automatic, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraphEdges[lsEquations, ModelHeuristicStocks[lsEquations, tvar], tvar, opts];
+
 ModelDependencyGraphEdges[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraphEdges[lsEquations, lsStocks, lsStocks, tvar, opts];
 
@@ -314,6 +362,9 @@ Options[ModelDependencyGraph] = Join[ Options[ModelStockDependencies], Options[G
 
 ModelDependencyGraph[ model_?EpidemiologyModelQ, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraph[ model["Equations"], Head /@ Keys[model["Stocks"]], tvar, opts];
+
+ModelDependencyGraph[lsEquations : {_Equal ..}, Automatic, tvar_Symbol, opts : OptionsPattern[]] :=
+    ModelDependencyGraph[lsEquations, ModelHeuristicStocks[lsEquations, tvar], tvar, opts];
 
 ModelDependencyGraph[lsEquations : {_Equal ..}, lsStocks_List, tvar_Symbol, opts : OptionsPattern[]] :=
     ModelDependencyGraph[lsEquations, lsStocks, lsStocks, tvar, opts];
