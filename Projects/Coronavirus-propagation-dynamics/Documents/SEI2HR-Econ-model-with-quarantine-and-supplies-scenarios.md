@@ -175,7 +175,7 @@ The equations time unit is one day. The time horizon is one year. Since we targe
 
 **Remark:** For convenient reading the equations in this section have tooltips for the involved stocks and rates.
 
-### Verbalization description of the model
+### Verbal description of the model
 
 We start with one infected (normally symptomatic) person, the rest of the people are susceptible. The infected people meet other people directly or get in contact with them indirectly. (Say, susceptible people touch things touched by infected.) For each susceptible person there is a probability to get the decease. The decease has an incubation period: before becoming infected the susceptible are (merely) exposed. The infected recover after a certain average infection period or die. A certain fraction of the infected become severely symptomatic. The severely symptomatic infected are hospitalized if there are enough hospital beds and enough medical supplies. The hospitalized severely infected have different death rate than the non-hospitalized ones. The number of hospital beds might change: hospitals are extended, new hospitals are build, or there are not enough medical personnel or supplies. 
 
