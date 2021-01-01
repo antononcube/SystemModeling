@@ -474,6 +474,8 @@ GetStocks[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStocks[ mo
 GetStocks[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntities[ model, "Stocks", descr, opts];
 
+GetStocks[ model_?EpidemiologyModelQ, descr : ( {_String..} | {_StringExpression..} ), opts : OptionsPattern[] ] :=
+    DeleteDuplicates[ Join @@ Map[ RetrieveModelEntities[ model, "Stocks", #, opts]&, descr ] ];
 
 Clear[GetStockSymbols];
 
@@ -484,6 +486,8 @@ GetStockSymbols[ model_?EpidemiologyModelQ, opts : OptionsPattern[] ] := GetStoc
 GetStockSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression | _Symbol | {_Symbol..}), opts : OptionsPattern[] ] :=
     RetrieveModelEntitySymbols[ model, "Stocks", descr, opts];
 
+GetStockSymbols[ model_?EpidemiologyModelQ, descr : ( {_String..} | {_StringExpression..} ), opts : OptionsPattern[] ] :=
+    DeleteDuplicates[ Join @@ Map[ RetrieveModelEntitySymbols[ model, "Stocks", #, opts]&, descr ] ];
 
 Clear[GetPopulations, GetPopulationSymbols];
 
