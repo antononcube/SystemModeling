@@ -1,4 +1,4 @@
-#+TITLE: Modeler questions
+#+TITLE: Modeler questionnaire
 #+AUTHOR: Anton Antonov
 #+EMAIL: antononcube@posteo.net
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED 
@@ -6,7 +6,7 @@
 
 * Introduction
 - In this document are listed questions for different aspects of system models.
-  - System Dynamics is the main modeling paradigm.
+  - [[https://en.wikipedia.org/wiki/System_dynamics][System Dynamics (SD)]] is the main modeling paradigm, hence SD's terminology is used.
 ** Why those questions?
 - A modeler should think that people who use modeler's models are doing
   the modeler a favor.
@@ -19,7 +19,7 @@
 - Currently most of SystemModeling models are (mostly) run through
   Mathematica notebooks.
 ** System Dynamics models
-- Most of the SystemModeling models are System Dynamics models. 
+- Most of the [[https://github.com/antononcube/SystemModeling][SystemModeling]] models are System Dynamics models.
 - Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
 * Questions [%] [/]
 ** Modeling [0%] [0/5]
@@ -34,22 +34,32 @@
    - [ ] What are the units of the contact matrix entries?
 3) [ ] Stocks
    - [ ] Where the stocks are defined and explained?
-   - [ ] Is there a dictionary for the stocks in the model?
+   - [ ] Is there a dictionary for the stocks in model's object or package?
    - [ ] Are there specifications for the physical units of each stock?
-   - [ ] Are the stocks expected value ranges?
+   - [ ] What are the stocks expected value ranges?
 4) [ ] Rates
    - [ ] Where are the rates defined and explained?
-   - [ ] Is there a dictionary for the rates in the model?
+   - [ ] Is there a dictionary for the rates in model's object or package?
    - [ ] Are there specifications for the physical units of each rate?
-   - [ ] Are the rates expected ranges?
-5) [ ] What is the size of the model?
+   - [ ] What are the rates expected value ranges?
+5) [ ] Is the model build-up or set-up parametrized?
+6) [ ] What is the size of the model?
    - [ ] If compartmental modeling is used:
      - [ ] How many ordinary differential equations the model has?
-     - [ ] How the number of equations change by changing parameters or set-up?
+     - [ ] How the number of equations change by changing with respect to model set-up?
    - [ ] If agent based modeling is used:
      - [ ] How many agents are considered?
 ** Implementation [%] [/]
-1) [ ] Is the model implemented in a Mathematica package?
+1) [ ] Is the model implemented in package(s)?
+   - [ ] C
+   - [ ] FORTRAN
+   - [ ] Java
+   - [ ] Julia
+   - [ ] Mathematica
+   - [ ] Modelica
+   - [ ] Python
+   - [ ] R
+   - etc.
 2) [ ] What are the components of the model?
 3) [ ] Are the model equations hard-coded?
 4) [ ] Are there hard-coded:
@@ -57,37 +67,41 @@
    - [ ] Equations
    - [ ] Parameters
 5) [ ] What parameters are needed to generate the model equations?
-6) [ ] In which Mathematica context(s) the model equations have variables in?
+6) [ ] In which package context(s) or namespace(s) the model equations have variables in?
 7) [ ] Is the model placed in a source code version control system?
 8) [ ] What are the stages of the model building?
 ** Hand-out [%] [/]
 1) [ ] What are the files needed to run the model?
 2) [ ] Are there additional packages to be obtained or downloaded?
 3) [ ] Are there additional data files to be obtained or downloaded?
+4) [ ] Is there documentation for the model theory and/or usage?
 ** Execution [0%] [0/6]
-3) [ ] What version of Mathematica the model was developed on?
-4) [ ] What is the last version of Mathematica used with the model?
-5) [ ] What operating systems the model code can/was/should be executed on?
-6) [ ] Is the model code supposed to be run as is?
-   - [ ] Is some additional set-up work is needed.
+1) [ ] What version of which programming language or system the model was developed in?
+2) [ ] What are the last version(s) of the programming language(s) or system(s) in which the model was successfully run?
+3) [ ] What operating systems the model code can/was/should be executed on?
+4) [ ] Is the model code supposed to be run as is?
+   - [ ] Is some additional set-up work needed?
    - [ ] Where is this additional set-up work described?
-7) [ ] Does the model code have:
+5) [ ] Does the model code have:
    - [ ] Set up notebook(s) or script(s)
    - [ ] Running execution notebook(s) or script(s)
    - [ ] Package dependencies
-8) [ ] Are there any global variables in the model execution workflow?
-   - [ ] Global environment variables:
+6) [ ] Are there any global variables in the model execution workflow?
+   - [ ] Global environment / namespace variables:
      - [ ] Operating System
      - [ ] Mathematica
-   - [ ] Global notebook variables
-9) [ ] What parts of notebooks or code have to be changed?
-10) [ ] Does the model execution have code defined in the running notebook?
-    - [ ] If yes, why is that code defined in the notebook?
+     - [ ] R
+     - etc.
+   - [ ] Global notebook or script variables
+7) [ ] What parts of the code in the hand-out notebooks or scripts have to be changed?
+8) [ ] Does the model execution have code defined in the execution notebook / script?
+    - [ ] If yes, why is that code defined in the notebook / script?
       - [ ] For verification that "things are working as expected"
       - [ ] For calibration computations intermediate insight or direction determination
       - [ ] For visualization
       - [ ] For debugging
-    - [  ] Why the functions defined in the notebook are not in a package?
+      - etc.
+    - [  ] Why the functions defined in the notebook / script are not in a package?
 ** Data feeding [0%] [0/6]
 1) [ ] Where the data for the model is located?
 2) [ ] How is the data ingested in the model code?
@@ -95,30 +109,29 @@
 4) [ ] Are different data-facets in different formats?
 5) [ ] What is the required data pre-processing?
 6) [ ] What is data's pedigree?
+   - [ ] Is it a version control system?
    - [ ] Who provided it?
    - [ ] How it was collected?
    - [ ] What is the methodology of processing the raw data?
    - [ ] Is it updated or reviewed?
 ** Calibration parameters [0%] [0/11]
 1) [ ] Which are the tuning or calibration parameters?
-2) [ ] Where the calibration parameters defined and/or explained?
+2) [ ] Where are the calibration parameters defined and/or explained?
 3) [ ] What ranges of the calibration parameters should be considered?
 4) [ ] Which parameters have highest sensitivity?
 5) [ ] Which parameters are most important?
    - [ ] Have most impact on the results of interest
    - [ ] Influence the system dynamics or evolution the most
    - [ ] From economics perspective
+   - etc.
 6) [ ] Has calibration of the model been done or attempted?
 7) [ ] How long the calibration process should take?
-8) [ ] What the calibration targets?
-9) [ ] Is pre-processing needed for the data used to calibrate against?
-10) [ ] Should stocks be aggregated in some way in order to use the
-    calibration targets?
-11) [ ] Should the model be enhanced with additional equations in
-    order to calibrate with certain type of targets?
-** Numerical computations  [%] [/]
-1) [ ] What are the expected precision and accuracy goals for the
-   simulation runs?
+8) [ ] What are the calibration targets?
+9) [ ] Is is needed to pre-process the data used in the calibration?
+10) [ ] Should stocks be aggregated in some way in order to use the calibration targets?
+11) [ ] Should the model be enhanced with additional equations in order to calibrate with certain types of targets?
+** Numerical computations [%] [/]
+1) [ ] What are the expected precision and accuracy goals for the simulation runs?
 2) [ ] What ODE solvers should be used?
 3) [ ] What ODE algorithms parameters have to be specified?
 ** Testing [0%] [0/2]
@@ -130,8 +143,8 @@
    - [ ] What are the expected data size(s)?
    - [ ] What are the expected data properties?
    - [ ] Is the data expected to have missing values?
-   - [ ] Are there expected distributions of different variables found
-     in data?
+   - [ ] Are there expected distributions of different variables found in data?
    - [ ] Other types of tests
 ** Possible issues
 1) List possible issues when executing the model.
+2) How to troubleshoot known, expected possible issues?

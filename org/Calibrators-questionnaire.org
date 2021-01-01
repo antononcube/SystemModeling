@@ -1,4 +1,4 @@
-#+TITLE: Calibrators questions
+#+TITLE: Calibrators questionnaire
 #+AUTHOR: Anton Antonov
 #+EMAIL: antononcube@posteo.net
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED
@@ -6,7 +6,7 @@
 
 * Introduction
 - In this document are listed questions for different aspects of system models calibration.
-  - System Dynamics is the main modeling paradigm.
+  - [[https://en.wikipedia.org/wiki/System_dynamics][System Dynamics (SD)]] is the main modeling paradigm, hence SD's terminology is used.
 ** Roles
 - There are three types of people dealing with the models:
   - Modeler, who develops and implements the model and prepares it for calibration.
@@ -16,12 +16,12 @@
   - Modeler and Calibrator are the same person
   - Modeler and Calibrator are different persons
 - Model development and calibration is most likely going to be an iterative process.
-- Hence it is good idea to keep track (a journal) of the model decisions, calibration process, problems encountered and their resolution, etc.
+- Hence, it is good idea to keep track (a journal) of the model decisions, calibration process, problems encountered and their resolution, etc.
 ** Process
-- It is assumed that each model calibration is done either for model development purposes or for a scenario play-out study.
+- It is assumed that each model calibration is done either for model development purposes or for scenario play-out studies.
 - It is assumed in this document that the model has matured development-wise and model calibration is done in a (more) formal way.
   - Stakeholder requires certain scenarios to be investigated.
-  - Modeler prepares the model for those scenarios
+  - Modeler prepares the model for those scenarios.
   - Stakeholder and Modeler formulate a *calibration request*.
   - Calibrator uses the specifications from the calibration request to:
     - Calibrate the model
@@ -31,7 +31,7 @@
 ** Calibration request
 - The calibration request should specify:
   - Data to be used
-  - Calibration parameters
+  - Calibration parameters and their value ranges
   - Model outcomes to focus on
   - Model properties to focus on
 ** Why those questions?
@@ -40,24 +40,22 @@
   - Address problems of model application and deployment
   - Keep track of model evolution due to iterative model-and-calibrate processes
 ** Why the questions discuss notebooks?
-- The following questions assume that models are developed and run
-  with Mathematica.
-- Currently most of SystemModeling models are (mostly) run through
-  Mathematica notebooks.
+- The following questions assume that models are developed and run with Mathematica or R.
+- Currently most of [[https://github.com/antononcube/SystemModeling][SystemModeling]] models are (mostly) run through Mathematica notebooks.
 ** System Dynamics models
-- Most of the SystemModeling models are System Dynamics models.
+- Most of the [[https://github.com/antononcube/SystemModeling][SystemModeling]] models are System Dynamics models.
 - Hence the questions below discuss stocks (e.g. people who are infected) and rates (e.g. number of contacts per person per day.)
 * Questions [%] [/]
 ** Modeling [0%] [0/4]
-- [ ] Did you have to change the model in order to calibrate it?
+- [ ] Was the model changed in order to calibrate it?
 - [ ] Were new stocks added?
 - [ ] Were new parameters added?
 ** Implementation [0%] [0/2]
-- [ ] Did you implement new:
+- [ ] Did you do new model-related implementations?
   - [ ] Visualization routines
   - [ ] Model outcomes statistics routines
   - [ ] Model introspection routines
-- [ ] Where the new implementations are placed:
+- [ ] Where the new implementations are placed?
   - [ ] Notebooks
   - [ ] Packages
   - [ ] Source version control repositories
@@ -73,12 +71,17 @@
 1) [ ] What/which files have the calibration results?
 2) [ ] Are special representation routines/packages needed to read and interpret the calibration results?
 ** Execution [0%] [0/6]
-1) [ ] What version of Mathematica the model was calibrated with?
+1) [ ] What version of programming language or system the model was calibrated with?
 2) [ ] What operating systems the model was calibrated in?
 3) [ ] How long did it take you make the first run of the model?
+4) [ ] How long did it take you to run the whole calibration processs?
+5) [ ] When "victory" or "sufficiently good results" were declared?
+6) [ ] Under what conditions the calibration process was given up?
 ** Data feeding [0%] [0/2]
 1) [ ] Was data pre-processing needed?
 2) [ ] Is the calibration data different from the data the model was developed with?
+3) [ ] Was data feeding documentation adequate?
+4) [ ] What changes of the data feeding process were necessary?
 ** Calibration parameters [0%] [0/6]
 1) [ ] Which calibration parameters were on focus?
    - Requested by the stakeholder(s).
@@ -95,10 +98,10 @@
 ** Numerical computations  [0%] [0/3]
 1) [ ] Did you use particular algorithm specifications?
 2) [ ] Did you change the precision and accuracy goals?
-   - [ ] Multiple change
    - [ ] Decreased
    - [ ] Increased
-3) [ ] Did you observe changes of system behavior while changing:
+   - [ ] Multiple changes
+3) [ ] Did you observe changes of modeled system behavior while changing:
    - [ ] Computational algorithms
    - [ ] Precision or accuracy
    - [ ] Order of computations
@@ -114,4 +117,5 @@
 3) [ ] Do you propose new unit tests?
 ** Possible issues
 1) What issues were encountered when executing the model?
+2) How encountered issues were resolved?
 
