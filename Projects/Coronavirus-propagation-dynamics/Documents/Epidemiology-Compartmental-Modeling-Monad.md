@@ -16,6 +16,7 @@ In this document we describe the design and demonstrate the implementation of a 
 [[Wk1](https://en.wikipedia.org/wiki/Monad_(functional_programming))], 
 for Epidemiology Compartmental Modeling (ECM) workflows specification and execution. 
 The design and implementation are done with Mathematica / Wolfram Language (WL).
+A very similar implementation is also done in R.
 
 Monad’s name is “ECMMon”, which stands for “**E**pidemiology **C**ompartmental **M**odeling **Mon**ad”, 
 and its monadic implementation is based on the State monad package 
@@ -29,13 +30,18 @@ The original ECM workflow discussed in [AA5] was implemented in [AAp7].
 An R implementation of `ECMMon` is provided by the package 
 [[AAr2](https://github.com/antononcube/ECMMon-R)].
 
-The goal of the monad design is to make the specification of ECM workflows (relatively) easy and straightforward by following a certain main scenarios and specifying variations over that scenario.
+The goal of the monad design is to make the specification of ECM workflows (relatively) easy and straightforward
+by following a certain main scenario and specifying variations over that scenario.
 
 We use real-life COVID-19 data, The New York Times COVID-19 data, see 
 [[NYT1](https://github.com/nytimes/covid-19-data), 
  [AA5](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md)].
 
-The monadic programming design is used as a [Software Design Pattern](https://en.wikipedia.org/wiki/Software_design_pattern). The LSAMon monad can be also seen as a [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) (DSL) for the specification and programming of machine learning classification workflows.  
+The monadic programming design is used as a 
+[Software Design Pattern](https://en.wikipedia.org/wiki/Software_design_pattern). 
+The `ECMMon` monad can be also seen as a 
+[Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) (DSL) 
+for the specification and programming of ECM workflows.  
 
 Here is an example of using the `ECMMon` monad over a compartmental model with two types of infected populations:
 
@@ -45,9 +51,14 @@ Here is an example of using the `ECMMon` monad over a compartmental model with t
 
 ![06grm5lhtjiv9](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/06grm5lhtjiv9.png)
 
-The table above is produced with the package [“MonadicTracing.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), [[AAp2](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), [AA1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MarkdownDocuments/Monad-code-generation-and-extension.md)], and some of the explanations below also utilize that package.
+The table above is produced with the package 
+[“MonadicTracing.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), 
+[[AAp2](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), 
+[AA1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MarkdownDocuments/Monad-code-generation-and-extension.md)], 
+and some of the explanations below also utilize that package.
 
-As it was mentioned above the monad `ECMMon` can be seen as a DSL. Because of this the monad pipelines made with `ECMMon` are sometimes called “specifications”.
+As it was mentioned above the monad `ECMMon` can be seen as a DSL. 
+Because of this the monad pipelines made with `ECMMon` are sometimes called “specifications”.
 
 ### Contents description
 
@@ -55,7 +66,9 @@ The document has the following structure.
 
 - The sections "Package load" and "Data load" obtain the needed code and data.
 
-    - (Needed and put upfront from the [“Reproducible research”](https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research) point of view.)
+    - (Needed and put upfront from the 
+      [“Reproducible research”](https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research) 
+      point of view.)
 
 - The section "Design consideration" provide motivation and design decisions rationale.
 
@@ -71,9 +84,13 @@ The document has the following structure.
 
 - The section "Future plans" outlines future directions of development.
 
-    - (The most interesting and important one is the [“conversational agent”](https://github.com/antononcube/ConversationalAgents/tree/master/Projects/TimeSeriesWorkflowsAgent) direction.)
+    - (The most interesting and important one is the 
+       [ECM conversational agent](https://github.com/antononcube/Raku-DSL-English-EpidemiologyModelingWorkflows) 
+       direction.)
 
-**Remark:** One can read only the sections "Introduction", "Design consideration", “Single-site models”, and "Batch simulation and calibration process". That set of sections provide a fairly good, programming language agnostic exposition of the substance and novel ideas of this document.
+**Remark:** One can read only the sections "Introduction", "Design consideration", “Single-site models”, and 
+"Batch simulation and calibration process". That set of sections provide a fairly good, 
+programming language agnostic exposition of the substance and novel ideas of this document.
 
 ## Package load
 
