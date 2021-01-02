@@ -12,24 +12,38 @@ December 2020
 
 ## Introduction
 
-In this document we describe the design and demonstrate the implementation of a (software programming) monad, [Wk1], for Epidemiology Compartmental Modeling (ECM) workflows specification and execution. The design and implementation are done with Mathematica / Wolfram Language (WL).
+In this document we describe the design and demonstrate the implementation of a (software programming) monad, 
+[[Wk1](https://en.wikipedia.org/wiki/Monad_(functional_programming))], 
+for Epidemiology Compartmental Modeling (ECM) workflows specification and execution. 
+The design and implementation are done with Mathematica / Wolfram Language (WL).
 
-Monad’s name is “ECMMon”, which stands for “**E**pidemiology **C**ompartmental **M**odeling **Mon**ad”, and its monadic implementation is based on the State monad package [“StateMonadCodeGenerator.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), [[AAp1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), [AA1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MarkdownDocuments/Monad-code-generation-and-extension.md)], 
-ECMMon is implemented in the package [![0r87rb08i8y73](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0r87rb08i8y73.png)], which relies on the packages [AAp3-AAp6]. The original ECM workflow discussed in [AA5] was implemented in [AAp7]. An R implementation of ECMon is provided by the package [[AAr2](https://github.com/antononcube/ECMMon-R)].
+Monad’s name is “ECMMon”, which stands for “**E**pidemiology **C**ompartmental **M**odeling **Mon**ad”, 
+and its monadic implementation is based on the State monad package 
+[“StateMonadCodeGenerator.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), 
+[[AAp1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), 
+[AA1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MarkdownDocuments/Monad-code-generation-and-extension.md)], 
+`ECMMon` is implemented in the package 
+[[AAp8](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.m)], 
+which relies on the packages [AAp3-AAp6]. 
+The original ECM workflow discussed in [AA5] was implemented in [AAp7]. 
+An R implementation of `ECMMon` is provided by the package 
+[[AAr2](https://github.com/antononcube/ECMMon-R)].
 
 The goal of the monad design is to make the specification of ECM workflows (relatively) easy and straightforward by following a certain main scenarios and specifying variations over that scenario.
 
-We use real-life COVID-19 data, The New York Times COVID-19 data, see [NYT1, AA5].
+We use real-life COVID-19 data, The New York Times COVID-19 data, see 
+[[NYT1](https://github.com/nytimes/covid-19-data), 
+ [AA5](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md)].
 
 The monadic programming design is used as a [Software Design Pattern](https://en.wikipedia.org/wiki/Software_design_pattern). The LSAMon monad can be also seen as a [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) (DSL) for the specification and programming of machine learning classification workflows.  
 
 Here is an example of using the `ECMMon` monad over a compartmental model with two types of infected populations:
 
-![0ejgq885m1unt](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0ejgq885m1unt.png)
+![0ejgq885m1unt](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0ejgq885m1unt.png)
 
-![14u60cftusqlc](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/14u60cftusqlc.png)
+![14u60cftusqlc](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/14u60cftusqlc.png)
 
-![06grm5lhtjiv9](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/06grm5lhtjiv9.png)
+![06grm5lhtjiv9](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/06grm5lhtjiv9.png)
 
 The table above is produced with the package [“MonadicTracing.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), [[AAp2](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicTracing.m), [AA1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MarkdownDocuments/Monad-code-generation-and-extension.md)], and some of the explanations below also utilize that package.
 
@@ -76,7 +90,7 @@ Import["https://raw.githubusercontent.com/antononcube/ConversationalAgents/maste
 
 ## Data load
 
-In this section we ingest data using the “umbrella function” MultiSiteModelReadData from [AAp5]:
+In this section we ingest data using the “umbrella function” `MultiSiteModelReadData` from [AAp5]:
 
 ### Read data
 
@@ -94,7 +108,7 @@ AbsoluteTiming[
 ResourceFunction["RecordsSummary"] /@ aData
 ```
 
-![01mnhk5boxlto](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/01mnhk5boxlto.png)
+![01mnhk5boxlto](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/01mnhk5boxlto.png)
 
 ### Transform data
 
@@ -114,19 +128,19 @@ Using the built-in function `GeoHistogram` we summarize the USA county populatio
 Row@MapThread[GeoHistogram[KeyMap[Reverse, #1], Quantity[140, "Miles"], PlotLabel -> #2, PlotTheme -> "Scientific", PlotLegends -> Automatic, ImageSize -> Medium] &, {{aPopulations, aInfected, aDead}, {"Populations", "Infected", "Dead"}}]
 ```
 
-![1km2posdmqoic](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1km2posdmqoic.png)
+![1km2posdmqoic](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1km2posdmqoic.png)
 
 (Note that in the plots above we have to reverse the keys of the given population associations.)
 
 Using the function `HextileHistogram` from 
-[[AAp7](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HextileBins.m)] 
+[[AAp7](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HextileBins.m) ] 
 here we visualize USA county populations over a hexagonal grid with cell radius 2 degrees ($\approx 140$ miles $\approx 222$ kilometers):
 
 ```mathematica
 HextileHistogram[aPopulations, 2, PlotRange -> All, PlotLegends -> Automatic, ImageSize -> Large]
 ```
 
-![0lqx1d453pio1](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0lqx1d453pio1.png)
+![0lqx1d453pio1](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0lqx1d453pio1.png)
 
 In this notebook we prefer using `HextileHistogram` because it represents the simulation data in geometrically more faithful way.
 
@@ -232,9 +246,10 @@ The following flow chart visualizes the possible workflows the software monad EC
 
 ## Single-site models
 
-We have a collection of single-site models that have different properties and different modeling goals, [AAp3, AA7, AA8]. Here is as diagram of a single-site model that includes hospital beds and medical supplies as limitation resources, [AA7]:
+We have a collection of single-site models that have different properties and different modeling goals, [AAp3, AA7, AA8]. 
+Here is as diagram of a single-site model that includes hospital beds and medical supplies as limitation resources, [AA7]:
 
-![](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
+![Coronavirus-propagation-simple-dynamics](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
 
 ### SEI2HR model
 
@@ -258,7 +273,7 @@ Here are the equations of one the epidemiology compartmental models, SEI2HR, [AA
 ModelGridTableForm[SEI2HRModel[t], "Tooltips" -> False]["Equations"] /. {eq_Equal :> TraditionalForm[eq]}
 ```
 
-![1fjs0wfx4mrpj](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1fjs0wfx4mrpj.png)
+![1fjs0wfx4mrpj](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1fjs0wfx4mrpj.png)
 
 The equations for Susceptible, Exposed, Infected, Recovered populations of SEI2R are "standard" and explanations about them are found in [WK2, HH1]. For SEI2HR those equations change because of the stocks Hospitalized Population and Hospital Beds.
 
@@ -296,7 +311,22 @@ aDefaultPars = <|
 
 Execute the workflow multiple times with different quarantine starts:
 
-![0m4dyrvdtz8k2](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0m4dyrvdtz8k2.png)
+```mathematica
+qlVar = 56;
+lsRes =
+  Map[
+   ECMMonUnit[]⟹
+     ECMMonSetSingleSiteModel[model1]⟹
+     ECMMonAssignRateRules[Join[aDefaultPars, <|qsd -> #, ql -> qlVar|>]]⟹
+     ECMMonSimulate[365]⟹
+     ECMMonPlotSolutions[{"Infected Severely Symptomatic Population"}, 240, 
+       "Together" -> True, "Derivatives" -> False, 
+       PlotRange -> {0, 12000}, ImageSize -> 250, 
+       Epilog -> {Orange, Dashed, Line[{{#1, 0}, {#1, 12000}}], Line[{{#1 + qlVar, 0}, {#1 + qlVar, 12000}}]}, 
+       PlotLabel -> Row[{"Quarantine start:", Spacer[5], #1, ",", Spacer[5], "end:", Spacer[5], #1 + qlVar}], 
+       "Echo" -> False]⟹
+     ECMMonTakeValue &, Range[25, 100, 5]];
+```
 
 Plot the simulation solutions for “Infected Severely Symptomatic Population”:
 
@@ -304,7 +334,7 @@ Plot the simulation solutions for “Infected Severely Symptomatic Population”
 Multicolumn[#[[1, 1]] & /@ lsRes, 4]
 ```
 
-![1db54x7hgf4iw](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1db54x7hgf4iw.png)
+![1db54x7hgf4iw](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1db54x7hgf4iw.png)
 
 Both theoretical and computational details of the workflow above are given [AA7, AA8].
 
@@ -367,39 +397,39 @@ ecmObj =
     ECMMonPlotSiteSolutions[{160, 174}, {"Deceased Infected Population", "Hospitalized Population","Hospital Beds"}, 300, "FocusTime" -> 120];
 ```
 
-![0y0cfyttq7yn6](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0y0cfyttq7yn6.png)
+![0y0cfyttq7yn6](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0y0cfyttq7yn6.png)
 
-![0gh46eljka9v5](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0gh46eljka9v5.png)
+![0gh46eljka9v5](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0gh46eljka9v5.png)
 
-![04xdyad4mmniu](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/04xdyad4mmniu.png)
+![04xdyad4mmniu](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/04xdyad4mmniu.png)
 
-![1mn5x0eb0hbvl](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1mn5x0eb0hbvl.png)
+![1mn5x0eb0hbvl](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1mn5x0eb0hbvl.png)
 
-![009qnefuurlhw](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/009qnefuurlhw.png)
+![009qnefuurlhw](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/009qnefuurlhw.png)
 
-![09xeiox9ane2w](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/09xeiox9ane2w.png)
+![09xeiox9ane2w](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/09xeiox9ane2w.png)
 
-![13kldiv0a47ua](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/13kldiv0a47ua.png)
+![13kldiv0a47ua](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/13kldiv0a47ua.png)
 
-![0jjxrwhkaj7ys](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0jjxrwhkaj7ys.png)
+![0jjxrwhkaj7ys](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0jjxrwhkaj7ys.png)
 
-![1qgjcibkzvib0](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1qgjcibkzvib0.png)
+![1qgjcibkzvib0](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1qgjcibkzvib0.png)
 
-![1bm71msuv1s02](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1bm71msuv1s02.png)
+![1bm71msuv1s02](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1bm71msuv1s02.png)
 
-![0l96q6lg8vg9n](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0l96q6lg8vg9n.png)
+![0l96q6lg8vg9n](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0l96q6lg8vg9n.png)
 
-![1w1u7nso952k8](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1w1u7nso952k8.png)
+![1w1u7nso952k8](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1w1u7nso952k8.png)
 
-![0gp4bff16s2rj](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0gp4bff16s2rj.png)
+![0gp4bff16s2rj](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0gp4bff16s2rj.png)
 
-![1pfvwkdwlm72j](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1pfvwkdwlm72j.png)
+![1pfvwkdwlm72j](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1pfvwkdwlm72j.png)
 
-![0in55gql6v1yi](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0in55gql6v1yi.png)
+![0in55gql6v1yi](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0in55gql6v1yi.png)
 
-![1fxxap0npojve](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1fxxap0npojve.png)
+![1fxxap0npojve](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1fxxap0npojve.png)
 
-![1e0ctc7lt1tbh](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1e0ctc7lt1tbh.png)
+![1e0ctc7lt1tbh](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1e0ctc7lt1tbh.png)
 
 Theoretical and computational details about the multi-site workflow can be found in [AA4, AA5].
 
@@ -499,7 +529,12 @@ In the rest of the section we go through the following steps:
 
 Here we make a new `ECMMon` object:
 
-![1qtlhvq5q0ice](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1qtlhvq5q0ice.png)
+```mathematica
+ecmObj2 =
+  ECMMonUnit[]⟹
+   ECMMonSetSingleSiteModel[model1]⟹
+   ECMMonAssignRateRules[aDefaultPars];
+```
 
 ### Direct specification of combinations of parameters
 
@@ -507,7 +542,12 @@ Here we make a new `ECMMon` object:
 
 Here we simulate the model in the object of different parameter combinations given in a list of associations:
 
-![0r70kzqvrzfmq](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0r70kzqvrzfmq.png)
+```mathematica
+res1 =
+  ecmObj2⟹
+   ECMMonBatchSimulate[___ ~~ "Population", {<|qsd -> 60, ql -> 28|>, <|qsd -> 55, ql -> 28|>, <|qsd -> 75, ql -> 21, \[Beta][ISSP] -> 0|>}, 240]⟹
+   ECMMonTakeValue;
+```
 
 **Remark:** The stocks in the results are only stocks that are populations -- 
 that is specified with the string expression pattern `___~~”Population”`.
@@ -518,7 +558,7 @@ Here is the shape of the result:
 Short /@ res1
 ```
 
-![0a1hc3qgvuof7](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0a1hc3qgvuof7.png)
+![0a1hc3qgvuof7](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0a1hc3qgvuof7.png)
 
 Here are the corresponding plots:
 
@@ -526,7 +566,7 @@ Here are the corresponding plots:
 ListLinePlot[#, PlotTheme -> "Detailed", ImageSize -> Medium, PlotRange -> All] & /@ res1
 ```
 
-![1veewx20b1778](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1veewx20b1778.png)
+![1veewx20b1778](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1veewx20b1778.png)
 
 #### Focus population
 
@@ -545,13 +585,21 @@ Here is the shape of the result:
 Short /@ res2
 ```
 
-![0es5cj4hgrljm](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0es5cj4hgrljm.png)
+![0es5cj4hgrljm](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0es5cj4hgrljm.png)
 
 Here are the corresponding plots:
 
-![02cghv8ovond5](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/02cghv8ovond5.png)
+```mathematica
+Multicolumn[
+ KeyValueMap[
+  ListLinePlot[#2, PlotLabel -> #1, PlotTheme -> "Detailed", 
+    Epilog -> {Directive[Orange, Dashed], 
+      Line[{Scaled[{0, -1}, {#1[qsd], 0}], Scaled[{0, 1}, {#1[qsd], 0}]}], 
+      Line[{Scaled[{0, -1}, {#1[qsd] + #1[ql], 0}], Scaled[{0, 1}, {#1[qsd] + #1[ql], 0}]}]}, 
+    ImageSize -> Medium] &, res2]]
+```
 
-![17ofnpddvw8ud](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/17ofnpddvw8ud.png)
+![17ofnpddvw8ud](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/17ofnpddvw8ud.png)
 
 ### Outer product of parameters
 
@@ -570,13 +618,21 @@ Here is the shallow form of the results
 Short /@ res3
 ```
 
-![1e260m2euunsl](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1e260m2euunsl.png)
+![1e260m2euunsl](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1e260m2euunsl.png)
 
 Here are the corresponding plots:
 
-![0a2ote01hgc53](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0a2ote01hgc53.png)
+```mathematica
+Multicolumn[
+ KeyValueMap[
+  ListLinePlot[#2, PlotLabel -> #1, PlotTheme -> "Detailed", 
+    Epilog -> {Directive[Gray, Dashed], 
+      Line[{Scaled[{0, -1}, {#1[qsd], 0}], Scaled[{0, 1}, {#1[qsd], 0}]}], 
+      Line[{Scaled[{0, -1}, {#1[qsd] + #1[ql], 0}], Scaled[{0, 1}, {#1[qsd] + #1[ql], 0}]}]}, 
+    ImageSize -> Medium] &, res3]]
+```
 
-![1u4ta8aypszhz](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1u4ta8aypszhz.png)
+![1u4ta8aypszhz](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1u4ta8aypszhz.png)
 
 ## Calibration workflow
 
@@ -645,7 +701,7 @@ Here is the corresponding plot:
 ListLogPlot[aTargets, PlotTheme -> "Detailed", PlotLabel -> "Calibration targets", ImageSize -> Medium]
 ```
 
-![1u9akes6b4dx0](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/1u9akes6b4dx0.png)
+![1u9akes6b4dx0](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/1u9akes6b4dx0.png)
 
 Here we prepare a smaller set of the targets data for the calibration experiments below:
 
@@ -751,7 +807,7 @@ ecmObj4 =
     ECMMonPlotSolutions[___ ~~ "Population" ~~ ___, maxTime, ImageSize -> Large, LogPlot -> False];
 ```
 
-![12rw9e4vl0vy0](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/12rw9e4vl0vy0.png)
+![12rw9e4vl0vy0](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/12rw9e4vl0vy0.png)
 
 ```mathematica
 aSol4 = ecmObj4⟹ECMMonGetSolutionValues[Keys[aTargets], maxTime]⟹ECMMonTakeValue;
@@ -761,7 +817,7 @@ aSol4 = ecmObj4⟹ECMMonGetSolutionValues[Keys[aTargets], maxTime]⟹ECMMonTakeV
 Map[ListLogPlot[{aSol4[#], aTargets[#]}, PlotLabel -> #, PlotRange -> All, ImageSize -> Medium, PlotLegends -> {"Calibrated model", "Target"}] &, Keys[aTargets]]
 ```
 
-![10kkuh7578jjz](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/10kkuh7578jjz.png)
+![10kkuh7578jjz](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/10kkuh7578jjz.png)
 
 ### Conclusions from the calibration results
 
@@ -845,9 +901,9 @@ Here is the execution of the code above:
 Block[{tsDeaths = Take[lsDeaths, 150]}, ToEpidemiologyModelingWorkflowCode[lsCommands]];
 ```
 
-![0cs73r03ki1mi](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0cs73r03ki1mi.png)
+![0cs73r03ki1mi](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0cs73r03ki1mi.png)
 
-![0227wiq3locdf](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0227wiq3locdf.png)
+![0227wiq3locdf](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/Epidemiology-Compartmental-Modeling-Monad/0227wiq3locdf.png)
 
 #### Different target languages
 
@@ -887,7 +943,7 @@ ToEpidemiologyModelingWorkflowCode[lsCommands, "Target" -> "Python"]
 
 [AA6] Anton Antonov, ["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md), (2020), [SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
 
-[AA7] Anton Antonov, ["SEI2HR model with quarantine scenarios"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/SEI2HR-model-with-quarantine-scenarios.md)[, ](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Scaling-of-epidemiology-models-with-multi-site-compartments.md)(2020), [SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
+[AA7] Anton Antonov, ["SEI2HR model with quarantine scenarios"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/SEI2HR-model-with-quarantine-scenarios.md), (2020), [SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
 
 [AA8] Anton Antonov, ["SEI2HR-Econ model with quarantine and supplies scenarios"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/SEI2HR-Econ-model-with-quarantine-and-supplies-scenarios.md), (2020), [SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
 
