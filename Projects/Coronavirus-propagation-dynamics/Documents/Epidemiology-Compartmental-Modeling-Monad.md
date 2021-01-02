@@ -138,9 +138,7 @@ The main purpose of the designed epidemic compartmental modeling framework (i.e.
 
 Here is a diagram that shows the envisioned big picture workflow:
 
-```mathematica
-Import["https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Model-development-and-decision-making.jpeg"]
-```
+![Model-development-and-decision-making](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Model-development-and-decision-making.jpeg)
 
 ### Large-scale modeling
 
@@ -160,9 +158,7 @@ The standard classical compartmental epidemiology models are not adequate over l
 
 The following flow chart visualizes the possible workflows the software monad ECMMon:  
 
-```mathematica
-ImageResize[Import["https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/ECMMon-workflow.jpg"], 1000]
-```
+![ECMMon-workflow](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/ECMMon-workflow.jpg)
 
 ### Two models in the monad
 
@@ -238,9 +234,7 @@ ImageResize[Import["https://github.com/antononcube/SystemModeling/raw/master/Pro
 
 We have a collection of single-site models that have different properties and different modeling goals, [AAp3, AA7, AA8]. Here is as diagram of a single-site model that includes hospital beds and medical supplies as limitation resources, [AA7]:
 
-```mathematica
-Import["https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg"]
-```
+![](https://github.com/antononcube/SystemModeling/raw/master/Projects/Coronavirus-propagation-dynamics/Diagrams/Coronavirus-propagation-simple-dynamics.jpeg)
 
 ### SEI2HR model
 
@@ -515,7 +509,8 @@ Here we simulate the model in the object of different parameter combinations giv
 
 ![0r70kzqvrzfmq](./Diagrams/Epidemiology-Compartmental-Modeling-Monad/0r70kzqvrzfmq.png)
 
-**Remark:** The stocks in the results are only stocks that are populations -- that is specified with the string expression pattern ___~~”Population”.
+**Remark:** The stocks in the results are only stocks that are populations -- 
+that is specified with the string expression pattern `___~~”Population”`.
 
 Here is the shape of the result:
 
@@ -587,7 +582,8 @@ Here are the corresponding plots:
 
 In this section we go through the computation steps of the calibration of single-site SEI2HR model.
 
-**Remark:** We use real data in this section, but the presented calibration results and outcome plots are for illustration purposes only. A rigorous study with discussion of the related assumptions and conclusions is beyond the scope of this notebook/document.
+**Remark:** We use real data in this section, but the presented calibration results and outcome plots are for illustration purposes only. 
+A rigorous study with discussion of the related assumptions and conclusions is beyond the scope of this notebook/document.
 
 ### Calibration steps
 
