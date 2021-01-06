@@ -1599,7 +1599,7 @@ ECMMonCalibrate[__][___] :=
 
 Clear[ECMMonPlotSolutions];
 
-SyntaxInformation[ECMMonPlotSolutions] = { "ArgumentsPattern" -> { _, OptionsPattern[] } };
+SyntaxInformation[ECMMonPlotSolutions] = { "ArgumentsPattern" -> { _., OptionsPattern[] } };
 
 Options[ECMMonPlotSolutions] =
     Join[
