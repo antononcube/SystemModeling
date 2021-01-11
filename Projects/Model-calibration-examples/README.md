@@ -34,10 +34,9 @@ These two documents show the interaction the stakeholders, modelers, and calibra
 
 - ["Calibrators questionnaire"](https://github.com/antononcube/SystemModeling/blob/master/org/Calibrators-questionnaire.org)
 
+## Epidemiological examples 
 
-## The big picture
-
-This mind-map gives a fairly good idea of what is the reasoning and organization behind the documents and examples:
+This mind-map gives a fairly good idea of what is the reasoning and organization behind the ECM documents and examples:
 
 [![](./Diagrams/Calibration-of-System-Dynamics-models-mind-map.png)](./Diagrams/Calibration-of-System-Dynamics-models-mind-map.pdf)
 
@@ -51,8 +50,14 @@ The directory [WL-notebooks](./WL-notebooks) has WL notebooks that can be used f
 
 ## References
 
-- WL's [`NDSolve`](https://reference.wolfram.com/language/ref/NDSolve.html)
+### Mathematica / WL functions and tutorials
 
-- WL's [`NMinimize`](https://reference.wolfram.com/language/ref/NMinimize.html)
+- [`NDSolve`](https://reference.wolfram.com/language/ref/NDSolve.html)
 
+- ["Advanced Numerical Differential Equation Solving in the Wolfram Language](https://reference.wolfram.com/language/tutorial/NDSolveOverview.html)
 
+- [`NMinimize`](https://reference.wolfram.com/language/ref/NMinimize.html)
+
+- ["Constrained Optimization"](https://reference.wolfram.com/language/tutorial/ConstrainedOptimizationOverview.html)
+
+- ["Numerical Nonlinear Global Optimization"](https://reference.wolfram.com/language/tutorial/ConstrainedOptimizationGlobalNumerical.html)
