@@ -50,13 +50,17 @@ The directory [WL-notebooks](./WL-notebooks) has WL notebooks that can be used f
 
 ## References
 
-### Mathematica / WL functions and tutorials
+### Mathematica functions
 
 - [`NDSolve`](https://reference.wolfram.com/language/ref/NDSolve.html)
 
-- ["Advanced Numerical Differential Equation Solving in the Wolfram Language](https://reference.wolfram.com/language/tutorial/NDSolveOverview.html)
-
 - [`NMinimize`](https://reference.wolfram.com/language/ref/NMinimize.html)
+
+- [`ParametricNDSolve`](https://reference.wolfram.com/language/ref/ParametricNDSolve.html)
+  
+### Mathematica tutorials
+
+- ["Advanced Numerical Differential Equation Solving in the Wolfram Language](https://reference.wolfram.com/language/tutorial/NDSolveOverview.html)
 
 - ["Constrained Optimization"](https://reference.wolfram.com/language/tutorial/ConstrainedOptimizationOverview.html)
 
