@@ -77,8 +77,9 @@ If[Length[DownValues[TileBins`TileBins]] == 0,
 BeginPackage["EpidemiologyModelingSimulationFunctions`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-ModelNDSolveEquations::usage = "ModelNDSolveEquations[model] combines the model equations and initial conditions
-into a list equations to be give to NDSolve.";
+ModelNDSolveEquations::usage = "ModelNDSolveEquations[model_, rateRules_.] combines the model equations,
+initial conditions, and rate rules into a list equations to be given to NDSolve. \
+If no rate rules are given the model[\"RateRules\"] is used.";
 
 ModelNDSolve::usage = "ModelNDSolve[model, {t, maxTime}, opts] simulates the model from 0 to maxTime using NDSolve";
 
@@ -118,9 +119,9 @@ SyntaxInformation[ModelNDSolveEquations] = { "ArgumentsPattern" -> { _, _. } };
 
 ModelNDSolveEquations::"nargs" = "The first argument is expected to be a model.";
 
-ModelNDSolveEquations[ model_ ] := ModelNDSolveEquations[ model, model["RateRules"] ];
+ModelNDSolveEquations[ model_?EpidemiologyFullModelQ ] := ModelNDSolveEquations[ model, model["RateRules"] ];
 
-ModelNDSolveEquations[ model_, rateRules_Association ] :=
+ModelNDSolveEquations[ model_?EpidemiologyFullModelQ, rateRules_Association ] :=
     Block[{lsActualEquations, lsInitialConditions},
 
       lsInitialConditions =
