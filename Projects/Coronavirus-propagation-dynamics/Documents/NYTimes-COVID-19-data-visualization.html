@@ -1,0 +1,280 @@
+<h1 id="ny-times-covid-19-data-visualization">NY Times COVID-19 data visualization</h1>
+<p>Anton Antonov<br />
+<a href="https://mathematicaforprediction.wordpress.com">MathematicaForPrediction at WordPress</a><br />
+<a href="https://github.com/antononcube/SystemModeling">SystemModeling at GitHub</a><br />
+March 2020<br />
+December 2020<br />
+January 2021</p>
+<h2 id="introduction">Introduction</h2>
+<i>This post is both an update and a full-blown version of an older post -- <a href="https://mathematicaforprediction.wordpress.com/2020/03/28/ny-times-covid-19-data-visualization/">"NY Times COVID-19 data visualization"</a> -- using NY Times COVID-19 data up to 2021-01-11.</i>
+<p>The purpose of this document/notebook is to give data locations, data ingestion code, and code for rudimentary analysis and visualization of COVID-19 data provided by New York Times, [NYT1].</p>
+<p>The following steps are taken:</p>
+<ul>
+<li><p>Ingest data</p>
+<ul>
+<li><p>Take COVID-19 data from The New York Times, based on reports from state and local health agencies, [NYT1].</p></li>
+<li><p>Take USA counties records data (FIPS codes, geo-coordinates, populations), [WRI1].</p></li>
+</ul></li>
+<li><p>Merge the data.</p></li>
+<li><p>Make data summaries and related plots.</p></li>
+<li><p>Make corresponding geo-plots.</p></li>
+<li><p>Do “out of the box” time series forecast.</p></li>
+<li><p>Analyze fluctuations around time series trends.</p></li>
+</ul>
+<p>Note that other, older repositories with COVID-19 data exist, like, [JH1, VK1].</p>
+<p><strong>Remark:</strong> The time series section is done for illustration purposes only. The forecasts there should not be taken seriously.</p>
+<h2 id="import-data">Import data</h2>
+<h3 id="nytimes-usa-states-data">NYTimes USA states data</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>dsNYDataStates = ResourceFunction[&quot;ImportCSVToDataset&quot;][&quot;https://raw.githubusercontent.com/nytimes/covid<span class="dv">-19</span>-data/master/us-states.csv&quot;];</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>dsNYDataStates = dsNYDataStates[<span class="fu">All</span>, AssociationThread[Capitalize /@ Keys[#], Values[#]] &amp;];</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>dsNYDataStates[[<span class="dv">1</span> ;; <span class="dv">6</span>]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/18qzu6j67rb6y.png" alt="18qzu6j67rb6y" /><figcaption aria-hidden="true">18qzu6j67rb6y</figcaption>
+</figure>
+<div class="sourceCode" id="cb2"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][dsNYDataStates]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0eh58fau8y8r1.png" alt="0eh58fau8y8r1" /><figcaption aria-hidden="true">0eh58fau8y8r1</figcaption>
+</figure>
+<h3 id="nytimes-usa-counties-data">NYTimes USA counties data</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>dsNYDataCounties = ResourceFunction[&quot;ImportCSVToDataset&quot;][&quot;https://raw.githubusercontent.com/nytimes/covid<span class="dv">-19</span>-data/master/us-counties.csv&quot;];</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>dsNYDataCounties = dsNYDataCounties[<span class="fu">All</span>, AssociationThread[Capitalize /@ Keys[#], Values[#]] &amp;];</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>dsNYDataCounties[[<span class="dv">1</span> ;; <span class="dv">6</span>]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1cpd9bx9xi71h.png" alt="1cpd9bx9xi71h" /><figcaption aria-hidden="true">1cpd9bx9xi71h</figcaption>
+</figure>
+<div class="sourceCode" id="cb4"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][dsNYDataCounties]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1elzwfv0fe32k.png" alt="1elzwfv0fe32k" /><figcaption aria-hidden="true">1elzwfv0fe32k</figcaption>
+</figure>
+<h3 id="us-county-records">US county records</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>dsUSACountyData = ResourceFunction[&quot;ImportCSVToDataset&quot;][&quot;https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSACountyRecords.csv&quot;];</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>dsUSACountyData = dsUSACountyData[<span class="fu">All</span>, <span class="fu">Join</span>[#, &lt;|&quot;FIPS&quot; -&gt; <span class="fu">ToExpression</span>[#FIPS]|&gt;] &amp;];</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>dsUSACountyData[[<span class="dv">1</span> ;; <span class="dv">6</span>]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0ycsuwd577vov.png" alt="0ycsuwd577vov" /><figcaption aria-hidden="true">0ycsuwd577vov</figcaption>
+</figure>
+<div class="sourceCode" id="cb6"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][dsUSACountyData]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0tqfkpq6gxui9.png" alt="0tqfkpq6gxui9" /><figcaption aria-hidden="true">0tqfkpq6gxui9</figcaption>
+</figure>
+<h2 id="merge-data">Merge data</h2>
+<p>Verify that the two datasets have common FIPS codes:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="fu">Length</span>[<span class="fu">Intersection</span>[<span class="fu">Normal</span>[dsUSACountyData[<span class="fu">All</span>, &quot;FIPS&quot;]], <span class="fu">Normal</span>[dsNYDataCounties[<span class="fu">All</span>, &quot;Fips&quot;]]]]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>(*<span class="dv">3133</span>*)</span></code></pre></div>
+<p>Merge the datasets:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>dsNYDataCountiesExtended = Dataset[JoinAcross[<span class="fu">Normal</span>[dsNYDataCounties], <span class="fu">Normal</span>[dsUSACountyData[<span class="fu">All</span>, {&quot;FIPS&quot;, &quot;Lat&quot;, &quot;Lon&quot;, &quot;Population&quot;}]], Key[&quot;Fips&quot;] -&gt; Key[&quot;FIPS&quot;]]];</span></code></pre></div>
+<p>Add a “DateObject” column and (reverse) sort by date:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>dsNYDataCountiesExtended = dsNYDataCountiesExtended[<span class="fu">All</span>, <span class="fu">Join</span>[&lt;|&quot;DateObject&quot; -&gt; DateObject[#Date]|&gt;, #] &amp;];</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>dsNYDataCountiesExtended = dsNYDataCountiesExtended[ReverseSortBy[#DateObject &amp;]];</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>dsNYDataCountiesExtended[[<span class="dv">1</span> ;; <span class="dv">6</span>]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/09o5nw7dv2wba.png" alt="09o5nw7dv2wba" /><figcaption aria-hidden="true">09o5nw7dv2wba</figcaption>
+</figure>
+<h2 id="basic-data-analysis">Basic data analysis</h2>
+<p>We consider cases and deaths for the last date only. (The queries can be easily adjusted for other dates.)</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>dfQuery = dsNYDataCountiesExtended[<span class="fu">Select</span>[#Date == dsNYDataCountiesExtended[<span class="dv">1</span>, &quot;Date&quot;] &amp;], {&quot;FIPS&quot;, &quot;Cases&quot;, &quot;Deaths&quot;}];</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>dfQuery = dfQuery[<span class="fu">All</span>, <span class="fu">Prepend</span>[#, &quot;FIPS&quot; -&gt; <span class="fu">ToString</span>[#FIPS]] &amp;];</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="fu">Total</span>[dfQuery[<span class="fu">All</span>, {&quot;Cases&quot;, &quot;Deaths&quot;}]]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>(*&lt;|&quot;Cases&quot; -&gt; <span class="dv">22387340</span>, &quot;Deaths&quot; -&gt; <span class="dv">355736</span>|&gt;*)</span></code></pre></div>
+<p>Here is the summary of the values of cases and deaths across the different USA counties:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][dfQuery]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1kdnmrlhe4srx.png" alt="1kdnmrlhe4srx" /><figcaption aria-hidden="true">1kdnmrlhe4srx</figcaption>
+</figure>
+<p>The following table of plots shows the distributions of cases and deaths and the corresponding <a href="https://en.wikipedia.org/wiki/Pareto_principle">Pareto principle</a> adherence plots:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>opts = {<span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Medium</span>};</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="fu">Rasterize</span>[<span class="fu">Grid</span>[</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>   <span class="fu">Function</span>[{columnName}, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>     {<span class="fu">Histogram</span>[<span class="fu">Log10</span>[#], <span class="fu">PlotLabel</span> -&gt; <span class="fu">Row</span>[{<span class="fu">Log10</span>, <span class="fu">Spacer</span>[<span class="dv">3</span>], columnName}], opts], ResourceFunction[&quot;ParetoPrinciplePlot&quot;][#, <span class="fu">PlotLabel</span> -&gt; columnName, opts]} &amp;@Normal[dfQuery[<span class="fu">All</span>, columnName]] </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    ] /@ {&quot;Cases&quot;, &quot;Deaths&quot;}, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>   <span class="fu">Dividers</span> -&gt; <span class="fu">All</span>, <span class="fu">FrameStyle</span> -&gt; <span class="fu">GrayLevel</span>[<span class="dv">0</span><span class="fl">.7</span>]]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/13l8k7qfbkr3q.png" alt="13l8k7qfbkr3q" /><figcaption aria-hidden="true">13l8k7qfbkr3q</figcaption>
+</figure>
+<p>A couple of observations:</p>
+<ul>
+<li><p>The logarithms of the cases and deaths have nearly Normal or Logistic distributions.</p></li>
+<li><p>Typical manifestation of the Pareto principle: <span class="math inline">80</span>% of the cases and deaths are registered in <span class="math inline">20</span>% of the counties.</p></li>
+</ul>
+<p><strong>Remark:</strong> The top <span class="math inline">20</span>% counties of the cases are not necessarily the same as the top <span class="math inline">20</span>% counties of the deaths.</p>
+<h3 id="distributions">Distributions</h3>
+<p>Here we find the distributions that correspond to the cases and deaths (using <a href="https://reference.wolfram.com/language/ref/FindDistribution.html"><code>FindDistribution</code></a> ):</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>ResourceFunction[&quot;GridTableForm&quot;][<span class="fu">List</span> @@@ <span class="fu">Map</span>[<span class="fu">Function</span>[{columnName}, </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>     columnName -&gt; FindDistribution[N@Log10[<span class="fu">Select</span>[#, # &gt; <span class="dv">0</span> &amp;]]] &amp;@Normal[dfQuery[<span class="fu">All</span>, columnName]] </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    ], {&quot;Cases&quot;, &quot;Deaths&quot;}], <span class="fu">TableHeadings</span> -&gt; {&quot;Data&quot;, &quot;Distribution&quot;}]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/10hkfowjmj6oh.png" alt="10hkfowjmj6oh" /><figcaption aria-hidden="true">10hkfowjmj6oh</figcaption>
+</figure>
+<h3 id="pareto-principle-locations">Pareto principle locations</h3>
+<p>The following query finds the intersection between that for the top <span class="math inline">600</span> Pareto principle locations for the cases and deaths:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="fu">Length</span>[<span class="fu">Intersection</span> @@ <span class="fu">Map</span>[<span class="fu">Function</span>[{columnName}, Keys[TakeLargest[Normal@dfQuery[Association, #FIPS -&gt; #[columnName] &amp;], <span class="dv">600</span>]]], {&quot;Cases&quot;, &quot;Deaths&quot;}]]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>(*<span class="dv">516</span>*)</span></code></pre></div>
+<h2 id="geo-histogram">Geo-histogram</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>lsAllDates = <span class="fu">Union</span>[<span class="fu">Normal</span>[dsNYDataCountiesExtended[<span class="fu">All</span>, &quot;Date&quot;]]];</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>lsAllDates // <span class="fu">Length</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>(*<span class="dv">359</span>*)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="fu">Manipulate</span>[</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>  <span class="fu">DynamicModule</span>[{ds = dsNYDataCountiesExtended[<span class="fu">Select</span>[#Date == datePick &amp;]]}, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>   GeoHistogram[</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>    <span class="fu">Normal</span>[ds[<span class="fu">All</span>, {&quot;Lat&quot;, &quot;Lon&quot;}][<span class="fu">All</span>, Values]] -&gt; <span class="fu">N</span>[<span class="fu">Normal</span>[ds[<span class="fu">All</span>, columnName]]], </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>    Quantity[<span class="dv">150</span>, &quot;Miles&quot;], <span class="fu">PlotLabel</span> -&gt; columnName, PlotLegends -&gt; <span class="fu">Automatic</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>, GeoProjection -&gt; &quot;Equirectangular&quot;] </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>  ], </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>  {{columnName, &quot;Cases&quot;, &quot;Data type:&quot;}, {&quot;Cases&quot;, &quot;Deaths&quot;}}, </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a>  {{datePick, <span class="fu">Last</span>[lsAllDates], &quot;Date:&quot;}, lsAllDates}]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1egny238t830i.png" alt="1egny238t830i" /><figcaption aria-hidden="true">1egny238t830i</figcaption>
+</figure>
+<h2 id="heat-map-plots">Heat-map plots</h2>
+<p>An alternative of the geo-visualization is to use a heat-map plot. Here we use the package <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HeatmapPlot.m">“HeatmapPlot.m”</a>, [AAp1].</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="fu">Import</span>[&quot;https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/HeatmapPlot.m&quot;]</span></code></pre></div>
+<h3 id="cases">Cases</h3>
+<p>Cross-tabulate states with dates over cases:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>matSDC = ResourceFunction[&quot;CrossTabulate&quot;][dsNYDataStates[<span class="fu">All</span>, {&quot;State&quot;, &quot;Date&quot;, &quot;Cases&quot;}], &quot;Sparse&quot; -&gt; <span class="fu">True</span>];</span></code></pre></div>
+<p>Make a heat-map plot by sorting the columns of the cross-tabulation matrix (that correspond to states):</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a>HeatmapPlot[matSDC, <span class="fu">DistanceFunction</span> -&gt; {<span class="fu">EuclideanDistance</span>, <span class="fu">None</span>}, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">2</span>, <span class="fu">ImageSize</span> -&gt; <span class="dv">1000</span>]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1lmgbj4mq4wx9.png" alt="1lmgbj4mq4wx9" /><figcaption aria-hidden="true">1lmgbj4mq4wx9</figcaption>
+</figure>
+<h3 id="deaths">Deaths</h3>
+<p>Cross-tabulate states with dates over deaths and plot:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a>matSDD = ResourceFunction[&quot;CrossTabulate&quot;][dsNYDataStates[<span class="fu">All</span>, {&quot;State&quot;, &quot;Date&quot;, &quot;Deaths&quot;}], &quot;Sparse&quot; -&gt; <span class="fu">True</span>];</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>HeatmapPlot[matSDD, <span class="fu">DistanceFunction</span> -&gt; {<span class="fu">EuclideanDistance</span>, <span class="fu">None</span>}, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">2</span>, <span class="fu">ImageSize</span> -&gt; <span class="dv">1000</span>]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0g2oziu9g4a8d.png" alt="0g2oziu9g4a8d" /><figcaption aria-hidden="true">0g2oziu9g4a8d</figcaption>
+</figure>
+<h2 id="time-series-analysis">Time series analysis</h2>
+<h3 id="cases-1">Cases</h3>
+<h4 id="time-series">Time series</h4>
+<p>For each date sum all cases over the states, make a time series, and plot it:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>tsCases = TimeSeries@(<span class="fu">List</span> @@@ <span class="fu">Normal</span>[GroupBy[<span class="fu">Normal</span>[dsNYDataCountiesExtended], #DateObject &amp;, <span class="fu">Total</span>[#Cases &amp; /@ #] &amp;]]);</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>opts = {PlotTheme -&gt; &quot;Detailed&quot;, <span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>,<span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>};</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a><span class="fu">DateListPlot</span>[tsCases, <span class="fu">PlotLabel</span> -&gt; &quot;Cases&quot;, opts]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1i9aypjaqxdm0.png" alt="1i9aypjaqxdm0" /><figcaption aria-hidden="true">1i9aypjaqxdm0</figcaption>
+</figure>
+<div class="sourceCode" id="cb23"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][tsCases[&quot;Path&quot;]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1t61q3iuq40zn.png" alt="1t61q3iuq40zn" /><figcaption aria-hidden="true">1t61q3iuq40zn</figcaption>
+</figure>
+<p>Logarithmic plot:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[<span class="fu">Log10</span>[tsCases], <span class="fu">PlotLabel</span> -&gt; <span class="fu">Row</span>[{<span class="fu">Log10</span>, <span class="fu">Spacer</span>[<span class="dv">3</span>], &quot;Cases&quot;}], opts]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0r01nxd19xj1x.png" alt="0r01nxd19xj1x" /><figcaption aria-hidden="true">0r01nxd19xj1x</figcaption>
+</figure>
+<h4 id="forecast">“Forecast”</h4>
+<p>Fit a time series model to log 10 of the time series:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a>tsm = TimeSeriesModelFit[<span class="fu">Log10</span>[tsCases]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1gz0j2673707m.png" alt="1gz0j2673707m" /><figcaption aria-hidden="true">1gz0j2673707m</figcaption>
+</figure>
+<p>Plot log 10 data and forecast:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[{tsm[&quot;TemporalData&quot;], TimeSeriesForecast[tsm, {<span class="dv">10</span>}]}, opts, PlotLegends -&gt; {&quot;Data&quot;, &quot;Forecast&quot;}]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/10vx2ydgcpq0c.png" alt="10vx2ydgcpq0c" /><figcaption aria-hidden="true">10vx2ydgcpq0c</figcaption>
+</figure>
+<p>Plot data and forecast:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[{tsCases, <span class="dv">10</span>^TimeSeriesForecast[tsm, {<span class="dv">10</span>}]}, opts, PlotLegends -&gt; {&quot;Data&quot;, &quot;Forecast&quot;}]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/04qu24g27fzi6.png" alt="04qu24g27fzi6" /><figcaption aria-hidden="true">04qu24g27fzi6</figcaption>
+</figure>
+<h3 id="deaths-1">Deaths</h3>
+<h4 id="time-series-1">Time series</h4>
+<p>For each date sum all cases over the states, make a time series, and plot it:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a>tsDeaths = TimeSeries@(<span class="fu">List</span> @@@ <span class="fu">Normal</span>[GroupBy[<span class="fu">Normal</span>[dsNYDataCountiesExtended], #DateObject &amp;, <span class="fu">Total</span>[#Deaths &amp; /@ #] &amp;]]);</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a>opts = {PlotTheme -&gt; &quot;Detailed&quot;, <span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>,<span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>};</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a><span class="fu">DateListPlot</span>[tsDeaths, <span class="fu">PlotLabel</span> -&gt; &quot;Deaths&quot;, opts]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1uc6wpre2zxl3.png" alt="1uc6wpre2zxl3" /><figcaption aria-hidden="true">1uc6wpre2zxl3</figcaption>
+</figure>
+<div class="sourceCode" id="cb29"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][tsDeaths[&quot;Path&quot;]]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1olawss0k1gvd.png" alt="1olawss0k1gvd" /><figcaption aria-hidden="true">1olawss0k1gvd</figcaption>
+</figure>
+<h4 id="forecast-1">“Forecast”</h4>
+<p>Fit a time series model:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a>tsm = TimeSeriesModelFit[tsDeaths, &quot;ARMA&quot;]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0e5p4c2hxhahd.png" alt="0e5p4c2hxhahd" /><figcaption aria-hidden="true">0e5p4c2hxhahd</figcaption>
+</figure>
+<p>Plot data and forecast:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[{tsm[&quot;TemporalData&quot;], TimeSeriesForecast[tsm, {<span class="dv">10</span>}]}, opts, PlotLegends -&gt; {&quot;Data&quot;, &quot;Forecast&quot;}]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/06uurgguaxyg9.png" alt="06uurgguaxyg9" /><figcaption aria-hidden="true">06uurgguaxyg9</figcaption>
+</figure>
+<h2 id="fluctuations">Fluctuations</h2>
+<p>We want to see does the time series data have fluctuations around its trends and estimate the distributions of those fluctuations. (Knowing those distributions some further studies can be done.)</p>
+<p>This can be efficiently using the software monad <code>QRMon</code>, [<a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m">AAp2</a>, AA1]. Here we load the <code>QRMon</code> package:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true"></a><span class="fu">Import</span>[&quot;https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/MonadicQuantileRegression.m&quot;]</span></code></pre></div>
+<h3 id="fluctuations-presence">Fluctuations presence</h3>
+<p>Here we plot the consecutive differences of the cases:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[<span class="fu">Differences</span>[tsCases], <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>, <span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1typufai7chn8.png" alt="1typufai7chn8" /><figcaption aria-hidden="true">1typufai7chn8</figcaption>
+</figure>
+<p>Here we plot the consecutive differences of the deaths:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true"></a><span class="fu">DateListPlot</span>[<span class="fu">Differences</span>[tsDeaths], <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>, <span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>]</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0wqagqqfj3p7l.png" alt="0wqagqqfj3p7l" /><figcaption aria-hidden="true">0wqagqqfj3p7l</figcaption>
+</figure>
+<p>From the plots we see that time series are not monotonically increasing, and there are non-trivial fluctuations in the data.</p>
+<h3 id="absolute-and-relative-errors-distributions">Absolute and relative errors distributions</h3>
+<p>Here we take interesting part of the cases data:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true"></a>tsData = TimeSeriesWindow[tsCases, {{<span class="dv">2020</span>, <span class="dv">5</span>, <span class="dv">1</span>}, {<span class="dv">2020</span>, <span class="dv">12</span>, <span class="dv">31</span>}}];</span></code></pre></div>
+<p>Here we specify QRMon workflow that rescales the data, fits a B-spline curve to get the trend, and finds the absolute and relative errors (residuals, fluctuations) around that trend:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true"></a>qrObj = </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true"></a>   QRMonUnit[tsData]⟹</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true"></a>    QRMonEchoDataSummary⟹</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true"></a>    QRMonRescale[<span class="fu">Axes</span> -&gt; {<span class="fu">False</span>, <span class="fu">True</span>}]⟹</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true"></a>    QRMonEchoDataSummary⟹</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true"></a>    QRMonQuantileRegression[<span class="dv">16</span>, <span class="dv">0</span><span class="fl">.5</span>]⟹</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true"></a>    QRMonSetRegressionFunctionsPlotOptions[{<span class="fu">PlotStyle</span> -&gt; <span class="fu">Red</span>}]⟹</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true"></a>    QRMonDateListPlot[<span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>]⟹</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true"></a>    QRMonErrorPlots[&quot;RelativeErrors&quot; -&gt; <span class="fu">False</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>, <span class="fu">DateListPlot</span> -&gt; <span class="fu">True</span>]⟹</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true"></a>    QRMonErrorPlots[&quot;RelativeErrors&quot; -&gt; <span class="fu">True</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>, <span class="fu">DateListPlot</span> -&gt; <span class="fu">True</span>];</span></code></pre></div>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0mcebeqra4iqj.png" alt="0mcebeqra4iqj" /><figcaption aria-hidden="true">0mcebeqra4iqj</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0lz7fflyitth2.png" alt="0lz7fflyitth2" /><figcaption aria-hidden="true">0lz7fflyitth2</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0ke1wkttei4a3.png" alt="0ke1wkttei4a3" /><figcaption aria-hidden="true">0ke1wkttei4a3</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/0smqxx82ytyjq.png" alt="0smqxx82ytyjq" /><figcaption aria-hidden="true">0smqxx82ytyjq</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/Documents/Diagrams/NYTimes-COVID-19-data-visualization/1ct1s3qemddsi.png" alt="1ct1s3qemddsi" /><figcaption aria-hidden="true">1ct1s3qemddsi</figcaption>
+</figure>
+<p>Here we find the distribution of the absolute errors (fluctuations) using <a href="https://reference.wolfram.com/language/ref/FindDistribution.html"><code>FindDistribution</code></a>:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true"></a>lsNoise = (qrObj⟹QRMonErrors[&quot;RelativeErrors&quot; -&gt; <span class="fu">False</span>]⟹QRMonTakeValue)[<span class="dv">0</span><span class="fl">.5</span>];</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true"></a>FindDistribution[lsNoise[[<span class="fu">All</span>, <span class="dv">2</span>]]]</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true"></a>(*<span class="fu">CauchyDistribution</span>[<span class="dv">6</span><span class="fl">.0799</span>*<span class="dv">10</span>^-<span class="dv">6</span>, <span class="dv">0</span><span class="fl">.000331709</span>]*)</span></code></pre></div>
+<p>Absolute errors distributions for the last <span class="math inline">90</span> days:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true"></a>lsNoise = (qrObj⟹QRMonErrors[&quot;RelativeErrors&quot; -&gt; <span class="fu">False</span>]⟹QRMonTakeValue)[<span class="dv">0</span><span class="fl">.5</span>];</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true"></a>FindDistribution[lsNoise[[-<span class="dv">90</span> ;; <span class="dv">-1</span>, <span class="dv">2</span>]]]</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true"></a>(*<span class="fu">ExtremeValueDistribution</span>[-<span class="dv">0</span><span class="fl">.000996315</span>, <span class="dv">0</span><span class="fl">.00207593</span>]*)</span></code></pre></div>
+<p>Here we find the distribution of the of the relative errors:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true"></a>lsNoise = (qrObj⟹QRMonErrors[&quot;RelativeErrors&quot; -&gt; <span class="fu">True</span>]⟹QRMonTakeValue)[<span class="dv">0</span><span class="fl">.5</span>];</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true"></a>FindDistribution[lsNoise[[<span class="fu">All</span>, <span class="dv">2</span>]]]</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true"></a>(*<span class="fu">StudentTDistribution</span>[<span class="dv">0</span><span class="fl">.0000511326</span>, <span class="dv">0</span><span class="fl">.00244023</span>, <span class="dv">1</span><span class="fl">.59364</span>]*)</span></code></pre></div>
+<p>Relative errors distributions for the last <span class="math inline">90</span> days:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true"></a>lsNoise = (qrObj⟹QRMonErrors[&quot;RelativeErrors&quot; -&gt; <span class="fu">True</span>]⟹QRMonTakeValue)[<span class="dv">0</span><span class="fl">.5</span>];</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true"></a>FindDistribution[lsNoise[[-<span class="dv">90</span> ;; <span class="dv">-1</span>, <span class="dv">2</span>]]]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true"></a>(*<span class="fu">NormalDistribution</span>[<span class="dv">9</span><span class="fl">.66949</span>*<span class="dv">10</span>^-<span class="dv">6</span>, <span class="dv">0</span><span class="fl">.00394395</span>]*)</span></code></pre></div>
+<h2 id="references">References</h2>
+<p>[NYT1] The New York Times, <a href="https://github.com/nytimes/covid-19-data">Coronavirus (Covid-19) Data in the United States</a>, (2020), GitHub.</p>
+<p>[WRI1] Wolfram Research Inc., <a href="https://github.com/antononcube/SystemModeling/blob/master/Data/dfUSACountyRecords.csv">USA county records</a>, (2020), <a href="https://github.com/antononcube/SystemModeling">System Modeling at GitHub</a>.</p>
+<p>[JH1] CSSE at Johns Hopkins University, <a href="https://github.com/CSSEGISandData/COVID-19">COVID-19</a>, (2020), GitHub.</p>
+<p>[VK1] Vitaliy Kaurov, <a href="https://community.wolfram.com/groups/-/m/t/1872608">Resources For Novel Coronavirus COVID-19</a>, (2020), <a href="https://community.wolfram.com">community.wolfram.com</a>.</p>
+<p>[AA1] Anton Antonov, <a href="https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/">“A monad for Quantile Regression workflows”</a>, (2018), at <a href="https://mathematicaforprediction.wordpress.com">MathematicaForPrediction WordPress</a>.</p>
+<p>[AAp1] Anton Antonov, <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HeatmapPlot.m">Heatmap plot Mathematica package</a>, (2018), <a href="https://github.com/antononcube/MathematicaForPrediction">MathematicaForPrediciton at GitHub</a>.</p>
+<p>[AAp2] Anton Antonov, <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m">Monadic Quantile Regression Mathematica package</a>, (2018), <a href="https://github.com/antononcube/MathematicaForPrediction">MathematicaForPrediciton at GitHub</a>.</p>
