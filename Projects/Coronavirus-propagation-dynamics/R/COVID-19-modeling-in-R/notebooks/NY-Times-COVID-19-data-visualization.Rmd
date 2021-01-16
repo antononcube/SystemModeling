@@ -39,6 +39,10 @@ The following steps are taken:
 
 - Make corresponding geo-plots.
 
+- Do “out of the box” time series forecast.
+
+- Analyze fluctuations around time series trends.
+
 Note that other, older repositories with COVID-19 data exist, like, [JH1, VK1].
 
 **Remark:** The time series section is done for illustration purposes only. The forecasts there should not be taken seriously.
@@ -156,11 +160,13 @@ ggplot2::ggplot(dsNYDataCountiesExtended[ dsNYDataCountiesExtended$Lon > -130, c
 
 ## Leaflet
 
+***The most recent versions of `leaflet` RStudio are having problems with the visualization below.***
+ 
 ```{r}
 cf <- colorBin( palette = "Reds", domain = log10(dsNYDataCountiesExtended$Cases), bins = 10 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 m <- 
   leaflet( dsNYDataCountiesExtended[, c("Lat", "Lon", "Cases")] ) %>%
   addTiles() %>% 
@@ -251,3 +257,87 @@ Plot "forecast":
 plot( forecast::forecast(fit, h = 20) )
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
 ```
+
+# Fluctuations
+
+We want to see does the time series data have fluctuations around its trends and estimate the distributions of those fluctuations. 
+(Knowing those distributions some further studies can be done.)
+
+This can be efficiently using the software monad `QRMon`, [AAp2, AA1]. Here we load the `QRMon` package:
+
+```{r}
+#devtools::install_github(repo = "antononcube/QRMon-R")
+library(QRMon)
+```
+
+## Fluctuations presence
+
+Here we plot the consecutive differences of the cases and deaths:
+
+```{r}
+dfQueryLongForm <- 
+  dfQueryLongForm %>% 
+  dplyr::group_by( Variable ) %>% 
+  dplyr::arrange( DateObject ) %>% 
+  dplyr::mutate( Difference = c(0, diff(Value) ) ) %>% 
+  dplyr::ungroup()
+ggplot(dfQueryLongForm) +
+  geom_line( aes( x = DateObject, y = Difference ) ) +
+  facet_wrap( ~Variable, ncol = 1, scales = "free_y" )
+```
+
+From the plots we see that time series are not monotonically increasing, and there are non-trivial fluctuations in the data.
+
+
+## Absolute and relative errors distributions
+
+Here we take interesting part of the cases data:
+
+```{r}
+dfQueryLongForm2 <- 
+  dfQueryLongForm %>% 
+  dplyr::filter( difftime( DateObject, as.POSIXct("2020-05-01")) >= 0 ) %>% 
+  dplyr::mutate( Regressor = as.numeric(DateObject, origin = "1900-01-01") )
+```
+
+
+Here we specify a `QRMon` workflow that rescales the data, 
+fits a B-spline curve to get the trend, 
+and finds the absolute and relative errors (residuals, fluctuations) around that trend:
+
+```{r}
+qrObj <- 
+  QRMonUnit(dfQueryLongForm2 %>% dplyr::filter( Variable == "Cases") %>% dplyr::select( Regressor, Value) ) %>% 
+  QRMonRescale(regressorAxisQ = F, valueAxisQ = T) %>% 
+  QRMonEchoDataSummary %>% 
+  QRMonQuantileRegression( df = 16, probabilities = 0.5 )
+```
+
+
+Here we plot the fit:
+
+```{r}
+qrObj <- qrObj %>% QRMonPlot(datePlotQ = T)
+```
+
+Here we plot absolute errors:
+
+```{r}
+qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = F)
+```
+
+Here we plot relative errors:
+
+```{r}
+qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = T)
+```
+
+```{r}
+dfErrs <- (qrObj %>% QRMonErrors(relativeErrorsQ = F) %>% QRMonTakeValue)[[1]]
+quantile(dfErrs$Error, probs = seq(0,1,0.1))
+```
+
+```{r}
+hist(x = dfErrs$Error, breaks = 60)
+```
+
