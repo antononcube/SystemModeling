@@ -323,21 +323,25 @@ qrObj <- qrObj %>% QRMonPlot(datePlotQ = T)
 Here we plot absolute errors:
 
 ```{r}
-qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = F)
+qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = F, datePlotQ = T)
 ```
+Here is the summary:
+
+```{r}
+summary( (qrObj %>% QRMonErrors(relativeErrorsQ = F) %>% QRMonTakeValue)[[1]]$Error )
+```
+
 
 Here we plot relative errors:
 
 ```{r}
-qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = T)
+qrObj <- qrObj %>% QRMonErrorsPlot(relativeErrorsQ = T, datePlotQ = T)
 ```
 
-```{r}
-dfErrs <- (qrObj %>% QRMonErrors(relativeErrorsQ = F) %>% QRMonTakeValue)[[1]]
-quantile(dfErrs$Error, probs = seq(0,1,0.1))
-```
+Here is the summary:
 
 ```{r}
-hist(x = dfErrs$Error, breaks = 60)
+summary( (qrObj %>% QRMonErrors(relativeErrorsQ = T) %>% QRMonTakeValue)[[1]]$Error )
 ```
+
 
