@@ -1,7 +1,7 @@
 ---
 title: "Alternative visualizations"
 author: Anton Antonov
-date: 2020-04=14
+date: 2020-04-14
 output: html_notebook
 ---
 
@@ -9,11 +9,11 @@ output: html_notebook
 library(hexbin)
 ```
 
-# Geo-histogram
+# Geo-histogram (2020-04-14)
 
 ## ggplot2
 
-Not that these are just location denistities:
+Not that these are just location denisities:
 
 ```{r}
 ggplot( dsNYDataCountiesExtended[, c("Lat", "Lon", "Cases")] ) +
@@ -32,3 +32,28 @@ hexbin::grid.hexagons(hb2, style= "nested.centroids", mincnt = 2, use.count = FA
 grid::popViewport()
 ```
 
+
+# Highchart (2020-05-27)
+
+(That library usage is not free for commercial and governmental usage.)
+
+```{r}
+mapdata <- get_data_from_map(download_map_data("https://code.highcharts.com/mapdata/countries/us/us-all-all.js"))
+Summary(mapdata)
+```
+
+
+```{r}
+dsNYDataCountiesExtended
+```
+
+```{r}
+highcharter::hcmap("countries/us/us-all-all", 
+      data = dsNYDataCountiesExtended,
+      name = "Cases", value = "Cases", 
+      joinBy = c("fips", "Fips"),
+      borderColor = "transparent") %>%
+  highcharter::hc_colorAxis(dataClasses = highcharter::color_classes( quantile(dsNYDataCountiesExtended$Cases, seq(0,1,0.1)) ) ) %>% 
+  highcharter::hc_legend(layout = "vertical", align = "right",
+                         floating = TRUE, valueDecimals = 0, valueSuffix = "") 
+```
