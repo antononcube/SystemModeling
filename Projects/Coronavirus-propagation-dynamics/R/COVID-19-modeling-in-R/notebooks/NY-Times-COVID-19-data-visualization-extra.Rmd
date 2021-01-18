@@ -1,0 +1,139 @@
+---
+title: "NY Times COVID-19 data visualization extra"
+author: Anton Antonov
+date: 2020-05-27
+output: html_notebook
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+# Load packages
+
+CRAN packages:
+
+```{r}
+library(Matrix)
+library(tidyverse)
+library(ggplot2)
+library(gridExtra)
+library(d3heatmap)
+library(igraph)
+library(zoo)
+```
+
+GitHub packages:
+
+```{r}
+library(LSAMon)
+library(SMRMon)
+library(SparseMatrixRecommender)
+library(SparseMatrixRecommenderInterfacesNoDT)
+```
+
+
+# Ingest data 
+
+Just run the notebook:
+
+```{r, eval=FALSE}
+rmarkdown::render( input = "./NY-Times-COVID-19-data-visualization.Rmd", output_file = "./temp.html", output_format = "html_notebook", quiet = TRUE )
+```
+
+# Matrices
+
+```{r}
+aSMats <- setNames( c(matSDC, matSDD), c("Cases", "Deaths"))
+# rownames(aSMats[["Cases"]]) <- paste0( "Cases-", rownames(aSMats[["Cases"]]) )
+# rownames(aSMats[["Deaths"]]) <- paste0( "Deaths-", rownames(aSMats[["Deaths"]]) )
+```
+
+```{r}
+purrr::map_df( aSMats, function(x) data.frame( NRow = nrow(x), NCol = ncol(x) ), .id = "MatrixName" )
+```
+
+# Time series search engine
+
+```{r}
+smat <- do.call( rbind, aSMats)
+dim(smat)
+```
+
+Make the matrix of time series:
+
+```{r}
+smrTemp <- SMRCreateFromMatrices( matrices = Map( f = t, x = aSMats), imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = TRUE, sep = "-" )
+tsMat <- log10( t(smrTemp$M) + 1)
+tsMat <- as(tsMat, "dgCMatrix")
+dim(tsMat)
+```
+```{r}
+sum( rowSums(tsMat) == 0 )
+```
+
+```{r}
+sum( colSums(tsMat) == 0 )
+```
+
+```{r}
+colnames(tsMat)
+```
+
+```{r}
+sample(rownames(tsMat),12)
+```
+
+Normalize matrix:
+
+```{r}
+tsDotMat <- SMRApplyTermWeightFunctions( docTermMat = tsMat, globalWeightFunction = "None", localWeightFunction = "None", normalizerFunction = "Cosine")
+```
+
+
+Make the base SMR object:
+
+```{r}
+smrNYTimes <- SMRCreateFromMatrices( matrices = c(tsDotMat), tagTypes = c("NormalizedTimeSeries"), itemColumnName = "ID", imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = FALSE )
+```
+
+Make the TS-SMR object:
+
+```{r}
+tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrApple, smrNRecs = 200 )
+```
+
+
+## Example recommendations
+
+
+```{r}
+searchID <- "Cases-Florida"
+recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12 )
+recs
+```
+
+
+## Time series search engine
+
+```{r, eval=F}
+tsSearchVectors <- MakeTimeSeriesSearchVectors( tsMat = tsMat )
+length(tsSearchVectors)
+```
+
+Use dates:
+
+```{r}
+tssmrNYTimes$TIBNameToTIBRules <- setNames( as.POSIXct(names(tssmrNYTimes$TIBNameToTIBRules)), names(tssmrNYTimes$TIBNameToTIBRules) )
+```
+
+
+```{r}
+shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes ) )
+```
+
+
