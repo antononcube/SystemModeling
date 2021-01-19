@@ -1,0 +1,4220 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    181345,       4212]
+NotebookOptionsPosition[    155824,       3869]
+NotebookOutlinePosition[    156318,       3887]
+CellTagsIndexPosition[    156275,       3884]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Calibration of System Dynamics Models Tutorial", "Title",
+ CellChangeTimes->{{3.819195243796092*^9, 3.819195258610632*^9}, {
+  3.819195365656247*^9, 3.819195378773348*^9}, {3.819199300572135*^9, 
+  3.819199304868906*^9}},ExpressionUUID->"3af07979-d69c-4f9f-91f0-\
+95d28ed4423c"],
+
+Cell["Version 0.3", "Subtitle",
+ CellChangeTimes->{{3.819195420770089*^9, 3.819195424606385*^9}, {
+  3.820012225388688*^9, 
+  3.820012225669043*^9}},ExpressionUUID->"cd2266b0-8d69-406a-a438-\
+23175892c0de"],
+
+Cell[TextData[{
+ "Anton Antonov\n",
+ ButtonBox["SystemModeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "\nJanuary 2021"
+}], "Text",
+ CellChangeTimes->{{3.819195393524576*^9, 3.819195411679884*^9}, {
+  3.819195456387888*^9, 
+  3.81919546068364*^9}},ExpressionUUID->"c7fbf367-7455-4eb9-b110-\
+ad47996ba110"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.819195414312009*^9, 
+  3.819195417237433*^9}},ExpressionUUID->"fb6471da-e1e4-47f7-b3e1-\
+bb4e3102bd6d"],
+
+Cell[TextData[{
+ "In this notebook we discuss a few approaches to calibration of System \
+Dynamics (SD) models, [",
+ ButtonBox["Wk1",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/System_dynamics"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/System_dynamics"],
+ ", JS1]."
+}], "Text",
+ CellChangeTimes->{{3.819195427126339*^9, 3.8191954335839043`*^9}, {
+   3.819198368863722*^9, 3.8191985644169683`*^9}, 3.819299621092381*^9, 
+   3.8193878544454803`*^9, {3.819388016231256*^9, 
+   3.819388023306918*^9}},ExpressionUUID->"79892a59-e66b-4195-90e9-\
+a29ca7eedc7b"],
+
+Cell["\<\
+The SD models we consider have systems of Ordinary Differential Equations \
+(ODEs) or system of Differential-Algebraic Equations (DAEs). \
+\>", "Text",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.8193871558775597`*^9}, {
+  3.8193873076954737`*^9, 
+  3.819387316632073*^9}},ExpressionUUID->"5da7162e-f586-4718-a504-\
+77b0db658c93"],
+
+Cell["A given SD model is comprised of:", "Text",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.8193871558775597`*^9}, {
+  3.8193873076954737`*^9, 
+  3.819387312690596*^9}},ExpressionUUID->"aee378ec-60a9-490f-ad44-\
+8c41abd6ecbc"],
+
+Cell["Entities and processes descriptions", "Item",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.81938716645544*^9}, {
+  3.819387330223937*^9, 
+  3.819387330731229*^9}},ExpressionUUID->"13c857b1-b60d-4128-978b-\
+1a170944a8f0"],
+
+Cell["Simplifying assumptions", "Item",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.81938716645544*^9}, {
+  3.819387330223937*^9, 
+  3.819387335033308*^9}},ExpressionUUID->"80a96d0e-2e8d-49b2-a36e-\
+500a9b7278a5"],
+
+Cell["\<\
+A system of Ordinary Differential Equations (ODEs) or Differential-Algebraic \
+Equations (DAEs)\
+\>", "Item",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.8193871800639973`*^9}, {
+  3.819387347321885*^9, 
+  3.8193873904353228`*^9}},ExpressionUUID->"16384088-c7ef-46c4-a02d-\
+4b57e6bd0d19"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " Entities of an SD model are called ",
+ StyleBox["stocks",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.8193871800639973`*^9}, {
+  3.819387347321885*^9, 
+  3.819387445678924*^9}},ExpressionUUID->"c2645375-67ab-466e-964a-\
+62ad661327e4"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " The processes of an SD model are represented by feedback loops between the \
+stocks characterized by algebraic factors called ",
+ StyleBox["rates",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.8193870286687393`*^9, 3.8193871800639973`*^9}, {
+  3.819387347321885*^9, 3.819387522461347*^9}, {3.819387707244237*^9, 
+  3.819387726538331*^9}},ExpressionUUID->"e88e863a-07ee-4d24-b6f5-\
+16282eb545fc"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " If given problem domain, SD model, and stocks quantity evolution data then \
+",
+ StyleBox["calibration",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ " is called the finding of the rates values or stocks initial values with \
+which the SD model produces stock evolutions (very) similar to the given ones."
+}], "Text",
+ CellChangeTimes->{{3.819387375623858*^9, 3.819387384512804*^9}, {
+  3.81938752992981*^9, 3.8193876871962547`*^9}, {3.819387739218101*^9, 
+  3.819387843753695*^9}, {3.8193879140003223`*^9, 
+  3.819387920098032*^9}},ExpressionUUID->"14e6bc0f-54ad-4781-9b9c-\
+6045b960388f"],
+
+Cell[TextData[{
+ "Since we do not want to spend too much time explaining and developing SD \
+models that are less familiars to readers, we use as examples well-known SD \
+models that have good descriptions elsewhere. We use Epidemiology \
+Compartmental Models (ECMs), [",
+ ButtonBox["Wk2",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+     None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+ ", HH1]."
+}], "Text",
+ CellChangeTimes->{{3.819387199862937*^9, 3.819387294556061*^9}, {
+  3.8193878561294403`*^9, 3.8193878940752*^9}, {3.8193879437235394`*^9, 
+  3.8193880009072113`*^9}},ExpressionUUID->"87cbcea4-5426-49ed-899b-\
+06d2b8ef702d"],
+
+Cell[TextData[{
+ "In this document/notebook we show calibration the Wolfram Language (WL) \
+commands ",
+ ButtonBox["NDSolve",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/NDSolve.html"], None},
+  ButtonNote->"https://reference.wolfram.com/language/ref/NDSolve.html"],
+ " and ",
+ ButtonBox["NMinimize",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/NMinimize.html"], None},
+  ButtonNote->"https://reference.wolfram.com/language/ref/NMinimize.html"],
+ ". For illustration purposes only, we also use the software monad ",
+ ButtonBox["ECMMon",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.\
+m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.\
+m"],
+ ", [AA11, AAp8]."
+}], "Text",
+ CellChangeTimes->{{3.819311901708151*^9, 3.819312048679924*^9}, {
+  3.819312306208169*^9, 3.819312348206731*^9}, {3.8193123902736797`*^9, 
+  3.819312400182007*^9}},ExpressionUUID->"ad843f7c-0fa8-46ff-a61c-\
+4bbf62f16392"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Problems formulation", "Section",
+ CellChangeTimes->{{3.819299569533106*^9, 3.8192995731779013`*^9}, 
+   3.81931096098458*^9},ExpressionUUID->"989e98fe-3bd8-49b9-97f6-\
+445a6019ce34"],
+
+Cell[CellGroupData[{
+
+Cell["Problem 1 (canonical)", "Subsection",
+ CellChangeTimes->{{3.819310964329687*^9, 
+  3.819310973262628*^9}},ExpressionUUID->"1ed138c8-e254-4f6d-b5ba-\
+a323875a0e26"],
+
+Cell[TextData[{
+ "Assume there is an epidemic in a isolated geographic region with ",
+ Cell[BoxData[
+  FormBox["100000", TraditionalForm]],ExpressionUUID->
+  "b3ba7ab3-787d-4de1-9abe-a6e67cb82a61"],
+ " people. Using the Infected Population (IP) data in the section \
+\[OpenCurlyDoubleQuote]Calibration data\[CloseCurlyDoubleQuote] and one (or \
+several) of the \[OpenCurlyDoubleQuote]standard\[CloseCurlyDoubleQuote] ECMs, \
+[Wk2], find the corresponding: "
+}], "Text",
+ CellChangeTimes->{{3.819299576035062*^9, 3.819299688672164*^9}, {
+  3.819299755126856*^9, 3.819299787988912*^9}, {3.819310996606085*^9, 
+  3.819311036634407*^9}, {3.819311089892846*^9, 
+  3.819311090173716*^9}},ExpressionUUID->"1aabd32b-94cf-44f7-96d9-\
+8137e65e831f"],
+
+Cell["Infection period", "Item",
+ CellChangeTimes->{{3.8192996935881567`*^9, 
+  3.819299703867147*^9}},ExpressionUUID->"0a559edb-29f0-47e4-ac9c-\
+e06f989268fa"],
+
+Cell["Incubation period", "Item",
+ CellChangeTimes->{{3.8192996935881567`*^9, 
+  3.81929971257428*^9}},ExpressionUUID->"dcc7cd49-2fb5-4ceb-8031-\
+5528082b2a2d"],
+
+Cell["Contact rate", "Item",
+ CellChangeTimes->{{3.8192996935881567`*^9, 
+  3.81929971632522*^9}},ExpressionUUID->"ef691e73-566f-4607-80a8-\
+f33b34f4bc94"],
+
+Cell["\<\
+Consider using at first the model  Susceptible, Infected, Recovered (SIR), \
+[Wk2]. If no good calibration results are obtained with SIR use the model \
+Susceptible, Exposed, Infected, Recovered (SEIR).\
+\>", "Text",
+ CellChangeTimes->{{3.819311209425522*^9, 
+  3.8193114299308453`*^9}},ExpressionUUID->"6fe11290-e153-4305-8b51-\
+d6f033c164ab"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Problem 2 (model extension)", "Subsection",
+ CellChangeTimes->{{3.819311095326243*^9, 3.819311104720768*^9}, {
+  3.819311205746642*^9, 
+  3.819311205791692*^9}},ExpressionUUID->"43922760-ed68-4451-9a7a-\
+60d992bbc223"],
+
+Cell["Calibrate the model from Problem 1 using:", "Text",
+ CellChangeTimes->{{3.81931176154503*^9, 
+  3.8193117785972233`*^9}},ExpressionUUID->"bf242379-e89b-4632-a447-\
+0c3ba3b0c055"],
+
+Cell["Only the Deceased Infected Population (DIP)", "Item",
+ CellChangeTimes->{{3.819311115396352*^9, 3.819311116319376*^9}, {
+  3.81931131895746*^9, 3.819311324514887*^9}, {3.81931143663621*^9, 
+  3.8193115603662853`*^9}, {3.819311605863275*^9, 3.8193116515451612`*^9}, {
+  3.819311739637734*^9, 
+  3.8193117885871077`*^9}},ExpressionUUID->"0e067325-47ab-4c41-82ea-\
+ae068c6bcd79"],
+
+Cell["Both IP and DIP using weights of significance for each", "Item",
+ CellChangeTimes->{{3.819311115396352*^9, 3.819311116319376*^9}, {
+   3.81931131895746*^9, 3.819311324514887*^9}, {3.81931143663621*^9, 
+   3.8193115603662853`*^9}, {3.819311605863275*^9, 3.819311700689837*^9}, 
+   3.819311740650372*^9, {3.8193117736357307`*^9, 
+   3.819311787395564*^9}},ExpressionUUID->"214bc281-5eec-44b8-bc05-\
+e2310d19db2b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Problem 3 (prediction)", "Subsection",
+ CellChangeTimes->{{3.8193117031087217`*^9, 
+  3.819311714606653*^9}},ExpressionUUID->"41715e91-652b-4a49-81aa-\
+a4632594514f"],
+
+Cell["\<\
+Calibrate a model over a initial fraction of the time series and see if the \
+calibrated model predicts the rest of the time series.\
+\>", "Text",
+ CellChangeTimes->{{3.819311718667656*^9, 3.819311734879169*^9}, {
+  3.819311797374531*^9, 
+  3.819311838673277*^9}},ExpressionUUID->"086e2288-9238-492d-b099-\
+dd5796ab3a4a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Problem 4 (lockdown policy)", "Subsection",
+ CellChangeTimes->{{3.819311845918087*^9, 
+  3.819311859834805*^9}},ExpressionUUID->"c170bdba-5b04-47a9-aec8-\
+bf70ddeb52c9"],
+
+Cell["\<\
+Find the largest contact rate for which the deceased population is under a \
+certain value, assuming that no hospitalizations are needed.\
+\>", "Text",
+ CellChangeTimes->{{3.819311869586707*^9, 
+  3.819311889558125*^9}},ExpressionUUID->"32c302b1-150d-4d2d-b609-\
+2ebeeb7a2006"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration data", "Section",
+ CellChangeTimes->{{3.8191986605946913`*^9, 3.819198669301721*^9}, {
+   3.81919870176974*^9, 3.819198704537445*^9}, {3.8192995608484583`*^9, 
+   3.819299565797752*^9}, 
+   3.8192997622144423`*^9},ExpressionUUID->"29034e52-9d79-40b3-a9fe-\
+a7573bf8e71c"],
+
+Cell[TextData[{
+ "As it was mentioned in the previous section, we assume there is an epidemic \
+in a isolated geographic region with ",
+ Cell[BoxData[
+  FormBox["100000", TraditionalForm]],ExpressionUUID->
+  "52275dc7-7f7d-4c96-bc5c-ba0e4278d6f3"],
+ " people. Here we create an association of target time series representing \
+epidemic data:"
+}], "Text",
+ CellChangeTimes->{{3.8192972575072403`*^9, 3.819297264527165*^9}, {
+  3.8192973220146008`*^9, 3.819297496629261*^9}, {3.81929772751548*^9, 
+  3.819297770401544*^9}, {3.819299740299149*^9, 3.819299741176517*^9}, {
+  3.819311045153551*^9, 
+  3.819311065614554*^9}},ExpressionUUID->"b8d94c3d-6219-47fb-990f-\
+6446ae13c5c9"],
+
+Cell["Number of infected, Infected Population (IP)", "Item",
+ CellChangeTimes->{{3.8192972575072403`*^9, 3.819297264527165*^9}, {
+  3.8192973220146008`*^9, 3.8192975170709753`*^9}, {3.8193115896135387`*^9, 
+  3.819311589613839*^9}},ExpressionUUID->"65de9848-bf3e-42ce-9e69-\
+a25767b936f0"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Number of epidemic deaths, Deceased Infected Population (DIP)\
+\>", "Item",
+ CellChangeTimes->{{3.8192972575072403`*^9, 3.819297264527165*^9}, {
+   3.8192973220146008`*^9, 3.8192975170709753`*^9}, 
+   3.8193115899899063`*^9},ExpressionUUID->"972a1284-859f-4dcc-82a7-\
+dc9dde1494ab"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aTargets", "=", 
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{"IP", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "6", ",", "13", ",", "19", ",", "24", ",", "29", ",", "35", ",", "40", 
+        ",", "46", ",", "53", ",", "60", ",", "67", ",", "75", ",", "84", ",",
+         "94", ",", "105", ",", "117", ",", "130", ",", "146", ",", "163", 
+        ",", "180", ",", "201", ",", "225", ",", "250", ",", "279", ",", 
+        "310", ",", "344", ",", "389", ",", "425", ",", "478", ",", "530", 
+        ",", "607", ",", "655", ",", "723", ",", "803", ",", "896", ",", 
+        "996", ",", "1094", ",", "1231", ",", "1368", ",", "1514", ",", 
+        "1685", ",", "1867", ",", "2067", ",", "2296", ",", "2576", ",", 
+        "2833", ",", "3130", ",", "3456", ",", "3854", ",", "4253", ",", 
+        "4712", ",", "5177", ",", "5738", ",", "6329", ",", "6974", ",", 
+        "7659", ",", "8315", ",", "9167", ",", "10053", ",", "10920", ",", 
+        "11901", ",", "12929", ",", "14043", ",", "15133", ",", "16176", ",", 
+        "17317", ",", "18547", ",", "19729", ",", "21063", ",", "22114", ",", 
+        "23191", ",", "24500", ",", "25299", ",", "26729", ",", "27439", ",", 
+        "28288", ",", "29321", ",", "29878", ",", "30340", ",", "31160", ",", 
+        "31568", ",", "32012", ",", "32192", ",", "32149", ",", "32455", ",", 
+        "32535", ",", "32617", ",", "32259", ",", "32146", ",", "31839", ",", 
+        "31513", ",", "31090", ",", "30476", ",", "30205", ",", "29708", ",", 
+        "29129", ",", "28439", ",", "27854", ",", "27302", ",", "26643", ",", 
+        "25991", ",", "25175", ",", "24526", ",", "24183", ",", "23153", ",", 
+        "22372", ",", "21733", ",", "21087", ",", "20932", ",", "19788", ",", 
+        "19061", ",", "18383", ",", "17813", ",", "17124", ",", "16503", ",", 
+        "15948", ",", "15248", ",", "14665", ",", "14238", ",", "13702", ",", 
+        "13186", ",", "12629", ",", "12006", ",", "11646", ",", "11260", ",", 
+        "10748", ",", "10312", ",", "9868", ",", "9447", ",", "9105", ",", 
+        "8668", ",", "8363", ",", "7978", ",", "7661", ",", "7323", ",", 
+        "6990", ",", "6720", ",", "6346", ",", "6056", ",", "5868", ",", 
+        "5602", ",", "5407", ",", "5112", ",", "4863", ",", "4666", ",", 
+        "4453", ",", "4218", ",", "4063", ",", "3859", ",", "3679", ",", 
+        "3522", ",", "3406", ",", "3201", ",", "3057", ",", "2922", ",", 
+        "2777", ",", "2645", ",", "2503", ",", "2432", ",", "2307", ",", 
+        "2191", ",", "2094", ",", "1995", ",", "1896", ",", "1813", ",", 
+        "1716", ",", "1643", ",", "1560", ",", "1481", ",", "1427", ",", 
+        "1340", ",", "1277", ",", "1209", ",", "1161", ",", "1106", ",", 
+        "1049", ",", "1018", ",", "953", ",", "909", ",", "858", ",", "821", 
+        ",", "775", ",", "744", ",", "705", ",", "672", ",", "639", ",", 
+        "604", ",", "577", ",", "550", ",", "520", ",", "496", ",", "472", 
+        ",", "448", ",", "428", ",", "405", ",", "386", ",", "367", ",", 
+        "348", ",", "330", ",", "317", ",", "301", ",", "284", ",", "271", 
+        ",", "257", ",", "243", ",", "232", ",", "220", ",", "208", ",", 
+        "199", ",", "188", ",", "179", ",", "171", ",", "162", ",", "154", 
+        ",", "145", ",", "139", ",", "133", ",", "125", ",", "119", ",", 
+        "113", ",", "107", ",", "102", ",", "97", ",", "92", ",", "87", ",", 
+        "82", ",", "79", ",", "75", ",", "71", ",", "67", ",", "64", ",", 
+        "61", ",", "58", ",", "52", ",", "52", ",", "49", ",", "48", ",", 
+        "44", ",", "42", ",", "40", ",", "38", ",", "37", ",", "34", ",", 
+        "32", ",", "31", ",", "29", ",", "28", ",", "27", ",", "25", ",", 
+        "24", ",", "22", ",", "22", ",", "21", ",", "20", ",", "18", ",", 
+        "17", ",", "17", ",", "16", ",", "15", ",", "15", ",", "13", ",", 
+        "12", ",", "12", ",", "11", ",", "11", ",", "10", ",", "10", ",", 
+        "10", ",", "9", ",", "9", ",", "8", ",", "7", ",", "7", ",", "7", ",",
+         "6", ",", "6", ",", "6", ",", "6", ",", "5", ",", "5", ",", "5", ",",
+         "5", ",", "4", ",", "4", ",", "4", ",", "4", ",", "4", ",", "4", ",",
+         "4", ",", "3", ",", "3", ",", "2", ",", "2", ",", "2", ",", "2", ",",
+         "2", ",", "2", ",", "2", ",", "2", ",", "1", ",", "1", ",", "1", ",",
+         "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",",
+         "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",",
+         "1", ",", "1", ",", "1", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",",
+         "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0"}], 
+       "}"}]}], ",", 
+     RowBox[{"DIP", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+        "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+        "0", ",", "0", ",", "0", ",", "1", ",", "1", ",", "1", ",", "1", ",", 
+        "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "2", ",", "2", ",", 
+        "2", ",", "2", ",", "3", ",", "3", ",", "3", ",", "4", ",", "4", ",", 
+        "5", ",", "5", ",", "6", ",", "6", ",", "7", ",", "8", ",", "9", ",", 
+        "10", ",", "12", ",", "13", ",", "15", ",", "17", ",", "19", ",", 
+        "22", ",", "24", ",", "28", ",", "31", ",", "35", ",", "39", ",", 
+        "44", ",", "49", ",", "56", ",", "62", ",", "69", ",", "77", ",", 
+        "85", ",", "95", ",", "106", ",", "116", ",", "129", ",", "141", ",", 
+        "155", ",", "171", ",", "185", ",", "203", ",", "216", ",", "237", 
+        ",", "256", ",", "277", ",", "280", ",", "320", ",", "343", ",", 
+        "364", ",", "389", ",", "412", ",", "437", ",", "461", ",", "485", 
+        ",", "512", ",", "542", ",", "564", ",", "584", ",", "611", ",", 
+        "637", ",", "662", ",", "687", ",", "713", ",", "735", ",", "759", 
+        ",", "783", ",", "802", ",", "825", ",", "848", ",", "867", ",", 
+        "889", ",", "909", ",", "925", ",", "947", ",", "967", ",", "984", 
+        ",", "1000", ",", "1046", ",", "1037", ",", "1051", ",", "1075", ",", 
+        "1084", ",", "1096", ",", "1111", ",", "1122", ",", "1135", ",", 
+        "1145", ",", "1166", ",", "1181", ",", "1184", ",", "1195", ",", 
+        "1204", ",", "1208", ",", "1224", ",", "1233", ",", "1242", ",", 
+        "1251", ",", "1252", ",", "1266", ",", "1263", ",", "1275", ",", 
+        "1280", ",", "1288", ",", "1292", ",", "1288", ",", "1305", ",", 
+        "1309", ",", "1314", ",", "1323", ",", "1326", ",", "1343", ",", 
+        "1330", ",", "1347", ",", "1352", ",", "1346", ",", "1349", ",", 
+        "1352", ",", "1356", ",", "1351", ",", "1360", ",", "1368", ",", 
+        "1367", ",", "1369", ",", "1373", ",", "1371", ",", "1383", ",", 
+        "1378", ",", "1381", ",", "1382", ",", "1385", ",", "1382", ",", 
+        "1384", ",", "1391", ",", "1382", ",", "1392", ",", "1392", ",", 
+        "1370", ",", "1394", ",", "1376", ",", "1398", ",", "1393", ",", 
+        "1399", ",", "1402", ",", "1398", ",", "1407", ",", "1420", ",", 
+        "1400", ",", "1399", ",", "1400", ",", "1408", ",", "1389", ",", 
+        "1411", ",", "1421", ",", "1408", ",", "1412", ",", "1410", ",", 
+        "1410", ",", "1401", ",", "1401", ",", "1410", ",", "1401", ",", 
+        "1413", ",", "1412", ",", "1410", ",", "1408", ",", "1409", ",", 
+        "1396", ",", "1408", ",", "1409", ",", "1413", ",", "1411", ",", 
+        "1409", ",", "1414", ",", "1404", ",", "1410", ",", "1410", ",", 
+        "1410", ",", "1414", ",", "1416", ",", "1425", ",", "1416", ",", 
+        "1405", ",", "1397", ",", "1418", ",", "1411", ",", "1412", ",", 
+        "1416", ",", "1411", ",", "1417", ",", "1401", ",", "1413", ",", 
+        "1412", ",", "1424", ",", "1414", ",", "1410", ",", "1413", ",", 
+        "1413", ",", "1402", ",", "1414", ",", "1411", ",", "1412", ",", 
+        "1417", ",", "1415", ",", "1394", ",", "1420", ",", "1428", ",", 
+        "1415", ",", "1414", ",", "1422", ",", "1415", ",", "1412", ",", 
+        "1413", ",", "1415", ",", "1418", ",", "1410", ",", "1415", ",", 
+        "1412", ",", "1414", ",", "1415", ",", "1403", ",", "1426", ",", 
+        "1444", ",", "1414", ",", "1402", ",", "1409", ",", "1417", ",", 
+        "1412", ",", "1394", ",", "1421", ",", "1419", ",", "1422", ",", 
+        "1410", ",", "1409", ",", "1419", ",", "1416", ",", "1415", ",", 
+        "1417", ",", "1414", ",", "1459", ",", "1413", ",", "1419", ",", 
+        "1417", ",", "1416", ",", "1406", ",", "1419", ",", "1408", ",", 
+        "1418", ",", "1423", ",", "1414", ",", "1413", ",", "1414", ",", 
+        "1412", ",", "1417", ",", "1416", ",", "1416", ",", "1426", ",", 
+        "1413", ",", "1418", ",", "1413", ",", "1416", ",", "1415", ",", 
+        "1417", ",", "1419", ",", "1420", ",", "1412", ",", "1412", ",", 
+        "1435", ",", "1432", ",", "1415", ",", "1422", ",", "1420", ",", 
+        "1417", ",", "1402", ",", "1412", ",", "1413", ",", "1413", ",", 
+        "1416", ",", "1406", ",", "1414", ",", "1420", ",", "1415", ",", 
+        "1411", ",", "1417", ",", "1411", ",", "1428", ",", "1399", ",", 
+        "1387", ",", "1416", ",", "1409", ",", "1418", ",", "1425", ",", 
+        "1411", ",", "1414", ",", "1403", ",", "1398", ",", "1416", ",", 
+        "1411", ",", "1420", ",", "1417", ",", "1400", ",", "1416", ",", 
+        "1412", ",", "1417", ",", "1419", ",", "1409", ",", "1413", ",", 
+        "1428", ",", "1422", ",", "1420", ",", "1418", ",", "1412", ",", 
+        "1414", ",", "1415", ",", "1423", ",", "1416", ",", "1423", ",", 
+        "1409", ",", "1417", ",", "1415", ",", "1417", ",", "1440", ",", 
+        "1414", ",", "1418", ",", "1412", ",", "1416", ",", "1413", ",", 
+        "1418", ",", "1415", ",", "1415", ",", "1413", ",", "1409", ",", 
+        "1382", ",", "1398", ",", "1412", ",", "1419", ",", "1414"}], 
+       "}"}]}]}], "\[RightAssociation]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819297265421425*^9, 3.819297285780229*^9}, 
+   3.819297521957967*^9, 3.819299367392096*^9, {3.8192994028102493`*^9, 
+   3.8192994055293827`*^9}, {3.8193115663574677`*^9, 3.819311572373267*^9}},
+ CellLabel->"In[4]:=",ExpressionUUID->"d1534ccc-3f50-4ab7-bc7b-7c69531237c2"]
+}, Open  ]],
+
+Cell["\<\
+For convenience in the computations and visualizations later, we use the \
+implicit time values of the targets to make full time series paths: \
+\>", "Text",
+ CellChangeTimes->{{3.819412190133028*^9, 
+  3.819412294704019*^9}},ExpressionUUID->"60cd4e78-3226-433c-aef2-\
+f6649e63d514"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aTargetPaths", "=", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Transpose", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Range", "@", 
+          RowBox[{"Length", "@", "#"}]}], ",", "#"}], "}"}], "]"}], "&"}], 
+     ",", "aTargets"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819411281236602*^9, 3.819411313587101*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"94725afd-9967-4bfc-90aa-b55025584078"],
+
+Cell["Here are the time series lengths:", "Text",
+ CellChangeTimes->{{3.819299274597866*^9, 
+  3.819299307515401*^9}},ExpressionUUID->"a9d68fab-3990-4608-9dea-\
+45682292fb4e"],
+
+Cell[BoxData[
+ RowBox[{"Length", "/@", "aTargets"}]], "Input",
+ CellChangeTimes->{{3.819297265421425*^9, 3.819297285780229*^9}, {
+  3.819297521957967*^9, 3.819297541902294*^9}, {3.819299262167932*^9, 
+  3.819299290192129*^9}},
+ CellLabel->"In[6]:=",ExpressionUUID->"80a434a0-ec3f-4e94-ba61-fbc1aed900cb"],
+
+Cell["Here are plots of the data:", "Text",
+ CellChangeTimes->{{3.8192992490824966`*^9, 
+  3.819299257610312*^9}},ExpressionUUID->"0cb09b6c-86f6-4eea-8cef-\
+0ba6d48eaed7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ListPlot", "[", 
+    RowBox[{"#", ",", 
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "Medium"}]}], "]"}], "&"}], "/@", 
+  "aTargets"}]], "Input",
+ CellChangeTimes->{{3.819297265421425*^9, 3.819297285780229*^9}, {
+  3.819297521957967*^9, 3.819297541902294*^9}, {3.819299262167932*^9, 
+  3.819299267421153*^9}},
+ CellLabel->"In[7]:=",ExpressionUUID->"6d0797d4-6c1d-435f-99f8-996889c04393"],
+
+Cell["Here are plots of the consecutive distances:", "Text",
+ CellChangeTimes->{{3.81929945885394*^9, 
+  3.819299468798321*^9}},ExpressionUUID->"81eead96-d00c-4100-89fa-\
+e7f77387515b"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ListLinePlot", "[", 
+     RowBox[{"#", ",", 
+      RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+      RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+      RowBox[{"ImageSize", "\[Rule]", "Medium"}]}], "]"}], "&"}], "@*", 
+   "Differences"}], "/@", "aTargets"}]], "Input",
+ CellChangeTimes->{3.8192994804238577`*^9},
+ CellLabel->"In[8]:=",ExpressionUUID->"c63b6685-6ae5-417a-bbb3-b6248b0cd871"],
+
+Cell["Here is are the summaries:", "Text",
+ CellChangeTimes->{{3.819299311565886*^9, 
+  3.819299324480672*^9}},ExpressionUUID->"d71067ff-fc02-4f3e-ad3d-\
+91d9275bb265"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResourceFunction", "[", "\"\<RecordsSummary\>\"", "]"}], "/@", 
+  "aTargets"}]], "Input",
+ CellChangeTimes->{{3.819299327388451*^9, 3.8192993374210176`*^9}},
+ CellLabel->"In[9]:=",ExpressionUUID->"c338a7d4-4161-47b9-9dd6-712f5ec8e948"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The data was made using the SEI2HR model, [AA7, AAp3], and noise was added \
+to it in order to make it look more \[OpenCurlyDoubleQuote]realistic.\
+\[CloseCurlyDoubleQuote] The noise distribution was determined analyzing USA \
+COVID-19 data, [AA6, NYT1]."
+}], "Text",
+ CellChangeTimes->{{3.819297791180565*^9, 3.819297885985901*^9}, {
+  3.819298285537302*^9, 3.819298324767171*^9}, {3.819299149743389*^9, 
+  3.819299235920183*^9}, {3.819299528447118*^9, 
+  3.819299535939865*^9}},ExpressionUUID->"ae5685eb-4b71-4cd7-bc19-\
+769a2240c9b2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Workflow outline", "Section",
+ CellChangeTimes->{{3.819198675084362*^9, 3.819198687808461*^9}, {
+  3.819198803819522*^9, 
+  3.8191988244191103`*^9}},ExpressionUUID->"5d56502d-4634-4586-b750-\
+4e23dfd4fd45"],
+
+Cell["\<\
+This section describes the basic calibration workflow using two flavors:\
+\>", "Text",
+ CellChangeTimes->{{3.81938676136434*^9, 3.819386793067112*^9}, {
+  3.819386842894353*^9, 
+  3.81938693019906*^9}},ExpressionUUID->"adb79622-e0d0-47b1-9d2c-\
+3eef83c162bb"],
+
+Cell["Using solutions parametrized model solutions", "ItemNumbered",
+ CellChangeTimes->{{3.81938676136434*^9, 3.819386793067112*^9}, {
+  3.819386842894353*^9, 3.819386944163023*^9}, {3.81938698306052*^9, 
+  3.819386987886675*^9}},ExpressionUUID->"73d6c5a8-3115-4e2f-8d99-\
+dd8d8237e25c"],
+
+Cell["Solving model\[CloseCurlyQuote]s ODEs / DAEs at each minimization \
+step", "ItemNumbered",
+ CellChangeTimes->{{3.81938676136434*^9, 3.819386793067112*^9}, {
+  3.819386842894353*^9, 3.819386957612651*^9}, {3.819386991936721*^9, 
+  3.819387009172545*^9}, {3.8193880475740547`*^9, 
+  3.819388062806159*^9}},ExpressionUUID->"05daea10-3abb-477c-91db-\
+287103c0c8d1"],
+
+Cell[TextData[{
+ "More technically the first workflow using ",
+ StyleBox[ButtonBox["ParametricNDSolve",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/ParametricNDSolve.html"], 
+    None},
+  ButtonNote->
+   "https://reference.wolfram.com/language/ref/ParametricNDSolve.html"], 
+  "Program"],
+ ", the second one \[OpenCurlyDoubleQuote]just\[CloseCurlyDoubleQuote] ",
+ StyleBox[ButtonBox["NDSolve",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/NDSolve.html"], None},
+  ButtonNote->"https://reference.wolfram.com/language/ref/NDSolve.html"], 
+  "Program"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.819386963417778*^9, 3.819386979888595*^9}, {
+  3.8193880663055153`*^9, 
+  3.819388131556129*^9}},ExpressionUUID->"e3e167c8-c89c-4d70-b24e-\
+72428e082f2e"],
+
+Cell[CellGroupData[{
+
+Cell["Definitions", "Subsection",
+ CellChangeTimes->{{3.819389361560964*^9, 
+  3.8193893654410353`*^9}},ExpressionUUID->"97a75db2-d929-43e8-80a2-\
+61d9390a779b"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " The calibration data given is called ",
+ StyleBox["calibration data",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.819388397240178*^9, 
+  3.819388442026704*^9}},ExpressionUUID->"7e9300fe-650a-4801-b364-\
+4bbfe158c1e9"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " Assume that the calibration data correspond to a certain subset of model\
+\[CloseCurlyQuote]s stocks -- those stocks are called ",
+ StyleBox["target stocks",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.819388443657926*^9, 3.8193885406014423`*^9}, {
+  3.819389053519701*^9, 
+  3.819389054399633*^9}},ExpressionUUID->"10c9a5c4-3573-4cc5-8ba9-\
+d2dd4effd5c8"],
+
+Cell[TextData[{
+ StyleBox["Definition:",
+  FontWeight->"Bold"],
+ " For a given SD model ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "da505a70-cd57-4b12-81d3-477d426d3a24"],
+ " and a target stock ",
+ Cell[BoxData[
+  FormBox["T", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "f28757a4-52b1-4a0d-a76c-337d4ae06e6e"],
+ " the \[OpenCurlyDoubleQuote]alignment\[CloseCurlyDoubleQuote] between time \
+series ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["T", "0"], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "536e143f-5800-4bbb-ba5b-3d17a158b2c1"],
+ " of ",
+ Cell[BoxData[
+  FormBox["S", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "e0524bee-cae4-4788-beb8-850182e4f6d4"],
+ " derived  from the calibration data and the time seres ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["T", "1"], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "6cbcf2cd-87b7-45e4-907a-e4b530697950"],
+ " derived from a simulation with ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "a2524f60-e9ff-402c-9077-5181bacd6081"],
+ " is called a ",
+ StyleBox["fit",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ ". The fit is measured with an appropriate distance function between ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["T", "0"], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "05f923e6-9491-47ce-baaf-0885822eb6ca"],
+ " and ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["T", "1"], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "eb9aac07-e9b1-4d5b-b9b8-f0174f1970c8"],
+ "."
+}], "Text",
+ InitializationCell->True,
+ CellChangeTimes->{{3.819389056064025*^9, 3.819389345214919*^9}, {
+  3.819389394021294*^9, 
+  3.819389398350288*^9}},ExpressionUUID->"6e64442b-459e-4d2b-a871-\
+fc0a6599ae55"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Using parametric functions", "Subsection",
+ CellChangeTimes->{{3.819386739487864*^9, 
+  3.819386748888405*^9}},ExpressionUUID->"b1d3e130-82f7-4a45-ac9a-\
+38ef865e3a87"],
+
+Cell["Select a model.", "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932586249196*^9}, {
+   3.8193883779458103`*^9, 3.8193883928975363`*^9}, {3.819389032109223*^9, 
+   3.819389035550316*^9}, {3.819408994587676*^9, 3.8194090069543867`*^9}, 
+   3.819409057060032*^9},ExpressionUUID->"164258b7-1337-4196-8b7a-\
+2755675dcd64"],
+
+Cell["\<\
+Find parametric solutions for the target stocks of selected model\
+\[CloseCurlyQuote]s ODEs / DAEs.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932586249196*^9}, {
+  3.8193883779458103`*^9, 3.8193883928975363`*^9}, {3.819389032109223*^9, 
+  3.819389035550316*^9}, {3.819408994587676*^9, 
+  3.8194090498379087`*^9}},ExpressionUUID->"c94ce994-228a-439e-9c45-\
+2c9e97100d1d"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Define a function ",
+ StyleBox["NDFitDistance", "Program"],
+ " that measures the deviation of the fit. That function takes as arguments:"
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.819325868773617*^9}, {3.819326043462388*^9, 
+  3.819326075267769*^9}, {3.819326162635346*^9, 3.819326228931826*^9}, {
+  3.819408455238118*^9, 
+  3.819408459495624*^9}},ExpressionUUID->"62517132-9f3e-43d9-a395-\
+fe79a0f5a021"],
+
+Cell["the found parametric functions", "SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 
+  3.819325955553915*^9}},ExpressionUUID->"e6a9fe7a-117e-4870-a8d9-\
+7bb7632953b9"],
+
+Cell["a list of parameters", "SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193259527972727`*^9}, {3.819388323765479*^9, 
+  3.819388327511861*^9}},ExpressionUUID->"1a6740d3-370a-43b4-8ccb-\
+2cb46901d53b"],
+
+Cell["a vector of time points (to be used to compute the measure)", \
+"SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.819325923096829*^9}, {3.819326257249999*^9, 
+  3.819326257463492*^9}},ExpressionUUID->"3237d3ed-f7e2-4e44-9ce8-\
+1018bc3a9b82"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Select a set of time points from the calibration points.", \
+"ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258835003967`*^9}, {3.819325991577031*^9, 
+  3.8193260110306273`*^9}},ExpressionUUID->"8d1816c5-fd7a-4078-9cfd-\
+1bf81be63933"],
+
+Cell["All points can be selected, of course.", "SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258835003967`*^9}, {3.819325991577031*^9, 
+  3.819326023088788*^9}},ExpressionUUID->"75fd4ad7-9362-4c23-b6f2-\
+e2d954a67736"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Minimize the measure function ",
+ StyleBox["NDFitDistance", "Program"],
+ " over an appropriate domain for the parameters."
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.81932588470485*^9}, {3.819326036104879*^9, 
+   3.8193260388612328`*^9}, 3.819326263823304*^9, 
+   3.819408467373807*^9},ExpressionUUID->"9ae5a94a-75b4-408a-abb1-\
+61f48f51b37b"],
+
+Cell["Compute the populations functions with the found parameters.", \
+"ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258858625097`*^9}, {3.819326125262817*^9, 
+  3.8193261260952797`*^9}, {3.819326303220703*^9, 
+  3.819326318495323*^9}},ExpressionUUID->"f1d1dcf0-d0c4-4887-a676-\
+0066bba62de4"],
+
+Cell["Compare the new solutions with the initial data.", "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258870554123`*^9}, {3.819326127377575*^9, 
+  3.819326127872311*^9}, {3.819326326055249*^9, 
+  3.819326327371875*^9}},ExpressionUUID->"2cef9b0d-1fd7-4e98-8996-\
+1330e9f09a36"],
+
+Cell[TextData[{
+ "Repeat the steps 1-6 using different minimization methods, and distance \
+functions in ",
+ StyleBox["NDFitDistance", "Program"],
+ "."
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.81932588667971*^9}, {3.819326129020028*^9, 
+   3.819326130516152*^9}, {3.819326268251933*^9, 3.819326282821899*^9}, {
+   3.819326349108206*^9, 3.819326365712233*^9}, 
+   3.819408469208188*^9},ExpressionUUID->"110b6aa2-14cd-4352-bfcc-\
+7241ab92cfb9"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Using NDSolve and each minimization step", "Subsection",
+ CellChangeTimes->{{3.819386721829693*^9, 3.8193867296276407`*^9}, {
+  3.8193868006048117`*^9, 
+  3.819386814150815*^9}},ExpressionUUID->"c0269aec-3bc2-4351-8514-\
+8dddd4ab4fb1"],
+
+Cell["Select a model.", "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.819325868773617*^9}, {3.819326043462388*^9, 
+   3.819326075267769*^9}, {3.819326162635346*^9, 3.819326228931826*^9}, {
+   3.81938834746937*^9, 3.8193883639175*^9}, {3.819389382634767*^9, 
+   3.8193894117841063`*^9}, 3.819408465630843*^9, {3.819409059548238*^9, 
+   3.81940906391197*^9}},ExpressionUUID->"773e9b14-c8e4-4ec5-947f-\
+a2be003dff10"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Define a function ",
+ StyleBox["NDFitDistance", "Program"],
+ " that solves model's system of equations and measures the distance of the \
+fit. That function takes as arguments:"
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.819325868773617*^9}, {3.819326043462388*^9, 
+   3.819326075267769*^9}, {3.819326162635346*^9, 3.819326228931826*^9}, {
+   3.81938834746937*^9, 3.8193883639175*^9}, {3.819389382634767*^9, 
+   3.8193894117841063`*^9}, 
+   3.819408465630843*^9},ExpressionUUID->"07f685ab-3b3d-4ae3-b48b-\
+a8a21cb8cbca"],
+
+Cell["a list of parameters", "SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193259527972727`*^9}, {3.819388331010079*^9, 
+  3.819388331618197*^9}},ExpressionUUID->"764cdc22-1b6a-4036-9a61-\
+93f315e420d4"],
+
+Cell["a vector of time points (to be used to compute the measure)", \
+"SubitemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.819325923096829*^9}, {3.819326257249999*^9, 
+  3.819326257463492*^9}},ExpressionUUID->"86651ecd-fcc5-42dd-afe1-\
+623c3f32638f"]
+}, Open  ]],
+
+Cell["Select a set of time points from the calibration points.", \
+"ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258835003967`*^9}, {3.819325991577031*^9, 
+  3.8193260110306273`*^9}},ExpressionUUID->"4e4120a1-957b-4a46-8dde-\
+706620c9b710"],
+
+Cell[TextData[{
+ "Minimize the measure function ",
+ StyleBox["NDFitDistance", "Program"],
+ " over an appropriate domain for the parameters."
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.81932588470485*^9}, {3.819326036104879*^9, 
+   3.8193260388612328`*^9}, 3.819326263823304*^9, 
+   3.819408470985517*^9},ExpressionUUID->"f622459f-ef39-4dd8-b6e0-\
+fc4bc90b0cb7"],
+
+Cell["Compute the populations functions with the found parameters.", \
+"ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258858625097`*^9}, {3.819326125262817*^9, 
+  3.8193261260952797`*^9}, {3.819326303220703*^9, 
+  3.819326318495323*^9}},ExpressionUUID->"1a1ecc40-ce60-445a-a05f-\
+34d0b11b6e62"],
+
+Cell["Compare the new solutions with the initial data.", "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+  3.819325865777684*^9, 3.8193258870554123`*^9}, {3.819326127377575*^9, 
+  3.819326127872311*^9}, {3.819326326055249*^9, 
+  3.819326327371875*^9}},ExpressionUUID->"c70eefff-8633-48f0-a8cf-\
+6a7a24ef11f0"],
+
+Cell[TextData[{
+ "Repeat the steps 1-5 using different minimization methods, and distance \
+functions in ",
+ StyleBox["NDFitDistance", "Program"],
+ "."
+}], "ItemNumbered",
+ CellChangeTimes->{{3.8193257901813717`*^9, 3.81932582073243*^9}, {
+   3.819325865777684*^9, 3.81932588667971*^9}, {3.819326129020028*^9, 
+   3.819326130516152*^9}, {3.819326268251933*^9, 3.819326282821899*^9}, {
+   3.819326349108206*^9, 3.819326365712233*^9}, {3.819389446395376*^9, 
+   3.8193894469793673`*^9}, 
+   3.819408472628438*^9},ExpressionUUID->"d9628f0d-809d-4a24-8bc4-\
+d8553edf479b"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Workflow with parametric functions", "Section",
+ CellChangeTimes->{{3.819198831607944*^9, 3.819198842903211*^9}, {
+  3.81932652434155*^9, 3.819326535065773*^9}, {3.819408499322407*^9, 
+  3.819408503912129*^9}},ExpressionUUID->"78b00599-698b-4ea0-94b4-\
+1629fb3bf9a0"],
+
+Cell[CellGroupData[{
+
+Cell["Model to calibrate", "Subsection",
+ CellChangeTimes->{{3.819408983821933*^9, 3.819408984227001*^9}, {
+  3.819409066578491*^9, 
+  3.819409077592782*^9}},ExpressionUUID->"faca210f-7b8c-4ae0-9140-\
+91207439e21e"],
+
+Cell["\<\
+Let us first use the model SIR, [Wk2, HH1], which we can (conveniently) \
+create and display using the package [AAp3]:\
+\>", "Text",
+ CellChangeTimes->{{3.81940908281147*^9, 3.8194091377242613`*^9}, {
+  3.819409438430106*^9, 
+  3.819409508394199*^9}},ExpressionUUID->"455d8df4-ba06-4777-8178-\
+348d4da5d23b"],
+
+Cell[BoxData[
+ RowBox[{"ModelGridTableForm", "[", 
+  RowBox[{"Map", "[", 
+   RowBox[{"Most", ",", 
+    RowBox[{"SIRModel", "[", "t", "]"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.819409197985333*^9, 3.819409357485385*^9}, {
+   3.819409547141389*^9, 3.819409549974969*^9}, {3.819410030931834*^9, 
+   3.819410102427763*^9}, 3.8194103056505537`*^9},
+ CellLabel->"In[10]:=",ExpressionUUID->"8df96251-f199-4c5f-9d54-ae995883d37b"],
+
+Cell["Here are the equations of SIR:", "Text",
+ CellChangeTimes->{{3.81940908281147*^9, 3.8194091377242613`*^9}, {
+  3.8194095117248363`*^9, 3.819409540098332*^9}, {3.819409571553087*^9, 
+  3.819409593624936*^9}},ExpressionUUID->"782526a2-9d05-4af0-8129-\
+3c9eb8c0f0b9"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsEquations", "=", 
+   RowBox[{"{", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["SP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", 
+        FractionBox[
+         RowBox[{
+          RowBox[{"IP", "[", "t", "]"}], " ", 
+          RowBox[{"SP", "[", "t", "]"}], " ", 
+          RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+         RowBox[{"TP", "[", "0", "]"}]]}], "-", 
+       RowBox[{
+        RowBox[{"SP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["IP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", 
+        FractionBox[
+         RowBox[{"IP", "[", "t", "]"}], "aip"]}], "+", 
+       FractionBox[
+        RowBox[{
+         RowBox[{"IP", "[", "t", "]"}], " ", 
+         RowBox[{"SP", "[", "t", "]"}], " ", 
+         RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+        RowBox[{"TP", "[", "0", "]"}]], "-", 
+       RowBox[{
+        RowBox[{"IP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "IP", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["RP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"IP", "[", "t", "]"}], "aip"], "-", 
+       RowBox[{
+        RowBox[{"RP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}]}], "\[IndentingNewLine]", 
+    "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819409120786351*^9, 3.81940918311998*^9}, 
+   3.819409601704443*^9},
+ CellLabel->"In[11]:=",ExpressionUUID->"58f3a9d9-fac3-4c06-bf70-42ef1d48966a"],
+
+Cell["Here are the corresponding initial conditions:", "Text",
+ CellChangeTimes->{{3.819409677957141*^9, 
+  3.8194096949453297`*^9}},ExpressionUUID->"e1e3f618-f2c6-44fe-aea0-\
+b676e9dc3938"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsInits", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"SP", "[", "0", "]"}], "\[Equal]", "99999"}], ",", 
+     RowBox[{
+      RowBox[{"IP", "[", "0", "]"}], "\[Equal]", "1"}], ",", 
+     RowBox[{
+      RowBox[{"RP", "[", "0", "]"}], "\[Equal]", "0"}]}], "}"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.8194096960661783`*^9, 3.819409735197942*^9}, {
+  3.8194114014850807`*^9, 3.819411407909349*^9}, {3.819411709110157*^9, 
+  3.819411714206374*^9}},
+ CellLabel->"In[12]:=",ExpressionUUID->"5071173f-dccf-40a9-ae37-1eff6585eead"],
+
+Cell["Here is a list of rules with values for the rates:", "Text",
+ CellChangeTimes->{{3.819410507027677*^9, 
+  3.819410535186763*^9}},ExpressionUUID->"23a89b07-aed0-480d-83b8-\
+1e88578617a9"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsRateRules", "=", 
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"TP", "[", "0", "]"}], "\[Rule]", "100000"}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "TP", "]"}], "\[Rule]", 
+      FractionBox["1", "45625"]}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "IP", "]"}], "\[Rule]", 
+      FractionBox["0.035`", "aip"]}], ",", 
+     RowBox[{
+      RowBox[{"\[Beta]", "[", "IP", "]"}], "\[Rule]", "0.15`"}], ",", 
+     RowBox[{"aip", "\[Rule]", "28"}]}], "\[RightAssociation]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.81941055376575*^9, 3.819410583439254*^9}},
+ CellLabel->"In[13]:=",ExpressionUUID->"697e1111-185c-46c8-a44b-ae5270b9c6dc"],
+
+Cell["Here is a list with SIR model\[CloseCurlyQuote]s stocks:", "Text",
+ CellChangeTimes->{{3.819410380699188*^9, 
+  3.819410406350211*^9}},ExpressionUUID->"619afad2-fabb-4dd1-a34d-\
+4190fc51889d"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsStocks", "=", 
+   RowBox[{"{", 
+    RowBox[{"SP", ",", "IP", ",", "RP"}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819410407482854*^9, 3.8194104272299223`*^9}, {
+  3.819411050028604*^9, 3.819411054253207*^9}},
+ CellLabel->"In[14]:=",ExpressionUUID->"9a4b8374-b9d7-4daf-a1cc-68b363575c97"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["PFFitDistance definition", "Subsection",
+ CellChangeTimes->{{3.819198831607944*^9, 3.819198842903211*^9}, {
+   3.81932652434155*^9, 3.819326533846878*^9}, {3.819408511876491*^9, 
+   3.819408515038788*^9}, {3.819408842677248*^9, 3.819408861970582*^9}, 
+   3.819969771012545*^9},ExpressionUUID->"4709b436-b49e-43c5-8b22-\
+61827ae17e70"],
+
+Cell["\<\
+The following definition of NDFitDistance takes a parametric function, a list \
+of parameters for the parametric function, and target data:\
+\>", "Text",
+ CellChangeTimes->{{3.819408863736886*^9, 
+  3.819408949823963*^9}},ExpressionUUID->"ba16f045-87fb-496a-9860-\
+fbff28944c9e"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "PFFitDistance", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "PFFitDistance", "]"}], "=", 
+   RowBox[{"{", 
+    RowBox[{"DistanceFunction", "\[Rule]", "EuclideanDistance"}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PFFitDistance", "[", 
+    RowBox[{"x_ParametricFunction", ",", 
+     RowBox[{"pars", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"target", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{"PFFitDistance", "[", 
+    RowBox[{"x", ",", "pars", ",", 
+     RowBox[{"Transpose", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Range", "@", 
+         RowBox[{"Length", "@", "target"}]}], ",", "target"}], "}"}], "]"}], 
+     ",", "opts"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PFFitDistance", "[", 
+    RowBox[{"x_ParametricFunction", ",", 
+     RowBox[{"pars", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"target", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"_", "?", "NumberQ"}], ",", 
+          RowBox[{"_", "?", "NumberQ"}]}], "}"}], ".."}], "}"}]}], ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"distFunc", ",", "points"}], "}"}], ",", "\[IndentingNewLine]", 
+     
+     RowBox[{
+      RowBox[{"distFunc", "=", 
+       RowBox[{"OptionValue", "[", 
+        RowBox[{"PFFitDistance", ",", "DistanceFunction"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"points", "=", 
+       RowBox[{"Map", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"#", ",", 
+            RowBox[{
+             RowBox[{"x", "[", 
+              RowBox[{"Sequence", "@@", "pars"}], "]"}], "[", "#", "]"}]}], 
+           "}"}], "&"}], ",", 
+         RowBox[{"target", "\[LeftDoubleBracket]", 
+          RowBox[{"All", ",", "1"}], "\[RightDoubleBracket]"}]}], "]"}]}], 
+      ";", "\[IndentingNewLine]", 
+      RowBox[{"distFunc", "[", 
+       RowBox[{
+        RowBox[{"target", "\[LeftDoubleBracket]", 
+         RowBox[{"All", ",", "2"}], "\[RightDoubleBracket]"}], ",", 
+        RowBox[{"points", "\[LeftDoubleBracket]", 
+         RowBox[{"All", ",", "2"}], "\[RightDoubleBracket]"}]}], "]"}]}]}], 
+    "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.8194087574947023`*^9, 3.819408826286645*^9}, {
+   3.819408931205669*^9, 3.8194089393200073`*^9}, {3.819410803144012*^9, 
+   3.819410858979063*^9}, {3.819472819774989*^9, 3.819472903693439*^9}, {
+   3.8199634754832153`*^9, 3.819963490525813*^9}, 3.819969718035816*^9},
+ CellLabel->"In[15]:=",ExpressionUUID->"9db6f47e-b36e-4e7a-8e24-8a6da59428d8"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " We prefer the target to have explicit time values. If the target is given \
+with only stocks values, then the implicit of time values are added."
+}], "Text",
+ CellChangeTimes->{{3.819410863646487*^9, 
+  3.8194109980189*^9}},ExpressionUUID->"dff9464e-f4da-48c6-9f38-904a39739137"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " We want to be able to specify the distance function used for calculating \
+the measures of the fit. That is why we have the option ",
+ StyleBox[ButtonBox["DistanceFunction",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/DistanceFunction.html"], 
+    None},
+  ButtonNote->
+   "https://reference.wolfram.com/language/ref/DistanceFunction.html"], 
+  "Program"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.819472919231778*^9, 
+  3.819472997253056*^9}},ExpressionUUID->"850a4266-3b91-413e-a3a0-\
+43a0d12a486a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Parametric solutions", "Subsection",
+ CellChangeTimes->{{3.819326451270776*^9, 
+  3.8193264582799063`*^9}},ExpressionUUID->"2c106bf1-221a-4a3b-94ec-\
+5564b9237505"],
+
+Cell["Here are the parametric solutions:", "Text",
+ CellChangeTimes->{{3.819410724774338*^9, 
+  3.819410737724596*^9}},ExpressionUUID->"5dbe9fb3-1195-40d6-a8e1-\
+dbae0b87c2cf"],
+
+Cell[BoxData[
+ RowBox[{"aParSols", "=", 
+  RowBox[{"Association", "@", 
+   RowBox[{"ParametricNDSolve", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"lsEquations", "//.", 
+        RowBox[{"KeyDrop", "[", 
+         RowBox[{"lsRateRules", ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip"}], "}"}]}], 
+         "]"}]}], ",", "lsInits"}], "}"}], ",", "lsStocks", ",", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", "0", ",", 
+       RowBox[{"Length", "@", 
+        RowBox[{"aTargets", "[", "IP", "]"}]}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip"}], "}"}]}], 
+    "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.8194096208405113`*^9, 3.8194096585524054`*^9}, {
+  3.819410272259903*^9, 3.8194102750944633`*^9}, {3.8194103278576*^9, 
+  3.819410344069665*^9}, {3.819410438188592*^9, 3.8194104401773243`*^9}, {
+  3.819410683363982*^9, 3.819410714604973*^9}, {3.819411447723535*^9, 
+  3.819411465070958*^9}},
+ CellLabel->"In[19]:=",ExpressionUUID->"296b3b41-cebf-439c-aba2-5f9db497c03c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration", "Subsection",
+ CellChangeTimes->{{3.8193265436562757`*^9, 
+  3.819326549114161*^9}},ExpressionUUID->"97f35118-ec6f-4910-8f4c-\
+af1034cdf85c"],
+
+Cell[TextData[{
+ "Here we formulate a global minimum search problem with which we try to find \
+the values for the contact rate, ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"b", ":=", 
+    RowBox[{"\[Beta]", "[", "IP", "]"}]}], TraditionalForm]],ExpressionUUID->
+  "6029f721-5b97-4299-a45a-02eae2a0d9d6"],
+ ", and average infectious period, ",
+ Cell[BoxData[
+  FormBox["aip", TraditionalForm]],ExpressionUUID->
+  "8a227b02-dde4-4d11-9daf-621497ff65cc"],
+ ", for which the distance between the simulated Infected Population (IP) and \
+the calibration target is the smallest:"
+}], "Text",
+ CellChangeTimes->{{3.8194116418784*^9, 3.8194117020112257`*^9}, {
+   3.819411899754862*^9, 3.819412029965263*^9}, 
+   3.819939767042431*^9},ExpressionUUID->"cade798d-b8c2-4c95-8a7a-\
+64b733e4cdba"],
+
+Cell[BoxData[
+ RowBox[{"res", "=", 
+  RowBox[{"NMinimize", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"PFFitDistance", "[", 
+       RowBox[{
+        RowBox[{"IP", "/.", "aParSols"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"b", ",", "aip"}], "}"}], ",", 
+        RowBox[{"aTargets", "[", "IP", "]"}]}], "]"}], ",", 
+      RowBox[{"0", "\[LessEqual]", "b", "\[LessEqual]", "20"}], ",", 
+      RowBox[{"10", "\[LessEqual]", "aip", "\[LessEqual]", "40"}]}], "}"}], 
+    ",", 
+    RowBox[{"{", 
+     RowBox[{"b", ",", "aip"}], "}"}], ",", 
+    RowBox[{"Method", "\[Rule]", "\"\<NelderMead\>\""}], ",", 
+    RowBox[{"PrecisionGoal", "\[Rule]", "3"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.8194107540368013`*^9, 3.819410770698411*^9}, 
+   3.819411014865383*^9, {3.819411063226293*^9, 3.819411063731689*^9}, {
+   3.819411472890883*^9, 3.8194115250227947`*^9}, 3.819411579699553*^9, {
+   3.819411941842749*^9, 3.81941194861456*^9}, {3.819473020014352*^9, 
+   3.8194730579167843`*^9}, {3.819473721755137*^9, 3.819473723937706*^9}, {
+   3.819476182561041*^9, 3.819476182740452*^9}, 3.8199634977828074`*^9},
+ CellLabel->"In[20]:=",ExpressionUUID->"cc820e93-5498-43a4-8fc3-018a00654fcf"],
+
+Cell[TextData[{
+ "Here we make an association with the found minimizing values for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"b", ",", " ", "aip"}], "}"}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "75dc4e3d-e302-4843-9819-204cbc7bd2c7"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.819412037647747*^9, 
+  3.8194120856422987`*^9}},ExpressionUUID->"e3b5c02f-04c6-4243-81e0-\
+561042c4c34a"],
+
+Cell[BoxData[
+ RowBox[{"aCalValues", "=", 
+  RowBox[{"Association", "@", 
+   RowBox[{"Rest", "@", "res"}]}]}]], "Input",
+ CellChangeTimes->{{3.8194110848438463`*^9, 3.819411093218629*^9}, {
+  3.8194111473878717`*^9, 3.819411150370636*^9}},
+ CellLabel->"In[21]:=",ExpressionUUID->"6f1a8a0c-9f12-4275-ad98-0f58f7b12e08"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Verification", "Subsection",
+ CellChangeTimes->{{3.819326552139345*^9, 
+  3.8193265547161493`*^9}},ExpressionUUID->"591787e5-b779-48f8-8b08-\
+33ea0dc33542"],
+
+Cell["\<\
+Here we obtain the solutions with the found calibration parameters:\
+\>", "Text",
+ CellChangeTimes->{{3.8194121042487917`*^9, 
+  3.819412169589807*^9}},ExpressionUUID->"47cdb953-fd25-436b-bce3-\
+7fbb59f5ded5"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aCalSols", "=", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"#", "[", 
+       RowBox[{"Sequence", "@@", 
+        RowBox[{"ReplaceAll", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"b", ",", "aip"}], "}"}], ",", "aCalValues"}], "]"}]}], 
+       "]"}], "&"}], ",", "aParSols"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.818950122373302*^9, 3.818950170541924*^9}, {
+   3.819411120308563*^9, 3.8194111302873497`*^9}, 3.819411181655797*^9, {
+   3.819411539817751*^9, 3.819411564904585*^9}, {3.819411603560877*^9, 
+   3.819411604078689*^9}, 3.819412098986189*^9},
+ CellLabel->"In[22]:=",ExpressionUUID->"e4d10803-e471-445a-810c-f178e80330d5"],
+
+Cell["Here is how the solutions look:", "Text",
+ CellChangeTimes->{{3.8194123483780813`*^9, 
+  3.819412357142816*^9}},ExpressionUUID->"ccf69f67-6123-441a-8ddf-\
+3ffe5187a9c4"],
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "/@", "aCalSols"}]], "Input",
+ CellChangeTimes->{{3.818950173753476*^9, 3.8189502035830307`*^9}},
+ CellLabel->"In[23]:=",ExpressionUUID->"d5de1e3c-5188-4c6b-bc36-f9987e572909"],
+
+Cell["\<\
+Here we compare the calibration IP target with the calibrated IP solution:\
+\>", "Text",
+ CellChangeTimes->{{3.819412361225781*^9, 3.819412389452911*^9}, {
+  3.819412538370882*^9, 
+  3.819412588119338*^9}},ExpressionUUID->"fbc34f08-8593-4a9f-ad9b-\
+c2f2aa6a4362"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "ShowSolutions", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ShowSolutions", "[", 
+    RowBox[{
+    "aCalSols_Association", ",", "aCalValues_", ",", 
+     "aTargetPaths_Association", ",", 
+     RowBox[{"stock_", "->", "stockName_String"}], ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   RowBox[{"Show", "[", 
+    RowBox[{
+     RowBox[{"ListPlot", "[", 
+      RowBox[{
+       RowBox[{"aTargetPaths", "[", "stock", "]"}], ",", "opts", ",", 
+       RowBox[{"PlotStyle", "\[Rule]", "Red"}], ",", 
+       RowBox[{"PlotTheme", "\[Rule]", "\"\<Detailed\>\""}], ",", 
+       RowBox[{"PlotLegends", "\[Rule]", 
+        RowBox[{"{", "\"\<Target\>\"", "}"}]}]}], "]"}], ",", 
+     RowBox[{"ListLinePlot", "[", 
+      RowBox[{
+       RowBox[{"aCalSols", "[", "stock", "]"}], ",", 
+       RowBox[{"Filling", "\[Rule]", "Axis"}], ",", 
+       RowBox[{"PlotLegends", "\[Rule]", 
+        RowBox[{"{", "\"\<Fit\>\"", "}"}]}]}], "]"}], ",", 
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{"FrameLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"\"\<Days\>\"", ",", "\"\<Number of people\>\""}], "}"}]}], 
+     ",", 
+     RowBox[{"PlotLabel", "\[Rule]", 
+      RowBox[{"ColumnForm", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Row", "[", 
+          RowBox[{"{", 
+           RowBox[{"stockName", ",", 
+            RowBox[{"Spacer", "[", "3", "]"}], ",", "\"\<(\>\"", ",", "stock",
+             ",", "\"\<)\>\"", ",", 
+            RowBox[{"Spacer", "[", "3", "]"}], ",", 
+            "\"\<calibration fit\>\""}], "}"}], "]"}], ",", "aCalValues"}], 
+        "}"}], "]"}]}], ",", 
+     RowBox[{"ImageSize", "\[Rule]", "Large"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ShowSolutions", "[", 
+  RowBox[{"aCalSols", ",", "aCalValues", ",", "aTargetPaths", ",", 
+   RowBox[{"IP", "->", "\"\<Infected Population\>\""}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.818950826525663*^9, 3.8189508936367283`*^9}, {
+  3.8189509610265627`*^9, 3.8189509751114883`*^9}, {3.8194111872588177`*^9, 
+  3.819411201253483*^9}, {3.819411316816533*^9, 3.819411320011036*^9}, {
+  3.819411737584811*^9, 3.8194118561615057`*^9}, {3.819412392389615*^9, 
+  3.819412494518902*^9}, {3.819474509045446*^9, 3.81947453061334*^9}, {
+  3.8194745732947903`*^9, 3.819474659650263*^9}, {3.819475381043561*^9, 
+  3.8194754970439043`*^9}, {3.819475562914421*^9, 3.8194755755241423`*^9}, {
+  3.819970391919057*^9, 3.819970392806387*^9}, {3.819975536794998*^9, 
+  3.819975558300797*^9}},
+ CellLabel->"In[24]:=",ExpressionUUID->"3b13c189-5b35-4e68-be7e-8e56bcdfd174"],
+
+Cell["We see that:", "Text",
+ CellChangeTimes->{{3.819901230456442*^9, 3.819901252011176*^9}, {
+  3.8199013542302313`*^9, 
+  3.81990135472536*^9}},ExpressionUUID->"ae6f761e-6eb5-4e10-b852-\
+a6527c924515"],
+
+Cell["\<\
+The peak of the fitted IP is higher than the  calibration data\
+\>", "Item",
+ CellChangeTimes->{{3.8199012564550962`*^9, 
+  3.81990129861486*^9}},ExpressionUUID->"e2c30aa0-d970-489d-b537-\
+43f50b51dadd"],
+
+Cell["The fitted IP curve is \[OpenCurlyDoubleQuote]thinner\
+\[CloseCurlyDoubleQuote] ", "Item",
+ CellChangeTimes->{{3.8199012564550962`*^9, 3.8199013194785757`*^9}, 
+   3.8199013497310038`*^9},ExpressionUUID->"e0720cc5-1c76-4adb-94d7-\
+a227939cbd2f"],
+
+Cell["To improve the fit we can try out several approaches:", "Text",
+ CellChangeTimes->{{3.819901357987844*^9, 
+  3.819901395664908*^9}},ExpressionUUID->"f14f0fc0-ff35-4b31-9b3b-\
+a6d9a6baf0cf"],
+
+Cell["Use a different distance function", "ItemNumbered",
+ CellChangeTimes->{{3.819901399591055*^9, 
+  3.819901457675849*^9}},ExpressionUUID->"4bb51bb7-9d22-48cd-86d0-\
+8efbe9e07dfb"],
+
+Cell["Use more parameters for calibration of the selected model", \
+"ItemNumbered",
+ CellChangeTimes->{{3.819901399591055*^9, 
+  3.819901430726048*^9}},ExpressionUUID->"330bfad6-b2b8-4848-aebd-\
+3bd57028cb6d"],
+
+Cell["\<\
+Use a more comprehensive model, which most likely implies the use of more or \
+different parameters\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.819901399591055*^9, 3.819901479107439*^9}, {
+  3.819936889254924*^9, 3.819936904195335*^9}, {3.8199370038269243`*^9, 
+  3.8199370583567553`*^9}},ExpressionUUID->"8b79424f-5e1a-4ae5-8038-\
+61232f2fed0f"],
+
+Cell["\<\
+Below we are discuss all three approaches. In the next sub-section we discuss \
+the first approach, which is the simplest one. In the next section we discuss \
+the third approach.\
+\>", "Text",
+ CellChangeTimes->{{3.819901483134322*^9, 3.819901563090057*^9}, {
+  3.8199368236219053`*^9, 3.81993685397432*^9}, {3.8199369897305193`*^9, 
+  3.819936996289407*^9}, {3.819937068223672*^9, 
+  3.8199370683579493`*^9}},ExpressionUUID->"3885931e-2e27-4688-8abf-\
+1d0fe24f01cd"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Special distance functions", "Subsection",
+ CellChangeTimes->{{3.819198856943223*^9, 
+  3.819198867034582*^9}},ExpressionUUID->"5898b2fc-96ce-4ca6-be4a-\
+4e9752759b87"],
+
+Cell["\<\
+Instead of using Euclidean distance (or 2-norm) we can use distance functions \
+we find more suitable. For example:\
+\>", "Text",
+ CellChangeTimes->{{3.8194647981466913`*^9, 
+  3.819464871440876*^9}},ExpressionUUID->"cbe853ee-ecea-4dba-bb19-\
+c7bbb784c92f"],
+
+Cell[TextData[{
+ "Squared Euclidean distance (",
+ StyleBox[ButtonBox["SquaredEuclideanDistance",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/SquaredEuclideanDistance.\
+html"], None},
+  ButtonNote->
+   "https://reference.wolfram.com/language/ref/SquaredEuclideanDistance.html"]\
+, "Program"],
+ ")"
+}], "Item",
+ CellChangeTimes->{{3.819464874624056*^9, 3.819464906418614*^9}, {
+  3.819464945517853*^9, 3.81946494552*^9}, {3.819472707353455*^9, 
+  3.819472707355175*^9}},ExpressionUUID->"40247a3e-c493-4584-ad1b-\
+1add563b596e"],
+
+Cell[TextData[{
+ "Cosine distance (",
+ StyleBox[ButtonBox["CosineDistance",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://reference.wolfram.com/language/ref/CosineDistance.html"], 
+    None},
+  ButtonNote->
+   "https://reference.wolfram.com/language/ref/CosineDistance.html"], 
+  "Program"],
+ ")"
+}], "Item",
+ CellChangeTimes->{{3.819464874624056*^9, 3.819464906418614*^9}, {
+  3.819464945517853*^9, 3.81946494552*^9}, {3.819472713743424*^9, 
+  3.819472725448121*^9}, {3.819474881063292*^9, 3.819474881065301*^9}, {
+  3.819475595538624*^9, 
+  3.819475595539028*^9}},ExpressionUUID->"716a0eec-45ec-476b-9d28-\
+536f011abf11"],
+
+Cell["\<\
+Application of a distance function over parts of calibration target and \
+corresponding solution\
+\>", "Item",
+ CellChangeTimes->{{3.819464874624056*^9, 3.819464906418614*^9}, {
+  3.819464945517853*^9, 3.81946494552*^9}, {3.819472713743424*^9, 
+  3.819472725448121*^9}, {3.819474881063292*^9, 3.819474881065301*^9}, {
+  3.819475596112102*^9, 
+  3.8194756517251387`*^9}},ExpressionUUID->"f1d92ff5-1188-4b0b-8979-\
+21666636c15b"],
+
+Cell["\<\
+Here is an example of calibration using initial part of the target:\
+\>", "Text",
+ CellChangeTimes->{{3.819475098920541*^9, 
+  3.819475141299757*^9}},ExpressionUUID->"f517ef5a-b206-4073-b2d9-\
+8e436aa4a31a"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"aCalValues2", "=", 
+   RowBox[{"Association", "[", 
+    RowBox[{"Last", "[", 
+     RowBox[{"NMinimize", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"PFFitDistance", "[", 
+          RowBox[{
+           RowBox[{"IP", "/.", "\[VeryThinSpace]", "aParSols"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"b", ",", "aip"}], "}"}], ",", 
+           RowBox[{"aTargets", "[", "IP", "]"}], ",", 
+           RowBox[{"DistanceFunction", "\[Rule]", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"EuclideanDistance", "[", 
+               RowBox[{
+                RowBox[{"#1", "\[LeftDoubleBracket]", 
+                 RowBox[{"1", ";;", "90"}], "\[RightDoubleBracket]"}], ",", 
+                RowBox[{"#2", "\[LeftDoubleBracket]", 
+                 RowBox[{"1", ";;", "90"}], "\[RightDoubleBracket]"}]}], 
+               "]"}], "&"}], ")"}]}]}], "]"}], ",", 
+         RowBox[{"0", "\[LessEqual]", "b", "\[LessEqual]", "20"}], ",", 
+         RowBox[{"10", "\[LessEqual]", "aip", "\[LessEqual]", "40"}]}], "}"}],
+        ",", 
+       RowBox[{"{", 
+        RowBox[{"b", ",", "aip"}], "}"}], ",", 
+       RowBox[{"Method", "\[Rule]", "\"\<NelderMead\>\""}], ",", 
+       RowBox[{"PrecisionGoal", "\[Rule]", "3"}]}], "]"}], "]"}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"aCalSols2", "=", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"#1", "[", 
+       RowBox[{"Sequence", "@@", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"b", ",", "aip"}], "}"}], "/.", "\[VeryThinSpace]", 
+          "aCalValues2"}], ")"}]}], "]"}], "&"}], ")"}], "/@", "aParSols"}]}],
+   ";"}], "\n", 
+ RowBox[{"ShowSolutions", "[", 
+  RowBox[{"aCalSols2", ",", "aCalValues2", ",", 
+   RowBox[{"IP", "->", "\"\<InfectedPopulation\>\""}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.8194107540368013`*^9, 3.819410770698411*^9}, 
+   3.819411014865383*^9, {3.819411063226293*^9, 3.819411063731689*^9}, {
+   3.819411472890883*^9, 3.8194115250227947`*^9}, 3.819411579699553*^9, {
+   3.819411941842749*^9, 3.81941194861456*^9}, {3.819473020014352*^9, 
+   3.8194730579167843`*^9}, {3.8194731667949266`*^9, 
+   3.8194732949569073`*^9}, {3.819473726886394*^9, 3.8194737279868097`*^9}, {
+   3.8194743973900347`*^9, 3.819474406432263*^9}, {3.819474679361205*^9, 
+   3.819474693473743*^9}, {3.819474886347517*^9, 3.8194749045686693`*^9}, {
+   3.819474994159955*^9, 3.819474997062181*^9}, {3.819475037979596*^9, 
+   3.819475049289216*^9}, {3.819475531582341*^9, 3.819475549907167*^9}, {
+   3.819969740445373*^9, 3.819969741379422*^9}},
+ CellLabel->"In[27]:=",ExpressionUUID->"c6e43afc-aaf7-4d4c-a6f8-c7cc2255e8f3"],
+
+Cell["\<\
+Here are some other possible distance function specifications:\
+\>", "Text",
+ CellChangeTimes->{{3.8194744208215427`*^9, 
+  3.81947443667132*^9}},ExpressionUUID->"b0fae8d8-7a81-4e1a-9bd1-\
+2e2a79fd2fc3"],
+
+Cell[BoxData[
+ RowBox[{"ColumnForm", "@", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Norm", "[", 
+      RowBox[{
+       RowBox[{"#1", "-", "#2"}], ",", "1"}], "]"}], "&"}], ",", 
+    RowBox[{
+     RowBox[{"EuclideanDistance", "[", 
+      RowBox[{
+       RowBox[{"#1", "\[LeftDoubleBracket]", 
+        RowBox[{"10", ";;", "40"}], "\[RightDoubleBracket]"}], ",", 
+       RowBox[{"#2", "\[LeftDoubleBracket]", 
+        RowBox[{"10", ";;", "40"}], "\[RightDoubleBracket]"}]}], "]"}], "&"}],
+     ",", "SquaredEuclideanDistance", ",", "CosineDistance"}], 
+   "}"}]}]], "Input",
+ CellChangeTimes->{{3.819474915333539*^9, 3.819474916964148*^9}, {
+  3.8194751682666597`*^9, 3.8194753089735413`*^9}},
+ CellLabel->"In[30]:=",ExpressionUUID->"18cfc4b4-2c98-4649-b7ba-bb3b7071d722"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Workflow invoking NDSolve at every minimization step", "Section",
+ CellChangeTimes->{{3.819198831607944*^9, 3.819198842903211*^9}, {
+  3.81932652434155*^9, 3.819326535065773*^9}, {3.819408499322407*^9, 
+  3.819408503912129*^9}, {3.819475689202558*^9, 
+  3.819475719017338*^9}},ExpressionUUID->"b87fd7f8-4320-4d80-a2ce-\
+557a33b4bda2"],
+
+Cell[TextData[{
+ "In this section we use a more comprehensive model and computing ODE/DAE \
+solutions with ",
+ StyleBox["NDSolve", "Program"],
+ " at every minimization step."
+}], "Text",
+ CellChangeTimes->{{3.819937078236072*^9, 3.819937096078669*^9}, {
+  3.819937131596051*^9, 3.819937133991598*^9}, {3.8199395062058163`*^9, 
+  3.81993956593235*^9}},ExpressionUUID->"d9ff8688-b8a5-4da1-b9f8-\
+e5948e1b0663"],
+
+Cell[CellGroupData[{
+
+Cell["Model to calibrate", "Subsection",
+ CellChangeTimes->{{3.819408983821933*^9, 3.819408984227001*^9}, {
+  3.819409066578491*^9, 
+  3.819409077592782*^9}},ExpressionUUID->"56c62e7f-2830-4702-bdf3-\
+baf7377d6501"],
+
+Cell["\<\
+Let us first use the model SEIR, [Wk2, HH1], which we can (conveniently) \
+create and display using the package [AAp3]:\
+\>", "Text",
+ CellChangeTimes->{{3.81940908281147*^9, 3.8194091377242613`*^9}, {
+   3.819409438430106*^9, 3.819409508394199*^9}, 
+   3.819937171522624*^9},ExpressionUUID->"07eb4daa-8da7-46c7-a101-\
+e954633770f4"],
+
+Cell[BoxData[
+ RowBox[{"ModelGridTableForm", "[", 
+  RowBox[{"Map", "[", 
+   RowBox[{"Most", ",", 
+    RowBox[{"SEIRModel", "[", "t", "]"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.819409197985333*^9, 3.819409357485385*^9}, {
+   3.819409547141389*^9, 3.819409549974969*^9}, {3.819410030931834*^9, 
+   3.819410102427763*^9}, 3.8194103056505537`*^9, 3.819937174908998*^9},
+ CellLabel->"In[31]:=",ExpressionUUID->"6c14387e-29dd-4eed-b6b3-44ba5f8df93d"],
+
+Cell["Here are the equations of SEIR:", "Text",
+ CellChangeTimes->{{3.81940908281147*^9, 3.8194091377242613`*^9}, {
+   3.8194095117248363`*^9, 3.819409540098332*^9}, {3.819409571553087*^9, 
+   3.819409593624936*^9}, 
+   3.819939616175239*^9},ExpressionUUID->"4ffe2206-f632-40dd-85cc-\
+56f2c6e5b5b7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsEquations2", "=", 
+   RowBox[{"{", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["SP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       RowBox[{"-", 
+        FractionBox[
+         RowBox[{
+          RowBox[{"IP", "[", "t", "]"}], " ", 
+          RowBox[{"SP", "[", "t", "]"}], " ", 
+          RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+         RowBox[{"TP", "[", "0", "]"}]]}], "-", 
+       RowBox[{
+        RowBox[{"SP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["EP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{
+         RowBox[{"IP", "[", "t", "]"}], " ", 
+         RowBox[{"SP", "[", "t", "]"}], " ", 
+         RowBox[{"\[Beta]", "[", "IP", "]"}]}], 
+        RowBox[{"TP", "[", "0", "]"}]], "-", 
+       RowBox[{
+        RowBox[{"EP", "[", "t", "]"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          FractionBox["1", "aincp"], "+", 
+          RowBox[{"\[Mu]", "[", "TP", "]"}]}], ")"}]}]}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["IP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"EP", "[", "t", "]"}], "aincp"], "-", 
+       FractionBox[
+        RowBox[{"IP", "[", "t", "]"}], "aip"], "-", 
+       RowBox[{
+        RowBox[{"IP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "IP", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox["RP", "\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"IP", "[", "t", "]"}], "aip"], "-", 
+       RowBox[{
+        RowBox[{"RP", "[", "t", "]"}], " ", 
+        RowBox[{"\[Mu]", "[", "TP", "]"}]}]}]}]}], "\[IndentingNewLine]", 
+    "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819409120786351*^9, 3.81940918311998*^9}, 
+   3.819409601704443*^9, {3.819939587039524*^9, 3.819939627877111*^9}},
+ CellLabel->"In[32]:=",ExpressionUUID->"1b860036-c681-4b91-a24b-3aa4bac5d408"],
+
+Cell["Here are the corresponding initial conditions:", "Text",
+ CellChangeTimes->{{3.819409677957141*^9, 
+  3.8194096949453297`*^9}},ExpressionUUID->"bd7ddb22-5de1-4365-ab97-\
+0aae408fe308"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsInits2", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"SP", "[", "0", "]"}], "\[Equal]", "99998"}], ",", 
+     RowBox[{
+      RowBox[{"EP", "[", "0", "]"}], "\[Equal]", "0"}], ",", 
+     RowBox[{
+      RowBox[{"IP", "[", "0", "]"}], "\[Equal]", "1"}], ",", 
+     RowBox[{
+      RowBox[{"RP", "[", "0", "]"}], "\[Equal]", "0"}]}], "}"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.8194096960661783`*^9, 3.819409735197942*^9}, {
+  3.8194114014850807`*^9, 3.819411407909349*^9}, {3.819411709110157*^9, 
+  3.819411714206374*^9}, {3.8199396379033813`*^9, 3.819939642805197*^9}},
+ CellLabel->"In[33]:=",ExpressionUUID->"bbd3abd6-6248-4759-a258-a7de273c6db7"],
+
+Cell["Here is a list of rules with values for the rates:", "Text",
+ CellChangeTimes->{{3.819410507027677*^9, 
+  3.819410535186763*^9}},ExpressionUUID->"e189ee21-ada5-41a6-8452-\
+174b4924c156"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsRateRules2", "=", 
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"TP", "[", "0", "]"}], "\[Rule]", "100000"}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "TP", "]"}], "\[Rule]", 
+      FractionBox["1", "45625"]}], ",", 
+     RowBox[{
+      RowBox[{"\[Mu]", "[", "IP", "]"}], "\[Rule]", 
+      FractionBox["0.01`", "aip"]}], ",", 
+     RowBox[{
+      RowBox[{"\[Beta]", "[", "IP", "]"}], "\[Rule]", "0.15`"}], ",", 
+     RowBox[{"aip", "\[Rule]", "26"}], ",", 
+     RowBox[{"aincp", "\[Rule]", "6"}]}], "\[RightAssociation]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.81941055376575*^9, 3.819410583439254*^9}, {
+  3.819939649997055*^9, 3.819939653020013*^9}},
+ CellLabel->"In[34]:=",ExpressionUUID->"5d0f3d01-a0aa-4a8b-b9ed-aed4757a152e"],
+
+Cell["Here is a list with SEIR model\[CloseCurlyQuote]s stocks:", "Text",
+ CellChangeTimes->{{3.819410380699188*^9, 3.819410406350211*^9}, 
+   3.819939666891609*^9},ExpressionUUID->"c8ab370c-66bf-46ec-b96b-\
+c92baf8569b9"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lsStocks2", "=", 
+   RowBox[{"{", 
+    RowBox[{"SP", ",", "EP", ",", "IP", ",", "RP"}], "}"}]}], ";"}]], "Input",\
+
+ CellChangeTimes->{{3.819410407482854*^9, 3.8194104272299223`*^9}, {
+  3.819411050028604*^9, 3.819411054253207*^9}, {3.819939658094385*^9, 
+  3.819939661795108*^9}},
+ CellLabel->"In[35]:=",ExpressionUUID->"cd171324-2fdc-4fb9-8214-4575e952bfa6"],
+
+Cell["\<\
+Let us make a model \[OpenCurlyDoubleQuote]object\[CloseCurlyDoubleQuote] as \
+an association of equations, initial conditions, and rate rules:\
+\>", "Text",
+ CellChangeTimes->{{3.819960011768036*^9, 
+  3.819960045045627*^9}},ExpressionUUID->"776b596e-16ca-4ade-8cd3-\
+e2de0e1e9e78"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"modelSEIR", "=", 
+   RowBox[{"<|", 
+    RowBox[{
+     RowBox[{"\"\<Equations\>\"", "\[Rule]", "lsEquations2"}], ",", 
+     RowBox[{"\"\<InitialConditions\>\"", "\[Rule]", "lsInits2"}], ",", 
+     RowBox[{"\"\<RateRules\>\"", "\[Rule]", "lsRateRules2"}]}], "|>"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.8199600462759323`*^9, 3.819960103615744*^9}},
+ CellLabel->"In[36]:=",ExpressionUUID->"71d6c736-a71c-4841-8f89-f383d795aa1a"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The models in [AAp3] have similar structure as the association above. In \
+addition the models of [AAp3] have dictionaries for their stocks and rates."
+}], "Text",
+ CellChangeTimes->{{3.819960052987956*^9, 3.819960069458333*^9}, {
+  3.8199601064161043`*^9, 
+  3.81996021333687*^9}},ExpressionUUID->"0c3d74d6-bb03-45a6-a229-\
+88d741f879a4"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Head", "@*", "First"}], "/@", "lsInits2"}]], "Input",
+ CellChangeTimes->{{3.8199604809945*^9, 3.81996049323044*^9}},
+ CellLabel->"In[37]:=",ExpressionUUID->"f742dbfb-69d1-4657-aaf1-e848a87e61f8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["NDFitDistance definition", "Subsection",
+ CellChangeTimes->{{3.819198831607944*^9, 3.819198842903211*^9}, {
+  3.81932652434155*^9, 3.819326533846878*^9}, {3.819408511876491*^9, 
+  3.819408515038788*^9}, {3.819408842677248*^9, 
+  3.819408861970582*^9}},ExpressionUUID->"a5416123-08be-4708-b5ff-\
+fd5319360bd4"],
+
+Cell[TextData[{
+ "The following definition of ",
+ StyleBox["NDFitDistance", "Program"],
+ " takes a model object, a list of parameters names, a list of parameter \
+values, and target data:"
+}], "Text",
+ CellChangeTimes->{{3.819408863736886*^9, 3.819408949823963*^9}, {
+  3.819963541339019*^9, 
+  3.819963569149472*^9}},ExpressionUUID->"e200f0b9-2bb9-4256-827c-\
+398d5226d271"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "NDFitDistance", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "NDFitDistance", "]"}], "=", 
+   RowBox[{"{", 
+    RowBox[{"DistanceFunction", "\[Rule]", "EuclideanDistance"}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"NDFitDistance", "[", 
+    RowBox[{
+     RowBox[{"model_", "?", "AssociationQ"}], ",", "targetStock_Symbol", ",", 
+     
+     RowBox[{"parNames", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"_Symbol", "|", 
+          RowBox[{"_Symbol", "[", "__", "]"}]}], ")"}], ".."}], "}"}]}], ",", 
+     
+     RowBox[{"parVals", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"target", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{"NDFitDistance", "[", 
+    RowBox[{"model", ",", "targetStock", ",", "parNames", ",", "parVals", ",", 
+     RowBox[{"Transpose", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Range", "@", 
+         RowBox[{"Length", "@", "target"}]}], ",", "target"}], "}"}], "]"}], 
+     ",", "opts"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"NDFitDistance", "[", 
+    RowBox[{
+     RowBox[{"model_", "?", "AssociationQ"}], ",", "targetStock_Symbol", ",", 
+     
+     RowBox[{"parNames", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"_Symbol", "|", 
+          RowBox[{"_Symbol", "[", "__", "]"}]}], ")"}], ".."}], "}"}]}], ",", 
+     
+     RowBox[{"parVals", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"_", "?", "NumberQ"}], ".."}], "}"}]}], ",", 
+     RowBox[{"target", ":", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"_", "?", "NumberQ"}], ",", 
+          RowBox[{"_", "?", "NumberQ"}]}], "}"}], ".."}], "}"}]}], ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "distFunc", ",", "lsStocks", ",", "sol", ",", "points", ",", "res"}], 
+       "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"distFunc", "=", 
+        RowBox[{"OptionValue", "[", 
+         RowBox[{"NDFitDistance", ",", "DistanceFunction"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"lsStocks", "=", 
+        RowBox[{
+         RowBox[{"Head", "@*", "First"}], "/@", 
+         RowBox[{"model", "[", "\"\<InitialConditions\>\"", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"sol", "=", 
+        RowBox[{"Association", "@", 
+         RowBox[{"Flatten", "@", 
+          RowBox[{"NDSolve", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"model", "[", "\"\<Equations\>\"", "]"}], "//.", 
+               RowBox[{"Join", "[", 
+                RowBox[{
+                 RowBox[{"model", "[", "\"\<RateRules\>\"", "]"}], ",", 
+                 RowBox[{"AssociationThread", "[", 
+                  RowBox[{"parNames", ",", "parVals"}], "]"}]}], "]"}]}], ",", 
+              RowBox[{"model", "[", "\"\<InitialConditions\>\"", "]"}]}], 
+             "}"}], ",", "lsStocks", ",", 
+            RowBox[{"{", 
+             RowBox[{"t", ",", "0", ",", 
+              RowBox[{"Length", "@", "target"}]}], "}"}]}], "]"}]}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"points", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"#", ",", 
+             RowBox[{
+              RowBox[{"sol", "[", "targetStock", "]"}], "[", "#", "]"}]}], 
+            "}"}], "&"}], ",", 
+          RowBox[{"target", "\[LeftDoubleBracket]", 
+           RowBox[{"All", ",", "1"}], "\[RightDoubleBracket]"}]}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"res", "=", 
+        RowBox[{"distFunc", "[", 
+         RowBox[{
+          RowBox[{"target", "\[LeftDoubleBracket]", 
+           RowBox[{"All", ",", "2"}], "\[RightDoubleBracket]"}], ",", 
+          RowBox[{"points", "\[LeftDoubleBracket]", 
+           RowBox[{"All", ",", "2"}], "\[RightDoubleBracket]"}]}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"NumberQ", "[", "res", "]"}], ",", "res", ",", 
+         RowBox[{"10", "^", "19"}]}], "]"}]}]}], "\[IndentingNewLine]", "]"}],
+     "/;", 
+    RowBox[{
+     RowBox[{"Length", "[", "parNames", "]"}], "\[Equal]", 
+     RowBox[{"Length", "[", "parVals", "]"}]}]}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.8194087574947023`*^9, 3.819408826286645*^9}, {
+   3.819408931205669*^9, 3.8194089393200073`*^9}, {3.819410803144012*^9, 
+   3.819410858979063*^9}, {3.819472819774989*^9, 3.819472903693439*^9}, {
+   3.8194757741564627`*^9, 3.8194760033352127`*^9}, 3.819476074292659*^9, {
+   3.819476104968001*^9, 3.819476131224719*^9}, {3.819476379512046*^9, 
+   3.819476389313973*^9}, {3.819476667436945*^9, 3.819476670284134*^9}, {
+   3.819476709311701*^9, 3.8194767150827913`*^9}, {3.81947677608138*^9, 
+   3.819476819059498*^9}, {3.8194769135810337`*^9, 3.81947691434629*^9}, {
+   3.819477102100789*^9, 3.819477104923698*^9}, {3.8194773083616343`*^9, 
+   3.819477313805894*^9}, {3.819477442531127*^9, 3.8194775063535757`*^9}, {
+   3.819902147179091*^9, 3.819902147416397*^9}, {3.819902889771179*^9, 
+   3.819902890953559*^9}, {3.819902933094838*^9, 3.819902934343609*^9}, {
+   3.819903009854248*^9, 3.819903011845973*^9}, {3.819959349719339*^9, 
+   3.819959419571149*^9}, {3.819960504931551*^9, 3.819960542179214*^9}, {
+   3.819961939353589*^9, 3.819961940002242*^9}, {3.819962037428547*^9, 
+   3.8199620399043303`*^9}, {3.8199635251750317`*^9, 3.819963528268772*^9}, {
+   3.819969757174526*^9, 3.819969762472433*^9}, {3.819974578817203*^9, 
+   3.819974585093946*^9}, {3.8199746657368517`*^9, 3.819974701007163*^9}},
+ CellLabel->"In[38]:=",ExpressionUUID->"3a30a77e-c406-45cb-92fb-44202577a280"],
+
+Cell[TextData[{
+ StyleBox["Remark:",
+  FontWeight->"Bold"],
+ " The function definition is \[OpenCurlyDoubleQuote]universal\
+\[CloseCurlyDoubleQuote] because the model and calibration parameters names \
+and values are function arguments."
+}], "Text",
+ CellChangeTimes->{{3.819472919231778*^9, 3.819472997253056*^9}, 
+   3.819476021298839*^9, {3.819960564826202*^9, 3.8199605949651957`*^9}, {
+   3.8199620449989767`*^9, 
+   3.819962115537066*^9}},ExpressionUUID->"5a8907ed-f470-4605-b195-\
+0af638de8786"],
+
+Cell[TextData[{
+ "Here we verify that \[OpenCurlyDoubleQuote]we get a number\
+\[CloseCurlyDoubleQuote] when invoking ",
+ StyleBox["NDFitDistance", "Program"],
+ " with a model association, parameter names list, and corresponding \
+parameter values list: "
+}], "Text",
+ CellChangeTimes->{{3.819960393372595*^9, 3.819960438981357*^9}, {
+  3.8199626042282*^9, 
+  3.819962632200873*^9}},ExpressionUUID->"cedf9ce8-db3c-4cbe-a95c-\
+c8d996a4b842"],
+
+Cell[BoxData[
+ RowBox[{"NDFitDistance", "[", 
+  RowBox[{"modelSEIR", ",", "IP", ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip", ",", "aincp"}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"0.3", ",", "23", ",", "5"}], "}"}], ",", 
+   RowBox[{"aTargets", "[", "IP", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.819476024462563*^9, 3.819476061720313*^9}, {
+  3.819476842771703*^9, 3.819476846629236*^9}, {3.8194775135532913`*^9, 
+  3.819477518704218*^9}, {3.8199396877054443`*^9, 3.819939688210657*^9}, {
+  3.819960385972316*^9, 3.819960387805065*^9}, {3.81996212937678*^9, 
+  3.8199621439451847`*^9}},
+ CellLabel->"In[42]:=",ExpressionUUID->"70dc5be2-3d13-4a4b-a5a1-d70995996b4c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration", "Subsection",
+ CellChangeTimes->{{3.8193265436562757`*^9, 
+  3.819326549114161*^9}},ExpressionUUID->"6ae78491-8219-43c4-93ef-\
+063f28bcb44c"],
+
+Cell[TextData[{
+ "Here we formulate a global minimum search problem with which we try to find \
+the values for the contact rate, ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"b", ":=", 
+    RowBox[{"\[Beta]", "[", "IP", "]"}]}], TraditionalForm]],ExpressionUUID->
+  "42db3bff-fe0c-48dd-8b2a-0cfe8ce4ccb1"],
+ ", average infectious period, ",
+ Cell[BoxData[
+  FormBox["aip", TraditionalForm]],ExpressionUUID->
+  "fcd17725-7493-42e9-a9f4-cd99e48fcf68"],
+ ", and the average incubation period, ",
+ Cell[BoxData[
+  FormBox["aincp", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "4ddac32b-2c83-4e9a-b120-633eb562cbb1"],
+ ", for which the distance between the simulated Infected Population (IP) and \
+the calibration target is the smallest:"
+}], "Text",
+ CellChangeTimes->{{3.8194116418784*^9, 3.8194117020112257`*^9}, {
+  3.819411899754862*^9, 3.819412029965263*^9}, {3.8199397230747023`*^9, 
+  3.819939758018277*^9}},ExpressionUUID->"e22987fc-2c01-4d24-a74b-\
+fbf2cfa125b0"],
+
+Cell[BoxData[
+ RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+  RowBox[{"res2", "=", 
+   RowBox[{"NMinimize", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"NDFitDistance", "[", 
+        RowBox[{"modelSEIR", ",", "IP", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip", ",", "aincp"}], 
+          "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"b1", ",", "aip1", ",", "aincp1"}], "}"}], ",", 
+         RowBox[{"aTargets", "[", "IP", "]"}]}], "]"}], ",", 
+       RowBox[{"0", "\[LessEqual]", "b1", "\[LessEqual]", "2"}], ",", 
+       RowBox[{"3", "\[LessEqual]", "aip1", "\[LessEqual]", "40"}], ",", 
+       RowBox[{"3", "\[LessEqual]", "aincp1", "\[LessEqual]", "40"}]}], "}"}],
+      ",", 
+     RowBox[{"{", 
+      RowBox[{"b1", ",", "aip1", ",", "aincp1"}], "}"}], ",", 
+     RowBox[{"Method", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"\"\<NelderMead\>\"", ",", 
+        RowBox[{"RandomSeed", "\[Rule]", "2332"}]}], "}"}]}], ",", 
+     RowBox[{"PrecisionGoal", "\[Rule]", "3"}]}], "]"}]}], 
+  "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.8194107540368013`*^9, 3.819410770698411*^9}, 
+   3.819411014865383*^9, {3.819411063226293*^9, 3.819411063731689*^9}, {
+   3.819411472890883*^9, 3.8194115250227947`*^9}, 3.819411579699553*^9, {
+   3.819411941842749*^9, 3.81941194861456*^9}, {3.819473020014352*^9, 
+   3.8194730579167843`*^9}, {3.819473721755137*^9, 3.819473723937706*^9}, {
+   3.819476150058835*^9, 3.8194762448190203`*^9}, 3.819476597092339*^9, {
+   3.8194766454147863`*^9, 3.819476648829529*^9}, {3.819476859366765*^9, 
+   3.819476869896336*^9}, {3.819476953924243*^9, 3.819476987213832*^9}, {
+   3.819477031167315*^9, 3.819477075392805*^9}, {3.819477523947977*^9, 
+   3.8194775555722923`*^9}, 3.819939699758333*^9, 3.819939789452857*^9, {
+   3.819940036123825*^9, 3.819940039126459*^9}, {3.819940093610589*^9, 
+   3.8199402217047997`*^9}, {3.8199621508110743`*^9, 
+   3.8199621556338863`*^9}, {3.819974511304369*^9, 3.819974531756143*^9}},
+ CellLabel->"In[43]:=",ExpressionUUID->"2fcb54fe-2374-4161-bfa2-ae6cd92d45c4"],
+
+Cell[TextData[{
+ "Here we make an association with the found minimizing values for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"b", ",", " ", "aip"}], "}"}], TraditionalForm]],ExpressionUUID->
+  "1fd39ddc-0bfb-445e-9c64-3becad3e7127"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.819412037647747*^9, 
+  3.8194120856422987`*^9}},ExpressionUUID->"c1e79901-b6e9-4b57-bd27-\
+85f946a28439"],
+
+Cell[BoxData[
+ RowBox[{"aCalValues2", "=", 
+  RowBox[{"Association", "@", 
+   RowBox[{"Rest", "@", "res2"}]}]}]], "Input",
+ CellChangeTimes->{{3.8194110848438463`*^9, 3.819411093218629*^9}, {
+  3.8194111473878717`*^9, 3.819411150370636*^9}, {3.819939785996279*^9, 
+  3.819939792105163*^9}},
+ CellLabel->"In[44]:=",ExpressionUUID->"a1aa7509-7e21-439f-950c-6cc1d57d7fb2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Verification", "Subsection",
+ CellChangeTimes->{{3.819326552139345*^9, 
+  3.8193265547161493`*^9}},ExpressionUUID->"e8ed78c7-d549-4d3b-ab5c-\
+d90901c2510a"],
+
+Cell["\<\
+Here we obtain the solutions with the found calibration parameters:\
+\>", "Text",
+ CellChangeTimes->{{3.8194121042487917`*^9, 
+  3.819412169589807*^9}},ExpressionUUID->"f694c592-4929-416d-b5ef-\
+97e28646449c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aCalSols2", "=", 
+   RowBox[{"Association", "@", 
+    RowBox[{"Flatten", "@", 
+     RowBox[{"NDSolve", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"lsEquations2", "//.", 
+          RowBox[{"Join", "[", 
+           RowBox[{"lsRateRules2", ",", 
+            RowBox[{"AssociationThread", "[", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip", ",", 
+                "aincp"}], "}"}], ",", 
+              RowBox[{"Values", "[", "aCalValues2", "]"}]}], "]"}]}], "]"}]}],
+          ",", "lsInits2"}], "}"}], ",", "lsStocks2", ",", 
+       RowBox[{"{", 
+        RowBox[{"t", ",", "0", ",", 
+         RowBox[{"Length", "@", 
+          RowBox[{"aTargets", "[", "IP", "]"}]}]}], "}"}]}], "]"}]}]}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.818950122373302*^9, 3.818950170541924*^9}, {
+   3.819411120308563*^9, 3.8194111302873497`*^9}, 3.819411181655797*^9, {
+   3.819411539817751*^9, 3.819411564904585*^9}, {3.819411603560877*^9, 
+   3.819411604078689*^9}, 3.819412098986189*^9, {3.819476997730929*^9, 
+   3.819476997911244*^9}, {3.819477571929154*^9, 3.8194775721329327`*^9}, {
+   3.819939799194903*^9, 3.819939840662612*^9}, 3.819939900447372*^9, {
+   3.8199745581044807`*^9, 3.819974558622164*^9}},
+ CellLabel->"In[45]:=",ExpressionUUID->"da9e161a-6a8c-4c26-be33-95b92f07268e"],
+
+Cell["Here is how the solutions look:", "Text",
+ CellChangeTimes->{{3.8194123483780813`*^9, 
+  3.819412357142816*^9}},ExpressionUUID->"883978ef-04cf-4ecc-8ba5-\
+6e481ad5207a"],
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "/@", "aCalSols2"}]], "Input",
+ CellChangeTimes->{{3.818950173753476*^9, 3.8189502035830307`*^9}, 
+   3.8199398432730427`*^9},
+ CellLabel->"In[46]:=",ExpressionUUID->"193975e0-dead-4777-9154-d218d33c99f8"],
+
+Cell["\<\
+Here we compare the calibration IP target with the calibrated IP solution:\
+\>", "Text",
+ CellChangeTimes->{{3.819412361225781*^9, 3.819412389452911*^9}, {
+  3.819412538370882*^9, 
+  3.819412588119338*^9}},ExpressionUUID->"e3791483-8e9e-4651-8be3-\
+e8f6ccd00174"],
+
+Cell[BoxData[
+ RowBox[{"ShowSolutions", "[", 
+  RowBox[{"aCalSols2", ",", "aCalValues2", ",", "aTargetPaths", ",", 
+   RowBox[{"IP", "->", "\"\<Infected Population\>\""}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.818950826525663*^9, 3.8189508936367283`*^9}, {
+  3.8189509610265627`*^9, 3.8189509751114883`*^9}, {3.8194111872588177`*^9, 
+  3.819411201253483*^9}, {3.819411316816533*^9, 3.819411320011036*^9}, {
+  3.819411737584811*^9, 3.8194118561615057`*^9}, {3.819412392389615*^9, 
+  3.819412494518902*^9}, {3.819474509045446*^9, 3.81947453061334*^9}, {
+  3.8194745732947903`*^9, 3.819474659650263*^9}, {3.819475381043561*^9, 
+  3.8194754970439043`*^9}, {3.819475562914421*^9, 3.8194755755241423`*^9}, {
+  3.8194776004024363`*^9, 3.819477601381641*^9}, {3.8199398231351767`*^9, 
+  3.8199398262163*^9}, {3.819975571520033*^9, 3.8199755769870787`*^9}},
+ CellLabel->"In[47]:=",ExpressionUUID->"8c34e87b-a045-423c-b803-5ae136a16831"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Automated workflow specification (with ECMMon)", "Section",
+ CellChangeTimes->{{3.819325673139659*^9, 3.819325684716523*^9}, {
+  3.819494187648631*^9, 
+  3.819494207218561*^9}},ExpressionUUID->"ab59b3bb-0bfd-4078-a8dc-\
+2642eb012c3a"],
+
+Cell[TextData[{
+ "In this section we show how the workflow in the previous section is \
+specified using the software monad ",
+ StyleBox["ECMMon", "Program"],
+ ", [AAp10, AA11]."
+}], "Text",
+ CellChangeTimes->{{3.8193263796848993`*^9, 3.8193264104320707`*^9}, {
+  3.819962184782214*^9, 3.81996221595597*^9}, {3.819962650719493*^9, 
+  3.8199626781126633`*^9}},ExpressionUUID->"906224fc-18d0-4406-b548-\
+0baf3fbc2513"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aInitConds", "=", 
+   RowBox[{"<|", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"TP", "[", "0", "]"}], "\[Rule]", "1*^5"}], ",", 
+     RowBox[{
+      RowBox[{"SP", "[", "0", "]"}], "\[Rule]", 
+      RowBox[{"1*^5", "-", "100"}]}], ",", 
+     RowBox[{
+      RowBox[{"EP", "[", "0", "]"}], "\[Rule]", "100"}], ",", 
+     RowBox[{
+      RowBox[{"ISSP", "[", "0", "]"}], "\[Rule]", "0"}], ",", 
+     RowBox[{
+      RowBox[{"INSP", "[", "0", "]"}], "\[Rule]", "0"}]}], "|>"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{3.819323876911085*^9},
+ CellLabel->"In[48]:=",ExpressionUUID->"69e3e301-1c38-40b7-a35d-cbd114e01e5f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"maxTime", "=", "365"}], ";"}]], "Input",
+ CellChangeTimes->{{3.819460832753985*^9, 3.819460838716015*^9}},
+ CellLabel->"In[49]:=",ExpressionUUID->"fa5ff580-51fe-4c7d-85e2-dac6c6efc747"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ecmObj1", "=", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ECMMonUnit", "[", "]"}], "\[DoubleLongRightArrow]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"ECMMonSetSingleSiteModel", "[", 
+     RowBox[{"SEIRModel", "[", "t", "]"}], "]"}], "\[DoubleLongRightArrow]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"ECMMonAssignInitialConditions", "[", "aInitConds", "]"}], 
+    "\[DoubleLongRightArrow]", "\[IndentingNewLine]", 
+    RowBox[{"ECMMonSimulate", "[", 
+     RowBox[{"Length", "[", 
+      RowBox[{"aTargets", "[", "IP", "]"}], "]"}], "]"}], 
+    "\[DoubleLongRightArrow]", "\[IndentingNewLine]", 
+    RowBox[{"ECMMonPlotSolutions", "[", 
+     RowBox[{
+      RowBox[{"__", "~~", "\"\<Population\>\""}], ",", "maxTime", ",", 
+      InterpretationBox[
+       DynamicModuleBox[{Typeset`open = False}, 
+        TemplateBox[{"Expression", "SequenceIcon", 
+          GridBox[{{
+             RowBox[{
+               TagBox["\"Head: \"", "IconizedLabel"], "\[InvisibleSpace]", 
+               TagBox["Sequence", "IconizedItem"]}]}, {
+             RowBox[{
+               TagBox["\"Length: \"", "IconizedLabel"], "\[InvisibleSpace]", 
+               TagBox["5", "IconizedItem"]}]}, {
+             RowBox[{
+               TagBox["\"Byte count: \"", "IconizedLabel"], 
+               "\[InvisibleSpace]", 
+               TagBox["1048", "IconizedItem"]}]}}, 
+           GridBoxAlignment -> {"Columns" -> {{Left}}}, DefaultBaseStyle -> 
+           "Column", 
+           GridBoxItemSize -> {
+            "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}], 
+          Dynamic[Typeset`open]},
+         "IconizedObject"]],
+       Sequence[
+       PlotTheme -> "Scientific", ImageSize -> Medium, Epilog -> {Red, 
+          PointSize[0.016], 
+          Point[
+           Part[
+            $CellContext`aTargetPaths[$CellContext`IP], 
+            Span[1, -1, 7]]]}, PlotLabel -> 
+        Style["Not calibrated", "Subsubsection"], Filling -> {4 -> Axis}],
+       SelectWithContents->True,
+       Selectable->False]}], "]"}], "\[DoubleLongRightArrow]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"ECMMonCalibrate", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\"\<Target\>\"", "\[Rule]", 
+       RowBox[{"KeyTake", "[", 
+        RowBox[{"aTargets", ",", 
+         RowBox[{"{", "IP", "}"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+      RowBox[{"\"\<Parameters\>\"", "\[Rule]", 
+       RowBox[{"<|", 
+        RowBox[{
+         RowBox[{"aip", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"14", ",", "35"}], "}"}]}], ",", 
+         RowBox[{"aincp", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"3", ",", "35"}], "}"}]}], ",", 
+         RowBox[{
+          RowBox[{"\[Beta]", "[", "IP", "]"}], "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"0.05", ",", "1.5"}], "}"}]}]}], "|>"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"DistanceFunction", "\[Rule]", "EuclideanDistance"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Method", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"\"\<NelderMead\>\"", ",", 
+         RowBox[{"\"\<PostProcess\>\"", "\[Rule]", "False"}]}], "}"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"MaxIterations", "\[Rule]", 
+       RowBox[{"10", "^", "6"}]}]}], "]"}], "\[DoubleLongRightArrow]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"ECMMonEchoFunctionValue", "[", 
+     RowBox[{"\"\<Calibration result:\>\"", ",", "Identity"}], "]"}]}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.819323555390984*^9, 3.8193235599179077`*^9}, {
+   3.81932364132673*^9, 3.8193238234650173`*^9}, {3.819323891417828*^9, 
+   3.819323971584215*^9}, {3.819324033238408*^9, 3.819324046624446*^9}, {
+   3.8193241422086153`*^9, 3.8193241751467876`*^9}, {3.819324456901252*^9, 
+   3.819324457470283*^9}, {3.819324787656158*^9, 3.819324811085382*^9}, {
+   3.8193248673501577`*^9, 3.819324897801744*^9}, {3.819324942886064*^9, 
+   3.8193250120923653`*^9}, {3.819325151937134*^9, 3.8193251751973267`*^9}, 
+   3.8193256034503937`*^9, {3.8193256427020493`*^9, 3.819325643058634*^9}, {
+   3.819412640801264*^9, 3.819412686447413*^9}, 3.819412725007962*^9},
+ CellLabel->"In[50]:=",ExpressionUUID->"d6a2dcc4-b999-4cf0-a42d-b566b314616b"],
+
+Cell["Here we visualize the calibrated model:", "Text",
+ CellChangeTimes->{{3.819940282568458*^9, 3.81994029249123*^9}, {
+  3.8199586755655746`*^9, 3.8199586763095922`*^9}, {3.819962224697536*^9, 
+  3.819962224988607*^9}, {3.819962337042243*^9, 
+  3.81996233844763*^9}},ExpressionUUID->"594e8540-1a19-45fd-b380-\
+19c0284087e7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ecmObj1", "\[DoubleLongRightArrow]", "\[IndentingNewLine]", 
+   RowBox[{"ECMMonAssignRateRules", "[", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"ecmObj1", "\[DoubleLongRightArrow]", "ECMMonTakeValue"}], 
+      ")"}], "\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}], "]"}], 
+   "\[DoubleLongRightArrow]", "\[IndentingNewLine]", 
+   RowBox[{"ECMMonSimulate", "[", 
+    RowBox[{"Length", "[", 
+     RowBox[{"aTargets", "[", "IP", "]"}], "]"}], "]"}], 
+   "\[DoubleLongRightArrow]", "\[IndentingNewLine]", 
+   RowBox[{"ECMMonPlotSolutions", "[", 
+    RowBox[{
+     RowBox[{"__", "~~", "\"\<Population\>\""}], ",", "maxTime", ",", 
+     InterpretationBox[
+      DynamicModuleBox[{Typeset`open = False}, 
+       TemplateBox[{"Expression", "SequenceIcon", 
+         GridBox[{{
+            RowBox[{
+              TagBox["\"Head: \"", "IconizedLabel"], "\[InvisibleSpace]", 
+              TagBox["Sequence", "IconizedItem"]}]}, {
+            RowBox[{
+              TagBox["\"Length: \"", "IconizedLabel"], "\[InvisibleSpace]", 
+              TagBox["5", "IconizedItem"]}]}, {
+            RowBox[{
+              TagBox["\"Byte count: \"", "IconizedLabel"], 
+              "\[InvisibleSpace]", 
+              TagBox["1048", "IconizedItem"]}]}}, 
+          GridBoxAlignment -> {"Columns" -> {{Left}}}, DefaultBaseStyle -> 
+          "Column", 
+          GridBoxItemSize -> {
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}], 
+         Dynamic[Typeset`open]},
+        "IconizedObject"]],
+      Sequence[PlotTheme -> "Scientific", ImageSize -> Medium, Epilog -> {Red, 
+         PointSize[0.016], 
+         Point[
+          Part[
+           $CellContext`aTargetPaths[$CellContext`IP], 
+           Span[1, -1, 7]]]}, PlotLabel -> 
+       Style["Calibrated", "Subsubsection"], Filling -> {4 -> Axis}],
+      SelectWithContents->True,
+      Selectable->False]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819323555390984*^9, 3.8193235599179077`*^9}, {
+   3.81932364132673*^9, 3.8193238234650173`*^9}, {3.819323891417828*^9, 
+   3.81932401354813*^9}, {3.819324053779858*^9, 3.8193240985907383`*^9}, {
+   3.819324188817382*^9, 3.8193243246274633`*^9}, {3.8193244131148987`*^9, 
+   3.8193244438566313`*^9}, {3.819324525714869*^9, 3.819324572211343*^9}, {
+   3.819324608786663*^9, 3.8193247780570717`*^9}, {3.819324820322795*^9, 
+   3.819324886471834*^9}, {3.819324919594036*^9, 3.81932493060649*^9}, 
+   3.819325632089068*^9, {3.8194126990404997`*^9, 3.819412701355253*^9}, 
+   3.8194127322481813`*^9},
+ CellLabel->"In[51]:=",ExpressionUUID->"44bfde4b-eb93-447f-839e-0c4bea483a9d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Adding target stocks to model\[CloseCurlyQuote]s system", "Section",
+ CellChangeTimes->{{3.8191988688460484`*^9, 3.819198884877754*^9}, {
+   3.819198975025422*^9, 3.819199030049802*^9}, {3.8199712184566708`*^9, 
+   3.819971222551845*^9}, 3.819973056188118*^9, {3.819974323367628*^9, 
+   3.819974324379944*^9}},ExpressionUUID->"9f368118-c1d7-4370-ae48-\
+1007c7a69137"],
+
+Cell[CellGroupData[{
+
+Cell["Target data", "Subsection",
+ CellChangeTimes->{{3.819970616325026*^9, 
+  3.8199706183268127`*^9}},ExpressionUUID->"af81f1a1-872c-49aa-ba28-\
+282e568e125a"],
+
+Cell["\<\
+Assume that we want to calibrate the model for the data for the deaths from \
+the infectious disease:\
+\>", "Text",
+ CellChangeTimes->{{3.820011441074266*^9, 3.8200114921012774`*^9}, {
+  3.820011587559202*^9, 
+  3.820011589910076*^9}},ExpressionUUID->"93f8b98b-028f-47ad-a1f8-\
+45b222557a79"],
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{"aTargets", "[", "DIP", "]"}], ",", 
+   RowBox[{"PlotTheme", "->", "\"\<Detailed\>\""}], ",", 
+   RowBox[{"FrameLabel", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Days\>\"", ",", "\"\<Number of deaths\>\""}], "}"}]}], ",", 
+   
+   RowBox[{
+   "PlotLabel", "\[Rule]", "\"\<Deceased Infected Population (DIP)\>\""}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.81996376222999*^9, 3.81996379402997*^9}, {
+  3.8200114150160217`*^9, 3.8200114254460583`*^9}, {3.820011495761497*^9, 
+  3.820011561999164*^9}, {3.820011592487043*^9, 3.8200116035571632`*^9}},
+ CellLabel->"In[52]:=",ExpressionUUID->"5b4e8f5c-ec1d-40c0-a648-3bc969f748a4"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Model to calibrate", "Subsection",
+ CellChangeTimes->{{3.819969026596548*^9, 
+  3.819969036450941*^9}},ExpressionUUID->"8942c910-bf3f-4f75-82a3-\
+b4aae476dc55"],
+
+Cell["\<\
+Since DIP is not the equations of the SEIR model we have to do model \
+extensions. We add:\
+\>", "Text",
+ CellChangeTimes->{{3.820011645553101*^9, 3.820011720760988*^9}, {
+  3.8200117874183598`*^9, 
+  3.820011874877411*^9}},ExpressionUUID->"4bc48ac1-7c11-450f-a5ea-\
+b7d9778c9f74"],
+
+Cell[" an equation and initial conditions for DIP", "Item",
+ CellChangeTimes->{{3.820011645553101*^9, 3.820011686616832*^9}, {
+  3.820011879174714*^9, 3.820011895543437*^9}, {3.8200119617981167`*^9, 
+  3.820011962989252*^9}, {3.820012048760674*^9, 
+  3.820012049952918*^9}},ExpressionUUID->"77f880d3-6a15-4ff6-b123-\
+4ce15a853988"],
+
+Cell["appropriate rate for deaths from infection", "Item",
+ CellChangeTimes->{{3.820011645553101*^9, 3.820011686616832*^9}, {
+  3.820011879174714*^9, 
+  3.820012054373898*^9}},ExpressionUUID->"b7d990bc-c5ad-4a65-bf40-\
+b3e56d578ce1"],
+
+Cell["Here is the DIP equation", "Text",
+ CellChangeTimes->{{3.820012076924075*^9, 
+  3.8200120863807*^9}},ExpressionUUID->"33b3fe2f-2163-4b77-adb5-64f64cee72ac"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"eqInfectionDeaths", "=", 
+   RowBox[{
+    RowBox[{
+     SuperscriptBox["DIP", "\[Prime]",
+      MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+    RowBox[{
+     RowBox[{"IP", "[", "t", "]"}], " ", 
+     RowBox[{"\[Mu]", "[", "IP", "]"}]}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.819969920979076*^9, 3.819969952081513*^9}, {
+  3.819970020877718*^9, 3.819970031675414*^9}},
+ CellLabel->"In[53]:=",ExpressionUUID->"d75bc536-3a90-4d90-b9c3-8e557a20708d"],
+
+Cell["\<\
+Here we add the DIP equation and initial conditions to the model object:\
+\>", "Text",
+ CellChangeTimes->{{3.820012063013529*^9, 3.820012095336*^9}, {
+  3.820012133215499*^9, 
+  3.82001213764793*^9}},ExpressionUUID->"06e5c0a7-abec-4b78-aafa-\
+f6b256263fb5"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"modelSEIRD", "=", "modelSEIR"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"modelSEIRD", "[", "\"\<Equations\>\"", "]"}], "=", 
+   RowBox[{"Append", "[", 
+    RowBox[{
+     RowBox[{"modelSEIRD", "[", "\"\<Equations\>\"", "]"}], ",", 
+     "eqInfectionDeaths"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"modelSEIRD", "[", "\"\<InitialConditions\>\"", "]"}], "=", 
+   RowBox[{"Append", "[", 
+    RowBox[{
+     RowBox[{"modelSEIRD", "[", "\"\<InitialConditions\>\"", "]"}], ",", 
+     RowBox[{
+      RowBox[{"DIP", "[", "0", "]"}], "\[Equal]", "0"}]}], "]"}]}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.819969038569906*^9, 3.819969041504065*^9}, {
+  3.81996996302771*^9, 3.819970002741106*^9}, {3.819970036460559*^9, 
+  3.819970132938258*^9}},
+ CellLabel->"In[54]:=",ExpressionUUID->"15ad86db-bba9-4d17-92b5-384784de1490"],
+
+Cell["Here add the death rate from infection to the model object:", "Text",
+ CellChangeTimes->{{3.820012097619033*^9, 
+  3.82001212858012*^9}},ExpressionUUID->"cb23a827-4126-4580-b21d-\
+5fa93af5e63d"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"modelSEIRD", "[", "\"\<RateRules\>\"", "]"}], "=", 
+  RowBox[{"Append", "[", 
+   RowBox[{
+    RowBox[{"modelSEIRD", "[", "\"\<RateRules\>\"", "]"}], ",", 
+    RowBox[{
+     RowBox[{"\[Mu]", "[", "IP", "]"}], "\[Rule]", 
+     FractionBox["mfrac", "aip"]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.819970986770626*^9, 3.819971053304481*^9}, {
+  3.8199710857730217`*^9, 3.819971099272249*^9}},
+ CellLabel->"In[57]:=",ExpressionUUID->"6a20e260-493e-45ac-813e-308878627318"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calibration", "Subsection",
+ CellChangeTimes->{{3.8199701405222673`*^9, 
+  3.819970143818149*^9}},ExpressionUUID->"1e242f25-7c05-42b1-911c-\
+941be296da5b"],
+
+Cell["\<\
+Using the function above we calibrate for the DIP target data:\
+\>", "Text",
+ CellChangeTimes->{{3.820012143993142*^9, 
+  3.8200121682483892`*^9}},ExpressionUUID->"c6e4a12f-3c04-46fe-b4a9-\
+89534e53d7c4"],
+
+Cell[BoxData[
+ RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+  RowBox[{"res3", "=", 
+   RowBox[{"NMinimize", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"NDFitDistance", "[", 
+        RowBox[{"modelSEIRD", ",", "DIP", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip", ",", "aincp", ",",
+            "mfrac"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"b1", ",", "aip1", ",", "aincp1", ",", "mfrac1"}], "}"}], 
+         ",", 
+         RowBox[{"aTargets", "[", "DIP", "]"}]}], "]"}], ",", 
+       RowBox[{"0", "\[LessEqual]", "b1", "\[LessEqual]", "2"}], ",", 
+       RowBox[{"3", "\[LessEqual]", "aip1", "\[LessEqual]", "40"}], ",", 
+       RowBox[{"3", "\[LessEqual]", "aincp1", "\[LessEqual]", "40"}], ",", 
+       RowBox[{"0", "\[LessEqual]", "mfrac1", "\[LessEqual]", "0.2"}]}], 
+      "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"b1", ",", "aip1", ",", "aincp1", ",", "mfrac1"}], "}"}], ",", 
+     RowBox[{"Method", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"\"\<NelderMead\>\"", ",", 
+        RowBox[{"RandomSeed", "\[Rule]", "2332"}]}], "}"}]}], ",", 
+     RowBox[{"PrecisionGoal", "\[Rule]", "3"}]}], "]"}]}], 
+  "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.8194107540368013`*^9, 3.819410770698411*^9}, 
+   3.819411014865383*^9, {3.819411063226293*^9, 3.819411063731689*^9}, {
+   3.819411472890883*^9, 3.8194115250227947`*^9}, 3.819411579699553*^9, {
+   3.819411941842749*^9, 3.81941194861456*^9}, {3.819473020014352*^9, 
+   3.8194730579167843`*^9}, {3.819473721755137*^9, 3.819473723937706*^9}, {
+   3.819476150058835*^9, 3.8194762448190203`*^9}, 3.819476597092339*^9, {
+   3.8194766454147863`*^9, 3.819476648829529*^9}, {3.819476859366765*^9, 
+   3.819476869896336*^9}, {3.819476953924243*^9, 3.819476987213832*^9}, {
+   3.819477031167315*^9, 3.819477075392805*^9}, {3.819477523947977*^9, 
+   3.8194775555722923`*^9}, 3.819939699758333*^9, 3.819939789452857*^9, {
+   3.819940036123825*^9, 3.819940039126459*^9}, {3.819940093610589*^9, 
+   3.8199402217047997`*^9}, {3.8199621508110743`*^9, 
+   3.8199621556338863`*^9}, {3.819970156780076*^9, 3.8199701755555267`*^9}, {
+   3.819971112335428*^9, 3.819971147255105*^9}, {3.819974776335589*^9, 
+   3.819974793345237*^9}},
+ CellLabel->"In[58]:=",ExpressionUUID->"15382d5e-ceef-46a0-b460-f13cb2990ffb"],
+
+Cell[TextData[{
+ "Here we make an association with the found minimizing values for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"b1", ",", " ", "aip1", ",", " ", "aincp1", ",", " ", "mfrac1"}], 
+    "}"}], TraditionalForm]],ExpressionUUID->
+  "021c99a9-9081-4901-b57f-446a3d073170"],
+ ":"
+}], "Text",
+ CellChangeTimes->{{3.819412037647747*^9, 3.8194120856422987`*^9}, {
+  3.8200121776543837`*^9, 
+  3.820012188217763*^9}},ExpressionUUID->"1d9ec5cd-9fd1-43f4-8220-\
+20b5f70477bb"],
+
+Cell[BoxData[
+ RowBox[{"aCalValues3", "=", 
+  RowBox[{"Association", "@", 
+   RowBox[{"Rest", "@", "res3"}]}]}]], "Input",
+ CellChangeTimes->{{3.8194110848438463`*^9, 3.819411093218629*^9}, {
+  3.8194111473878717`*^9, 3.819411150370636*^9}, {3.819939785996279*^9, 
+  3.819939792105163*^9}, {3.819970177029792*^9, 3.8199701771749907`*^9}, {
+  3.819970259783972*^9, 3.819970259862727*^9}},
+ CellLabel->"In[59]:=",ExpressionUUID->"556e2f4b-f31f-4ffc-aeec-5534e73ced69"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Verification", "Subsection",
+ CellChangeTimes->{{3.819326552139345*^9, 
+  3.8193265547161493`*^9}},ExpressionUUID->"f53574fb-ca72-4942-b0a4-\
+ba3306ad19bf"],
+
+Cell["\<\
+Here we obtain the solutions with the found calibration parameters:\
+\>", "Text",
+ CellChangeTimes->{{3.8194121042487917`*^9, 
+  3.819412169589807*^9}},ExpressionUUID->"e68cb7d6-4963-499f-82bd-\
+a72c012c4a32"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"aCalSols3", "=", 
+   RowBox[{"Association", "@", 
+    RowBox[{"Flatten", "@", "\[IndentingNewLine]", 
+     RowBox[{"NDSolve", "[", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"Join", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"modelSEIRD", "[", "\"\<Equations\>\"", "]"}], "//.", 
+          RowBox[{"Join", "[", 
+           RowBox[{
+            RowBox[{"modelSEIRD", "[", "\"\<RateRules\>\"", "]"}], ",", 
+            RowBox[{"AssociationThread", "[", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"\[Beta]", "[", "IP", "]"}], ",", "aip", ",", "aincp",
+                 ",", "mfrac"}], "}"}], ",", 
+              RowBox[{"Values", "[", "aCalValues3", "]"}]}], "]"}]}], "]"}]}],
+          ",", "\[IndentingNewLine]", 
+         RowBox[{"modelSEIRD", "[", "\"\<InitialConditions\>\"", "]"}]}], 
+        "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"Head", "@*", "First"}], "/@", 
+        RowBox[{"modelSEIRD", "[", "\"\<InitialConditions\>\"", "]"}]}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"t", ",", "0", ",", 
+         RowBox[{"Length", "@", 
+          RowBox[{"aTargets", "[", "DIP", "]"}]}]}], "}"}]}], 
+      "\[IndentingNewLine]", "]"}]}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.818950122373302*^9, 3.818950170541924*^9}, {
+   3.819411120308563*^9, 3.8194111302873497`*^9}, 3.819411181655797*^9, {
+   3.819411539817751*^9, 3.819411564904585*^9}, {3.819411603560877*^9, 
+   3.819411604078689*^9}, 3.819412098986189*^9, {3.819476997730929*^9, 
+   3.819476997911244*^9}, {3.819477571929154*^9, 3.8194775721329327`*^9}, {
+   3.819939799194903*^9, 3.819939840662612*^9}, 3.819939900447372*^9, {
+   3.819970190349456*^9, 3.819970208699851*^9}, {3.8199702731415997`*^9, 
+   3.819970297540141*^9}, {3.819970333766655*^9, 3.81997034986516*^9}, {
+   3.819970521171822*^9, 3.819970540600219*^9}, {3.8199711673715677`*^9, 
+   3.819971169980421*^9}},
+ CellLabel->"In[60]:=",ExpressionUUID->"07ee2a49-b6ce-4562-8610-352d1ac6cf58"],
+
+Cell["Here is how the solutions look:", "Text",
+ CellChangeTimes->{{3.8194123483780813`*^9, 
+  3.819412357142816*^9}},ExpressionUUID->"eec9d9c8-bfb6-42f7-b1e7-\
+effd23a5736f"],
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "/@", "aCalSols3"}]], "Input",
+ CellChangeTimes->{{3.818950173753476*^9, 3.8189502035830307`*^9}, 
+   3.8199398432730427`*^9, {3.819970192025529*^9, 3.819970192125539*^9}},
+ CellLabel->"In[61]:=",ExpressionUUID->"75317c77-f463-45f5-9613-f9d804d6fb1d"],
+
+Cell["\<\
+Here we compare the calibration DIP target with the calibrated DIP solution:\
+\>", "Text",
+ CellChangeTimes->{{3.819412361225781*^9, 3.819412389452911*^9}, {
+  3.819412538370882*^9, 3.819412588119338*^9}, {3.820011265173835*^9, 
+  3.820011267727602*^9}},ExpressionUUID->"b080c318-9c3b-426c-a0a1-\
+b3a8a9e68646"],
+
+Cell[BoxData[
+ RowBox[{"ShowSolutions", "[", 
+  RowBox[{"aCalSols3", ",", "aCalValues3", ",", "aTargetPaths", ",", 
+   RowBox[{"DIP", "->", "\"\<Deceased Infected Population\>\""}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.818950826525663*^9, 3.8189508936367283`*^9}, {
+  3.8189509610265627`*^9, 3.8189509751114883`*^9}, {3.8194111872588177`*^9, 
+  3.819411201253483*^9}, {3.819411316816533*^9, 3.819411320011036*^9}, {
+  3.819411737584811*^9, 3.8194118561615057`*^9}, {3.819412392389615*^9, 
+  3.819412494518902*^9}, {3.819474509045446*^9, 3.81947453061334*^9}, {
+  3.8194745732947903`*^9, 3.819474659650263*^9}, {3.819475381043561*^9, 
+  3.8194754970439043`*^9}, {3.819475562914421*^9, 3.8194755755241423`*^9}, {
+  3.8194776004024363`*^9, 3.819477601381641*^9}, {3.8199398231351767`*^9, 
+  3.8199398262163*^9}, {3.819970359428206*^9, 3.8199703682358637`*^9}, {
+  3.8199756104925528`*^9, 3.819975610772332*^9}},
+ CellLabel->"In[67]:=",ExpressionUUID->"b452da6d-1157-4970-a299-b9b4cf91b2aa"],
+
+Cell["\<\
+Although we did not calibrate for the IP target we expect that IP target and \
+the calibrated IP solution are very close:\
+\>", "Text",
+ CellChangeTimes->{{3.819412361225781*^9, 3.819412389452911*^9}, {
+  3.819412538370882*^9, 3.819412588119338*^9}, {3.820011265173835*^9, 
+  3.820011350214065*^9}},ExpressionUUID->"ebc31abf-828d-4677-9a48-\
+9df5a1efef8f"],
+
+Cell[BoxData[
+ RowBox[{"ShowSolutions", "[", 
+  RowBox[{"aCalSols3", ",", "aCalValues3", ",", "aTargetPaths", ",", 
+   RowBox[{"IP", "->", "\"\<Infected Population\>\""}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.818950826525663*^9, 3.8189508936367283`*^9}, {
+  3.8189509610265627`*^9, 3.8189509751114883`*^9}, {3.8194111872588177`*^9, 
+  3.819411201253483*^9}, {3.819411316816533*^9, 3.819411320011036*^9}, {
+  3.819411737584811*^9, 3.8194118561615057`*^9}, {3.819412392389615*^9, 
+  3.819412494518902*^9}, {3.819474509045446*^9, 3.81947453061334*^9}, {
+  3.8194745732947903`*^9, 3.819474659650263*^9}, {3.819475381043561*^9, 
+  3.8194754970439043`*^9}, {3.819475562914421*^9, 3.8194755755241423`*^9}, {
+  3.8194776004024363`*^9, 3.819477601381641*^9}, {3.8199398231351767`*^9, 
+  3.8199398262163*^9}, {3.819970359428206*^9, 3.8199703682358637`*^9}, {
+  3.8199713867962*^9, 3.819971391945381*^9}, {3.81997561314782*^9, 
+  3.819975613348007*^9}},
+ CellLabel->"In[63]:=",ExpressionUUID->"d3355287-7848-4f38-9573-7cb41d177eea"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["Utilizing the intermediate integration states", "Section",
+ CellChangeTimes->{{3.8191988688460484`*^9, 3.819198884877754*^9}, {
+  3.819198975025422*^9, 
+  3.819199030049802*^9}},ExpressionUUID->"6eddd740-7fdf-4224-8011-\
+fd1aa85b3a62"],
+
+Cell["Using the \[OpenCurlyDoubleQuote]right\[CloseCurlyDoubleQuote] \
+calibration parameters", "Section",
+ CellChangeTimes->{{3.819199188002796*^9, 
+  3.819199209107587*^9}},ExpressionUUID->"254ac899-03c8-43e3-8b35-\
+034a13daa164"],
+
+Cell["Using more comprehensive models", "Section",
+ CellChangeTimes->{{3.819198724787559*^9, 3.81919873012018*^9}, {
+   3.819198876001006*^9, 3.8191988761361303`*^9}, 
+   3.8191990650606623`*^9},ExpressionUUID->"6bf33750-d6f7-442e-8767-\
+4f2ce191beff"],
+
+Cell["Monte Carlo approaches", "Section",
+ CellChangeTimes->{{3.8191989315989847`*^9, 
+  3.819198945010065*^9}},ExpressionUUID->"daa12527-b7d0-4863-9d26-\
+d448c45838fe"],
+
+Cell["Possible issues", "Section",
+ CellChangeTimes->{{3.8191987413028803`*^9, 
+  3.819198757705638*^9}},ExpressionUUID->"ed33d924-3d77-46b0-a422-\
+79bae6a80142"],
+
+Cell[CellGroupData[{
+
+Cell["Example data derivation", "Section",
+ CellChangeTimes->{{3.819198898287615*^9, 3.819198919831779*^9}},
+ FontSlant->"Italic",ExpressionUUID->"d81d61fb-efc9-4d2e-ad3b-190ec41e5faf"],
+
+Cell["\<\
+In this section we show how the data for this tutorial was derived.\
+\>", "Text",
+ CellChangeTimes->{{3.8191992381898203`*^9, 
+  3.8191992654372187`*^9}},ExpressionUUID->"2a032eb3-afe5-4436-ba4c-\
+11845ce53064"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Load packages", "Section",
+ CellChangeTimes->{{3.795432542698386*^9, 
+  3.795432555612383*^9}},ExpressionUUID->"94c4f3c1-4190-4528-8b68-\
+08923ca4c405"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "Import", "[", 
+   "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/\
+MonadicEpidemiologyCompartmentalModeling.m\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/SystemModeling/master/\
+Projects/Coronavirus-propagation-dynamics/WL/MultiSiteModelSimulation.m\>\"", 
+  "]"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.79543254931494*^9, 3.795432565805685*^9}, {
+  3.795432648351672*^9, 3.7954326534214354`*^9}, {3.795432974394128*^9, 
+  3.7954329752876263`*^9}},
+ CellLabel->"In[64]:=",ExpressionUUID->"710abe2d-6cd6-437e-bb99-73c44e59d8a0"],
+
+Cell[BoxData[
+ RowBox[{"Import", "[", 
+  "\"\<https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/\
+master/MonadicProgramming/MonadicTracing.m\>\"", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8043263349245653`*^9, 3.8043263377685747`*^9}},
+ CellLabel->"In[66]:=",ExpressionUUID->"5350cea7-2f95-4953-97f5-110e794c0b79"]
+}, Open  ]],
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.819198404382763*^9, 
+  3.819198406250326*^9}},ExpressionUUID->"b7502b8a-a7b2-4e6f-8da8-\
+eb4a1d922365"],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",
+ CellChangeTimes->{{3.793819068515966*^9, 
+  3.793819069978736*^9}},ExpressionUUID->"33f023bf-b6ba-4af7-9b53-\
+11085e1433fa"],
+
+Cell[CellGroupData[{
+
+Cell["Articles", "Subsection",
+ CellChangeTimes->{{3.7938192941283903`*^9, 
+  3.793819299584835*^9}},ExpressionUUID->"29147665-5b54-4396-8f63-\
+1b5cb149f251"],
+
+Cell[TextData[{
+ "[Wk1] Wikipedia entry, ",
+ ButtonBox["\"System dynamics\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/System_dynamics"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/System_dynamics"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.8191986099575787`*^9, 3.8191986543166113`*^9}, {
+  3.8192990814211397`*^9, 
+  3.819299082411422*^9}},ExpressionUUID->"a3ad8475-57de-443a-9d26-\
+d7474cbcfefd"],
+
+Cell[TextData[{
+ "[Wk2] Wikipedia entry, ",
+ ButtonBox["\"Compartmental models in epidemiology\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+     None},
+  ButtonNote->
+   "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925809029512987`*^9, 3.792580956058198*^9}, {
+  3.7951690818496*^9, 3.7951690840996933`*^9}, {3.812650076346504*^9, 
+  3.812650076447933*^9}},ExpressionUUID->"884e29cf-000b-4e41-9597-\
+77bcb5859628"],
+
+Cell[TextData[{
+ "[Wk3] Wikipedia entry, ",
+ ButtonBox["\"Coronavirus disease 2019\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://en.wikipedia.org/wiki/Coronavirus_disease_2019"], None},
+  ButtonNote->"https://en.wikipedia.org/wiki/Coronavirus_disease_2019"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.79516908583174*^9, 3.795169130465127*^9}, {
+  3.81265007908055*^9, 
+  3.812650086820813*^9}},ExpressionUUID->"3c492ee5-92f8-4302-8e27-\
+bfa63ceb9a66"],
+
+Cell[TextData[{
+ "[BC1] Lucia Breierova,  Mark Choudhari,  ",
+ ButtonBox["An Introduction to Sensitivity Analysis",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://ocw.mit.edu/courses/sloan-school-of-management/15-988-system-\
+dynamics-self-study-fall-1998-spring-1999/readings/sensitivityanalysis.pdf"], 
+    None},
+  ButtonNote->
+   "https://ocw.mit.edu/courses/sloan-school-of-management/15-988-system-\
+dynamics-self-study-fall-1998-spring-1999/readings/sensitivityanalysis.pdf"],
+ ", (1996), Massachusetts Institute of Technology."
+}], "Text",
+ CellChangeTimes->{{3.7951006575283747`*^9, 3.795100709469963*^9}, {
+  3.795100763074478*^9, 
+  3.795100763076239*^9}},ExpressionUUID->"9a8149f7-cfea-48c5-87e4-\
+274f8cf1fcc9"],
+
+Cell["\<\
+[JS1] John D.Sterman, Business Dynamics: Systems Thinking and Modeling for a \
+Complex World. (2000), New York: McGraw.\
+\>", "Text",
+ CellChangeTimes->{{3.797241056327997*^9, 3.7972410749139147`*^9}, {
+  3.797241239610293*^9, 
+  3.797241244600545*^9}},ExpressionUUID->"747b5485-1950-4004-ba2d-\
+6f6d9a22adb9"],
+
+Cell[TextData[{
+ "[HH1] Herbert W. Hethcote (2000). ",
+ ButtonBox["\"The Mathematics of Infectious Diseases\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["http://leonidzhukov.net/hse/2014/socialnetworks/papers/2000SiamRev.\
+pdf"], None},
+  ButtonNote->
+   "http://leonidzhukov.net/hse/2014/socialnetworks/papers/2000SiamRev.pdf"],
+ ". SIAM Review. 42 (4): 599\[Dash]653. Bibcode:2000SIAMR..42..599H. \
+doi:10.1137/s0036144500371907."
+}], "Text",
+ CellChangeTimes->{{3.792336502490754*^9, 3.792336535278623*^9}, {
+  3.792409361602792*^9, 
+  3.792409368869828*^9}},ExpressionUUID->"dd2d5f6c-c9b7-42d4-b16c-\
+e8668c0a0224"],
+
+Cell[TextData[{
+ "[AA1] Anton Antonov, ",
+ ButtonBox["\[CloseCurlyDoubleQuote]Monad code generation and extension\
+\[CloseCurlyDoubleQuote]",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MarkdownDocuments/Monad-code-generation-and-extension.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MarkdownDocuments/Monad-code-generation-and-extension.md"],
+ ", (2017),  ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ StyleBox[".",
+  FontSlant->"Italic"]
+}], "Text",
+ CellChangeTimes->{{3.705575754330531*^9, 3.705575756704212*^9}, {
+   3.705575967113101*^9, 3.70557597427962*^9}, {3.7055762229979753`*^9, 
+   3.705576259716416*^9}, {3.705578011040422*^9, 3.705578012711824*^9}, {
+   3.706865177302528*^9, 3.706865180238822*^9}, {3.706866115695068*^9, 
+   3.7068661183026342`*^9}, {3.72710242100144*^9, 3.7271024577163258`*^9}, {
+   3.727105928209372*^9, 3.727105928599859*^9}, {3.729945445854418*^9, 
+   3.729945446549246*^9}, 3.729963300846294*^9, {3.7392713858055973`*^9, 
+   3.7392713904968777`*^9}, {3.812650126264995*^9, 3.812650136242999*^9}, 
+   3.818527327133931*^9},ExpressionUUID->"8dcc5abc-3360-4966-b791-\
+8eb473f091b8"],
+
+Cell[TextData[{
+ "[AA2] Anton Antonov, ",
+ ButtonBox["\"Coronavirus propagation modeling considerations\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-\
+considerations.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Coronavirus-propagation-modeling-\
+considerations.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.792580630613844*^9, 3.79258066346693*^9}, {
+   3.792580699618342*^9, 3.792580699619379*^9}, {3.812650138729381*^9, 
+   3.8126501387629013`*^9}, 
+   3.818527317211266*^9},ExpressionUUID->"bb6514a5-0d6a-42e5-bd41-\
+72c322364d8a"],
+
+Cell[TextData[{
+ "[AA3] Anton Antonov, ",
+ ButtonBox["\"Basic experiments workflow for simple epidemiological models\"",
+  
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-\
+simple-epidemiological-models.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Basic-experiments-workflow-for-\
+simple-epidemiological-models.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.792836760631132*^9, 3.792836844502586*^9}, {
+   3.792942846010427*^9, 3.792942880222164*^9}, {3.812650140518017*^9, 
+   3.812650140968039*^9}, 
+   3.818527314512082*^9},ExpressionUUID->"4ec3958b-1cc0-4a86-80a8-\
+aab936115059"],
+
+Cell[TextData[{
+ "[AA4] Anton Antonov, ",
+ ButtonBox["\"Scaling of Epidemiology Models with Multi-site Compartments\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Scaling-of-epidemiology-models-\
+with-multi-site-compartments.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Scaling-of-epidemiology-models-\
+with-multi-site-compartments.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.793819181468184*^9, 3.793819243245372*^9}, {
+   3.793819286943555*^9, 3.793819291565818*^9}, {3.812650142689406*^9, 
+   3.812650143240543*^9}, 
+   3.818527308537243*^9},ExpressionUUID->"48e3db4b-e920-4110-9046-\
+22f67112059d"],
+
+Cell[TextData[{
+ "[AA5] Anton Antonov, ",
+ ButtonBox["\"WirVsVirus hackathon multi-site SEI2R over a hexagonal grid \
+graph\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-\
+SEI2R-over-a-hexagonal-grid-graph.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/WirVsVirus-hackathon-Multi-site-\
+SEI2R-over-a-hexagonal-grid-graph.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.795432842854154*^9, 3.795432885121542*^9}, {
+   3.812650144556973*^9, 3.812650145209302*^9}, 
+   3.81852730556798*^9},ExpressionUUID->"8640b479-a0d0-41c1-9ca7-\
+88bc655807f0"],
+
+Cell[TextData[{
+ "[AA6] Anton Antonov, ",
+ ButtonBox["\"NY Times COVID-19 data visualization\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-\
+visualization.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-\
+visualization.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7954323682421427`*^9, 3.795432392744731*^9}, {
+   3.7954324454285316`*^9, 3.7954324522000303`*^9}, {3.7954328469717093`*^9, 
+   3.795432847646503*^9}, {3.812650146626939*^9, 3.81265014707673*^9}, 
+   3.818527482397541*^9},ExpressionUUID->"7db48623-10d8-42ed-8c99-\
+79c85f89beda"],
+
+Cell[TextData[{
+ "[AA7] Anton Antonov, ",
+ ButtonBox["\"SEI2HR model with quarantine scenarios\[CloseCurlyDoubleQuote]",
+  
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/SEI2HR-model-with-quarantine-\
+scenarios.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/SEI2HR-model-with-quarantine-\
+scenarios.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.793819181468184*^9, 3.793819243245372*^9}, {
+   3.793819286943555*^9, 3.793819291565818*^9}, {3.795432239653325*^9, 
+   3.795432296873851*^9}, {3.795432365812475*^9, 3.795432365913549*^9}, {
+   3.7954328512577143`*^9, 3.795432852090397*^9}, {3.812650148517221*^9, 
+   3.81265014902309*^9}, 3.818527484884809*^9, {3.818536641200776*^9, 
+   3.8185366513699713`*^9}},ExpressionUUID->"dafb9ac6-1283-462b-b3b4-\
+e59db230d273"],
+
+Cell[TextData[{
+ "[AA8] Anton Antonov, ",
+ ButtonBox["\"SEI2HR-Econ model with quarantine and supplies scenarios\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/SEI2HR-Econ-model-with-quarantine-\
+and-supplies-scenarios.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/SEI2HR-Econ-model-with-quarantine-\
+and-supplies-scenarios.md"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.793819181468184*^9, 3.793819243245372*^9}, {
+   3.793819286943555*^9, 3.793819291565818*^9}, {3.795432239653325*^9, 
+   3.795432296873851*^9}, {3.795432365812475*^9, 3.795432365913549*^9}, {
+   3.7954328512577143`*^9, 3.795432852090397*^9}, {3.795643393939996*^9, 
+   3.795643423741897*^9}, {3.81265015145321*^9, 3.812650152285673*^9}, 
+   3.8185274888390512`*^9},ExpressionUUID->"f21d0e81-028b-48a9-949f-\
+cc36e00759f6"],
+
+Cell[TextData[{
+ "[AA9] Anton Antonov, ",
+ ButtonBox["\[CloseCurlyDoubleQuote]Modelers questionnaire\
+\[CloseCurlyDoubleQuote]",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/org/\
+Modelers-questionnaire.org"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/org/Modelers-\
+questionnaire.org"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.818527252587009*^9, 3.818527260788211*^9}, {
+  3.81852745293075*^9, 3.818527490429723*^9}, {3.818527531750806*^9, 
+  3.8185275317547407`*^9}, {3.8185275625184*^9, 3.8185275628335047`*^9}, {
+  3.818531995751349*^9, 3.81853199705622*^9}, {3.819312241497213*^9, 
+  3.81931224573866*^9}},ExpressionUUID->"2e161e6e-ca24-480c-9332-\
+aab2060bdc94"],
+
+Cell[TextData[{
+ "[AA10] Anton Antonov, ",
+ ButtonBox["\[CloseCurlyDoubleQuote]Calibrators questionnaire\
+\[CloseCurlyDoubleQuote]",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/org/\
+Calibrators-questionnaire.org"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/org/Calibrators-\
+questionnaire.org"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.818527262914752*^9, 3.818527274772482*^9}, {
+  3.818527496392495*^9, 3.818527500394882*^9}, {3.8185275533738947`*^9, 
+  3.818527559975596*^9}, {3.8185319989802313`*^9, 3.818531999486556*^9}, {
+  3.8193121940326223`*^9, 
+  3.819312201131858*^9}},ExpressionUUID->"25667a92-772c-45c8-94d6-\
+fa222b9253ab"],
+
+Cell[TextData[{
+ "[AA11] Anton Antonov, ",
+ ButtonBox["\"Epidemiology Compartmental Modeling Monad\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Epidemiology-Compartmental-\
+Modeling-Monad.md"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/Documents/Epidemiology-Compartmental-\
+Modeling-Monad.md"],
+ ", (2021), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.819312056836898*^9, 3.8193121036261873`*^9}, {
+  3.819312153036763*^9, 
+  3.819312166617478*^9}},ExpressionUUID->"e0b5917d-d64c-4197-9ec5-\
+7114756afe77"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Repositories, packages", "Subsection",
+ CellChangeTimes->{{3.792792973327919*^9, 3.7927929880315247`*^9}, {
+  3.7930262856498327`*^9, 
+  3.7930262863136473`*^9}},ExpressionUUID->"0d7f3671-9048-4d5f-833d-\
+e6b642971da5"],
+
+Cell[TextData[{
+ "[WRI1] Wolfram Research, Inc., ",
+ ButtonBox["\"Epidemic Data for Novel Coronavirus COVID-19\"",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://www.wolframcloud.com/obj/resourcesystem/published/\
+DataRepository/resources/Epidemic-Data-for-Novel-Coronavirus-COVID-19"], None},
+  ButtonNote->
+   "https://www.wolframcloud.com/obj/resourcesystem/published/DataRepository/\
+resources/Epidemic-Data-for-Novel-Coronavirus-COVID-19"],
+ ", ",
+ ButtonBox["WolframCloud",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://www.wolframcloud.com"], None},
+  ButtonNote->"https://www.wolframcloud.com"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.79284700154799*^9, 3.792847018423129*^9}, {
+  3.792848397923408*^9, 
+  3.792848432986006*^9}},ExpressionUUID->"4cfb9e63-4d5f-436a-acfa-\
+c6b1d54199f3"],
+
+Cell[TextData[{
+ "[WRI2] Wolfram Research Inc., ",
+ ButtonBox["USA county records",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Data/\
+dfUSACountyRecords.csv"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Data/\
+dfUSACountyRecords.csv"],
+ ", (2020), ",
+ ButtonBox["System Modeling at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.794345644675522*^9, 3.79434574018814*^9}, {
+  3.795434495845536*^9, 
+  3.795434495934627*^9}},ExpressionUUID->"1ee595a0-2761-4eef-ad93-\
+5aa08aa8beed"],
+
+Cell[TextData[{
+ "[NYT1] The New York Times, ",
+ ButtonBox["Coronavirus (Covid-19) Data in the United States",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/nytimes/covid-19-data"], None},
+  ButtonNote->"https://github.com/nytimes/covid-19-data"],
+ ", (2020), GitHub."
+}], "Text",
+ CellChangeTimes->{{3.794345559432405*^9, 3.794345636927494*^9}, {
+  3.794356689316554*^9, 
+  3.79435669028293*^9}},ExpressionUUID->"b47b861a-000b-4b9d-8cf7-\
+f68c37fc29d5"],
+
+Cell[TextData[{
+ "[AAr1] Anton Antonov, ",
+ ButtonBox["Coronavirus propagation dynamics project",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/tree/master/Projects/\
+Coronavirus-propagation-dynamics"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.788089798305283*^9, 3.788089800881453*^9}, {
+  3.7882595209218683`*^9, 3.788259579130772*^9}, {3.788259655834017*^9, 
+  3.7882596599065332`*^9}, {3.792335102609013*^9, 3.792335162932585*^9}, {
+  3.7925188075238953`*^9, 3.792518811281426*^9}, {3.818525430172484*^9, 
+  3.818525436977661*^9}},ExpressionUUID->"0cb85790-a77c-466e-a2ec-\
+d436344a7f9d"],
+
+Cell[TextData[{
+ "[AAr2] Anton Antonov, ",
+ ButtonBox["Epidemiology Compartmental Modeling Monad R package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/ECMMon-R"], None},
+  ButtonNote->"https://github.com/antononcube/ECMMon-R"],
+ ", (2020), ",
+ ButtonBox["ECMMon-R at GitHu/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/ECMMon-R"], None},
+  ButtonNote->"https://github.com/antononcube/ECMMon-R"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.8126507517741213`*^9, 3.812650765858988*^9}, {
+  3.812650805077936*^9, 3.812650828275137*^9}, {3.81852541588339*^9, 
+  3.8185254269987926`*^9}},ExpressionUUID->"7bd41811-0ea3-48fa-90f7-\
+b4240c4617c3"],
+
+Cell[TextData[{
+ "[AAp1] Anton Antonov, ",
+ ButtonBox["State monad code generator Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MonadicProgramming/StateMonadCodeGenerator.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MonadicProgramming/StateMonadCodeGenerator.m"],
+ ", (2017), ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ StyleBox[".",
+  FontSlant->"Italic"]
+}], "Text",
+ CellChangeTimes->{{3.706456619439595*^9, 3.706456747838007*^9}, {
+   3.706865186763788*^9, 3.706865193986063*^9}, {3.7271026559922657`*^9, 
+   3.7271026562659388`*^9}, {3.72710587790245*^9, 3.727105878229785*^9}, {
+   3.7278047782737637`*^9, 3.727804779240018*^9}, {3.729945256286964*^9, 
+   3.72994525994268*^9}, {3.7333326115788317`*^9, 3.733332614938723*^9}, 
+   3.81265016762045*^9, {3.818525398984475*^9, 
+   3.818525413554907*^9}},ExpressionUUID->"6ae5aa92-8a37-40f2-910d-\
+89ce67405691"],
+
+Cell[TextData[{
+ "[AAp2] Anton Antonov, ",
+ ButtonBox["Monadic tracing Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MonadicProgramming/MonadicTracing.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+MonadicProgramming/MonadicTracing.m"],
+ ", (2017), ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ StyleBox[".",
+  FontSlant->"Italic"]
+}], "Text",
+ CellChangeTimes->{{3.7064568538808203`*^9, 3.706456930742619*^9}, {
+   3.7068652023343678`*^9, 3.70686520471863*^9}, {3.727102661284461*^9, 
+   3.727102661489911*^9}, {3.727105882066367*^9, 3.727105882370846*^9}, {
+   3.727804785214168*^9, 3.727804797634253*^9}, {3.729944985867598*^9, 
+   3.729944986012497*^9}, {3.72994526316127*^9, 3.7299452643534203`*^9}, {
+   3.733332617099053*^9, 3.733332618459921*^9}, 3.812650170747499*^9, {
+   3.818525388500587*^9, 
+   3.8185253956445847`*^9}},ExpressionUUID->"94c357f4-f6e3-4cd2-b624-\
+430098417a9c"],
+
+Cell[TextData[{
+ "[AAp3] Anton Antonov, ",
+ ButtonBox["Epidemiology models Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+   3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.792782050096183*^9, 
+   3.792782085248444*^9}, {3.792793007922522*^9, 3.7927930082592697`*^9}, {
+   3.792850913255866*^9, 3.792850913660157*^9}, 3.795432399157723*^9, {
+   3.812650174156063*^9, 3.8126501745721703`*^9}, {3.8185250554678097`*^9, 
+   3.8185250577458897`*^9}, {3.818525310829311*^9, 
+   3.8185253157456293`*^9}},ExpressionUUID->"31edbbe3-1001-4422-be4b-\
+af87fe7a4e61"],
+
+Cell[TextData[{
+ "[AAp4] Anton Antonov, ",
+ ButtonBox["Epidemiology models modifications Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"], None},
+  
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/EpidemiologyModelModifications.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+   3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.792782050096183*^9, 
+   3.792782085248444*^9}, {3.792782191837761*^9, 3.792782197033924*^9}, {
+   3.792782233165003*^9, 3.7927822331669693`*^9}, {3.792793010217144*^9, 
+   3.792793010914422*^9}, {3.7928509155729322`*^9, 3.7928509156292143`*^9}, 
+   3.795432403275066*^9, {3.8126501768448677`*^9, 3.812650177069688*^9}, {
+   3.8185250669599857`*^9, 3.818525070166469*^9}, {3.818525294719124*^9, 
+   3.818525305542181*^9}},ExpressionUUID->"aa990dec-9fdb-4dc4-a0d8-\
+a493c46cbe95"],
+
+Cell[TextData[{
+ "[AAp5] Anton Antonov, ",
+ ButtonBox["Epidemiology modeling visualization functions Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/\
+EpidemiologyModelingVisualizationFunctions.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/\
+EpidemiologyModelingVisualizationFunctions.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+   3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.7928509175305853`*^9, 
+   3.792850918205223*^9}, {3.7930250981159153`*^9, 3.793025108307509*^9}, {
+   3.793025139244979*^9, 3.793025139245862*^9}, 3.795432407606688*^9, {
+   3.812650178881226*^9, 3.812650179297246*^9}, {3.81852506196535*^9, 
+   3.818525072888681*^9}, {3.818525290061715*^9, 
+   3.818525292863082*^9}},ExpressionUUID->"6135a253-6105-411b-834a-\
+f2d4b178fa5a"],
+
+Cell[TextData[{
+ "[AAp6] Anton Antonov, ",
+ ButtonBox["System dynamics interactive interfaces functions Mathematica \
+package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsInteractiveInterfacesFunctions.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/WL/\
+SystemDynamicsInteractiveInterfacesFunctions.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.7925160899066896`*^9, 3.792516159421608*^9}, {
+   3.7925187526504107`*^9, 3.7925188050487967`*^9}, {3.7928509175305853`*^9, 
+   3.792850918205223*^9}, {3.7930250837820044`*^9, 3.793025084411715*^9}, 
+   3.795432415076758*^9, {3.812650181007448*^9, 3.812650181502323*^9}, {
+   3.8185250753525267`*^9, 3.81852510162204*^9}, {3.81852528145527*^9, 
+   3.818525285123127*^9}},ExpressionUUID->"9f6b4915-a118-4311-bd13-\
+5659120995cd"],
+
+Cell[TextData[{
+ "[AAp7] Anton Antonov, ",
+ ButtonBox["Multi-site model simulation Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MultiSiteModelSimulation.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MultiSiteModelSimulation.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.795432105268566*^9, 3.7954321533070793`*^9}, {
+  3.795432201784569*^9, 3.795432202188663*^9}, {3.7954324245245037`*^9, 
+  3.795432427249887*^9}, {3.795432481703245*^9, 3.795432481704053*^9}, {
+  3.795432690549654*^9, 3.795432708830625*^9}, {3.812650183347526*^9, 
+  3.8126501838310833`*^9}, {3.818525076882552*^9, 3.8185250994055643`*^9}, {
+  3.818525270205379*^9, 
+  3.818525275335253*^9}},ExpressionUUID->"6ccfe3c6-f630-4dc2-94a9-\
+38cf6c9f59e8"],
+
+Cell[TextData[{
+ "[AAp8] Anton Antonov, ",
+ ButtonBox["Monadic Epidemiology Compartmental Modeling Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.\
+m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/MonadicEpidemiologyCompartmentalModeling.\
+m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.795432105268566*^9, 3.7954321533070793`*^9}, {
+   3.795432201784569*^9, 3.795432202188663*^9}, {3.7954324245245037`*^9, 
+   3.795432427249887*^9}, {3.795432481703245*^9, 3.795432481704053*^9}, {
+   3.795432663593813*^9, 3.7954326641780376`*^9}, {3.8126501863176327`*^9, 
+   3.812650187846895*^9}, {3.8185250788624897`*^9, 3.818525097515388*^9}, 
+   3.81852532974419*^9},ExpressionUUID->"8d48d824-3ed1-4619-a934-\
+5ea15ad7acda"],
+
+Cell[TextData[{
+ "[AAp9] Anton Antonov, ",
+ ButtonBox["Hextile bins Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+Misc/HextileBins.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/\
+HextileBins.m"],
+ ", (2020), ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.805017731012597*^9, 3.805017739089644*^9}, {
+  3.805017787150751*^9, 3.8050178562912607`*^9}, {3.812624583463006*^9, 
+  3.812624598954413*^9}, {3.8126247916305323`*^9, 3.812624822821456*^9}, {
+  3.812624861169696*^9, 3.812624911576262*^9}, {3.81265018942262*^9, 
+  3.812650189703698*^9}, {3.8185250808649607`*^9, 3.81852509493933*^9}, {
+  3.8185254660141487`*^9, 
+  3.818525471358279*^9}},ExpressionUUID->"a4865615-afde-4590-8bef-\
+5ed8d4e5846e"],
+
+Cell[TextData[{
+ "[AAp10] Anton Antonov, ",
+ ButtonBox["Monadic Epidemiology Compartmental Modeling Mathematica unit \
+tests",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/UnitTests/\
+MonadicEpidemiologyCompartmentalModeling-Unit-Tests.mt"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/UnitTests/\
+MonadicEpidemiologyCompartmentalModeling-Unit-Tests.mt"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.818525234631691*^9, 3.818525262341234*^9}, 
+   3.81852549313027*^9, {3.8185255345341454`*^9, 
+   3.818525560256998*^9}},ExpressionUUID->"0ffa1479-8aa2-42a8-a791-\
+f2b3110cc16f"],
+
+Cell[TextData[{
+ "[AAp11] Anton Antonov, ",
+ ButtonBox["Epidemiology Models NDSolve Mathematica unit tests",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/UnitTests/EpidemiologyModels-NDSolve-Unit-\
+Tests.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/SystemModeling/blob/master/Projects/\
+Coronavirus-propagation-dynamics/WL/UnitTests/EpidemiologyModels-NDSolve-Unit-\
+Tests.m"],
+ ", (2020), ",
+ ButtonBox["SystemModeling at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/SystemModeling"], None},
+  ButtonNote->"https://github.com/antononcube/SystemModeling"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.818525234631691*^9, 3.818525262341234*^9}, 
+   3.81852549313027*^9, {3.8185255345341454`*^9, 3.818525560256998*^9}, {
+   3.818525605550891*^9, 3.818525617891493*^9}, {3.8185259231748238`*^9, 
+   3.818525938446123*^9}},ExpressionUUID->"3a3a6799-e098-42ed-a2fc-\
+e8f5292dcf2a"],
+
+Cell[TextData[{
+ "[AAp12] Anton Antonov, ",
+ ButtonBox["Monadic contextual classification random pipelines Mathematica \
+unit tests",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+UnitTests/MonadicContextualClassificationRandomPipelinesUnitTests.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/MathematicaForPrediction/blob/master/\
+UnitTests/MonadicContextualClassificationRandomPipelinesUnitTests.m"],
+ ", (2018), ",
+ ButtonBox["MathematicaForPrediction at GitHub/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/MathematicaForPrediction"], None},
+  ButtonNote->"https://github.com/antononcube/MathematicaForPrediction"],
+ StyleBox[".",
+  FontSlant->"Italic"]
+}], "Text",
+ CellChangeTimes->{{3.8185258188866367`*^9, 3.818525870465358*^9}, {
+  3.818527094602476*^9, 3.818527105817751*^9}, {3.818527153195488*^9, 
+  3.818527167192812*^9}},ExpressionUUID->"5a419d88-a58a-48b5-8d2c-\
+fa7058393f07"],
+
+Cell[TextData[{
+ "[AAp13] Anton Antonov, ",
+ ButtonBox["Epidemiology Modeling Workflows Raku package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/Raku-DSL-English-\
+EpidemiologyModelingWorkflows"], None},
+  ButtonNote->
+   "https://github.com/antononcube/Raku-DSL-English-\
+EpidemiologyModelingWorkflows"],
+ ", (2020), ",
+ ButtonBox["Raku-DSL-English-EpidemiologyModelingWorkflows at \
+GitHu/antononcube",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/Raku-DSL-English-\
+EpidemiologyModelingWorkflows"], None},
+  ButtonNote->
+   "https://github.com/antononcube/Raku-DSL-English-\
+EpidemiologyModelingWorkflows"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.805017731012597*^9, 3.805017739089644*^9}, {
+  3.805017787150751*^9, 3.8050178562912607`*^9}, {3.812624576296597*^9, 
+  3.812624576735342*^9}, {3.812650191155106*^9, 3.812650191671157*^9}, {
+  3.8185250832162027`*^9, 3.818525092947864*^9}, {3.8185253382124023`*^9, 
+  3.81852536925189*^9}, {3.818525603111651*^9, 3.81852560327813*^9}, {
+  3.818525808661147*^9, 
+  3.818525808907318*^9}},ExpressionUUID->"92860bd9-f8b8-4e2a-ab61-\
+8942f2671e0a"],
+
+Cell[TextData[{
+ "[AAp14] Anton Antonov, ",
+ ButtonBox["External Parsers Hookup Mathematica package",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/ConversationalAgents/blob/master/\
+Packages/WL/ExternalParsersHookup.m"], None},
+  ButtonNote->
+   "https://github.com/antononcube/ConversationalAgents/blob/master/Packages/\
+WL/ExternalParsersHookup.m"],
+ ", (2019), ",
+ ButtonBox["ConversationalAgents at GitHub",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://github.com/antononcube/ConversationalAgents"], None},
+  ButtonNote->"https://github.com/antononcube/ConversationalAgents"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.805018097543715*^9, 3.805018107140379*^9}, {
+  3.805018151668891*^9, 3.805018219800078*^9}, {3.812624579356738*^9, 
+  3.812624579975415*^9}, {3.812650194046459*^9, 3.812650194687517*^9}, {
+  3.818525086051629*^9, 3.818525091125553*^9}, {3.8185256081151533`*^9, 
+  3.8185256085212383`*^9}, {3.818525810933215*^9, 
+  3.818525811101935*^9}},ExpressionUUID->"bd487cc1-e1cb-42ae-8e3a-\
+e9b3959127a9"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1524, 1251},
+WindowMargins->{{864, Automatic}, {Automatic, 26}},
+TaggingRules->{
+ "WelcomeScreenSettings" -> {"FEStarting" -> False}, "TryRealOnly" -> False},
+FrontEndVersion->"12.2 for Mac OS X x86 (64-bit) (December 12, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"7c0813fc-7dda-407f-9894-29118f4de32b"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 284, 4, 98, "Title",ExpressionUUID->"3af07979-d69c-4f9f-91f0-95d28ed4423c"],
+Cell[867, 28, 206, 4, 53, "Subtitle",ExpressionUUID->"cd2266b0-8d69-406a-a438-23175892c0de"],
+Cell[1076, 34, 449, 12, 81, "Text",ExpressionUUID->"c7fbf367-7455-4eb9-b110-ad47996ba110"],
+Cell[CellGroupData[{
+Cell[1550, 50, 157, 3, 67, "Section",ExpressionUUID->"fb6471da-e1e4-47f7-b3e1-bb4e3102bd6d"],
+Cell[1710, 55, 604, 14, 35, "Text",ExpressionUUID->"79892a59-e66b-4195-90e9-a29ca7eedc7b"],
+Cell[2317, 71, 342, 7, 35, "Text",ExpressionUUID->"5da7162e-f586-4718-a504-77b0db658c93"],
+Cell[2662, 80, 230, 4, 35, "Text",ExpressionUUID->"aee378ec-60a9-490f-ad44-8c41abd6ecbc"],
+Cell[2895, 86, 227, 4, 32, "Item",ExpressionUUID->"13c857b1-b60d-4128-978b-1a170944a8f0"],
+Cell[3125, 92, 215, 4, 32, "Item",ExpressionUUID->"80a96d0e-2e8d-49b2-a36e-500a9b7278a5"],
+Cell[3343, 98, 300, 7, 32, "Item",ExpressionUUID->"16384088-c7ef-46c4-a02d-4b57e6bd0d19"],
+Cell[3646, 107, 366, 12, 35, "Text",ExpressionUUID->"c2645375-67ab-466e-964a-62ad661327e4"],
+Cell[4015, 121, 502, 13, 35, "Text",ExpressionUUID->"e88e863a-07ee-4d24-b6f5-16282eb545fc"],
+Cell[4520, 136, 659, 15, 58, "Text",ExpressionUUID->"14e6bc0f-54ad-4781-9b9c-6045b960388f"],
+Cell[5182, 153, 759, 17, 58, "Text",ExpressionUUID->"87cbcea4-5426-49ed-899b-06d2b8ef702d"],
+Cell[5944, 172, 1273, 30, 35, "Text",ExpressionUUID->"ad843f7c-0fa8-46ff-a61c-4bbf62f16392"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7254, 207, 189, 3, 67, "Section",ExpressionUUID->"989e98fe-3bd8-49b9-97f6-445a6019ce34"],
+Cell[CellGroupData[{
+Cell[7468, 214, 169, 3, 54, "Subsection",ExpressionUUID->"1ed138c8-e254-4f6d-b5ba-a323875a0e26"],
+Cell[7640, 219, 739, 14, 58, "Text",ExpressionUUID->"1aabd32b-94cf-44f7-96d9-8137e65e831f"],
+Cell[8382, 235, 160, 3, 32, "Item",ExpressionUUID->"0a559edb-29f0-47e4-ac9c-e06f989268fa"],
+Cell[8545, 240, 160, 3, 32, "Item",ExpressionUUID->"dcc7cd49-2fb5-4ceb-8031-5528082b2a2d"],
+Cell[8708, 245, 155, 3, 32, "Item",ExpressionUUID->"ef691e73-566f-4607-80a8-f33b34f4bc94"],
+Cell[8866, 250, 354, 7, 35, "Text",ExpressionUUID->"6fe11290-e153-4305-8b51-d6f033c164ab"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9257, 262, 224, 4, 54, "Subsection",ExpressionUUID->"43922760-ed68-4451-9a7a-60d992bbc223"],
+Cell[9484, 268, 184, 3, 35, "Text",ExpressionUUID->"bf242379-e89b-4632-a447-0c3ba3b0c055"],
+Cell[9671, 273, 382, 6, 32, "Item",ExpressionUUID->"0e067325-47ab-4c41-82ea-ae068c6bcd79"],
+Cell[10056, 281, 417, 6, 32, "Item",ExpressionUUID->"214bc281-5eec-44b8-bc05-e2310d19db2b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10510, 292, 172, 3, 54, "Subsection",ExpressionUUID->"41715e91-652b-4a49-81aa-a4632594514f"],
+Cell[10685, 297, 331, 7, 35, "Text",ExpressionUUID->"086e2288-9238-492d-b099-dd5796ab3a4a"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11053, 309, 175, 3, 54, "Subsection",ExpressionUUID->"c170bdba-5b04-47a9-aec8-bf70ddeb52c9"],
+Cell[11231, 314, 287, 6, 35, "Text",ExpressionUUID->"32c302b1-150d-4d2d-b609-2ebeeb7a2006"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11567, 326, 289, 5, 67, "Section",ExpressionUUID->"29034e52-9d79-40b3-a9fe-a7573bf8e71c"],
+Cell[11859, 333, 676, 14, 35, "Text",ExpressionUUID->"b8d94c3d-6219-47fb-990f-6446ae13c5c9"],
+Cell[12538, 349, 289, 4, 32, "Item",ExpressionUUID->"65de9848-bf3e-42ce-9e69-a25767b936f0"],
+Cell[CellGroupData[{
+Cell[12852, 357, 292, 6, 32, "Item",ExpressionUUID->"972a1284-859f-4dcc-82a7-dc9dde1494ab"],
+Cell[13147, 365, 10671, 149, 556, "Input",ExpressionUUID->"d1534ccc-3f50-4ab7-bc7b-7c69531237c2"]
+}, Open  ]],
+Cell[23833, 517, 293, 6, 35, "Text",ExpressionUUID->"60cd4e78-3226-433c-aef2-f6649e63d514"],
+Cell[24129, 525, 479, 13, 30, "Input",ExpressionUUID->"94725afd-9967-4bfc-90aa-b55025584078"],
+Cell[24611, 540, 175, 3, 35, "Text",ExpressionUUID->"a9d68fab-3990-4608-9dea-45682292fb4e"],
+Cell[24789, 545, 304, 5, 30, "Input",ExpressionUUID->"80a434a0-ec3f-4e94-ba61-fbc1aed900cb"],
+Cell[25096, 552, 171, 3, 35, "Text",ExpressionUUID->"0cb09b6c-86f6-4eea-8cef-0ba6d48eaed7"],
+Cell[25270, 557, 543, 12, 30, "Input",ExpressionUUID->"6d0797d4-6c1d-435f-99f8-996889c04393"],
+Cell[25816, 571, 185, 3, 35, "Text",ExpressionUUID->"81eead96-d00c-4100-89fa-e7f77387515b"],
+Cell[26004, 576, 468, 11, 30, "Input",ExpressionUUID->"c63b6685-6ae5-417a-bbb3-b6248b0cd871"],
+Cell[26475, 589, 168, 3, 35, "Text",ExpressionUUID->"d71067ff-fc02-4f3e-ad3d-91d9275bb265"],
+Cell[26646, 594, 270, 5, 30, "Input",ExpressionUUID->"c338a7d4-4161-47b9-9dd6-712f5ec8e948"],
+Cell[26919, 601, 600, 12, 35, "Text",ExpressionUUID->"ae5685eb-4b71-4cd7-bc19-769a2240c9b2"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27556, 618, 212, 4, 67, "Section",ExpressionUUID->"5d56502d-4634-4586-b750-4e23dfd4fd45"],
+Cell[27771, 624, 269, 6, 35, "Text",ExpressionUUID->"adb79622-e0d0-47b1-9d2c-3eef83c162bb"],
+Cell[28043, 632, 287, 4, 32, "ItemNumbered",ExpressionUUID->"73d6c5a8-3115-4e2f-8d99-dd8d8237e25c"],
+Cell[28333, 638, 367, 6, 32, "ItemNumbered",ExpressionUUID->"05daea10-3abb-477c-91db-287103c0c8d1"],
+Cell[28703, 646, 843, 22, 35, "Text",ExpressionUUID->"e3e167c8-c89c-4d70-b24e-72428e082f2e"],
+Cell[CellGroupData[{
+Cell[29571, 672, 161, 3, 54, "Subsection",ExpressionUUID->"97a75db2-d929-43e8-80a2-61d9390a779b"],
+Cell[29735, 677, 325, 11, 35, "Text",ExpressionUUID->"7e9300fe-650a-4801-b364-4bbfe158c1e9"],
+Cell[30063, 690, 464, 13, 35, "Text",ExpressionUUID->"10c9a5c4-3573-4cc5-8ba9-d2dd4effd5c8"],
+Cell[30530, 705, 1897, 58, 58, "Text",ExpressionUUID->"6e64442b-459e-4d2b-a871-fc0a6599ae55",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[32464, 768, 174, 3, 54, "Subsection",ExpressionUUID->"b1d3e130-82f7-4a45-ac9a-38ef865e3a87"],
+Cell[32641, 773, 341, 5, 32, "ItemNumbered",ExpressionUUID->"164258b7-1337-4196-8b7a-2755675dcd64"],
+Cell[32985, 780, 408, 8, 32, "ItemNumbered",ExpressionUUID->"c94ce994-228a-439e-9c45-2c9e97100d1d"],
+Cell[CellGroupData[{
+Cell[33418, 792, 495, 10, 32, "ItemNumbered",ExpressionUUID->"62517132-9f3e-43d9-a395-fe79a0f5a021"],
+Cell[33916, 804, 233, 4, 26, "SubitemNumbered",ExpressionUUID->"e6a9fe7a-117e-4870-a8d9-7bb7632953b9"],
+Cell[34152, 810, 271, 4, 26, "SubitemNumbered",ExpressionUUID->"1a6740d3-370a-43b4-8ccb-2cb46901d53b"],
+Cell[34426, 816, 310, 5, 26, "SubitemNumbered",ExpressionUUID->"3237d3ed-f7e2-4e44-9ce8-1018bc3a9b82"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[34773, 826, 308, 5, 32, "ItemNumbered",ExpressionUUID->"8d1816c5-fd7a-4078-9cfd-1bf81be63933"],
+Cell[35084, 833, 289, 4, 26, "SubitemNumbered",ExpressionUUID->"75fd4ad7-9362-4c23-b6f2-e2d954a67736"]
+}, Open  ]],
+Cell[35388, 840, 433, 9, 32, "ItemNumbered",ExpressionUUID->"9ae5a94a-75b4-408a-abb1-61f48f51b37b"],
+Cell[35824, 851, 361, 6, 32, "ItemNumbered",ExpressionUUID->"f1d1dcf0-d0c4-4887-a676-0066bba62de4"],
+Cell[36188, 859, 345, 5, 32, "ItemNumbered",ExpressionUUID->"2cef9b0d-1fd7-4e98-8996-1330e9f09a36"],
+Cell[36536, 866, 516, 11, 32, "ItemNumbered",ExpressionUUID->"110b6aa2-14cd-4352-bfcc-7241ab92cfb9"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37089, 882, 241, 4, 54, "Subsection",ExpressionUUID->"c0269aec-3bc2-4351-8514-8dddd4ab4fb1"],
+Cell[37333, 888, 479, 7, 32, "ItemNumbered",ExpressionUUID->"773e9b14-c8e4-4ec5-947f-a2be003dff10"],
+Cell[CellGroupData[{
+Cell[37837, 899, 610, 12, 32, "ItemNumbered",ExpressionUUID->"07f685ab-3b3d-4ae3-b48b-a8a21cb8cbca"],
+Cell[38450, 913, 271, 4, 26, "SubitemNumbered",ExpressionUUID->"764cdc22-1b6a-4036-9a61-93f315e420d4"],
+Cell[38724, 919, 310, 5, 26, "SubitemNumbered",ExpressionUUID->"86651ecd-fcc5-42dd-afe1-623c3f32638f"]
+}, Open  ]],
+Cell[39049, 927, 308, 5, 32, "ItemNumbered",ExpressionUUID->"4e4120a1-957b-4a46-8dde-706620c9b710"],
+Cell[39360, 934, 433, 9, 32, "ItemNumbered",ExpressionUUID->"f622459f-ef39-4dd8-b6e0-fc4bc90b0cb7"],
+Cell[39796, 945, 361, 6, 32, "ItemNumbered",ExpressionUUID->"1a1ecc40-ce60-445a-a05f-34d0b11b6e62"],
+Cell[40160, 953, 345, 5, 32, "ItemNumbered",ExpressionUUID->"c70eefff-8633-48f0-a8cf-6a7a24ef11f0"],
+Cell[40508, 960, 568, 12, 32, "ItemNumbered",ExpressionUUID->"d9628f0d-809d-4a24-8bc4-d8553edf479b"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[41125, 978, 273, 4, 67, "Section",ExpressionUUID->"78b00599-698b-4ea0-94b4-1629fb3bf9a0"],
+Cell[CellGroupData[{
+Cell[41423, 986, 215, 4, 54, "Subsection",ExpressionUUID->"faca210f-7b8c-4ae0-9140-91207439e21e"],
+Cell[41641, 992, 318, 7, 35, "Text",ExpressionUUID->"455d8df4-ba06-4777-8178-348d4da5d23b"],
+Cell[41962, 1001, 434, 8, 30, "Input",ExpressionUUID->"8df96251-f199-4c5f-9d54-ae995883d37b"],
+Cell[42399, 1011, 270, 4, 35, "Text",ExpressionUUID->"782526a2-9d05-4af0-8129-3c9eb8c0f0b9"],
+Cell[42672, 1017, 1813, 50, 193, "Input",ExpressionUUID->"58f3a9d9-fac3-4c06-bf70-42ef1d48966a"],
+Cell[44488, 1069, 190, 3, 35, "Text",ExpressionUUID->"e1e3f618-f2c6-44fe-aea0-b676e9dc3938"],
+Cell[44681, 1074, 584, 15, 30, "Input",ExpressionUUID->"5071173f-dccf-40a9-ae37-1eff6585eead"],
+Cell[45268, 1091, 192, 3, 35, "Text",ExpressionUUID->"23a89b07-aed0-480d-83b8-1e88578617a9"],
+Cell[45463, 1096, 717, 18, 51, "Input",ExpressionUUID->"697e1111-185c-46c8-a44b-ae5270b9c6dc"],
+Cell[46183, 1116, 198, 3, 35, "Text",ExpressionUUID->"619afad2-fabb-4dd1-a34d-4190fc51889d"],
+Cell[46384, 1121, 332, 7, 30, "Input",ExpressionUUID->"9a4b8374-b9d7-4daf-a1cc-68b363575c97"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[46753, 1133, 340, 5, 54, "Subsection",ExpressionUUID->"4709b436-b49e-43c5-8b22-61827ae17e70"],
+Cell[47096, 1140, 289, 6, 35, "Text",ExpressionUUID->"ba16f045-87fb-496a-9860-fbff28944c9e"],
+Cell[47388, 1148, 3165, 85, 220, "Input",ExpressionUUID->"9db6f47e-b36e-4e7a-8e24-8a6da59428d8"],
+Cell[50556, 1235, 342, 7, 35, "Text",ExpressionUUID->"dff9464e-f4da-48c6-9f38-904a39739137"],
+Cell[50901, 1244, 612, 17, 35, "Text",ExpressionUUID->"850a4266-3b91-413e-a3a0-43a0d12a486a"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[51550, 1266, 170, 3, 54, "Subsection",ExpressionUUID->"2c106bf1-221a-4a3b-94ec-5564b9237505"],
+Cell[51723, 1271, 176, 3, 35, "Text",ExpressionUUID->"5dbe9fb3-1195-40d6-a8e1-dbae0b87c2cf"],
+Cell[51902, 1276, 1116, 27, 30, "Input",ExpressionUUID->"296b3b41-cebf-439c-aba2-5f9db497c03c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[53055, 1308, 161, 3, 54, "Subsection",ExpressionUUID->"97f35118-ec6f-4910-8f4c-af1034cdf85c"],
+Cell[53219, 1313, 781, 18, 58, "Text",ExpressionUUID->"cade798d-b8c2-4c95-8a7a-64b733e4cdba"],
+Cell[54003, 1333, 1206, 25, 30, "Input",ExpressionUUID->"cc820e93-5498-43a4-8fc3-018a00654fcf"],
+Cell[55212, 1360, 425, 12, 35, "Text",ExpressionUUID->"e3b5c02f-04c6-4243-81e0-561042c4c34a"],
+Cell[55640, 1374, 318, 6, 30, "Input",ExpressionUUID->"6f1a8a0c-9f12-4275-ad98-0f58f7b12e08"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[55995, 1385, 162, 3, 54, "Subsection",ExpressionUUID->"591787e5-b779-48f8-8b08-33ea0dc33542"],
+Cell[56160, 1390, 219, 5, 35, "Text",ExpressionUUID->"47cdb953-fd25-436b-bce3-7fbb59f5ded5"],
+Cell[56382, 1397, 722, 17, 30, "Input",ExpressionUUID->"e4d10803-e471-445a-810c-f178e80330d5"],
+Cell[57107, 1416, 175, 3, 35, "Text",ExpressionUUID->"ccf69f67-6123-441a-8ddf-3ffe5187a9c4"],
+Cell[57285, 1421, 215, 3, 30, "Input",ExpressionUUID->"d5de1e3c-5188-4c6b-bc36-f9987e572909"],
+Cell[57503, 1426, 273, 6, 35, "Text",ExpressionUUID->"fbc34f08-8593-4a9f-ad9b-c2f2aa6a4362"],
+Cell[57779, 1434, 2688, 59, 136, "Input",ExpressionUUID->"3b13c189-5b35-4e68-be7e-8e56bcdfd174"],
+Cell[60470, 1495, 204, 4, 35, "Text",ExpressionUUID->"ae6f761e-6eb5-4e10-b852-a6527c924515"],
+Cell[60677, 1501, 213, 5, 32, "Item",ExpressionUUID->"e2c30aa0-d970-489d-b537-43f50b51dadd"],
+Cell[60893, 1508, 251, 4, 32, "Item",ExpressionUUID->"e0720cc5-1c76-4adb-94d7-a227939cbd2f"],
+Cell[61147, 1514, 195, 3, 35, "Text",ExpressionUUID->"f14f0fc0-ff35-4b31-9b3b-a6d9a6baf0cf"],
+Cell[61345, 1519, 183, 3, 32, "ItemNumbered",ExpressionUUID->"4bb51bb7-9d22-48cd-86d0-8efbe9e07dfb"],
+Cell[61531, 1524, 209, 4, 32, "ItemNumbered",ExpressionUUID->"330bfad6-b2b8-4848-aebd-3bd57028cb6d"],
+Cell[61743, 1530, 356, 7, 32, "ItemNumbered",ExpressionUUID->"8b79424f-5e1a-4ae5-8038-61232f2fed0f"],
+Cell[62102, 1539, 478, 9, 35, "Text",ExpressionUUID->"3885931e-2e27-4688-8abf-1d0fe24f01cd"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[62617, 1553, 174, 3, 54, "Subsection",ExpressionUUID->"5898b2fc-96ce-4ca6-be4a-4e9752759b87"],
+Cell[62794, 1558, 267, 6, 35, "Text",ExpressionUUID->"cbe853ee-ecea-4dba-bb19-c7bbb784c92f"],
+Cell[63064, 1566, 575, 15, 32, "Item",ExpressionUUID->"40247a3e-c493-4584-ad1b-1add563b596e"],
+Cell[63642, 1583, 636, 17, 32, "Item",ExpressionUUID->"716a0eec-45ec-476b-9d28-536f011abf11"],
+Cell[64281, 1602, 437, 9, 32, "Item",ExpressionUUID->"f1d92ff5-1188-4b0b-8979-21666636c15b"],
+Cell[64721, 1613, 217, 5, 35, "Text",ExpressionUUID->"f517ef5a-b206-4073-b2d9-8e436aa4a31a"],
+Cell[64941, 1620, 2712, 60, 115, "Input",ExpressionUUID->"c6e43afc-aaf7-4d4c-a6f8-c7cc2255e8f3"],
+Cell[67656, 1682, 213, 5, 35, "Text",ExpressionUUID->"b0fae8d8-7a81-4e1a-9bd1-2e2a79fd2fc3"],
+Cell[67872, 1689, 783, 19, 30, "Input",ExpressionUUID->"18cfc4b4-2c98-4649-b7ba-bb3b7071d722"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[68704, 1714, 340, 5, 67, "Section",ExpressionUUID->"b87fd7f8-4320-4d80-a2ce-557a33b4bda2"],
+Cell[69047, 1721, 408, 9, 35, "Text",ExpressionUUID->"d9ff8688-b8a5-4da1-b9f8-e5948e1b0663"],
+Cell[CellGroupData[{
+Cell[69480, 1734, 215, 4, 54, "Subsection",ExpressionUUID->"56c62e7f-2830-4702-bdf3-baf7377d6501"],
+Cell[69698, 1740, 343, 7, 35, "Text",ExpressionUUID->"07eb4daa-8da7-46c7-a101-e954633770f4"],
+Cell[70044, 1749, 457, 8, 30, "Input",ExpressionUUID->"6c14387e-29dd-4eed-b6b3-44ba5f8df93d"],
+Cell[70504, 1759, 299, 5, 35, "Text",ExpressionUUID->"4ffe2206-f632-40dd-85cc-56f2c6e5b5b7"],
+Cell[70806, 1766, 2297, 63, 235, "Input",ExpressionUUID->"1b860036-c681-4b91-a24b-3aa4bac5d408"],
+Cell[73106, 1831, 190, 3, 35, "Text",ExpressionUUID->"bd7ddb22-5de1-4365-ab97-0aae408fe308"],
+Cell[73299, 1836, 709, 17, 30, "Input",ExpressionUUID->"bbd3abd6-6248-4759-a258-a7de273c6db7"],
+Cell[74011, 1855, 192, 3, 35, "Text",ExpressionUUID->"e189ee21-ada5-41a6-8452-174b4924c156"],
+Cell[74206, 1860, 812, 20, 51, "Input",ExpressionUUID->"5d0f3d01-a0aa-4a8b-b9ed-aed4757a152e"],
+Cell[75021, 1882, 222, 3, 35, "Text",ExpressionUUID->"c8ab370c-66bf-46ec-b96b-c92baf8569b9"],
+Cell[75246, 1887, 395, 9, 30, "Input",ExpressionUUID->"cd171324-2fdc-4fb9-8214-4575e952bfa6"],
+Cell[75644, 1898, 293, 6, 35, "Text",ExpressionUUID->"776b596e-16ca-4ade-8cd3-e2de0e1e9e78"],
+Cell[75940, 1906, 467, 10, 30, "Input",ExpressionUUID->"71d6c736-a71c-4841-8f89-f383d795aa1a"],
+Cell[76410, 1918, 402, 9, 35, "Text",ExpressionUUID->"0c3d74d6-bb03-45a6-a229-88d741f879a4"],
+Cell[76815, 1929, 230, 4, 30, "Input",ExpressionUUID->"f742dbfb-69d1-4657-aaf1-e848a87e61f8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[77082, 1938, 315, 5, 54, "Subsection",ExpressionUUID->"a5416123-08be-4708-b5ff-fd5319360bd4"],
+Cell[77400, 1945, 375, 9, 35, "Text",ExpressionUUID->"e200f0b9-2bb9-4256-827c-398d5226d271"],
+Cell[77778, 1956, 6261, 152, 325, "Input",ExpressionUUID->"3a30a77e-c406-45cb-92fb-44202577a280"],
+Cell[84042, 2110, 502, 11, 35, "Text",ExpressionUUID->"5a8907ed-f470-4605-b195-0af638de8786"],
+Cell[84547, 2123, 439, 10, 35, "Text",ExpressionUUID->"cedf9ce8-db3c-4cbe-a95c-c8d996a4b842"],
+Cell[84989, 2135, 726, 15, 30, "Input",ExpressionUUID->"70dc5be2-3d13-4a4b-a5a1-d70995996b4c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[85752, 2155, 161, 3, 54, "Subsection",ExpressionUUID->"6ae78491-8219-43c4-93ef-063f28bcb44c"],
+Cell[85916, 2160, 986, 23, 58, "Text",ExpressionUUID->"e22987fc-2c01-4d24-a74b-fbf2cfa125b0"],
+Cell[86905, 2185, 2144, 41, 94, "Input",ExpressionUUID->"2fcb54fe-2374-4161-bfa2-ae6cd92d45c4"],
+Cell[89052, 2228, 394, 11, 35, "Text",ExpressionUUID->"c1e79901-b6e9-4b57-bd27-85f946a28439"],
+Cell[89449, 2241, 369, 7, 30, "Input",ExpressionUUID->"a1aa7509-7e21-439f-950c-6cc1d57d7fb2"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[89855, 2253, 162, 3, 54, "Subsection",ExpressionUUID->"e8ed78c7-d549-4d3b-ab5c-d90901c2510a"],
+Cell[90020, 2258, 219, 5, 35, "Text",ExpressionUUID->"f694c592-4929-416d-b5ef-97e28646449c"],
+Cell[90242, 2265, 1429, 32, 52, "Input",ExpressionUUID->"da9e161a-6a8c-4c26-be33-95b92f07268e"],
+Cell[91674, 2299, 175, 3, 35, "Text",ExpressionUUID->"883978ef-04cf-4ecc-8ba5-6e481ad5207a"],
+Cell[91852, 2304, 244, 4, 30, "Input",ExpressionUUID->"193975e0-dead-4777-9154-d218d33c99f8"],
+Cell[92099, 2310, 273, 6, 35, "Text",ExpressionUUID->"e3791483-8e9e-4651-8be3-e8f6ccd00174"],
+Cell[92375, 2318, 930, 13, 30, "Input",ExpressionUUID->"8c34e87b-a045-423c-b803-5ae136a16831"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[93354, 2337, 240, 4, 67, "Section",ExpressionUUID->"ab59b3bb-0bfd-4078-a8dc-2642eb012c3a"],
+Cell[93597, 2343, 415, 9, 35, "Text",ExpressionUUID->"906224fc-18d0-4406-b548-0baf3fbc2513"],
+Cell[94015, 2354, 647, 18, 30, "Input",ExpressionUUID->"69e3e301-1c38-40b7-a35d-cbd114e01e5f"],
+Cell[94665, 2374, 220, 4, 30, "Input",ExpressionUUID->"fa5ff580-51fe-4c7d-85e2-dac6c6efc747"],
+Cell[94888, 2380, 4214, 91, 286, "Input",ExpressionUUID->"d6a2dcc4-b999-4cf0-a42d-b566b314616b"],
+Cell[99105, 2473, 327, 5, 35, "Text",ExpressionUUID->"594e8540-1a19-45fd-b380-19c0284087e7"],
+Cell[99435, 2480, 2629, 54, 97, "Input",ExpressionUUID->"44bfde4b-eb93-447f-839e-0c4bea483a9d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[102101, 2539, 373, 5, 67, "Section",ExpressionUUID->"9f368118-c1d7-4370-ae48-1007c7a69137"],
+Cell[CellGroupData[{
+Cell[102499, 2548, 161, 3, 54, "Subsection",ExpressionUUID->"af81f1a1-872c-49aa-ba28-282e568e125a"],
+Cell[102663, 2553, 302, 7, 35, "Text",ExpressionUUID->"93f8b98b-028f-47ad-a1f8-45b222557a79"],
+Cell[102968, 2562, 701, 15, 30, "Input",ExpressionUUID->"5b4e8f5c-ec1d-40c0-a648-3bc969f748a4"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[103706, 2582, 166, 3, 54, "Subsection",ExpressionUUID->"8942c910-bf3f-4f75-82a3-b4aae476dc55"],
+Cell[103875, 2587, 291, 7, 35, "Text",ExpressionUUID->"4bc48ac1-7c11-450f-a5ea-b7d9778c9f74"],
+Cell[104169, 2596, 331, 5, 32, "Item",ExpressionUUID->"77f880d3-6a15-4ff6-b123-4ce15a853988"],
+Cell[104503, 2603, 233, 4, 32, "Item",ExpressionUUID->"b7d990bc-c5ad-4a65-bf40-b3e56d578ce1"],
+Cell[104739, 2609, 162, 2, 35, "Text",ExpressionUUID->"33b3fe2f-2163-4b77-adb5-64f64cee72ac"],
+Cell[104904, 2613, 498, 12, 30, "Input",ExpressionUUID->"d75bc536-3a90-4d90-b9c3-8e557a20708d"],
+Cell[105405, 2627, 267, 6, 35, "Text",ExpressionUUID->"06e5c0a7-abec-4b78-aafa-f6b256263fb5"],
+Cell[105675, 2635, 910, 22, 73, "Input",ExpressionUUID->"15ad86db-bba9-4d17-92b5-384784de1490"],
+Cell[106588, 2659, 200, 3, 35, "Text",ExpressionUUID->"cb23a827-4126-4580-b21d-5fa93af5e63d"],
+Cell[106791, 2664, 507, 11, 51, "Input",ExpressionUUID->"6a20e260-493e-45ac-813e-308878627318"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[107335, 2680, 161, 3, 54, "Subsection",ExpressionUUID->"1e242f25-7c05-42b1-911c-941be296da5b"],
+Cell[107499, 2685, 214, 5, 35, "Text",ExpressionUUID->"c6e4a12f-3c04-46fe-b4a9-89534e53d7c4"],
+Cell[107716, 2692, 2382, 45, 94, "Input",ExpressionUUID->"15382d5e-ceef-46a0-b460-f13cb2990ffb"],
+Cell[110101, 2739, 492, 13, 35, "Text",ExpressionUUID->"1d9ec5cd-9fd1-43f4-8220-20b5f70477bb"],
+Cell[110596, 2754, 466, 8, 30, "Input",ExpressionUUID->"556e2f4b-f31f-4ffc-aeec-5534e73ced69"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[111099, 2767, 162, 3, 54, "Subsection",ExpressionUUID->"f53574fb-ca72-4942-b0a4-ba3306ad19bf"],
+Cell[111264, 2772, 219, 5, 35, "Text",ExpressionUUID->"e68cb7d6-4963-499f-82bd-a72c012c4a32"],
+Cell[111486, 2779, 2142, 43, 199, "Input",ExpressionUUID->"07ee2a49-b6ce-4562-8610-352d1ac6cf58"],
+Cell[113631, 2824, 175, 3, 35, "Text",ExpressionUUID->"eec9d9c8-bfb6-42f7-b1e7-effd23a5736f"],
+Cell[113809, 2829, 290, 4, 30, "Input",ExpressionUUID->"75317c77-f463-45f5-9613-f9d804d6fb1d"],
+Cell[114102, 2835, 321, 6, 35, "Text",ExpressionUUID->"b080c318-9c3b-426c-a0a1-b3a8a9e68646"],
+Cell[114426, 2843, 994, 15, 30, "Input",ExpressionUUID->"b452da6d-1157-4970-a299-b9b4cf91b2aa"],
+Cell[115423, 2860, 366, 7, 35, "Text",ExpressionUUID->"ebc31abf-828d-4677-9a48-9df5a1efef8f"],
+Cell[115792, 2869, 1025, 15, 30, "Input",ExpressionUUID->"d3355287-7848-4f38-9573-7cb41d177eea"]
+}, Open  ]]
+}, Open  ]],
+Cell[116844, 2888, 241, 4, 67, "Section",ExpressionUUID->"6eddd740-7fdf-4224-8011-fd1aa85b3a62"],
+Cell[117088, 2894, 232, 4, 53, "Section",ExpressionUUID->"254ac899-03c8-43e3-8b35-034a13daa164"],
+Cell[117323, 2900, 252, 4, 53, "Section",ExpressionUUID->"6bf33750-d6f7-442e-8767-4f2ce191beff"],
+Cell[117578, 2906, 169, 3, 53, "Section",ExpressionUUID->"daa12527-b7d0-4863-9d26-d448c45838fe"],
+Cell[117750, 2911, 162, 3, 53, "Section",ExpressionUUID->"ed33d924-3d77-46b0-a422-79bae6a80142"],
+Cell[CellGroupData[{
+Cell[117937, 2918, 185, 2, 53, "Section",ExpressionUUID->"d81d61fb-efc9-4d2e-ad3b-190ec41e5faf"],
+Cell[118125, 2922, 221, 5, 35, "Text",ExpressionUUID->"2a032eb3-afe5-4436-ba4c-11845ce53064"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[118383, 2932, 158, 3, 67, "Section",ExpressionUUID->"94c4f3c1-4190-4528-8b68-08923ca4c405"],
+Cell[118544, 2937, 742, 16, 68, "Input",ExpressionUUID->"710abe2d-6cd6-437e-bb99-73c44e59d8a0",
+ InitializationCell->True],
+Cell[119289, 2955, 360, 6, 46, "Input",ExpressionUUID->"5350cea7-2f95-4953-97f5-110e794c0b79",
+ InitializationCell->True]
+}, Open  ]],
+Cell[119664, 2964, 155, 3, 67, "Section",ExpressionUUID->"b7502b8a-a7b2-4e6f-8da8-eb4a1d922365"],
+Cell[CellGroupData[{
+Cell[119844, 2971, 155, 3, 53, "Section",ExpressionUUID->"33f023bf-b6ba-4af7-9b53-11085e1433fa"],
+Cell[CellGroupData[{
+Cell[120024, 2978, 158, 3, 54, "Subsection",ExpressionUUID->"29147665-5b54-4396-8f63-1b5cb149f251"],
+Cell[120185, 2983, 446, 12, 35, "Text",ExpressionUUID->"a3ad8475-57de-443a-9d26-d7474cbcfefd"],
+Cell[120634, 2997, 560, 14, 35, "Text",ExpressionUUID->"884e29cf-000b-4e41-9597-77bcb5859628"],
+Cell[121197, 3013, 465, 12, 35, "Text",ExpressionUUID->"3c492ee5-92f8-4302-8e27-bfa63ceb9a66"],
+Cell[121665, 3027, 736, 16, 35, "Text",ExpressionUUID->"9a8149f7-cfea-48c5-87e4-274f8cf1fcc9"],
+Cell[122404, 3045, 320, 7, 35, "Text",ExpressionUUID->"747b5485-1950-4004-ba2d-6f6d9a22adb9"],
+Cell[122727, 3054, 628, 15, 35, "Text",ExpressionUUID->"dd2d5f6c-c9b7-42d4-b16c-e8668c0a0224"],
+Cell[123358, 3071, 1463, 29, 35, "Text",ExpressionUUID->"8dcc5abc-3360-4966-b791-8eb473f091b8"],
+Cell[124824, 3102, 1024, 24, 35, "Text",ExpressionUUID->"bb6514a5-0d6a-42e5-bd41-72c322364d8a"],
+Cell[125851, 3128, 1065, 25, 35, "Text",ExpressionUUID->"4ec3958b-1cc0-4a86-80a8-aab936115059"],
+Cell[126919, 3155, 1059, 24, 35, "Text",ExpressionUUID->"48e3db4b-e920-4110-9046-22f67112059d"],
+Cell[127981, 3181, 1028, 24, 35, "Text",ExpressionUUID->"8640b479-a0d0-41c1-9ca7-88bc655807f0"],
+Cell[129012, 3207, 1041, 24, 35, "Text",ExpressionUUID->"7db48623-10d8-42ed-8c99-79c85f89beda"],
+Cell[130056, 3233, 1216, 27, 35, "Text",ExpressionUUID->"dafb9ac6-1283-462b-b3b4-e59db230d273"],
+Cell[131275, 3262, 1245, 26, 35, "Text",ExpressionUUID->"f21d0e81-028b-48a9-949f-cc36e00759f6"],
+Cell[132523, 3290, 1011, 24, 35, "Text",ExpressionUUID->"2e161e6e-ca24-480c-9332-aab2060bdc94"],
+Cell[133537, 3316, 982, 24, 35, "Text",ExpressionUUID->"25667a92-772c-45c8-94d6-fa222b9253ab"],
+Cell[134522, 3342, 934, 23, 35, "Text",ExpressionUUID->"e0b5917d-d64c-4197-9ec5-7114756afe77"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[135493, 3370, 225, 4, 54, "Subsection",ExpressionUUID->"0d7f3671-9048-4d5f-833d-e6b642971da5"],
+Cell[135721, 3376, 819, 21, 35, "Text",ExpressionUUID->"4cfb9e63-4d5f-436a-acfa-c6b1d54199f3"],
+Cell[136543, 3399, 759, 21, 35, "Text",ExpressionUUID->"1ee595a0-2761-4eef-ad93-5aa08aa8beed"],
+Cell[137305, 3422, 478, 12, 35, "Text",ExpressionUUID->"b47b861a-000b-4b9d-8cf7-f68c37fc29d5"],
+Cell[137786, 3436, 1009, 23, 35, "Text",ExpressionUUID->"0cb85790-a77c-466e-a2ec-d436344a7f9d"],
+Cell[138798, 3461, 726, 18, 35, "Text",ExpressionUUID->"7bd41811-0ea3-48fa-90f7-b4240c4617c3"],
+Cell[139527, 3481, 1229, 26, 35, "Text",ExpressionUUID->"6ae5aa92-8a37-40f2-910d-89ce67405691"],
+Cell[140759, 3509, 1251, 27, 35, "Text",ExpressionUUID->"94c357f4-f6e3-4cd2-b624-430098417a9c"],
+Cell[142013, 3538, 1192, 25, 35, "Text",ExpressionUUID->"31edbbe3-1001-4422-be4b-af87fe7a4e61"],
+Cell[143208, 3565, 1329, 27, 35, "Text",ExpressionUUID->"aa990dec-9fdb-4dc4-a0d8-a493c46cbe95"],
+Cell[144540, 3594, 1263, 27, 35, "Text",ExpressionUUID->"6135a253-6105-411b-834a-f2d4b178fa5a"],
+Cell[145806, 3623, 1135, 25, 35, "Text",ExpressionUUID->"9f6b4915-a118-4311-bd13-5659120995cd"],
+Cell[146944, 3650, 1176, 25, 35, "Text",ExpressionUUID->"6ccfe3c6-f630-4dc2-94a9-38cf6c9f59e8"],
+Cell[148123, 3677, 1207, 26, 35, "Text",ExpressionUUID->"8d48d824-3ed1-4619-a934-5ea15ad7acda"],
+Cell[149333, 3705, 1103, 25, 35, "Text",ExpressionUUID->"a4865615-afde-4590-8bef-5ed8d4e5846e"],
+Cell[150439, 3732, 1007, 24, 35, "Text",ExpressionUUID->"0ffa1479-8aa2-42a8-a791-f2b3110cc16f"],
+Cell[151449, 3758, 1057, 24, 35, "Text",ExpressionUUID->"3a3a6799-e098-42ed-a2fc-e8f5292dcf2a"],
+Cell[152509, 3784, 1032, 23, 35, "Text",ExpressionUUID->"5a419d88-a58a-48b5-8d2c-fa7058393f07"],
+Cell[153544, 3809, 1171, 29, 35, "Text",ExpressionUUID->"92860bd9-f8b8-4e2a-ab61-8942f2671e0a"],
+Cell[154718, 3840, 1066, 24, 35, "Text",ExpressionUUID->"bd487cc1-e1cb-42ae-8e3a-e9b3959127a9"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
