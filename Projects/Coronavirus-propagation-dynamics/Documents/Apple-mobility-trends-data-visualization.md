@@ -2,30 +2,33 @@
 
 **Version 0.9**
 
-Anton Antonov   
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)  
+Anton Antonov
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
 April 2020  
+May 2020  
+December 2020  
+January 2021
 
 ## Introduction
 
-I this notebook we ingest and visualize the mobility trends data provided by Apple, [APPL1].
+I this notebook we ingest and visualize the mobility trends data provided by Apple, [[APPL1](https://www.apple.com/covid19/mobility)].
 
 We take the following steps:
 
 1. Download the data
 
-1. Import the data and summarise it
+2. Import the data and summarise it
 
-1. Transform the data into long form
+3. Transform the data into long form
 
-1. Partition the data into subsets that correspond to combinations of geographical regions and transportation types
+4. Partition the data into subsets that correspond to combinations of geographical regions and transportation types
 
-1. Make contingency matrices and corresponding heat-map plots
+5. Make contingency matrices and corresponding heat-map plots
 
-1. Make nearest neighbors graphs over the contingency matrices and plot communities
+6. Make nearest neighbors graphs over the contingency matrices and plot communities
 
-1. Plot the corresponding time series
+7. Plot the corresponding time series
 
 ### Data description
 
@@ -58,10 +61,10 @@ Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/m
 Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
 
 ```mathematica
-dsAppleMobility = ResourceFunction["ImportCSVToDataset"]["~/Downloads/applemobilitytrends-2020-04-14.csv"]
+dsAppleMobility = ResourceFunction["ImportCSVToDataset"]["~/Downloads/applemobilitytrends-2021-01-15.csv"]
 ```
 
-![1i5v3pxe9xmx9](./Diagrams/Apple-mobility-trends-data-visualization/1i5v3pxe9xmx9.png)
+![1po4mftcckaca](./Diagrams/Apple-mobility-trends-data-visualization/1po4mftcckaca.png)
 
 **Observation:** The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
 
@@ -70,7 +73,7 @@ Data dimensions:
 ```mathematica
 Dimensions[dsAppleMobility]
 
-(*{395, 96}*)
+(*{4691, 375}*)
 ```
 
 Data summary:
@@ -79,7 +82,7 @@ Data summary:
 Magnify[ResourceFunction["RecordsSummary"][dsAppleMobility], 0.6]
 ```
 
-![1qibl51e3ae3v](./Diagrams/Apple-mobility-trends-data-visualization/1qibl51e3ae3v.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/1xjnps64frve9.png)
 
 Number of unique “country/region” values:
 
@@ -94,7 +97,7 @@ Number of unique “city” values:
 ```mathematica
 Length[Union[Normal[dsAppleMobility[Select[#["geo_type"] == "city" &], "region"]]]]
 
-(*89*)
+(*295*)
 ```
 
 All unique geo types:
@@ -102,7 +105,7 @@ All unique geo types:
 ```mathematica
 lsGeoTypes = Union[Normal[dsAppleMobility[All, "geo_type"]]]
 
-(*{"city", "country/region"}*)
+(*{"city", "country/region", "county", "sub-region"}*)
 ```
 
 All unique transportation types:
@@ -113,17 +116,17 @@ lsTransportationTypes = Union[Normal[dsAppleMobility[All, "transportation_type"]
 (*{"driving", "transit", "walking"}*)
 ```
 
-## Transform data
+## Data transformation
 
-It is better to have the data in [long form (narrow form)](https://en.wikipedia.org/wiki/Wide_and_narrow_data). 
-For that I am using the package ["DataReshape.m"](https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m), [AAp1].
+It is better to have the data in [long form (narrow form)](https://en.wikipedia.org/wiki/Wide_and_narrow_data). For that I am using the package ["DataReshape.m"](https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m), [AAp1].
 
 ```mathematica
-lsIDColumnNames = {"geo_type", "region", "transportation_type"};
-dsAppleMobilityLongForm = ToLongForm[dsAppleMobility, lsIDColumnNames, Complement[Keys[dsAppleMobility[[1]]], lsIDColumnNames]];
-Dimensions[dsAppleMobilityLongForm]
+(*lsIDColumnNames={"geo_type","region","transportation_type"};*) (*For the initial dataset of Apple's mobility data.*)
+  lsIDColumnNames = {"geo_type", "region", "transportation_type", "alternative_name", "sub-region", "country"}; 
+   dsAppleMobilityLongForm = ToLongForm[dsAppleMobility, lsIDColumnNames, Complement[Keys[dsAppleMobility[[1]]], lsIDColumnNames]]; 
+   Dimensions[dsAppleMobilityLongForm]
 
-(*{36735, 5}*)
+(*{1730979, 8}*)
 ```
 
 Remove the rows with “empty” values:
@@ -132,34 +135,37 @@ Remove the rows with “empty” values:
 dsAppleMobilityLongForm = dsAppleMobilityLongForm[Select[#Value != "" &]];
 Dimensions[dsAppleMobilityLongForm]
 
-(*{36735, 5}*)
+(*{1709416, 8}*)
 ```
 
 Rename the column “Variable” to “Date” and add a related “DateObject” column:
 
 ```mathematica
 AbsoluteTiming[
- dsAppleMobilityLongForm = 
-   dsAppleMobilityLongForm[All, Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, "DateObject" -> DateObject[#Variable]|>] &];
+  dsAppleMobilityLongForm = dsAppleMobilityLongForm[All, Join[KeyDrop[#, "Variable"], <|"Date" -> #Variable, "DateObject" -> DateObject[#Variable]|>] &]; 
  ]
 
-(*{16.9671, Null}*)
+(*{714.062, Null}*)
 ```
 
 Add “day name” (“day of the week”) field:
 
 ```mathematica
-dsAppleMobilityLongForm = dsAppleMobilityLongForm[All, Join[#, <|"DayName" -> DateString[#DateObject, {"DayName"}]|>] &];
+AbsoluteTiming[
+  dsAppleMobilityLongForm = dsAppleMobilityLongForm[All, Join[#, <|"DayName" -> DateString[#DateObject, {"DayName"}]|>] &]; 
+ ]
+
+(*{498.026, Null}*)
 ```
 
 Here is sample of the transformed data:
 
 ```mathematica
-SeedRandom[3232]
+SeedRandom[3232];
 RandomSample[dsAppleMobilityLongForm, 12]
 ```
 
-![185e1slz6mbgk](./Diagrams/Apple-mobility-trends-data-visualization/185e1slz6mbgk.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0vfquha7r47e6.png)
 
 Here is summary:
 
@@ -167,16 +173,19 @@ Here is summary:
 ResourceFunction["RecordsSummary"][dsAppleMobilityLongForm]
 ```
 
-![1150ydwpvlr9u](./Diagrams/Apple-mobility-trends-data-visualization/1150ydwpvlr9u.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0sc9tgyebz23j.png)
 
 Partition the data into geo types × transportation types:
 
 ```mathematica
-aQueries = 
-  Association@
-   Flatten@Outer[
-     Function[{gt, tt}, {gt, tt} -> 
-       dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #["transportation_type"] == tt &]]], lsGeoTypes, lsTransportationTypes];
+aQueries = Association@Flatten@Outer[Function[{gt, tt}, {gt, tt} -> dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #["transportation_type"] == tt &]]], lsGeoTypes, lsTransportationTypes];
+```
+
+```mathematica
+aQueries = Select[aQueries, Length[#] > 0 &];
+Keys[aQueries]
+
+(*{{"city", "driving"}, {"city", "transit"}, {"city", "walking"}, {"country/region", "driving"}, {"country/region", "transit"}, {"country/region", "walking"}, {"county", "driving"}, {"county", "transit"}, {"county", "walking"}, {"sub-region", "driving"}, {"sub-region", "transit"}, {"sub-region", "walking"}}*)
 ```
 
 ## Basic data analysis
@@ -186,23 +195,17 @@ We consider relative volume o directions requests for the last date only. (The q
 ```mathematica
 lastDate = Last@Sort@Normal@dsAppleMobilityLongForm[All, "Date"]
 
-(*"2020-04-14"*)
+(*"2021-01-15"*)
 ```
 
 ```mathematica
-aDayQueries = 
-  Association@
-   Flatten@Outer[
-     Function[{gt, tt}, {gt, tt} -> dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #Date == lastDate && #["transportation_type"] == tt &]]], 
-     lsGeoTypes, lsTransportationTypes];
+aDayQueries = Association@Flatten@Outer[Function[{gt, tt}, {gt, tt} -> dsAppleMobilityLongForm[Select[#["geo_type"] == gt && #Date == lastDate && #["transportation_type"] == tt &]]], lsGeoTypes, lsTransportationTypes];
 ```
 
 ```mathematica
 Dimensions /@ aDayQueries
 
-(*<|{"city", "driving"} -> {89, 7}, {"city", "transit"} -> {64, 7}, {"city", "walking"} -> {89, 7}, 
-    {"country/region", "driving"} -> {63, 7}, {"country/region", "transit"} -> {27, 7}, 
-    {"country/region", "walking"} -> {63, 7}|>*)
+(*<|{"city", "driving"} -> {299, 10}, {"city", "transit"} -> {197, 10}, {"city", "walking"} -> {294, 10}, {"country/region", "driving"} -> {63, 10}, {"country/region", "transit"} -> {27, 10}, {"country/region", "walking"} -> {63, 10}, {"county", "driving"} -> {2090, 10}, {"county", "transit"} -> {152, 10}, {"county", "walking"} -> {396, 10}, {"sub-region", "driving"} -> {557, 10}, {"sub-region", "transit"} -> {175, 10}, {"sub-region", "walking"} -> {339, 10}|>*)
 ```
 
 Here we plot histograms and Pareto principle adherence:
@@ -210,14 +213,13 @@ Here we plot histograms and Pareto principle adherence:
 ```mathematica
 opts = {PlotRange -> All, ImageSize -> Medium};
 Grid[
-   Function[{columnName},
-     {Histogram[#, 12, PlotLabel -> columnName, opts], 
-        ResourceFunction["ParetoPrinciplePlot"][#, PlotLabel -> columnName, opts]} &@Normal[#[All, "Value"]]
-     ] /@ {"Value"},
-   Dividers -> All, FrameStyle -> GrayLevel[0.7]] & /@ aDayQueries
+    Function[{columnName}, 
+      {Histogram[#, 12, PlotLabel -> columnName, opts], ResourceFunction["ParetoPrinciplePlot"][#, PlotLabel -> columnName, opts]} &@Normal[#[All, "Value"]] 
+     ] /@ {"Value"}, 
+    Dividers -> All, FrameStyle -> GrayLevel[0.7]] & /@ aDayQueries
 ```
 
-![1bwbx35aw9fgs](./Diagrams/Apple-mobility-trends-data-visualization/1bwbx35aw9fgs.png)
+![1mdtonh8hp7bw](./Diagrams/Apple-mobility-trends-data-visualization/1mdtonh8hp7bw.png)
 
 ## Heat-map plots
 
@@ -234,16 +236,10 @@ aMatDateRegion = ResourceFunction["CrossTabulate"][#[All, {"Date", "region", "Va
 Make a heat-map plot by sorting the columns of the cross-tabulation matrix (that correspond to countries):
 
 ```mathematica
-aHeatMapPlots = 
- Association@
-  KeyValueMap[#1 -> 
-     Rasterize[
-      HeatmapPlot[#2, PlotLabel -> #1, 
-       DistanceFunction -> {None, CosineDistance}, 
-       AspectRatio -> 1/1.6, ImageSize -> 1600]] &, aMatDateRegion]
+aHeatMapPlots = Association@KeyValueMap[#1 -> Rasterize[HeatmapPlot[#2, PlotLabel -> #1, DistanceFunction -> {None, EuclideanDistance}, AspectRatio -> 1/1.6, ImageSize -> 1600]] &, aMatDateRegion]
 ```
 
-![0ddyyxmyf9r2l](./Diagrams/Apple-mobility-trends-data-visualization/0ddyyxmyf9r2l.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0htborbrwn81w.png)
 
 (We use Rasterize in order to reduce the size of the notebook.)
 
@@ -253,7 +249,7 @@ Here we take closer look to one of the plots:
 aHeatMapPlots[{"country/region", "driving"}]
 ```
 
-![01d6cwrvr7zps](./Diagrams/Apple-mobility-trends-data-visualization/01d6cwrvr7zps.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0gfpebau5vh4j.png)
 
 ## Nearest neighbors graphs
 
@@ -263,38 +259,29 @@ Here we create nearest neighbor graphs of the contingency matrices computed abov
 
 ```mathematica
 Manipulate[
- Multicolumn[
-  Normal@Map[
-    CommunityGraphPlot @ NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], nns, ImageSize -> Medium] &, aMatDateRegion], 2, Dividers -> All],
- {{nns, 5, "Number of nearest neighbors:"}, 2, 30, 1, Appearance -> "Open"}, SaveDefinitions -> True]
+  Multicolumn[Normal@Map[CommunityGraphPlot@Graph@EdgeList@NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], nns, ImageSize -> Medium] &, aMatDateRegion], 2, Dividers -> All], 
+  {{nns, 5, "Number of nearest neighbors:"}, 2, 30, 1, Appearance -> "Open"}, SaveDefinitions -> True]
 ```
 
-![1uh66ncyh1vuo](./Diagrams/Apple-mobility-trends-data-visualization/1uh66ncyh1vuo.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0o92iol59uz0k.png)
 
 ### Closer look into the graphs
 
 Here we endow each nearest neighbors graph with appropriate vertex labels:
 
 ```mathematica
-aNNGraphs = 
-  Map[NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], 3, VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]] &,
-    aMatDateRegion];
+aNNGraphs = Map[(gr = NearestNeighborGraph[Normal[Transpose[#SparseMatrix]], 4, GraphLayout -> "SpringEmbedding", VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]];Graph[EdgeList[gr], VertexLabels -> Thread[Rule[Normal[Transpose[#SparseMatrix]], #ColumnNames]]]) &, aMatDateRegion];
 ```
 
 Here we plot the graphs with clusters:
 
 ```mathematica
-ResourceFunction["GridTableForm"][
- List @@@ Normal[CommunityGraphPlot[#, ImageSize -> 800] & /@ aNNGraphs], 
- TableHeadings -> {"region & transportation type", "communities of nearest neighbors graph"}, Background -> White, 
- Dividers -> All]
+ResourceFunction["GridTableForm"][List @@@ Normal[CommunityGraphPlot[#, ImageSize -> 800] & /@ aNNGraphs], TableHeadings -> {"region & transportation type", "communities of nearest neighbors graph"}, Background -> White, Dividers -> All]
 ```
 
-![1bm08jjpp5729](./Diagrams/Apple-mobility-trends-data-visualization/1bm08jjpp5729.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0dgd8fjlwcip8.png)
 
-**Observation:** From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. 
-For example in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. 
-In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
+**Observation:** From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
 
 ## Time series analysis
 
@@ -307,43 +294,33 @@ In this section for each date we sum all cases over the region-transportation pa
 Here we make the time series:
 
 ```mathematica
-aTSDirReqByCountry =
- Map[
-  Function[{dfQuery},
-   TimeSeries@(List @@@ 
-      Normal[GroupBy[Normal[dfQuery], #DateObject &, 
-        Total[#Value & /@ #] &]])
-   ],
-  aQueries
+aTSDirReqByCountry = 
+  Map[
+   Function[{dfQuery}, 
+    TimeSeries@(List @@@ Normal[GroupBy[Normal[dfQuery], #DateObject &, Total[#Value & /@ #] &]]) 
+   ], 
+   aQueries 
   ]
 ```
 
-![19x8uo85uq7ro](./Diagrams/Apple-mobility-trends-data-visualization/19x8uo85uq7ro.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/01j2bi8sjiab3.png)
 
 Here we plot them:
 
 ```mathematica
-opts = {PlotTheme -> "Detailed", PlotRange -> All, AspectRatio -> 1/4,
-    ImageSize -> Large};
+opts = {PlotTheme -> "Detailed", PlotRange -> All, AspectRatio -> 1/4,ImageSize -> Large};
 Association@KeyValueMap[
-  Function[{transpType, ts},
-   transpType ->
-    DateListPlot[ts, 
-     GridLines -> {AbsoluteTime /@ 
-        Union[Normal[ dsAppleMobilityLongForm[Select[#DayName == "Sunday" &], "DateObject"]]], Automatic}, 
-     GridLinesStyle -> {Directive[Orange, Dashed], 
-       Directive[Gray, Dotted]}, PlotLabel -> Capitalize[transpType], 
-     opts]
-   ],
-  aTSDirReqByCountry
+   Function[{transpType, ts}, 
+    transpType -> 
+     DateListPlot[ts, GridLines -> {AbsoluteTime /@ Union[Normal[dsAppleMobilityLongForm[Select[#DayName == "Sunday" &], "DateObject"]]], Automatic}, GridLinesStyle -> {Directive[Orange, Dashed], Directive[Gray, Dotted]}, PlotLabel -> Capitalize[transpType], opts] 
+   ], 
+   aTSDirReqByCountry 
   ]
 ```
 
-![0cb4ez3rk1pyv](./Diagrams/Apple-mobility-trends-data-visualization/0cb4ez3rk1pyv.png)
+![](./Diagrams/Apple-mobility-trends-data-visualization/0smy81z4z1lo4.png)
 
-**Observation:** In the time series plots the Sundays are indicated with orange dashed lines. 
-We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. 
-We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
+**Observation:** In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
 
 ### “Forecast”
 
@@ -355,16 +332,17 @@ Fit a time series model to the time series:
 aTSModels = TimeSeriesModelFit /@ aTSDirReqByCountry
 ```
 
-![1o8xft0zx1w85](./Diagrams/Apple-mobility-trends-data-visualization/1o8xft0zx1w85.png)
+![1v02kqhrfj7pk](./Diagrams/Apple-mobility-trends-data-visualization/1v02kqhrfj7pk.png)
+
+![1kp9msj22dd19](./Diagrams/Apple-mobility-trends-data-visualization/1kp9msj22dd19.png)
 
 Plot data and forecast:
 
 ```mathematica
-Map[DateListPlot[{#["TemporalData"], TimeSeriesForecast[#, {10}]}, 
-   opts, PlotLegends -> {"Data", "Forecast"}] &, aTSModels]
+Map[DateListPlot[{#["TemporalData"], TimeSeriesForecast[#, {10}]}, opts, PlotLegends -> {"Data", "Forecast"}] &, aTSModels]
 ```
 
-![1gy1br9pc3zgo](./Diagrams/Apple-mobility-trends-data-visualization/1gy1br9pc3zgo.png)
+![0axzczhqlntju](./Diagrams/Apple-mobility-trends-data-visualization/0axzczhqlntju.png)
 
 ## References
 
