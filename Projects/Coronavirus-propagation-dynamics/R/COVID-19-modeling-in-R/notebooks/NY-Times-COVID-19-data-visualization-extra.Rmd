@@ -48,6 +48,15 @@ rmarkdown::render( input = "./NY-Times-COVID-19-data-visualization.Rmd", output_
 # Matrices
 
 ```{r}
+head(dfNYDataCounties)
+```
+
+```{r}
+matSDC <- xtabs( Cases ~ StateCounty + Date, dfNYDataCounties %>% dplyr::mutate( StateCounty = paste0(State, "-", County)), sparse = TRUE)
+matSDD <- xtabs( Deaths ~ StateCounty + Date, dfNYDataCounties  %>% dplyr::mutate( StateCounty = paste0(State, "-", County)), sparse = TRUE)
+```
+
+```{r}
 aSMats <- setNames( c(matSDC, matSDD), c("Cases", "Deaths"))
 # rownames(aSMats[["Cases"]]) <- paste0( "Cases-", rownames(aSMats[["Cases"]]) )
 # rownames(aSMats[["Deaths"]]) <- paste0( "Deaths-", rownames(aSMats[["Deaths"]]) )
@@ -104,7 +113,7 @@ smrNYTimes <- SMRCreateFromMatrices( matrices = c(tsDotMat), tagTypes = c("Norma
 Make the TS-SMR object:
 
 ```{r}
-tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrApple, smrNRecs = 200 )
+tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrNYTimes, smrNRecs = 200 )
 ```
 
 
@@ -112,7 +121,7 @@ tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrApple, smrNR
 
 
 ```{r}
-searchID <- "Cases-Florida"
+searchID <- "Cases-Florida-Broward"
 recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12 )
 recs
 ```
@@ -133,7 +142,7 @@ tssmrNYTimes$TIBNameToTIBRules <- setNames( as.POSIXct(names(tssmrNYTimes$TIBNam
 
 
 ```{r}
-shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes ) )
+shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes, theme = "flatly" ) )
 ```
 
 
