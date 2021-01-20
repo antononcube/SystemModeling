@@ -2,9 +2,9 @@
 
 **Version 0.9**
 
-Anton Antonov
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
+Anton Antonov   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)   
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
 April 2020  
 May 2020  
 December 2020  
@@ -43,9 +43,11 @@ Data that is sent from users’ devices to the Maps service is associated with r
 
 The observations listed in this subsection are also placed under the relevant statistics in the following sections and indicated with “**Observation**”.
 
-- The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
+- The directions request volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
 
-- From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example, in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
+- From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. 
+  For example, in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. 
+  In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.
 
 - In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.
 

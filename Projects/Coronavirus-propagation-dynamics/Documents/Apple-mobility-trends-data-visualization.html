@@ -1,0 +1,191 @@
+<h1 id="apple-mobility-trends-data-visualization">Apple mobility trends data visualization</h1>
+<p><strong>Version 0.9</strong></p>
+<p>Anton Antonov<br />
+<a href="https://mathematicaforprediction.wordpress.com">MathematicaForPrediction at WordPress</a><br />
+<a href="https://github.com/antononcube/SystemModeling">SystemModeling at GitHub</a><br />
+April 2020<br />
+May 2020<br />
+December 2020<br />
+January 2021</p>
+<h2 id="introduction">Introduction</h2>
+<p>I this notebook we ingest and visualize the mobility trends data provided by Apple, [<a href="https://www.apple.com/covid19/mobility">APPL1</a>].</p>
+<p>We take the following steps:</p>
+<ol type="1">
+<li><p>Download the data</p></li>
+<li><p>Import the data and summarise it</p></li>
+<li><p>Transform the data into long form</p></li>
+<li><p>Partition the data into subsets that correspond to combinations of geographical regions and transportation types</p></li>
+<li><p>Make contingency matrices and corresponding heat-map plots</p></li>
+<li><p>Make nearest neighbors graphs over the contingency matrices and plot communities</p></li>
+<li><p>Plot the corresponding time series</p></li>
+</ol>
+<h3 id="data-description">Data description</h3>
+<h4 id="from-apples-page-httpswww.apple.comcovid19mobility">From Apple’s page <a href="https://www.apple.com/covid19/mobility">https://www.apple.com/covid19/mobility</a></h4>
+<p><strong>About This Data</strong> The CSV file and charts on this site show a relative volume of directions requests per country/region or city compared to a baseline volume on January 13th, 2020. We define our day as midnight-to-midnight, Pacific time. Cities represent usage in greater metropolitan areas and are stably defined during this period. In many countries/regions and cities, relative volume has increased since January 13th, consistent with normal, seasonal usage of Apple Maps. Day of week effects are important to normalize as you use this data. Data that is sent from users’ devices to the Maps service is associated with random, rotating identifiers so Apple doesn’t have a profile of your movements and searches. Apple Maps has no demographic information about our users, so we can’t make any statements about the representativeness of our usage against the overall population.</p>
+<h3 id="observations">Observations</h3>
+<p>The observations listed in this subsection are also placed under the relevant statistics in the following sections and indicated with “<strong>Observation</strong>”.</p>
+<ul>
+<li><p>The directions request volumes reference date for normalization is 2020-01-13 : all the values in that column are <span class="math inline">100</span>.</p></li>
+<li><p>From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example, in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.</p></li>
+<li><p>In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.</p></li>
+</ul>
+<h2 id="load-packages">Load packages</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="fu">Import</span>[&quot;https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/DataReshape.m&quot;]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="fu">Import</span>[&quot;https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/Misc/HeatmapPlot.m&quot;]</span></code></pre></div>
+<h2 id="data-ingestion">Data ingestion</h2>
+<p>Apple mobile data was provided in this WWW page: <a href="https://www.apple.com/covid19/mobility">https://www.apple.com/covid19/mobility</a> , [APPL1]. (The data has to be download from that web page – there is an “agreement to terms”, etc.)</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>dsAppleMobility = ResourceFunction[&quot;ImportCSVToDataset&quot;][&quot;~/Downloads/applemobilitytrends<span class="dv">-2021-01-15</span>.csv&quot;]</span></code></pre></div>
+<figure>
+<img src="./Diagrams/Apple-mobility-trends-data-visualization/1po4mftcckaca.png" alt="1po4mftcckaca" /><figcaption aria-hidden="true">1po4mftcckaca</figcaption>
+</figure>
+<p><strong>Observation:</strong> The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are <span class="math inline">100</span>.</p>
+<p>Data dimensions:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="fu">Dimensions</span>[dsAppleMobility]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>(*{<span class="dv">4691</span>, <span class="dv">375</span>}*)</span></code></pre></div>
+<p>Data summary:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="fu">Magnify</span>[ResourceFunction[&quot;RecordsSummary&quot;][dsAppleMobility], <span class="dv">0</span><span class="fl">.6</span>]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/1xjnps64frve9.png" /></p>
+<p>Number of unique “country/region” values:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="fu">Length</span>[<span class="fu">Union</span>[<span class="fu">Normal</span>[dsAppleMobility[<span class="fu">Select</span>[#[&quot;<span class="dt">geo_</span>type&quot;] == &quot;country/region&quot; &amp;], &quot;region&quot;]]]]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>(*<span class="dv">63</span>*)</span></code></pre></div>
+<p>Number of unique “city” values:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="fu">Length</span>[<span class="fu">Union</span>[<span class="fu">Normal</span>[dsAppleMobility[<span class="fu">Select</span>[#[&quot;<span class="dt">geo_</span>type&quot;] == &quot;city&quot; &amp;], &quot;region&quot;]]]]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>(*<span class="dv">295</span>*)</span></code></pre></div>
+<p>All unique geo types:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>lsGeoTypes = <span class="fu">Union</span>[<span class="fu">Normal</span>[dsAppleMobility[<span class="fu">All</span>, &quot;<span class="dt">geo_</span>type&quot;]]]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>(*{&quot;city&quot;, &quot;country/region&quot;, &quot;county&quot;, &quot;sub-region&quot;}*)</span></code></pre></div>
+<p>All unique transportation types:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>lsTransportationTypes = <span class="fu">Union</span>[<span class="fu">Normal</span>[dsAppleMobility[<span class="fu">All</span>, &quot;<span class="dt">transportation_</span>type&quot;]]]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>(*{&quot;driving&quot;, &quot;transit&quot;, &quot;walking&quot;}*)</span></code></pre></div>
+<h2 id="data-transformation">Data transformation</h2>
+<p>It is better to have the data in <a href="https://en.wikipedia.org/wiki/Wide_and_narrow_data">long form (narrow form)</a>. For that I am using the package <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m">“DataReshape.m”</a>, [AAp1].</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>(*lsIDColumnNames={&quot;<span class="dt">geo_</span>type&quot;,&quot;region&quot;,&quot;<span class="dt">transportation_</span>type&quot;};*) (*<span class="fu">For</span> the initial dataset of Apple&#39;s mobility data.*)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>  lsIDColumnNames = {&quot;<span class="dt">geo_</span>type&quot;, &quot;region&quot;, &quot;<span class="dt">transportation_</span>type&quot;, &quot;<span class="dt">alternative_</span>name&quot;, &quot;sub-region&quot;, &quot;country&quot;}; </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>   dsAppleMobilityLongForm = ToLongForm[dsAppleMobility, lsIDColumnNames, <span class="fu">Complement</span>[Keys[dsAppleMobility[[<span class="dv">1</span>]]], lsIDColumnNames]]; </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>   <span class="fu">Dimensions</span>[dsAppleMobilityLongForm]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>(*{<span class="dv">1730979</span>, <span class="dv">8</span>}*)</span></code></pre></div>
+<p>Remove the rows with “empty” values:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>dsAppleMobilityLongForm = dsAppleMobilityLongForm[<span class="fu">Select</span>[#Value != &quot;&quot; &amp;]];</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="fu">Dimensions</span>[dsAppleMobilityLongForm]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>(*{<span class="dv">1709416</span>, <span class="dv">8</span>}*)</span></code></pre></div>
+<p>Rename the column “Variable” to “Date” and add a related “DateObject” column:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="fu">AbsoluteTiming</span>[</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  dsAppleMobilityLongForm = dsAppleMobilityLongForm[<span class="fu">All</span>, <span class="fu">Join</span>[KeyDrop[#, &quot;Variable&quot;], &lt;|&quot;Date&quot; -&gt; #Variable, &quot;DateObject&quot; -&gt; DateObject[#Variable]|&gt;] &amp;]; </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a> ]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>(*{<span class="dv">714</span><span class="fl">.062</span>, <span class="fu">Null</span>}*)</span></code></pre></div>
+<p>Add “day name” (“day of the week”) field:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="fu">AbsoluteTiming</span>[</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  dsAppleMobilityLongForm = dsAppleMobilityLongForm[<span class="fu">All</span>, <span class="fu">Join</span>[#, &lt;|&quot;DayName&quot; -&gt; <span class="fu">DateString</span>[#DateObject, {&quot;DayName&quot;}]|&gt;] &amp;]; </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a> ]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>(*{<span class="dv">498</span><span class="fl">.026</span>, <span class="fu">Null</span>}*)</span></code></pre></div>
+<p>Here is sample of the transformed data:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="fu">SeedRandom</span>[<span class="dv">3232</span>];</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="fu">RandomSample</span>[dsAppleMobilityLongForm, <span class="dv">12</span>]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0vfquha7r47e6.png" /></p>
+<p>Here is summary:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>ResourceFunction[&quot;RecordsSummary&quot;][dsAppleMobilityLongForm]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0sc9tgyebz23j.png" /></p>
+<p>Partition the data into geo types × transportation types:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>aQueries = Association@Flatten@Outer[<span class="fu">Function</span>[{gt, tt}, {gt, tt} -&gt; dsAppleMobilityLongForm[<span class="fu">Select</span>[#[&quot;<span class="dt">geo_</span>type&quot;] == gt &amp;&amp; #[&quot;<span class="dt">transportation_</span>type&quot;] == tt &amp;]]], lsGeoTypes, lsTransportationTypes];</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>aQueries = <span class="fu">Select</span>[aQueries, <span class="fu">Length</span>[#] &gt; <span class="dv">0</span> &amp;];</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>Keys[aQueries]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>(*{{&quot;city&quot;, &quot;driving&quot;}, {&quot;city&quot;, &quot;transit&quot;}, {&quot;city&quot;, &quot;walking&quot;}, {&quot;country/region&quot;, &quot;driving&quot;}, {&quot;country/region&quot;, &quot;transit&quot;}, {&quot;country/region&quot;, &quot;walking&quot;}, {&quot;county&quot;, &quot;driving&quot;}, {&quot;county&quot;, &quot;transit&quot;}, {&quot;county&quot;, &quot;walking&quot;}, {&quot;sub-region&quot;, &quot;driving&quot;}, {&quot;sub-region&quot;, &quot;transit&quot;}, {&quot;sub-region&quot;, &quot;walking&quot;}}*)</span></code></pre></div>
+<h2 id="basic-data-analysis">Basic data analysis</h2>
+<p>We consider relative volume o directions requests for the last date only. (The queries can easily adjusted for other dates.)</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>lastDate = Last@Sort@Normal@dsAppleMobilityLongForm[<span class="fu">All</span>, &quot;Date&quot;]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>(*&quot;<span class="dv">2021-01-15</span>&quot;*)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>aDayQueries = Association@Flatten@Outer[<span class="fu">Function</span>[{gt, tt}, {gt, tt} -&gt; dsAppleMobilityLongForm[<span class="fu">Select</span>[#[&quot;<span class="dt">geo_</span>type&quot;] == gt &amp;&amp; #Date == lastDate &amp;&amp; #[&quot;<span class="dt">transportation_</span>type&quot;] == tt &amp;]]], lsGeoTypes, lsTransportationTypes];</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="fu">Dimensions</span> /@ aDayQueries</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>(*&lt;|{&quot;city&quot;, &quot;driving&quot;} -&gt; {<span class="dv">299</span>, <span class="dv">10</span>}, {&quot;city&quot;, &quot;transit&quot;} -&gt; {<span class="dv">197</span>, <span class="dv">10</span>}, {&quot;city&quot;, &quot;walking&quot;} -&gt; {<span class="dv">294</span>, <span class="dv">10</span>}, {&quot;country/region&quot;, &quot;driving&quot;} -&gt; {<span class="dv">63</span>, <span class="dv">10</span>}, {&quot;country/region&quot;, &quot;transit&quot;} -&gt; {<span class="dv">27</span>, <span class="dv">10</span>}, {&quot;country/region&quot;, &quot;walking&quot;} -&gt; {<span class="dv">63</span>, <span class="dv">10</span>}, {&quot;county&quot;, &quot;driving&quot;} -&gt; {<span class="dv">2090</span>, <span class="dv">10</span>}, {&quot;county&quot;, &quot;transit&quot;} -&gt; {<span class="dv">152</span>, <span class="dv">10</span>}, {&quot;county&quot;, &quot;walking&quot;} -&gt; {<span class="dv">396</span>, <span class="dv">10</span>}, {&quot;sub-region&quot;, &quot;driving&quot;} -&gt; {<span class="dv">557</span>, <span class="dv">10</span>}, {&quot;sub-region&quot;, &quot;transit&quot;} -&gt; {<span class="dv">175</span>, <span class="dv">10</span>}, {&quot;sub-region&quot;, &quot;walking&quot;} -&gt; {<span class="dv">339</span>, <span class="dv">10</span>}|&gt;*)</span></code></pre></div>
+<p>Here we plot histograms and Pareto principle adherence:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a>opts = {<span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>, <span class="fu">ImageSize</span> -&gt; <span class="fu">Medium</span>};</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="fu">Grid</span>[</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>    <span class="fu">Function</span>[{columnName}, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a>      {<span class="fu">Histogram</span>[#, <span class="dv">12</span>, <span class="fu">PlotLabel</span> -&gt; columnName, opts], ResourceFunction[&quot;ParetoPrinciplePlot&quot;][#, <span class="fu">PlotLabel</span> -&gt; columnName, opts]} &amp;@Normal[#[<span class="fu">All</span>, &quot;Value&quot;]] </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a>     ] /@ {&quot;Value&quot;}, </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>    <span class="fu">Dividers</span> -&gt; <span class="fu">All</span>, <span class="fu">FrameStyle</span> -&gt; <span class="fu">GrayLevel</span>[<span class="dv">0</span><span class="fl">.7</span>]] &amp; /@ aDayQueries</span></code></pre></div>
+<figure>
+<img src="./Diagrams/Apple-mobility-trends-data-visualization/1mdtonh8hp7bw.png" alt="1mdtonh8hp7bw" /><figcaption aria-hidden="true">1mdtonh8hp7bw</figcaption>
+</figure>
+<h2 id="heat-map-plots">Heat-map plots</h2>
+<p>We can visualize the data using heat-map plots. Here we use the package <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HeatmapPlot.m">“HeatmapPlot.m”</a>, [AAp2].</p>
+<p><strong>Remark:</strong> Using the contingency matrices prepared for the heat-map plots we can do further analysis, like, finding correlations or nearest neighbors. (See below.)</p>
+<p>Cross-tabulate dates with regions:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a>aMatDateRegion = ResourceFunction[&quot;CrossTabulate&quot;][#[<span class="fu">All</span>, {&quot;Date&quot;, &quot;region&quot;, &quot;Value&quot;}], &quot;Sparse&quot; -&gt; <span class="fu">True</span>] &amp; /@ aQueries;</span></code></pre></div>
+<p>Make a heat-map plot by sorting the columns of the cross-tabulation matrix (that correspond to countries):</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>aHeatMapPlots = Association@KeyValueMap[#<span class="dv">1</span> -&gt; <span class="fu">Rasterize</span>[HeatmapPlot[#<span class="dv">2</span>, <span class="fu">PlotLabel</span> -&gt; #<span class="dv">1</span>, <span class="fu">DistanceFunction</span> -&gt; {<span class="fu">None</span>, <span class="fu">EuclideanDistance</span>}, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">1</span><span class="fl">.6</span>, <span class="fu">ImageSize</span> -&gt; <span class="dv">1600</span>]] &amp;, aMatDateRegion]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0htborbrwn81w.png" /></p>
+<p>(We use Rasterize in order to reduce the size of the notebook.)</p>
+<p>Here we take closer look to one of the plots:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a>aHeatMapPlots[{&quot;country/region&quot;, &quot;driving&quot;}]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0gfpebau5vh4j.png" /></p>
+<h2 id="nearest-neighbors-graphs">Nearest neighbors graphs</h2>
+<h3 id="graphs-overview">Graphs overview</h3>
+<p>Here we create nearest neighbor graphs of the contingency matrices computed above and plot cluster the nodes:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="fu">Manipulate</span>[</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a>  Multicolumn[Normal@Map[CommunityGraphPlot@Graph@EdgeList@NearestNeighborGraph[<span class="fu">Normal</span>[<span class="fu">Transpose</span>[#SparseMatrix]], nns, <span class="fu">ImageSize</span> -&gt; <span class="fu">Medium</span>] &amp;, aMatDateRegion], <span class="dv">2</span>, <span class="fu">Dividers</span> -&gt; <span class="fu">All</span>], </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>  {{nns, <span class="dv">5</span>, &quot;Number of <span class="fu">nearest</span> neighbors:&quot;}, <span class="dv">2</span>, <span class="dv">30</span>, <span class="dv">1</span>, <span class="fu">Appearance</span> -&gt; &quot;Open&quot;}, <span class="fu">SaveDefinitions</span> -&gt; <span class="fu">True</span>]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0o92iol59uz0k.png" /></p>
+<h3 id="closer-look-into-the-graphs">Closer look into the graphs</h3>
+<p>Here we endow each nearest neighbors graph with appropriate vertex labels:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a>aNNGraphs = <span class="fu">Map</span>[(gr = NearestNeighborGraph[<span class="fu">Normal</span>[<span class="fu">Transpose</span>[#SparseMatrix]], <span class="dv">4</span>, <span class="fu">GraphLayout</span> -&gt; &quot;SpringEmbedding&quot;, <span class="fu">VertexLabels</span> -&gt; <span class="fu">Thread</span>[<span class="fu">Rule</span>[<span class="fu">Normal</span>[<span class="fu">Transpose</span>[#SparseMatrix]], #ColumnNames]]];<span class="fu">Graph</span>[<span class="fu">EdgeList</span>[gr], <span class="fu">VertexLabels</span> -&gt; <span class="fu">Thread</span>[<span class="fu">Rule</span>[<span class="fu">Normal</span>[<span class="fu">Transpose</span>[#SparseMatrix]], #ColumnNames]]]) &amp;, aMatDateRegion];</span></code></pre></div>
+<p>Here we plot the graphs with clusters:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a>ResourceFunction[&quot;GridTableForm&quot;][<span class="fu">List</span> @@@ <span class="fu">Normal</span>[CommunityGraphPlot[#, <span class="fu">ImageSize</span> -&gt; <span class="dv">800</span>] &amp; /@ aNNGraphs], <span class="fu">TableHeadings</span> -&gt; {&quot;region &amp; transportation type&quot;, &quot;communities of <span class="fu">nearest</span> neighbors graph&quot;}, <span class="fu">Background</span> -&gt; <span class="fu">White</span>, <span class="fu">Dividers</span> -&gt; <span class="fu">All</span>]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0dgd8fjlwcip8.png" /></p>
+<p><strong>Observation:</strong> From the community clusters of the nearest neighbor graphs (derived from the time series of the normalized driving directions requests volume) we see that countries and cities are clustered in expected ways. For example in the community graph plot corresponding to “{city, driving}” the cities Oslo, Copenhagen, Helsinki, Stockholm, and Zurich are placed in the same cluster. In the graphs corresponding to “{city, transit}” and “{city, walking}” the Japanese cities Tokyo, Osaka, Nagoya, and Fukuoka are clustered together.</p>
+<h2 id="time-series-analysis">Time series analysis</h2>
+<h3 id="time-series">Time series</h3>
+<p>In this section for each date we sum all cases over the region-transportation pairs, make a time series, and plot them.</p>
+<p><strong>Remark:</strong> In the plots the Sundays are indicated with orange dashed lines.</p>
+<p>Here we make the time series:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a>aTSDirReqByCountry = </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a>  <span class="fu">Map</span>[</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a>   <span class="fu">Function</span>[{dfQuery}, </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a>    TimeSeries@(<span class="fu">List</span> @@@ <span class="fu">Normal</span>[GroupBy[<span class="fu">Normal</span>[dfQuery], #DateObject &amp;, <span class="fu">Total</span>[#Value &amp; /@ #] &amp;]]) </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a>   ], </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a>   aQueries </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a>  ]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/01j2bi8sjiab3.png" /></p>
+<p>Here we plot them:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a>opts = {PlotTheme -&gt; &quot;Detailed&quot;, <span class="fu">PlotRange</span> -&gt; <span class="fu">All</span>, <span class="fu">AspectRatio</span> -&gt; <span class="dv">1</span>/<span class="dv">4</span>,<span class="fu">ImageSize</span> -&gt; <span class="fu">Large</span>};</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a>Association@KeyValueMap[</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a>   <span class="fu">Function</span>[{transpType, ts}, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a>    transpType -&gt; </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true"></a>     <span class="fu">DateListPlot</span>[ts, <span class="fu">GridLines</span> -&gt; {<span class="fu">AbsoluteTime</span> /@ <span class="fu">Union</span>[<span class="fu">Normal</span>[dsAppleMobilityLongForm[<span class="fu">Select</span>[#DayName == &quot;Sunday&quot; &amp;], &quot;DateObject&quot;]]], <span class="fu">Automatic</span>}, <span class="fu">GridLinesStyle</span> -&gt; {<span class="fu">Directive</span>[<span class="fu">Orange</span>, <span class="fu">Dashed</span>], <span class="fu">Directive</span>[<span class="fu">Gray</span>, <span class="fu">Dotted</span>]}, <span class="fu">PlotLabel</span> -&gt; Capitalize[transpType], opts] </span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true"></a>   ], </span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true"></a>   aTSDirReqByCountry </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true"></a>  ]</span></code></pre></div>
+<p><img src="./Diagrams/Apple-mobility-trends-data-visualization/0smy81z4z1lo4.png" /></p>
+<p><strong>Observation:</strong> In the time series plots the Sundays are indicated with orange dashed lines. We can see that from Monday to Thursday people are more familiar with their trips than say on Fridays and Saturdays. We can also see that on Sundays people (on average) are more familiar with their trips or simply travel less.</p>
+<h3 id="forecast">“Forecast”</h3>
+<p>He we do “forecast” for code-workflow demonstration purposes – the forecasts should not be taken seriously.</p>
+<p>Fit a time series model to the time series:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a>aTSModels = TimeSeriesModelFit /@ aTSDirReqByCountry</span></code></pre></div>
+<figure>
+<img src="./Diagrams/Apple-mobility-trends-data-visualization/1v02kqhrfj7pk.png" alt="1v02kqhrfj7pk" /><figcaption aria-hidden="true">1v02kqhrfj7pk</figcaption>
+</figure>
+<figure>
+<img src="./Diagrams/Apple-mobility-trends-data-visualization/1kp9msj22dd19.png" alt="1kp9msj22dd19" /><figcaption aria-hidden="true">1kp9msj22dd19</figcaption>
+</figure>
+<p>Plot data and forecast:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode mathematica"><code class="sourceCode mathematica"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a><span class="fu">Map</span>[<span class="fu">DateListPlot</span>[{#[&quot;TemporalData&quot;], TimeSeriesForecast[#, {<span class="dv">10</span>}]}, opts, PlotLegends -&gt; {&quot;Data&quot;, &quot;Forecast&quot;}] &amp;, aTSModels]</span></code></pre></div>
+<figure>
+<img src="./Diagrams/Apple-mobility-trends-data-visualization/0axzczhqlntju.png" alt="0axzczhqlntju" /><figcaption aria-hidden="true">0axzczhqlntju</figcaption>
+</figure>
+<h2 id="references">References</h2>
+<p>[APPL1] Apple Inc., <a href="https://www.apple.com/covid19/mobility">Mobility Trends Reports</a>, (2020), <a href="https://www.apple.com">apple.com</a>.</p>
+<p>[AA1] Anton Antonov, <a href="https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md">“NY Times COVID-19 data visualization”</a>, (2020), <a href="https://github.com/antononcube/SystemModeling">SystemModeling at GitHub</a>.</p>
+<p>[AAp1] Anton Antonov, <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/DataReshape.m">Data reshaping Mathematica package</a>, (2018), <a href="https://github.com/antononcube/MathematicaForPrediction">MathematicaForPrediciton at GitHub</a>.</p>
+<p>[AAp2] Anton Antonov, <a href="https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HeatmapPlot.m">Heatmap plot Mathematica package</a>, (2018), <a href="https://github.com/antononcube/MathematicaForPrediction">MathematicaForPrediciton at GitHub</a>.</p>
