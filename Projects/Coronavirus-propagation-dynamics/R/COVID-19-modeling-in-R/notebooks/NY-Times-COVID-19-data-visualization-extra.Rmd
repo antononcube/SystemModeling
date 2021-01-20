@@ -58,8 +58,7 @@ matSDD <- xtabs( Deaths ~ StateCounty + Date, dfNYDataCounties  %>% dplyr::mutat
 
 ```{r}
 aSMats <- setNames( c(matSDC, matSDD), c("Cases", "Deaths"))
-# rownames(aSMats[["Cases"]]) <- paste0( "Cases-", rownames(aSMats[["Cases"]]) )
-# rownames(aSMats[["Deaths"]]) <- paste0( "Deaths-", rownames(aSMats[["Deaths"]]) )
+#aSMats <- setNames( c(matSDC[,60:ncol(matSDC)], matSDD[,60:ncol(matSDC)]), c("Cases", "Deaths"))
 ```
 
 ```{r}
@@ -120,9 +119,9 @@ tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrNYTimes, smr
 ## Example recommendations
 
 
-```{r}
+```{r, rows.print = 20}
 searchID <- "Cases-Florida-Broward"
-recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12 )
+recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12, method = "kendall" )
 recs
 ```
 
