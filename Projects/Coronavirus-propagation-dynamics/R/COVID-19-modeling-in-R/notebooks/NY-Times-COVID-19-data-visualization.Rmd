@@ -353,3 +353,18 @@ summary( (qrObj %>% QRMonErrors(relativeErrorsQ = T) %>% QRMonTakeValue)[[1]]$Er
 ```
 
 
+# Refereces
+
+[NYT1] The New York Times, [Coronavirus (Covid-19) Data in the United States](https://github.com/nytimes/covid-19-data), (2020), GitHub.
+
+[WRI1] Wolfram Research Inc., [USA county records](https://github.com/antononcube/SystemModeling/blob/master/Data/dfUSACountyRecords.csv), (2020), [System Modeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+[JH1] CSSE at Johns Hopkins University, [COVID-19](https://github.com/CSSEGISandData/COVID-19), (2020), GitHub.
+
+[VK1] Vitaliy Kaurov, [Resources For Novel Coronavirus COVID-19](https://community.wolfram.com/groups/-/m/t/1872608), (2020), [community.wolfram.com](https://community.wolfram.com).
+
+[AA1] Anton Antonov, ["A monad for Quantile Regression workflows"](https://mathematicaforprediction.wordpress.com/2018/08/01/a-monad-for-quantile-regression-workflows/), (2018), at [MathematicaForPrediction WordPress](https://mathematicaforprediction.wordpress.com).
+
+[AAp1] Anton Antonov, [Heatmap plot Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/Misc/HeatmapPlot.m), (2018), [MathematicaForPrediciton at GitHub](https://github.com/antononcube/MathematicaForPrediction).
+
+[AAp2] Anton Antonov, [Monadic Quantile Regression Mathematica package](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/MonadicQuantileRegression.m), (2018), [MathematicaForPrediciton at GitHub](https://github.com/antononcube/MathematicaForPrediction).

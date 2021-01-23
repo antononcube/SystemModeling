@@ -58,25 +58,38 @@ matSDD <- xtabs( Deaths ~ StateCounty + Date, dfNYDataCounties  %>% dplyr::mutat
 
 ```{r}
 aSMats <- setNames( c(matSDC, matSDD), c("Cases", "Deaths"))
+#aSMats <- setNames( c( matSDC[, 62:ncol(matSDC)] - matSDC[, 61:(ncol(matSDC)-1)], matSDD[, 62:ncol(matSDD)] - matSDD[, 61:(ncol(matSDD)-1)]), c("Cases", "Deaths"))
+aSMatsDiff <- setNames( c( matSDC[, 2:ncol(matSDC)] - matSDC[, 1:(ncol(matSDC)-1)], matSDD[, 2:ncol(matSDD)] - matSDD[, 1:(ncol(matSDD)-1)]), c("Cases", "Deaths"))
+aSMatsDiff <- purrr::map( aSMatsDiff, function(x) { rownames(x) <- paste0(rownames(x), "-Diff"); x})
 #aSMats <- setNames( c(matSDC[,60:ncol(matSDC)], matSDD[,60:ncol(matSDC)]), c("Cases", "Deaths"))
 ```
 
+
 ```{r}
-purrr::map_df( aSMats, function(x) data.frame( NRow = nrow(x), NCol = ncol(x) ), .id = "MatrixName" )
+purrr::map_df( c(aSMats, aSMatsDiff), function(x) data.frame( NRow = nrow(x), NCol = ncol(x) ), .id = "MatrixName" )
 ```
 
 # Time series search engine
 
+**Remark:** Here we remove the first column of the Cases and Deaths matrices in order to do the row bind.
+
 ```{r}
-smat <- do.call( rbind, aSMats)
+aSMats <- sapply( aSMats, function(x) x[,2:ncol(x)])
+```
+
+Just a check, not used below:
+
+```{r}
+smat <- do.call( rbind, c( aSMats, aSMatsDiff) )
 dim(smat)
 ```
 
 Make the matrix of time series:
 
 ```{r}
-smrTemp <- SMRCreateFromMatrices( matrices = Map( f = t, x = aSMats), imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = TRUE, sep = "-" )
-tsMat <- log10( t(smrTemp$M) + 1)
+smrTemp <- SMRCreateFromMatrices( matrices = Map( f = t, x = c(aSMats, aSMatsDiff) ), imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = TRUE, sep = "-" )
+#tsMat <- log10( t(smrTemp$M) + 1)
+tsMat <- t(smrTemp$M)
 tsMat <- as(tsMat, "dgCMatrix")
 dim(tsMat)
 ```
@@ -112,7 +125,7 @@ smrNYTimes <- SMRCreateFromMatrices( matrices = c(tsDotMat), tagTypes = c("Norma
 Make the TS-SMR object:
 
 ```{r}
-tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrNYTimes, smrNRecs = 200 )
+tssmrNYTimes <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrNYTimes, smrNRecs = 400 )
 ```
 
 
@@ -125,6 +138,11 @@ recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings =
 recs
 ```
 
+```{r, rows.print = 20}
+searchID <- "Cases-Florida-Broward"
+recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12, method = "pearson" )
+recs
+```
 
 ## Time series search engine
 
@@ -139,9 +157,27 @@ Use dates:
 tssmrNYTimes$TIBNameToTIBRules <- setNames( as.POSIXct(names(tssmrNYTimes$TIBNameToTIBRules)), names(tssmrNYTimes$TIBNameToTIBRules) )
 ```
 
-
 ```{r}
-shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes, theme = "flatly" ) )
+assertthat::assert_that( mean( sort(rownames(tssmrNYTimes$TSMat)) == sort(rownames(tssmrNYTimes$SMR$M)) ) == 1 )
 ```
 
+```{r}
+tssmrNYTimes$TSMat <- SMRImposeRowIDs( smat = tssmrNYTimes$TSMat, rowIDs = rownames(tssmrNYTimes$SMR$M) )
+```
+
+```{r}
+shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes, theme = "superhero" ) )
+```
+
+# Combine time series
+
+
+```{r, eval=FALSE}
+tsMatCombined <- rbind( tssmrApple$TSMat, SMRImposeColumnIDs( smat = tssmrNYTimes$TSMat, colIDs = colnames(tssmrApple$TSMat) ) )
+smrCombined <- SMRRowBind( smr1 = tssmrApple$SMR, smr2 = tssmrNYTimes$SMR )
+tssmrCombined <- TSCorrSMRCreate( timeSeriesMatrix = tsMatCombined, smr = smrCombined, smrNRecs = 400 )
+tssmrCombined$TSMat <- SMRImposeRowIDs( smat = tssmrCombined$TSMat, rowIDs = rownames(tssmrCombined$SMR$M) )
+
+shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrCombined, theme = "superhero" ) )
+```
 
