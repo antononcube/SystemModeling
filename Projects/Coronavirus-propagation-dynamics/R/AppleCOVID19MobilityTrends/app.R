@@ -35,9 +35,14 @@ ui <- SparseMatrixRecommenderInterfacesNoDT::TSCorrSMRMakeUI(tsSMR = tssmrApple,
                                                              initNNs = 8, initNCols = 2, plotOutputHeight = "800px",
                                                              dashboardTitle = "Apple Mobility Trends Search Engine",
                                                              noteText = 
-                                                               paste( "Apple mobility trends data from https://covid19.apple.com/mobility .", 
-                                                                      "Full description here : https://mathematicaforprediction.wordpress.com/2020/04/17/apple-mobility-trends-data-visualization-for-covid-19 .", 
-                                                                      sep = "\n"),
+                                                               c( 
+                                                                 value = 
+                                                                   paste(
+                                                                     "Apple mobility trends data from https://covid19.apple.com/mobility .", 
+                                                                     "Full description here : https://mathematicaforprediction.wordpress.com/2020/04/17/apple-mobility-trends-data-visualization-for-covid-19 .", 
+                                                                     sep = "\n"),
+                                                                 href = "https://mathematicaforprediction.wordpress.com/2020/04/17/apple-mobility-trends-data-visualization-for-covid-19"
+                                                               ),
                                                              theme = "flatly")
 
 # Define server logic required to draw a histogram
