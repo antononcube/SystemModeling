@@ -35,16 +35,29 @@ tssmrNYTimes$TIBNameToTIBRules <- setNames( as.POSIXct(names(tssmrNYTimes$TIBNam
 # Define UI for application that draws a histogram
 ui <- SparseMatrixRecommenderInterfacesNoDT::TSCorrSMRMakeUI(tsSMR = tssmrNYTimes, tsSearchVectors = tsSearchVectors, 
                                                              initNNs = 8, initNCols = 2, plotOutputHeight = "800px",
-                                                             dashboardTitle = "The New York Times COVID-19 Search Engine",
+                                                             dashboardTitle = "The New York Times COVID-19 Data Search Engine",
                                                              noteText = 
-                                                               c( 
-                                                                 value = 
-                                                                   paste(
-                                                                     "The New York Times. (2021). Coronavirus (Covid-19) Data in the United States.",
-                                                                     "Retrieved 2020-01-23 from from https://github.com/nytimes/covid-19-data .", 
-                                                                     "Full description here: https://mathematicaforprediction.wordpress.com/2021/01/15/ny-times-covid-19-data-visualization-update .",
-                                                                     sep = "\n"),
-                                                                 href = "https://mathematicaforprediction.wordpress.com/2021/01/15/ny-times-covid-19-data-visualization-update/"
+                                                               list(
+                                                                 c(
+                                                                   value = 
+                                                                     paste(
+                                                                       "The \"entities\" of the search engine are time series of COVID-19 infection cases and deaths over USA counties",
+                                                                       "and the corresponding time series differences.",
+                                                                       "The difference time series have the prefix \"Diff-\".")
+                                                                 ),
+                                                                 c(
+                                                                   title = "[NYT1]",
+                                                                   value =
+                                                                     paste(
+                                                                       "The New York Times, (2021), Coronavirus (Covid-19) Data in the United States, GitHub.",
+                                                                       "Retrieved 2020-01-23 from https://github.com/nytimes/covid-19-data."),
+                                                                   href = "https://github.com/nytimes/covid-19-data"
+                                                                 ),
+                                                                 c(
+                                                                   title = "[AA1]",
+                                                                   value = "Anton Antonov, \"NY Times COVID-19 data visualization (Update)\", (2021), MathematicaForPrediction at WordPress.",
+                                                                   href = "https://mathematicaforprediction.wordpress.com/2021/01/15/ny-times-covid-19-data-visualization-update/"
+                                                                 )
                                                                ),
                                                              theme = "flatly")
 
