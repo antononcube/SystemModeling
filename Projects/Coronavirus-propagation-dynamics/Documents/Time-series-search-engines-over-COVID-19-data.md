@@ -8,7 +8,7 @@ One TSSE is based on Apple Mobility Trends data, [APPL1];
 the other on The New York Times COVID-19 data, [NYT1].
 
 Here are links to interactive interfaces of the TSSEs hosted at 
-[shinyapps.io by RStudio](shinyapps.io):
+[shinyapps.io by RStudio](https://www.shinyapps.io):
 
 - [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
 
@@ -21,39 +21,6 @@ of the spread, data aggregation, and reactions to COVID-19.
 
 Below we briefly describe the overall process and the data. 
 Then we give some search examples and their interpretations.
-
-## The search engines
-
-The following sub-sections have screenshots of the TSSE interactive interfaces.
-
-I did experiment with combining the data of the two engines, but did not turn out to be particularly useful.
-It is seems that is more interesting and useful to enhance the Apple data engine with temperature data, 
-and to enhance The New Your Times engine with the (consecutive) differences of the time series. 
-
-### Structure
-
-The interactive interfaces have three panels:
-
-- Nearest Neighbors    
-  - With entity selection and filtering  
-
-- Trend Finding   
-  - With predefined trend curves and entity filtering
-    
-- Notes 
-  - For references and data objects summary
-
-### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
-
-![AppleTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
-
-![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
-
-### [The New York Times COVID-19 Data Search Engine](https://antononcube.shinyapps.io/NYTimesCOVID19DataInUSA/)
-
-![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
-
-![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 
 ## The overall process
 
@@ -92,6 +59,43 @@ function
 [WRI1].
 
 (It was too much work to get the weather data with some of the well known weather data R packages.)
+
+## The search engines
+
+The following sub-sections have screenshots of the TSSE interactive interfaces.
+
+I did experiment with combining the data of the two engines, but did not turn out to be particularly useful.
+It is seems that is more interesting and useful to enhance the Apple data engine with temperature data, 
+and to enhance The New Your Times engine with the (consecutive) differences of the time series. 
+
+### Structure
+
+The interactive interfaces have three panels:
+
+- Nearest Neighbors    
+  - With entity selection and filtering  
+
+- Trend Finding   
+  - With predefined trend curves and entity filtering
+    
+- Notes 
+  - For references and data objects summary
+
+### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
+
+<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png" width="800">
+
+<!---
+![AppleTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
+--->
+
+![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
+
+### [The New York Times COVID-19 Data Search Engine](https://antononcube.shinyapps.io/NYTimesCOVID19DataInUSA/)
+
+![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
+
+![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 
 ### The New York Times data
 
