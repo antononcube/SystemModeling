@@ -50,7 +50,7 @@ Here is a flow chart that corresponds to the steps listed above:
 
 The Apple Mobility Trends data is taken from Apple's site, see [APPL1].
 The data ingestion and basic data analysis, time series seasonality demonstration, (graph) clusterings 
-are given in [AA2].
+are given in [AA1].
 
 The weather data was taken using the 
 [Mathematica](https://www.wolfram.com/mathematica/)
@@ -83,15 +83,37 @@ The interactive interfaces have three panels:
 
 ### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
 
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png" alt="AppleTSSENNs" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
+The Apple data TSSE has four types of time series ("entities"). The first three are normalized volumes 
+of Apple maps requests while, driving, transit transport use, and walking. (See [AA1] for more details.)
+  
+The fourth is mean temperature at different geo-locations.
 
+Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
+
+![AppleTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
+
+![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
+
+<!--
+[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png" alt="AppleTSSENNs" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png" alt="AppleTSSETrends" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
+-->
 
 ### [The New York Times COVID-19 Data Search Engine](https://antononcube.shinyapps.io/NYTimesCOVID19DataInUSA/)
 
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
+The New York Times TSSE has four types of time series (aggregated) cases and deaths, 
+and their corresponding time series differences. 
 
+Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
+
+![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
+
+![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
+
+<!--
+[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png" alt="NYTTSSETrends" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
+-->
 
 ### The New York Times data
 
@@ -102,7 +124,7 @@ The data ingestion and basic data analysis and visualizations are given in [AA1]
 
 Consider the results of the Nearest Neighbors panel for Nice, France.
 
-Since French tend to go on vacation in July and August ([SS1]) 
+Since French tend to go on vacation in July and August ([SS1, INSEE1]) 
 we can see that driving, transit, and walking in Nice have pronounced peaks during that time:
 
 ![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Nice.png)
@@ -152,14 +174,18 @@ Wolfram Language function.
 ### Articles
 
 [AA1] Anton Antonov, 
-["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md), 
+["Apple mobility trends data visualization (for COVID-19)"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Apple-mobility-trends-data-visualization.md),
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
 
 [AA2] Anton Antonov, 
-["Apple mobility trends data visualization (for COVID-19)"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Apple-mobility-trends-data-visualization.md),
+["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md), 
 (2020), 
 [SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+
+[INSEE1] Institut national de la statistique et des études économiques, 
+["En 2010, les salariés ont pris en moyenne six semaines de congé"](https://www.insee.fr/fr/statistiques/1281344),
+(2012).
 
 [SS1] Sam Schechner and Lee Harris,
 ["What Happens When All of France Takes Vacation? 438 Miles of Traffic"](https://www.wsj.com/articles/what-happens-when-all-of-france-takes-vacation-438-miles-of-traffic-11564600399),
