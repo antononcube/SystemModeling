@@ -60,31 +60,38 @@ function
 
 (It was too much work to get the weather data with some of the well known weather data R packages.)
 
+### The New York Times data
+
+The New York Times COVID-19 data is taken from GitHub, see [NYT1].
+The data ingestion and basic data analysis and visualizations are given in [AA1].
+
 ## The search engines
 
 The following sub-sections have screenshots of the TSSE interactive interfaces.
 
 I did experiment with combining the data of the two engines, but did not turn out to be particularly useful.
-It is seems that is more interesting and useful to enhance the Apple data engine with temperature data, 
+It seems that is more interesting and useful to enhance the Apple data engine with temperature data, 
 and to enhance The New Your Times engine with the (consecutive) differences of the time series. 
 
 ### Structure
 
 The interactive interfaces have three panels:
 
-- Nearest Neighbors    
-  - With entity selection and filtering  
+- Nearest Neighbors  
+  - Gives the time series nearest neighbors for the time series of selected entity.
+  - Has interactive controls for entity selection and filtering.  
 
-- Trend Finding   
-  - With predefined trend curves and entity filtering
+- Trend Finding
+  - Gives the time series that adhere to a specified named trend.
+  - Has interactive controls for trend curves selection and entity filtering.
     
 - Notes 
-  - For references and data objects summary
+  - Gives references and data objects summary.
 
 ### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
 
 The Apple data TSSE has four types of time series ("entities"). The first three are normalized volumes 
-of Apple maps requests while, driving, transit transport use, and walking. (See [AA1] for more details.)
+of Apple maps requests while driving, transit transport use, and walking. (See [AA1] for more details.)
   
 The fourth is mean temperature at different geo-locations.
 
@@ -115,12 +122,7 @@ Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at i
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png" alt="NYTTSSETrends" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 -->
 
-### The New York Times data
-
-The New York Times COVID-19 data is taken from GitHub, see [NYT1].
-The data ingestion and basic data analysis and visualizations are given in [AA1].
-
-## Apple data search examples
+## Apple data search engine examples
 
 Consider the results of the Nearest Neighbors panel for Nice, France.
 
@@ -142,7 +144,7 @@ Compare those time series with the time series from driving in Florida, USA:
 We can see that people in Florida, USA more or less the same driving patterns unrelated to 
 the typical weather seasons and vacation periods.
 
-## The New York Times data search examples
+## The New York Times data search engine examples
 
 In Broward county, Florida, USA and and Cook county, Illinois, USA we can see two waves of infections
 in the difference time series:
