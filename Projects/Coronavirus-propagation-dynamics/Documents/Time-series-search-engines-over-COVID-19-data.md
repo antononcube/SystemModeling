@@ -4,8 +4,10 @@
 
 In this article we proclaim the preparation and availability of interactive interfaces to
 two Time Series Search Engines (TSSEs) over COVID-19 data. 
-One TSSE is based on Apple Mobility Trends data, [APPL1]; 
-the other on The New York Times COVID-19 data, [NYT1].
+One TSSE is based on Apple Mobility Trends data, 
+[[APPL1](https://www.apple.com/covid19/mobility)]; 
+the other on The New York Times COVID-19 data, 
+[[NYT1](https://github.com/nytimes/covid-19-data)].
 
 Here are links to interactive interfaces of the TSSEs hosted at 
 [shinyapps.io by RStudio](https://www.shinyapps.io):
@@ -48,9 +50,14 @@ Here is a flow chart that corresponds to the steps listed above:
 
 ### The Apple data
 
-The Apple Mobility Trends data is taken from Apple's site, see [APPL1].
-The data ingestion and basic data analysis, time series seasonality demonstration, (graph) clusterings 
-are given in [AA1].
+The Apple Mobility Trends data is taken from Apple's site, see 
+[[APPL1](https://www.apple.com/covid19/mobility)].
+The data ingestion, basic data analysis, time series seasonality demonstration, (graph) clusterings 
+are given in 
+[[AA1](https://mathematicaforprediction.wordpress.com/2020/04/17/apple-mobility-trends-data-visualization-for-covid-19/)].
+(Here is a link to the corresponding 
+[R-notebook](https://htmlpreview.github.io/?https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R/notebooks/Apple-mobility-trends-data-visualization.nb.html)
+.)
 
 The weather data was taken using the 
 [Mathematica](https://www.wolfram.com/mathematica/)
@@ -58,12 +65,17 @@ function
 [`WeatherData`](https://reference.wolfram.com/language/ref/WeatherData.html), 
 [WRI1].
 
-(It was too much work to get the weather data with some of the well known weather data R packages.)
+(It was too much work to get the weather data using some of the well known weather data R packages.)
 
 ### The New York Times data
 
-The New York Times COVID-19 data is taken from GitHub, see [NYT1].
-The data ingestion and basic data analysis and visualizations are given in [AA1].
+The New York Times COVID-19 data is taken from GitHub, see 
+[[NYT1](https://github.com/nytimes/covid-19-data)].
+The data ingestion, basic data analysis, and visualizations are given in 
+[[AA2](https://mathematicaforprediction.wordpress.com/2021/01/15/ny-times-covid-19-data-visualization-update/)].
+(Here is a link to the corresponding 
+[R-notebook](https://htmlpreview.github.io/?https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/R/COVID-19-modeling-in-R/notebooks/NY-Times-COVID-19-data-visualization.nb.html)
+.)
 
 ## The search engines
 
@@ -96,15 +108,20 @@ Both TSSEs are implemented using the R packages "SparseMatrixRecommender",
 and "SparseMatrixRecommenderInterfaces",
 [[AAp2](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommenderInterfaces)].
 
-The package "SparseMatrixRecommender" provides functions to create and use Sparse Matrix Recommender (SMR) objects.
+The package 
+["SparseMatrixRecommender"](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommender) 
+provides functions to create and use Sparse Matrix Recommender (SMR) objects.
 Both TSSEs use underlying SMR objects.
 
-The package "SparseMatrixRecommenderInterfaces" provides functions to generate the server and client functions for the 
+The package 
+["SparseMatrixRecommenderInterfaces"](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommenderInterfaces) 
+provides functions to generate the server and client functions for the 
 [Shiny](https://rstudio.com/products/shiny/) framework by 
 [RStudio](https://rstudio.com). 
 
 As it was mentioned above, both TSSEs are published at [shinyapps.io](https://www.shinyapps.io).
-The corresponding source codes can be found in [AAr1].
+The corresponding source codes can be found in 
+[[AAr1](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics/R)].
 
 ### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
 
@@ -118,11 +135,6 @@ Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at i
 
 [![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
 
-<!--
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png" alt="AppleTSSENNs" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png" alt="AppleTSSETrends" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
--->
-
 ### [The New York Times COVID-19 Data Search Engine](https://antononcube.shinyapps.io/NYTimesCOVID19DataInUSA/)
 
 The New York Times TSSE has four types of time series (aggregated) cases and deaths, 
@@ -133,11 +145,6 @@ Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at i
 [![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
 
 [![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
-
-<!--
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png" alt="NYTTSSETrends" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
--->
 
 ## Examples
 
@@ -185,17 +192,22 @@ Compare those time series with the time series from driving in Florida, USA:
 
 [![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Florida-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Florida.png)
 
-We can see that people in Florida, USA more or less the same driving patterns unrelated to 
+We can see that people in Florida, USA have driving patterns unrelated to 
 the typical weather seasons and vacation periods.
 
-#### Balkan countries driving
+(Further TSSE queries show that there is a negative correlation with the temperature in south Florida 
+and the volumes of Apple Maps directions requests.)
 
-We can see that according to the data people who have both iPhones and cars in 
-Bulgaria, Greece, Italy, and Rumania have similar directions requests patterns:
+#### Italy and Balkan countries driving
+
+We can see that according to the data people who have access to both iPhones and cars in
+Italy and the 
+[Balkan countries](https://en.wikipedia.org/wiki/Balkans#Definitions_and_boundaries)
+Bulgaria, Greece, and Romania have similar directions requests patterns:
 
 [![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria-small.png)
 
-(The similarities can be explaned with at least a few "obvious" facts, but we are going to restrain ourselves.)
+(The similarities can be explained with at least a few "obvious" facts, but we are going to restrain ourselves.)
 
 ### The New York Times data search engine examples
 
