@@ -87,13 +87,30 @@ The interactive interfaces have three panels:
     
 - Notes 
   - Gives references and data objects summary.
+  
+  
+### Implementation
+
+Both TSSEs are implemented using the R packages "SparseMatrixRecommender", 
+[[AAp1](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommender)], 
+and "SparseMatrixRecommenderInterfaces",
+[[AAp2](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommenderInterfaces)].
+
+The package "SparseMatrixRecommender" provides functions to create and use Sparse Matrix Recommender (SMR) objects.
+Both TSSEs use underlying SMR objects.
+
+The package "SparseMatrixRecommenderInterfaces" provides functions to generate the server and client functions for the 
+[Shiny](https://rstudio.com/products/shiny/) framework by 
+[RStudio](https://rstudio.com). 
+
+As it was mentioned above, both TSSEs are published at [shinyapps.io](https://www.shinyapps.io).
+The corresponding source codes can be found in [AAr1].
 
 ### [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
 
 The Apple data TSSE has four types of time series ("entities"). The first three are normalized volumes 
 of Apple maps requests while driving, transit transport use, and walking. (See [AA1] for more details.)
-  
-The fourth is mean temperature at different geo-locations.
+The fourth is daily mean temperature at different geo-locations.
 
 Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
 
@@ -113,16 +130,43 @@ and their corresponding time series differences.
 
 Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
 
-![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
+![NYTTSSENNs](Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
 
 ![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 
 <!--
-[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-astart.png)
+[<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png" alt="NYTTSSETrends" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 -->
 
-## Apple data search engine examples
+## Examples
+
+In this section we discuss in some detail several examples of using each of the TSSEs.
+
+### Apple data search engine examples
+
+Here are a few observations from [AA1]:
+
+- The COVID-19 lockdowns are clearly reflected in the time series.
+
+- The time series from the Apple Mobility Trends data shows strong weekly seasonality. 
+  Roughly speaking, people go to places they are not familiar with on Fridays and Saturdays.
+  Other work week days people are more familiar with their trips. 
+  Since much lesser number of requests are made on Sundays, we can conjecture that 
+  many people stay at home or visit very familiar locations.
+  
+Here are a few assumptions:
+
+- Where people frequently go (work, school, groceries shopping, etc.) they do not need directions that much.
+
+- People request directions when they have more free time and will for ***"leisure trips."***
+
+- During vacations people are more likely to be in places they are less familiar with. 
+
+- People are more likely to take leisure trips when the weather is good. 
+  (Warm, not raining, etc.)
+  
+#### Nice, France vs Florida, USA 
 
 Consider the results of the Nearest Neighbors panel for Nice, France.
 
@@ -144,9 +188,18 @@ Compare those time series with the time series from driving in Florida, USA:
 We can see that people in Florida, USA more or less the same driving patterns unrelated to 
 the typical weather seasons and vacation periods.
 
-## The New York Times data search engine examples
+#### Balkan countries driving
 
-In Broward county, Florida, USA and and Cook county, Illinois, USA we can see two waves of infections
+We can see that according to the data people who have both iPhones and cars in 
+Bulgaria, Greece, Italy, and Rumania have similar directions requests patterns:
+
+![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria.png)
+
+(The similarities can be explaned with at least a few "obvious" facts, but we are going to restrain ourselves.)
+
+### The New York Times data search engine examples
+
+In Broward county, Florida, USA and Cook county, Illinois, USA we can see two waves of infections
 in the difference time series:
 
 ![](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Florida-Broward.png)
@@ -178,12 +231,12 @@ Wolfram Language function.
 [AA1] Anton Antonov, 
 ["Apple mobility trends data visualization (for COVID-19)"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/Apple-mobility-trends-data-visualization.md),
 (2020), 
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
 
 [AA2] Anton Antonov, 
 ["NY Times COVID-19 data visualization"](https://github.com/antononcube/SystemModeling/blob/master/Projects/Coronavirus-propagation-dynamics/Documents/NYTimes-COVID-19-data-visualization.md), 
 (2020), 
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling).
+[SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
 
 [INSEE1] Institut national de la statistique et des études économiques, 
 ["En 2010, les salariés ont pris en moyenne six semaines de congé"](https://www.insee.fr/fr/statistiques/1281344),
@@ -193,3 +246,20 @@ Wolfram Language function.
 ["What Happens When All of France Takes Vacation? 438 Miles of Traffic"](https://www.wsj.com/articles/what-happens-when-all-of-france-takes-vacation-438-miles-of-traffic-11564600399),
 (2019),
 [The Wall Street Journal](https://www.wsj.com/)
+
+### Packages, repositories
+
+[AAp1] Anton Antonov,
+[Sparse Matrix Recommender framework functions](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommender),
+(2019),
+[R-packages at GitHub/antononcube](https://github.com/antononcube/R-packages).
+
+[AAp2] Anton Antonov,
+[Sparse Matrix Recommender framework interface functions](https://github.com/antononcube/R-packages/tree/master/SparseMatrixRecommenderInterfaces),
+(2019),
+[R-packages at GitHub/antononcube](https://github.com/antononcube/R-packages).
+
+[AAr1] Anton Antonov,
+[Coronavirus propagation dynamics](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics),
+(2020),
+[SystemModeling at GitHub/antononcube](https://github.com/antononcube/SystemModeling).
