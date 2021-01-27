@@ -42,7 +42,7 @@ For both search engines the overall process has the same steps:
 
 Here is a flow chart that corresponds to the steps listed above:
 
-[![TSSMRFlowChart](./Diagrams/Time-series-search-engines-over-COVID-19-data/Time-series-search-engine-over-COVID-19-data.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/Time-series-search-engine-over-COVID-19-data.pdf)
+[![TSSMRFlowChart](./Diagrams/Time-series-search-engines-over-COVID-19-data/Time-series-search-engine-over-COVID-19-data-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/Time-series-search-engine-over-COVID-19-data.pdf)
 
 ## Data
 
@@ -114,9 +114,9 @@ The fourth is daily mean temperature at different geo-locations.
 
 Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
 
-![AppleTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
+[![AppleTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
 
-![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
+[![AppleTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-Trends-at-start.png)
 
 <!--
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png" alt="AppleTSSENNs" width="600">](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-at-start.png)
@@ -130,9 +130,9 @@ and their corresponding time series differences.
 
 Here are screenshots of the panels "Nearest Neighbors" and "Trend Finding" (at interface launch):
 
-![NYTTSSENNs](Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
+[![NYTTSSENNs](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
 
-![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
+[![NYTTSSETrends](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-Trends-at-start.png)
 
 <!--
 [<img src="./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png" alt="NYTTSSENNs" width=600>](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-at-start.png)
@@ -173,17 +173,17 @@ Consider the results of the Nearest Neighbors panel for Nice, France.
 Since French tend to go on vacation in July and August ([SS1, INSEE1]) 
 we can see that driving, transit, and walking in Nice have pronounced peaks during that time:
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Nice.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Nice-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Nice.png)
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-transit-Nice.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-transit-Nice-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-transit-Nice.png)
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-walking-Nice.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-walking-Nice-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-walking-Nice.png)
 
 Of course, we also observe the lockdown period in that geographical area.
 
 Compare those time series with the time series from driving in Florida, USA:
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Florida.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Florida-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Florida.png)
 
 We can see that people in Florida, USA more or less the same driving patterns unrelated to 
 the typical weather seasons and vacation periods.
@@ -193,7 +193,7 @@ the typical weather seasons and vacation periods.
 We can see that according to the data people who have both iPhones and cars in 
 Bulgaria, Greece, Italy, and Rumania have similar directions requests patterns:
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/AppleTSSE-NNs-driving-Bulgaria-small.png)
 
 (The similarities can be explaned with at least a few "obvious" facts, but we are going to restrain ourselves.)
 
@@ -202,9 +202,9 @@ Bulgaria, Greece, Italy, and Rumania have similar directions requests patterns:
 In Broward county, Florida, USA and Cook county, Illinois, USA we can see two waves of infections
 in the difference time series:
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Florida-Broward.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Florida-Broward-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Florida-Broward.png)
 
-![](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Illinois-Cook.png)
+[![](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Illinois-Cook-small.png)](./Diagrams/Time-series-search-engines-over-COVID-19-data/NYTTSSE-NNs-Diff-Cases-Illinois-Cook.png)
 
 ## References
 
