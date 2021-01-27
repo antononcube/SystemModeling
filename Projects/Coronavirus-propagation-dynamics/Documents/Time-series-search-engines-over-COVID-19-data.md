@@ -9,7 +9,7 @@ One TSSE is based on Apple Mobility Trends data,
 the other on The New York Times COVID-19 data, 
 [[NYT1](https://github.com/nytimes/covid-19-data)].
 
-Here are links to interactive interfaces of the TSSEs hosted at 
+Here are links to interactive interfaces of the TSSEs hosted (and publicly available) at 
 [shinyapps.io by RStudio](https://www.shinyapps.io):
 
 - [Apple Mobility Trends Reports Search Engine](https://antononcube.shinyapps.io/AppleCOVID19MobilityTrends/)
@@ -19,10 +19,15 @@ Here are links to interactive interfaces of the TSSEs hosted at
 **Motivation:** The primary motivation for making the TSSEs and their interactive interfaces 
 is to use them as exploratory tools.
 Combined with relevant data analysis (e.g. [AA1, AA2]) the TSSEs should help to form better intuition and feel
-of the spread, data aggregation, and reactions to COVID-19. 
+of the spread of COVID-19 and related data aggregation, public reactions, and government polices. 
 
-Below we briefly describe the overall process and the data. 
-Then we give some search examples and their interpretations.
+The rest of the article is structured as follows:
+
+1. Brief descriptions the overall process, the data
+
+2. Brief descriptions the search engines structure and implementation
+
+3. Discussions of a few search examples and their (possible) interpretations
 
 ## The overall process
 
