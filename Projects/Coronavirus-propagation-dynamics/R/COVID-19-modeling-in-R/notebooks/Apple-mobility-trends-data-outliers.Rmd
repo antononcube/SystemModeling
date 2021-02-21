@@ -1,0 +1,179 @@
+---
+title: "Apple mobility trends data outliers"
+author: Anton Antonov
+date: 2021-02-14
+output: html_notebook
+---
+
+```{r setup}
+library(magrittr)
+library(Matrix)
+library(tidyverse)
+library(OutlierIdentifiers)
+library(ParetoPrincipleAdherence)
+library(SparseMatrixRecommender)
+library(SMRMon)
+library(LSAMon)
+library(GNNMon)
+
+load("../../AppleCOVID19MobilityTrends/tssmrApple.RData")
+```
+
+```{r}
+library(RandomDataFrameGenerator)
+```
+
+```{r}
+dfRand <- RandomDataFrame( 16, columnNames = c("id", "val", "val2"), generators = c( function(x) sample( c("a", "b", "c"), x, replace = T), runif, rnorm ))
+dfRand
+```
+
+```{r, rows.print = 40 }
+dfRand[ order( dfRand[["id"]], - dfRand[["val"]] ), ]
+```
+
+# Export recommender
+
+```{r, eval=FALSE}
+SMRExportToDirectory( smr = tssmrApple$SMR, directoryPath = "../smrApple-export", dataNameInfix = "smrApple")
+```
+
+# Remove temperatures
+
+```{r}
+lsNonTemperatureTimeSeries <-grep( "Temperature", rownames(tssmrApple$TSMat), invert = T, value = T )
+length(lsNonTemperatureTimeSeries)
+```
+```{r}
+tssmrApple$TSMat <- tssmrApple$TSMat[lsNonTemperatureTimeSeries, ]
+tssmrApple$SMR$M <- tssmrApple$SMR$M[lsNonTemperatureTimeSeries, ]
+tssmrApple$SMR$M01 <- tssmrApple$SMR$M01[lsNonTemperatureTimeSeries, ]
+```
+
+# Pareto Principle
+
+## Across entities
+
+In order to interpret this statistic keep in mind that the time series are normalized.
+
+```{r}
+lsParetoEntitySums <- ParetoPrincipleAdherence::ParetoForNumericalVector( rowSums(tssmrApple$TSMat) )
+ParetoPrincipleAdherence::ParetoFramePlot( data = lsParetoEntitySums, xFraction = c(0.05, 0.2), yFraction = c(0.2, 0.45) )
+```
+
+## Across days
+
+```{r}
+lsParetoDaySums <- ParetoPrincipleAdherence::ParetoForNumericalVector( colSums(tssmrApple$TSMat) )
+ParetoPrincipleAdherence::ParetoFramePlot( data = lsParetoDaySums, xFraction = 0.7)
+```
+# Time series ouliers
+
+```{r}
+numberOfNNs <- 140
+```
+
+```{r}
+paste(sample( dfMatRecs$ID, 6 ), collapse = "', '") 
+```
+
+```{r}
+lsFocusIDs <- c('county.driving-Wake County', 'MeanTemperature-Styria, Austria', 'county.driving-Franklin County', 'county.driving-Clinton County', 'city.walking-Hsinchu metropolitan area', 'sub-region.walking-Hiroshima Prefecture')
+```
+
+```{r}
+system.time(
+  dfMatRecs <- 
+    tssmrApple$SMR %>% 
+    SMRMonBatchRecommend( data = lsFocusIDs, removeHistoryQ = FALSE, normalizeQ = FALSE ) %>% 
+    SMRMonTakeValue
+)
+```
+
+```{r}
+View(dfMatRecs)
+```
+
+```{r}
+system.time(
+  dfMatRecs <- 
+    tssmrApple$SMR %>% 
+    SMRMonRecommendByMatrix( removeHistoryQ = FALSE, normalizeQ = FALSE ) %>% 
+    SMRMonTakeValue
+)
+```
+
+```{r}
+system.time(
+  dfMatRecs <- 
+    tssmrApple$SMR %>% 
+    SMRMonRecommendByMatrix( removeHistoryQ = TRUE, normalizeQ = FALSE ) %>% 
+    SMRMonTakeValue
+)
+```
+
+```{r}
+system.time(
+  dfMatRecs <- 
+    tssmrApple$SMR %>% 
+    SMRMonRecommendByMatrix( nrecs = 12, removeHistoryQ = TRUE, normalizeQ = TRUE ) %>% 
+    SMRMonTakeValue
+)
+```
+
+```{r}
+dim(dfMatRecs)
+```
+
+```{r}
+Summary(dfMatRecs)
+```
+
+```{r}
+system.time(
+  smat <- 
+    tssmrApple$SMR %>% 
+    SMRMonApplyTermWeightFunctions("None", "None", "Cosine") %>% 
+    SMRMonFindAnomalies( 
+      numberOfNearestNeighbors = numberOfNNs, 
+      thresholdsIdentifier = function(x) BottomOutliersOnlyThresholds(SPLUSQuartileIdentifierParameters(x)),
+      property = "SparseMatrix" ) %>% 
+    SMRMonTakeValue
+)
+```
+
+```{r}
+dim(smat)
+```
+
+```{r}
+rownames(smat)
+```
+
+# Time series ouliers (first)
+
+```{r eval=FALSE}
+system.time(
+  gnnObj <- 
+    GNNMonUnit( tssmrApple$TSMat[1:200,] ) %>% 
+    GNNMonComputeNearestNeighborDistances( method = "cosine" ) %>% 
+    GNNMonComputeThresholds( )
+)
+```
+
+```{r eval=FALSE}
+system.time(
+  dfRes <- 
+    gnnObj %>% 
+    GNNMonClassify %>% 
+    GNNMonTakeValue
+)
+```
+
+```{r, eval=FALSE}
+summary(dfRes)
+```
+```{r, eval=FALSE}
+rownames(gnnObj %>% GNNMonTakeData())[ !dfRes$Label ]
+```
+

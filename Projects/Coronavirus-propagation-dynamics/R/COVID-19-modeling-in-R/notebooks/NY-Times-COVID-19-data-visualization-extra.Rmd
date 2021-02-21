@@ -60,7 +60,7 @@ matSDD <- xtabs( Deaths ~ StateCounty + Date, dfNYDataCounties  %>% dplyr::mutat
 aSMats <- setNames( c(matSDC, matSDD), c("Cases", "Deaths"))
 #aSMats <- setNames( c( matSDC[, 62:ncol(matSDC)] - matSDC[, 61:(ncol(matSDC)-1)], matSDD[, 62:ncol(matSDD)] - matSDD[, 61:(ncol(matSDD)-1)]), c("Cases", "Deaths"))
 aSMatsDiff <- setNames( c( matSDC[, 2:ncol(matSDC)] - matSDC[, 1:(ncol(matSDC)-1)], matSDD[, 2:ncol(matSDD)] - matSDD[, 1:(ncol(matSDD)-1)]), c("Cases", "Deaths"))
-aSMatsDiff <- purrr::map( aSMatsDiff, function(x) { rownames(x) <- paste0(rownames(x), "-Diff"); x})
+names(aSMatsDiff) <- paste0( "Diff-", names(aSMatsDiff) )
 #aSMats <- setNames( c(matSDC[,60:ncol(matSDC)], matSDD[,60:ncol(matSDC)]), c("Cases", "Deaths"))
 ```
 
@@ -85,6 +85,8 @@ dim(smat)
 ```
 
 Make the matrix of time series:
+
+
 
 ```{r}
 smrTemp <- SMRCreateFromMatrices( matrices = Map( f = t, x = c(aSMats, aSMatsDiff) ), imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = TRUE, sep = "-" )
@@ -139,7 +141,7 @@ recs
 ```
 
 ```{r, rows.print = 20}
-searchID <- "Cases-Florida-Broward"
+searchID <- "Diff-Cases-Florida-Broward"
 recs <- Recommendations( tssmrNYTimes, historyItems = searchID, historyRatings = 1, nrecs = 12, method = "pearson" )
 recs
 ```
@@ -163,6 +165,10 @@ assertthat::assert_that( mean( sort(rownames(tssmrNYTimes$TSMat)) == sort(rownam
 
 ```{r}
 tssmrNYTimes$TSMat <- SMRImposeRowIDs( smat = tssmrNYTimes$TSMat, rowIDs = rownames(tssmrNYTimes$SMR$M) )
+```
+
+```{r, eval=FALSE}
+save( tssmrNYTimes, file = "../../NYTimesCOVID19DataInUSA/tssmrNYTimes.RData")
 ```
 
 ```{r}

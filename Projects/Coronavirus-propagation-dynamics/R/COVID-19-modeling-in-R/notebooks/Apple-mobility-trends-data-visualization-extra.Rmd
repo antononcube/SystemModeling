@@ -1,0 +1,193 @@
+---
+title: "Apple mobility trends data visualization extra"
+author: Anton Antonov
+date: 2020-05-27
+output: html_notebook
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+
+# Load packages
+
+CRAN packages:
+
+```{r}
+library(Matrix)
+library(tidyverse)
+library(ggplot2)
+library(gridExtra)
+library(d3heatmap)
+library(igraph)
+library(zoo)
+library(rnoaa)
+```
+
+GitHub packages:
+
+```{r}
+library(LSAMon)
+library(SMRMon)
+library(SparseMatrixRecommender)
+library(SparseMatrixRecommenderInterfacesNoDT)
+```
+
+# Ingest data 
+
+Just run the notebook:
+
+```{r, eval=FALSE}
+rmarkdown::render( input = "./Apple-mobility-trends-data-visualization.Rmd", output_file = "./temp.html", output_format = "html_notebook", quiet = TRUE )
+```
+
+```{r}
+dfWeatherData <- read.csv( file = "~/Datasets/Apple/dfWeatherData.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+dfWeatherData
+```
+
+```{r}
+aMatWeatherData <- 
+  purrr::map( split(dfWeatherData, dfWeatherData$Variable), function(dfX) {
+    #dfX <- dfX %>% dplyr::mutate( EntVar = paste(EntityID, Variable,sep = "."))
+    xtabs( formula = Value ~ EntityID + ISODate, data = dfX, sparse = TRUE )
+  })
+```
+
+```{r}
+colnames(aMatWeatherData[[1]])
+```
+
+# Matrices
+
+```{r, rows.print = 20}
+purrr::map_df( c( aMatDateRegion, aMatWeatherData), function(x) data.frame( NRow = nrow(x), NCol = ncol(x) ), .id = "MatrixName" )
+```
+
+# Latent Semantic Analysis
+
+
+```{r, eval=FALSE}
+lsaObj <- 
+  LSAMonUnit() %>% 
+  LSAMonSetWeightedDocumentTermMatrix(  aMatDateRegion[["country/region.driving"]] ) %>% 
+  LSAMonExtractTopics( numberOfTopics = 12, minNumberOfDocumentsPerTerm = 1, method = "NNMF" ) %>% 
+  LSAMonEchoTopicsTable( wideFormQ = TRUE )
+```
+
+```{r, eval=FALSE}
+lsaObj <- 
+  LSAMonUnit() %>% 
+  LSAMonSetWeightedDocumentTermMatrix(  aMatDateRegion[["city.transit"]] ) %>% 
+  LSAMonExtractTopics( numberOfTopics = 12, minNumberOfDocumentsPerTerm = 1, method = "NNMF" ) %>% 
+  LSAMonEchoTopicsTable( numberOfTerms = 6, wideFormQ = TRUE )
+```
+
+# Time series search engine
+
+Make the matrix of time series:
+
+
+```{r}
+smrTemp <- SMRCreateFromMatrices( matrices = c(aMatDateRegion, sapply( aMatWeatherData, t )), imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = TRUE, sep = "-" )
+tsMat <- t(smrTemp$M)
+dim(tsMat)
+```
+```{r}
+sum( rowSums(tsMat) == 0 )
+```
+
+```{r}
+sum( colSums(tsMat) == 0 )
+```
+
+```{r}
+colnames(tsMat)
+```
+
+```{r}
+sample(rownames(tsMat),12)
+```
+
+Normalize matrix:
+
+```{r}
+tsDotMat <- SMRApplyTermWeightFunctions( docTermMat = tsMat, globalWeightFunction = "None", localWeightFunction = "None", normalizerFunction = "Cosine")
+```
+
+
+Make the base SMR object:
+
+```{r}
+smrApple <- SMRCreateFromMatrices( matrices = c(tsDotMat), tagTypes = c("NormalizedTimeSeries"), itemColumnName = "ID", imposeSameRowNamesQ = TRUE, addTagTypesToColumnNamesQ = FALSE )
+```
+
+Make the TS-SMR object:
+
+```{r}
+tssmrApple <- TSCorrSMRCreate( timeSeriesMatrix = tsMat, smr = smrApple, smrNRecs = 200 )
+```
+
+
+## Example recommendations
+
+```{r}
+dim(tssmrApple$SMR$M)
+dim(tssmrApple$TSMat)
+```
+
+```{r}
+setdiff(rownames(tssmrApple$SMR$M), rownames(tssmrApple$TSMat) )
+```
+
+```{r}
+setdiff(rownames(tssmrApple$TSMat), rownames(tssmrApple$SMR$M) )
+```
+
+```{r}
+tssmrApple$TSMat <- SMRImposeRowIDs( smat = tssmrApple$TSMat, rowIDs = rownames(tssmrApple$SMR$M) )
+```
+
+```{r}
+mean(rownames(tssmrApple$SMR$M) == rownames(tssmrApple$TSMat))
+```
+
+
+```{r}
+searchID <- "city.driving-Miami"
+recs <- Recommendations( tssmrApple, historyItems = searchID, historyRatings = 1, nrecs = 12 )
+recs
+```
+
+
+## Time series search engine
+
+```{r, eval=F}
+tsSearchVectors <- MakeTimeSeriesSearchVectors( tsMat = tsMat )
+length(tsSearchVectors)
+```
+
+```{r, eval=FALSE}
+save( tssmrApple, file = "../../AppleCOVID19MobilityTrends/tssmrApple.RData")
+```
+
+```{r}
+shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrApple,  theme = "superhero"  ) )
+```
+
+
+# Export
+
+```{r, eval=FALSE}
+write.csv( x = dfAppleMobilityLongForm %>% dplyr::filter( grepl( "Nice", region)), 
+           file = "../../../../../../SimplifiedMachineLearningWorkflows-book/R/ChampaignUrbanaDataScienceUserGroup-Meetup-February-2021/data/dfAppleMobilityLongForm.csv", row.names = FALSE )
+```
+
