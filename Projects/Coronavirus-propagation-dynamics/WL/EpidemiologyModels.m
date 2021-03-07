@@ -297,15 +297,21 @@ The second optional argument is expected to be context string.";
 SIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True };
+Options[SIRModel] = {
+  "TotalPopulationRepresentation" -> None,
+  "InitialConditions" -> True,
+  "RateRules" -> True,
+  "MoneyTracking" -> True };
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, tpRepr,
+    Block[{addInitialConditionsQ, addRateRulesQ, moneyTrackingQ,
       newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SIRModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SIRModel, "RateRules" ] ];
+
+      moneyTrackingQ = TrueQ[ OptionValue[ SIRModel, "MoneyTracking" ] ];
 
       tpRepr = OptionValue[ SIRModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -399,6 +405,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
         ];
 
+        If[ !moneyTrackingQ,
+          aRes = Most /@ aRes
+        ];
+
         aRes
       ]
     ];
@@ -424,17 +434,24 @@ The second optional argument is expected to be context string.";
 SI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
+Options[SI2RModel] = {
+  "TotalPopulationRepresentation" -> None,
+  "InitialConditions" -> True,
+  "RateRules" -> True,
+  "BirthsTerm" -> False,
+  "MoneyTracking" -> True };
 
 SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
-      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, moneyTrackingQ,
+      tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SI2RModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SI2RModel, "RateRules" ] ];
 
       birthsTermQ = TrueQ[ OptionValue[ SI2RModel, "BirthsTerm" ] ];
+
+      moneyTrackingQ = TrueQ[ OptionValue[ SIRModel, "MoneyTracking" ] ];
 
       tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -544,6 +561,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
         ];
 
+        If[ !moneyTrackingQ,
+          aRes = Most /@ aRes
+        ];
+
         aRes
       ]
     ];
@@ -578,17 +599,25 @@ The second optional argument is expected to be context string.";
 SEIRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SEIRModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
+Options[SEIRModel] = {
+  "TotalPopulationRepresentation" -> None,
+  "InitialConditions" -> True,
+  "RateRules" -> True,
+  "BirthsTerm" -> False,
+  "MoneyTracking" -> True
+};
 
 SEIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, tpRepr,
-      model, lsRepRules, lsDropSymbols, m2},
+    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, moneyTrackingQ,
+      tpRepr, model, lsRepRules, lsDropSymbols, m2},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEIRModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SEIRModel, "RateRules" ] ];
 
       birthsTermQ = TrueQ[ OptionValue[SEIRModel, "BirthsTerm"] ];
+
+      moneyTrackingQ = TrueQ[ OptionValue[ SIRModel, "MoneyTracking" ] ];
 
       tpRepr = OptionValue[ SEIRModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -676,17 +705,26 @@ The second optional argument is expected to be context string.";
 SEI2RModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation\" is expected to be one of \
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
-Options[SEI2RModel] = { "TotalPopulationRepresentation" -> None, "InitialConditions" -> True, "RateRules" -> True, "BirthsTerm" -> False };
+Options[SEI2RModel] = {
+  "TotalPopulationRepresentation" -> None,
+  "InitialConditions" -> True,
+  "RateRules" -> True,
+  "BirthsTerm" -> False,
+  "MoneyTracking" -> True
+};
 
 SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, tpRepr,
-      newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
+    Block[{addRateRulesQ, addInitialConditionsQ, birthsTermQ, moneyTrackingQ,
+      tpRepr, newlyInfectedTerm, aStocks, aRates, lsEquations,
+      aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEI2RModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SEI2RModel, "RateRules" ] ];
 
       birthsTermQ = TrueQ[ OptionValue[SEI2RModel, "BirthsTerm"] ];
+
+      moneyTrackingQ = TrueQ[ OptionValue[SEI2RModel, "MoneyTracking"] ];
 
       tpRepr = OptionValue[ SEI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -799,6 +837,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         If[ addInitialConditionsQ,
           aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
+        ];
+
+        If[ !moneyTrackingQ,
+          aRes = Most /@ aRes;
         ];
 
         aRes
