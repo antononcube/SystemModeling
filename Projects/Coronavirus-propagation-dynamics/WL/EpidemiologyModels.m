@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Written by Anton Antonov,
-    antononcube @ gmail . com,
+    antononcube @ posteo . net,
     Windermere, Florida, USA.
 *)
 
@@ -304,7 +304,7 @@ Options[SIRModel] = {
   "MoneyTracking" -> True };
 
 SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, moneyTrackingQ,
+    Block[{addInitialConditionsQ, addRateRulesQ, moneyTrackingQ, tpRepr,
       newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SIRModel, "InitialConditions" ] ];
@@ -340,6 +340,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               RP[t] -> "Recovered Population",
               MLP[t] -> "Money of Lost Productivity"|>;
 
+        If[ !moneyTrackingQ,
+          aStocks = Most @ aStocks;
+        ];
+
         (* Rates  *)
         aRates =
             <|
@@ -350,6 +354,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[IP] -> "Lost productivity cost rate (per person per day)"
             |>;
 
+        If[ !moneyTrackingQ,
+          aRates = Most @ aRates;
+        ];
+
         (* Equations  *)
         newlyInfectedTerm = contactRate[IP] / TP[t] * SP[t] * IP[t];
 
@@ -359,6 +367,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           RP'[t] == (1 / aip) * IP[t] - deathRate[TP] * RP[t],
           MLP'[t] == lpcr[IP] * (TP[t] - RP[t] - SP[t])
         };
+
+        If[ !moneyTrackingQ,
+          lsEquations = Most @ lsEquations
+        ];
 
         Which[
           MemberQ[{Constant, "Constant"}, tpRepr],
@@ -383,6 +395,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[IP] -> 1
             |>;
 
+        If[ !moneyTrackingQ,
+          aRateRules = Most @ aRateRules
+        ];
+
         (* Initial conditions *)
         aInitialConditions =
             {
@@ -390,6 +406,10 @@ SIRModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               IP[0] == 1,
               RP[0] == 0,
               MLP[0] == 0};
+
+        If[ !moneyTrackingQ,
+          aInitialConditions = Most @ aInitialConditions
+        ];
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
@@ -451,7 +471,7 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
       birthsTermQ = TrueQ[ OptionValue[ SI2RModel, "BirthsTerm" ] ];
 
-      moneyTrackingQ = TrueQ[ OptionValue[ SIRModel, "MoneyTracking" ] ];
+      moneyTrackingQ = TrueQ[ OptionValue[ SI2RModel, "MoneyTracking" ] ];
 
       tpRepr = OptionValue[ SI2RModel, "TotalPopulationRepresentation" ];
       If[ TrueQ[tpRepr === Automatic] || TrueQ[tpRepr === None], tpRepr = Constant ];
@@ -483,6 +503,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               RP[t] -> "Recovered Population",
               MLP[t] -> "Money of Lost Productivity"|>;
 
+        If[ !moneyTrackingQ,
+          aStocks = Most @ aStocks;
+        ];
+
         (* Rates  *)
         aRates =
             <|
@@ -495,6 +519,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               aip -> "Average infectious period",
               lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
             |>;
+
+        If[ !moneyTrackingQ,
+          aRates = Most @ aRates;
+        ];
 
         (* Equations  *)
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
@@ -511,6 +539,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
         };
+
+        If[ !moneyTrackingQ,
+          lsEquations = Most @ lsEquations
+        ];
 
         Which[
           MemberQ[{Constant, "Constant"}, tpRepr],
@@ -538,6 +570,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[ISSP, INSP] -> 1
             |>;
 
+        If[ !moneyTrackingQ,
+          aRateRules = Most @ aRateRules
+        ];
+
         (* Initial conditions *)
         aInitialConditions =
             {
@@ -546,6 +582,10 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               INSP[0] == 1,
               RP[0] == 0,
               MLP[0] == 0};
+
+        If[ !moneyTrackingQ,
+          aInitialConditions = Most @ aInitialConditions
+        ];
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
@@ -559,10 +599,6 @@ SI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         If[ addInitialConditionsQ,
           aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
-        ];
-
-        If[ !moneyTrackingQ,
-          aRes = Most /@ aRes
         ];
 
         aRes
@@ -759,6 +795,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               RP[t] -> "Recovered Population",
               MLP[t] -> "Money of Lost Productivity"|>;
 
+        If[ !moneyTrackingQ,
+          aStocks = Most @ aStocks;
+        ];
+
         (* Rates  *)
         aRates =
             <|
@@ -772,6 +812,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               aincp -> "Average incubation period",
               lpcr[ISSP, INSP] -> "Lost productivity cost rate (per person per day)"
             |>;
+
+        If[ !moneyTrackingQ,
+          aRates = Most @ aRates;
+        ];
 
         (* Equations  *)
         newlyInfectedTerm = contactRate[ISSP] / TP[t] * SP[t] * ISSP[t] + contactRate[INSP] / TP[t] * SP[t] * INSP[t];
@@ -788,6 +832,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           RP'[t] == (1 / aip) * (ISSP[t] + INSP[t]) - deathRate[TP] * RP[t],
           MLP'[t] == lpcr[ISSP, INSP] * (TP[t] - RP[t] - SP[t])
         };
+
+        If[ !moneyTrackingQ,
+          lsEquations = Most @ lsEquations;
+        ];
 
         Which[
           MemberQ[{Constant, "Constant"}, tpRepr],
@@ -816,6 +864,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
               lpcr[ISSP, INSP] -> 1
             |>;
 
+        If[ !moneyTrackingQ,
+          aRateRules = Most @ aRateRules;
+        ];
+
         (* Initial conditions *)
         aInitialConditions = {
           SP[0] == (TP[0] /. aRateRules) - 2,
@@ -824,6 +876,10 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           INSP[0] == 1,
           RP[0] == 0,
           MLP[0] == 0};
+
+        If[ !moneyTrackingQ,
+          aInitialConditions = Most @ aInitialConditions;
+        ];
 
         (* Result *)
         If[ tpRepr == "AlgebraicEquation",
@@ -837,10 +893,6 @@ SEI2RModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
 
         If[ addInitialConditionsQ,
           aRes = Append[aRes, "InitialConditions" -> aInitialConditions];
-        ];
-
-        If[ !moneyTrackingQ,
-          aRes = Most /@ aRes;
         ];
 
         aRes
@@ -869,7 +921,7 @@ SEI2HRModel::"ntpval" = "The value of the option \"TotalPopulationRepresentation
 Automatic, \"Constant\", \"SumSubstitution\", \"AlgebraicEquation\"";
 
 
-Options[SEI2HRModel] = Options[SEI2RModel];
+Options[SEI2HRModel] = DeleteCases[Options[SEI2RModel], HoldPattern["MoneyTracking" -> _]];
 
 SEI2HRModel[ t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
     Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, tpRepr,
