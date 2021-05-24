@@ -1,4 +1,4 @@
-# Epidemiology Compartmental Modeling Monad
+# Epidemiologic Compartmental Modeling Monad
 
 **Version 0.8**
 
@@ -14,11 +14,11 @@ December 2020
 
 In this document we describe the design and demonstrate the implementation of a (software programming) monad, 
 [[Wk1](https://en.wikipedia.org/wiki/Monad_(functional_programming))], 
-for Epidemiology Compartmental Modeling (ECM) workflows specification and execution. 
+for Epidemiologic Compartmental Modeling (ECM) workflows specification and execution. 
 The design and implementation are done with Mathematica / Wolfram Language (WL).
 A very similar implementation is also done in R.
 
-Monad’s name is “ECMMon”, which stands for “**E**pidemiology **C**ompartmental **M**odeling **Mon**ad”, 
+Monad’s name is “ECMMon”, which stands for “**E**pidemiologic **C**ompartmental **M**odeling **Mon**ad”, 
 and its monadic implementation is based on the State monad package 
 [“StateMonadCodeGenerator.m”](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), 
 [[AAp1](https://github.com/antononcube/MathematicaForPrediction/blob/master/MonadicProgramming/StateMonadCodeGenerator.m), 
