@@ -901,7 +901,17 @@ Consider the making of a conversational agent for epidemiology modeling workflow
 Consider the following epidemiology modeling workflow specification:
 
 ```mathematica
-lsCommands = "create with SEI2HR;assign 100000 to total population;set infected normally symptomatic population to be 0;set infected severely symptomatic population to be 1;assign 0.56 to contact rate of infected normally symptomatic population;assign 0.58 to contact rate of infected severely symptomatic population;assign 0.1 to contact rate of the hospitalized population;simulate for 240 days;plot populations results;calibrate for target DIPt -> tsDeaths, over parameters contactRateISSP in from 0.1 to 0.7;echo pipeline value";
+lsCommands = "
+create with SEI2HR;
+assign 100000 to total population;
+set infected normally symptomatic population to be 0;
+set infected severely symptomatic population to be 1;
+assign 0.56 to contact rate of infected normally symptomatic population;
+assign 0.58 to contact rate of infected severely symptomatic population;
+assign 0.1 to contact rate of the hospitalized population;
+simulate for 240 days;plot populations results;
+calibrate for target DIPt -> tsDeaths, over parameters contactRateISSP in from 0.1 to 0.7;
+echo pipeline value";
 ```
 
 Here is the `ECMMon` code generated using the workflow specification:
@@ -909,7 +919,17 @@ Here is the `ECMMon` code generated using the workflow specification:
 ```mathematica
 ToEpidemiologyModelingWorkflowCode[lsCommands, "Execute" -> False, "StringResult" -> True]
 
-(*"ECMMonUnit[SEI2HRModel[t]] ⟹ECMMonAssignInitialConditions[<|TP[0] -> 100000|>] ⟹ECMMonAssignInitialConditions[<|INSP[0] -> 0|>] ⟹ECMMonAssignInitialConditions[<|ISSP[0] -> 1|>] ⟹ECMMonAssignRateRules[<|\\[Beta][INSP] -> 0.56|>] ⟹ECMMonAssignRateRules[<|\\[Beta][ISSP] -> 0.58|>] ⟹ECMMonAssignRateRules[<|\\[Beta][HP] -> 0.1|>] ⟹ECMMonSimulate[\"MaxTime\" -> 240] ⟹ECMMonPlotSolutions[ \"Stocks\" -> __ ~~ \"Population\"] ⟹ECMMonCalibrate[ \"Target\" -> <|DIP -> tsDeaths|>, \"Parameters\" -> <|\\[Beta][ISSP] -> {0.1, 0.7}|> ] ⟹ECMMonEchoValue[]"*)
+(*"ECMMonUnit[SEI2HRModel[t]] ⟹
+ECMMonAssignInitialConditions[<|TP[0] -> 100000|>] ⟹
+ECMMonAssignInitialConditions[<|INSP[0] -> 0|>] ⟹
+ECMMonAssignInitialConditions[<|ISSP[0] -> 1|>] ⟹
+ECMMonAssignRateRules[<|\\[Beta][INSP] -> 0.56|>] ⟹
+ECMMonAssignRateRules[<|\\[Beta][ISSP] -> 0.58|>] ⟹
+ECMMonAssignRateRules[<|\\[Beta][HP] -> 0.1|>] ⟹
+ECMMonSimulate[\"MaxTime\" -> 240] ⟹
+ECMMonPlotSolutions[ \"Stocks\" -> __ ~~ \"Population\"] ⟹
+ECMMonCalibrate[ \"Target\" -> <|DIP -> tsDeaths|>, \"Parameters\" -> <|\\[Beta][ISSP] -> {0.1, 0.7}|> ] ⟹
+ECMMonEchoValue[]"*)
 ```
 
 Here is the execution of the code above:
