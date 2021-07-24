@@ -63,6 +63,7 @@ library(gridExtra)
 library(d3heatmap)
 library(igraph)
 library(zoo)
+library(forecast)
 ```
 
 
@@ -71,7 +72,8 @@ library(zoo)
 Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
 
 ```{r}
-dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2021-01-15.csv", stringsAsFactors = FALSE)
+dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2021-07-23.csv", stringsAsFactors = FALSE)
+#dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2021-02-20.csv", stringsAsFactors = FALSE)
 #dfAppleMobility <- read.csv("https://covid19-static.cdn-apple.com/covid19-mobility-data/2024HotfixDev18/v3/en-us/applemobilitytrends-2021-01-15.csv")
 names(dfAppleMobility) <- gsub( "^X", "", names(dfAppleMobility))
 names(dfAppleMobility) <- gsub( ".", "-", names(dfAppleMobility), fixed = TRUE)

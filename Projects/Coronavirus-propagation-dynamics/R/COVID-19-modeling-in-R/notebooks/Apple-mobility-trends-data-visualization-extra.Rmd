@@ -88,7 +88,7 @@ lsaObj <-
   LSAMonUnit() %>% 
   LSAMonSetWeightedDocumentTermMatrix(  aMatDateRegion[["city.transit"]] ) %>% 
   LSAMonExtractTopics( numberOfTopics = 12, minNumberOfDocumentsPerTerm = 1, method = "NNMF" ) %>% 
-  LSAMonEchoTopicsTable( numberOfTerms = 6, wideFormQ = TRUE )
+  LSAMonEchoTopicsTable( numberOfTerms = 12, wideFormQ = TRUE )
 ```
 
 # Time series search engine
@@ -176,7 +176,7 @@ length(tsSearchVectors)
 ```
 
 ```{r, eval=FALSE}
-save( tssmrApple, file = "../../AppleCOVID19MobilityTrends/tssmrApple.RData")
+base::save( tssmrApple, file = "../../AppleCOVID19MobilityTrends/tssmrApple.RData")
 ```
 
 ```{r}
