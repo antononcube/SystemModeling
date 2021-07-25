@@ -168,7 +168,7 @@ tssmrNYTimes$TSMat <- SMRImposeRowIDs( smat = tssmrNYTimes$TSMat, rowIDs = rowna
 ```
 
 ```{r, eval=FALSE}
-save( tssmrNYTimes, file = "../../NYTimesCOVID19DataInUSA/tssmrNYTimes.RData")
+base::save( tssmrNYTimes, file = "../../NYTimesCOVID19DataInUSA/tssmrNYTimes.RData")
 ```
 
 ```{r}
