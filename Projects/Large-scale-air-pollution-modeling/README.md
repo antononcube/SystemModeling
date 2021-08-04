@@ -22,10 +22,14 @@ Additional links:
 
 - [DTU Orbit](https://orbit.dtu.dk/en/projects/object-oriented-framework-for-large-scale-air-pollution-models)
 
-
 ### Articles
 
-*TBD*...
+[AA2] Anton Antonov,
+Framework for Parallel Simulations in Air Pollution Modeling with Local Refinements. 
+December 2002       
+10.1016/B978-044450672-6/50055-4.  
+In book: Parallel Computational Fluid Dynamics 2001   
+Project: Danish Eulerian Air Pollution Model   
 
 [AA4] Anton Antonov,
 [Galerkin and Control Volume Finite Element Methods for Large Scale Air Pollution Simulations: A Comparison](./Documents/Antonov-GFEM-and-CVFEM-for-LSAPM-a-Comparison-(2003).pdf), 
@@ -39,5 +43,7 @@ Project: Danish Eulerian Air Pollution Model.
 ["Air pollution modeling with gridMathematica"](https://library.wolfram.com/infocenter/Conferences/6532/), 
 (2006), 
 Wolfram Technology Conference.
+
+### Books
 
 [ZZ1] Zahari Zlatev, Computer Treatment of Large Air Pollution Models. 1995. Kluwer.
