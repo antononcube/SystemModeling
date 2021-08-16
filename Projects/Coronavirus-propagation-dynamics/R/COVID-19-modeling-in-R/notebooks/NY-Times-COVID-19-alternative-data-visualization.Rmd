@@ -13,7 +13,7 @@ library(hexbin)
 
 ## ggplot2
 
-Not that these are just location denisities:
+Not that these are just location densities:
 
 ```{r}
 ggplot( dsNYDataCountiesExtended[, c("Lat", "Lon", "Cases")] ) +
@@ -51,7 +51,7 @@ dsNYDataCountiesExtended
 highcharter::hcmap("countries/us/us-all-all", 
       data = dsNYDataCountiesExtended,
       name = "Cases", value = "Cases", 
-      joinBy = c("fips", "Fips"),
+      joinBy = c("name", "State"),
       borderColor = "transparent") %>%
   highcharter::hc_colorAxis(dataClasses = highcharter::color_classes( quantile(dsNYDataCountiesExtended$Cases, seq(0,1,0.1)) ) ) %>% 
   highcharter::hc_legend(layout = "vertical", align = "right",
