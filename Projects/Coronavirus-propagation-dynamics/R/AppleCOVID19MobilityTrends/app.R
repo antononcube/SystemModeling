@@ -40,8 +40,9 @@ ui <- SparseMatrixRecommenderInterfacesNoDT::TSCorrSMRMakeUI(tsSMR = tssmrApple,
                                                                    value = 
                                                                      paste(
                                                                        "Most of the \"entities\" of the search engine are time series that reflect requests for directions in Apple Maps.",
-                                                                       "Tempearature times series \"entities\" are also included: they correspond to temperature data at locations that are found in Apple's data.",
-                                                                       "The temperature time series have the prefix \"MeanTemperature-\"."
+                                                                       " Tempearature times series \"entities\" are also included: they correspond to temperature data at locations that are found in Apple's data.",
+                                                                       " The temperature time series have the prefix \"MeanTemperature-\".",
+                                                                       " The time series are from:", colnames(tssmrNYTimes$TSMat)[1], " to:", colnames(tssmrNYTimes$TSMat)[ncol(tssmrNYTimes$TSMat)], "."
                                                                      )
                                                                  ),
                                                                  c( title = "[AAPL1]", 
