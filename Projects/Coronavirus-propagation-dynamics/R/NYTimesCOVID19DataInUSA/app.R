@@ -43,7 +43,8 @@ ui <- SparseMatrixRecommenderInterfacesNoDT::TSCorrSMRMakeUI(tsSMR = tssmrNYTime
                                                                      paste(
                                                                        "The \"entities\" of the search engine are time series of COVID-19 infection cases and deaths over USA counties",
                                                                        "and the corresponding time series differences.",
-                                                                       "The difference time series have the prefix \"Diff-\".")
+                                                                       " The difference time series have the prefix \"Diff-\".",
+                                                                       " The time series are from:", colnames(tssmrNYTimes$TSMat)[1], " to:", colnames(tssmrNYTimes$TSMat)[ncol(tssmrNYTimes$TSMat)], ".")
                                                                  ),
                                                                  c(
                                                                    title = "[NYT1]",
