@@ -151,7 +151,7 @@ dsNYDataCountiesExtended
 # Basic data analysis
 
 ```{r}
-ParetoPlotForColumns( dsNYDataCountiesExtended, c("Cases", "Deaths"), scales = "free" )
+ParetoPlotForColumns( as.data.frame(lapply(dsNYDataCountiesExtended[,c("Cases", "Deaths")], as.numeric)), c("Cases", "Deaths"), scales = "free" )
 ```
 
 # Geo-histogram
