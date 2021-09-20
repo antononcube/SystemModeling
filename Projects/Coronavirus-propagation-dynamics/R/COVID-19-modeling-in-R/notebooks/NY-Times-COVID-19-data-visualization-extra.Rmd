@@ -172,6 +172,10 @@ base::save( tssmrNYTimes, file = "../../NYTimesCOVID19DataInUSA/tssmrNYTimes.RDa
 ```
 
 ```{r}
+colnames(tssmrNYTimes$TSMat)[c(1,ncol(tssmrNYTimes$TSMat))]
+```
+
+```{r}
 shiny::runApp( TSCorrSMRCreateSearchInterface( tsSMR = tssmrNYTimes, theme = "superhero" ) )
 ```
 
