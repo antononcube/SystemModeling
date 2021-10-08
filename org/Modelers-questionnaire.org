@@ -17,7 +17,7 @@
 ** Why the questions discuss notebooks?
 - The following questions assume that models are developed and run
   with Mathematica.
-- Currently most of SystemModeling models are (mostly) run through
+- Currently most of the models in the repository [[https://github.com/antononcube/SystemModeling][SystemModeling]] are (mostly) run through
   Mathematica notebooks.
 ** System Dynamics models
 - Most of the [[https://github.com/antononcube/SystemModeling][SystemModeling]] models are System Dynamics models.
