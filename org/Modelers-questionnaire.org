@@ -10,8 +10,9 @@
 ** Why those questions?
 - A modeler should think that people who use modeler's models are doing
   the modeler a favor.
-- Also, for each model a certain sense of model ownership has to be formed.
-  - That makes model management easier (by humans of databases.) 
+- Also, for each model a certain sense of model ownership has to be
+  formed by the people who try to use it. (Or adopt it.)
+  - That makes model management easier (by humans or databases.) 
 - The questions below are gathered from those perspectives.
 ** Why the questions discuss notebooks?
 - The following questions assume that models are developed and run
