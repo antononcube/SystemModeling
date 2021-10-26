@@ -74,7 +74,7 @@
 1) [ ] What version of programming language or system the model was calibrated with?
 2) [ ] What operating systems the model was calibrated in?
 3) [ ] How long did it take you make the first run of the model?
-4) [ ] How long did it take you to run the whole calibration processs?
+4) [ ] How long did it take you to run the whole calibration process?
 5) [ ] When "victory" or "sufficiently good results" were declared?
 6) [ ] Under what conditions the calibration process was given up?
 ** Data feeding [0%] [0/2]
