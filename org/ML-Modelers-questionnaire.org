@@ -1,0 +1,204 @@
+#+TITLE: Machine Learning Modelers Questionnaire
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@posteo.net
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED 
+#+OPTIONS: toc:0 num:0
+
+* Introduction
+- In this document are listed questions for different aspects of
+  Machine Learning (ML) models.
+  - ML models used to model and predict large systems.
+- This document is very similar to the document [[https://github.com/antononcube/SystemModeling/blob/master/org/Modelers-questionnaire.org][Modelers questionnaire]]
+  for System Dynamics models.
+** Why those questions?
+- A modeler should think that people who use modeler's models are doing
+  the modeler a favor.
+- Also, for each model a certain sense of model ownership has to be
+  formed by the people who try to use it. (Or adopt it.)
+  - That makes model management easier (by humans or databases.) 
+- The questions below are gathered from those perspectives.
+** Why the questions discuss notebooks and scripts?
+- The following questions assume that the models are developed and run
+  using notebooks or scripts.
+** Machine Learning models
+- The primary ML models considered in this document (so far) are supervised ML models.
+- Most of the questions are valid for unsupervised ML models and if
+  some them are specific to only one type that is indicated.
+** Calibration and tuning
+*** Tuning
+- /Tuning/ in this document means:
+  1) The ML model is run trough some training process one or multiple
+     times
+     - This includes using different strategies for splitting the data
+       into training and testing parts.
+  2) Different ML algorithms can be used in the multiple runs
+  3) Appropriate post-training parameters have been chosen in order to make the obtained ML model more operational
+     - In supervised ML case the last point above means:
+       - Selection of appropriate parameters to predict with the model.
+- For example:
+  - Model training is done with a random forest algorithm
+  - Using Receiver Operation
+*** Calibration
+- *Calibration* in this document means that:
+  1) Selection of appropriate features or additional feature extraction.
+  2) Tuning with the feature-enhanced data
+  3) Finding decisive features
+  4) Filtering or enhancing the data
+  5) If non-satisfactory results are obtained go to 1
+- *Tuning is a /sub-task/ of Calibration.*
+* Questions [%] [/]
+** Modeling [0%] [0/6]
+1) [ ] What is the confidence that the model reflects reality?
+   - [ ] What are the (major) model assumptions?
+   - [ ] What are the (major) model simplifications?
+   - [ ] Why the training features are selected or extracted?
+   - [ ] How easy would it be to calibrate/tune the model?
+2) [ ] If multiple cohorts are used:
+   1) [ ] Does the model work with different number of cohorts?
+   2) [ ] Does the model work with a cohort interaction matrix?
+   3) [ ] What are the units of the cohort interaction matrix entries?
+3) [ ] Features
+   - [ ] Where the features are defined and explained?
+   - [ ] Is there a dictionary for the features in model's object or package?
+   - [ ] Are there specifications for the physical units of each feature?
+   - [ ] What are the feature values expected value ranges?
+   - [ ] Do feature values have to normalized?
+   - [ ] Is the normalization local, global, or both?
+   - [ ] How categorical features are represented?
+   - [ ] How is the feature extraction and normalization extended (re-applied)
+     from the training data to the testing data?
+4) [ ] Rates of change 
+   - [ ] Are there dynamic, time series-like features?
+     - We call those /rates of change/.
+   - [ ] Where are the rates defined and explained?
+   - [ ] Is there a dictionary for the rates in model's object or package?
+   - [ ] Are there specifications for the physical units of each rate?
+   - [ ] What are the rates expected value ranges?
+5) [ ] Is the model build-up or set-up parameterized?
+6) [ ] What is the size of the model?
+   - [ ] If multi-dimensional representation is used:
+     - [ ] How points in space the model has?
+     - [ ] How the representation matrix dimensions change with respect to model set-up?
+   - [ ] If non-matrix representation is used:
+     - [ ] What kind of data manipulation is required?
+     - [ ] Can a matrix representation be applied?
+** Implementation [%] [/]
+1) [ ] Is the model implemented in package(s)?
+   - [ ] C
+   - [ ] FORTRAN
+   - [ ] Java
+   - [ ] Julia
+   - [ ] Mathematica
+   - [ ] Modelica
+   - [ ] Python
+   - [ ] R
+   - etc.
+2) [ ] What are the components of the model?
+3) [ ] Are the model features or parameters hard-coded?
+4) [ ] Are there hard-coded:
+   - [ ] Filtering procedures
+   - [ ] Features
+   - [ ] Parameters
+5) [ ] What parameters are needed to generate the model training and
+   testing data?
+6) [ ] In which package context(s) or namespace(s) the model
+   representation is in?
+7) [ ] Is the model preparation placed in a source code version control system?
+8) [ ] What are the stages of the building of the model training and
+   testing data?
+9) [ ] What ML algorithms are applied with which libraries?
+10) [ ] Is there additional set-up for ML algorithms libraries?
+** Hand-out [0%] [0/5]
+1) [ ] What are the files needed to run the model?
+2) [ ] Are there additional packages to be obtained or downloaded?
+3) [ ] Are there additional data files to be obtained or downloaded?
+4) [ ] Is there documentation for the model theory and/or usage?
+5) [ ] Which ML algorithm packages or libraries have to be installed?
+6) [ ] Where are the ML algorithm packages located?
+** Execution [0%] [0/6]
+1) [ ] What version of which programming language or system the model was developed in?
+2) [ ] What are the last version(s) of the programming language(s) or system(s) in which the model was successfully run?
+3) [ ] What operating systems the model code can/was/should be executed on?
+4) [ ] Is the model code supposed to be run as is?
+   - [ ] Is some additional set-up work needed?
+   - [ ] Where is this additional set-up work described?
+5) [ ] Does the model code have:
+   - [ ] Set up notebook(s) or script(s)
+   - [ ] Running execution notebook(s) or script(s)
+   - [ ] Package dependencies
+6) [ ] Are there any global variables in the model execution workflow?
+   - [ ] Global environment / namespace variables:
+     - [ ] Operating System
+     - [ ] Mathematica
+     - [ ] Python
+     - [ ] R
+     - etc.
+   - [ ] Global notebook or script variables
+7) [ ] What parts of the code in the hand-out notebooks or scripts have to be changed?
+8) [ ] Does the model execution have code defined in the execution notebook / script?
+   - [ ] If yes, why is that code defined in the notebook / script?
+     - [ ] For verification that "things are working as expected"
+     - [ ] For calibration computations intermediate insight or direction determination
+     - [ ] For visualization
+     - [ ] For debugging
+     - etc.
+   - [  ] Why the functions defined in the notebook / script are not in a package?
+** Data feeding [0%] [0/6]
+1) [ ] Where the data for the model is located?
+2) [ ] How is the data ingested in the model code?
+3) [ ] In what format the data should be?
+4) [ ] Are different data-facets in different formats?
+5) [ ] What is the required data pre-processing?
+6) [ ] What is data's pedigree or lineage?
+   - [ ] Is it a version control system?
+   - [ ] Who provided it?
+   - [ ] How it was collected?
+   - [ ] What is the methodology of processing the raw data?
+   - [ ] Is it updated or reviewed?
+** Calibration parameters [0%] [0/11]
+1) [ ] Which are the tuning or calibration parameters?
+2) [ ] Where are the calibration parameters defined and/or explained?
+3) [ ] What ranges of the calibration parameters should be considered?
+4) [ ] Which parameters have highest sensitivity?
+5) [ ] Which parameters are most important?
+   - [ ] Have most impact on the results of interest
+   - [ ] Influence the system dynamics or evolution the most
+   - [ ] From economics perspective
+   - etc.
+6) [ ] Has calibration of the model been done or attempted?
+7) [ ] How long the calibration process should take?
+8) [ ] What are the calibration targets?
+   - When supervised ML is conducted then /targets/ means "target classes".
+9) [ ] Is it needed to pre-process the data used in the calibration?
+10) [ ] Should features be aggregated in some way in order to use the calibration targets?
+11) [ ] Should the model be enhanced with additional features in order to calibrate with certain types of targets?
+** Feature importance
+1) [ ] Is feature importance conducted?
+2) [ ] Which features are most important?
+3) [ ] Is it possible to reduce remove some features and have the same results?
+4) [ ] How is the feature importance determined?
+** Supervised ML metrics
+1) [ ] What are the desired precision and recall?
+2) [ ] Which classification results have most confidence?
+3) [ ] Which classification results have least confidence?
+4) [ ] What Receiver Operating Characteristics (ROC) are used?
+5) [ ] How long does it take to train the classifier?
+6) [ ] Was there a validation set?
+7) [ ] Was K-fold training used?
+** Numerical computations [%] [/]
+1) [ ] What are the expected precision and accuracy goals for the
+   numerical predictions?
+** Unit testing [0%] [0/2]
+1) [ ] Does the model have unit tests?
+   - [ ] Expected outcomes tests
+   - [ ] No-brainer tests
+   - [ ] Consistency tests
+2) [ ] Does the data have unit tests?
+   - [ ] What are the expected data size(s)?
+   - [ ] What are the expected data properties?
+   - [ ] Is the data expected to have missing values?
+   - [ ] Are there expected distributions of different variables found in data?
+   - [ ] Other types of tests
+** Possible issues
+1) List possible issues when executing the model.
+2) How to troubleshoot known, expected possible issues?
