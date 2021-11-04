@@ -13,6 +13,7 @@ library(dplyr)
 library(RcppRoll)
 library(stringi)
 library(stringr)
+library(feather)
 
 library(SMRMon)
 library(OutlierIdentifiers)
