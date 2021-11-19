@@ -10,6 +10,7 @@
   - ML models used to model and predict large systems.
 - This document is very similar to the document [[https://github.com/antononcube/SystemModeling/blob/master/org/Modelers-questionnaire.org][Modelers questionnaire]]
   for System Dynamics models.
+- This document is "localized" version of the document [[https://github.com/antononcube/SystemModeling/blob/master/org/ML-Modelers-questionnaire.org][ML-Modelers-questionnaire]].
 ** Why those questions?
 - A modeler should think that people who use modeler's models are doing
   the modeler a favor.
@@ -83,6 +84,21 @@
      - [ ] What kind of data manipulation is required?
      - [ ] Can a matrix representation be applied?
        - [ ] If yes, what are the concrete steps?
+7) [ ] What model performance measures are used?
+   - [ ] How is the model success or failure to predict measured?
+   - [ ] How is the model adequacy measured?
+   - [ ] What the "quick" measures?
+   - [ ] Are the measures applied over data segments?
+   - [ ] Are ROCs used?
+** Model management
+1) [ ] Was Model Management System (MMS) used?
+   - [ ] Specially made or ad-hoc MMS
+   - [ ] Published, well-known, documented MMS
+2) [ ] How many models are produced?
+3) [ ] How are the models stored?
+4) [ ] How are the models transferred?
+6) [ ] Is there a model retrieval system in place?
+   - [ ] Are the models stored for easy review and retrieval?
 ** Implementation [0%] [0/11]
 1) [ ] Is the model implemented in package(s)?
    - [ ] C
