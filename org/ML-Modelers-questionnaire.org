@@ -87,7 +87,7 @@
 7) [ ] What model performance measures are used?
    - [ ] How is the model success or failure to predict measured?
    - [ ] How is the model adequacy measured?
-   - [ ] What the "quick" measures?
+   - [ ] What are the "quick" measures?
    - [ ] Are the measures applied over data segments?
    - [ ] Are ROCs used?
 ** Model management
