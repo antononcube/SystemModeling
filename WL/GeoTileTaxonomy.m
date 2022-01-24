@@ -33,7 +33,7 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     Written by Anton Antonov,
-    antononcube @ gmail . com,
+    ʇǝu ˙ oǝʇsod @ ǝqnɔuouoʇuɐ
     Windermere, Florida, USA.
 *)
 
@@ -44,7 +44,7 @@
 
 (* :Package Version: 0.1 *)
 (* :Mathematica Version: 12.1 *)
-(* :Copyright: (c) 2022 antonov *)
+(* :Copyright: (c) 2022 Anton Antonov *)
 (* :Keywords: Tile, TileBins, Hextile, HextileBins, Taxonomy, Geo-location *)
 (* :Discussion:
 
@@ -54,7 +54,7 @@ dsUSAZIPCodes = ResourceFunction["ImportCSVToDataset"]["https://raw.githubuserco
 aZIPToLatLon = Normal@dsUSAZIPCodes[Association, #ZIP -> {#LAT, #LON} &];
 
 AbsoluteTiming[
- aRes1 = MakeGeoTaxonomyDatasets[dsUSAZIPCodes, cellSize, "TileBins", "TaxonomyName" -> "SquareTile1deg", DistanceFunction -> ChessboardDistance];
+ aRes1 = GeoTileTaxonomy[dsUSAZIPCodes, cellSize, "TileBins", "TaxonomyName" -> "SquareTile1deg", DistanceFunction -> ChessboardDistance];
 ]
 
 *)
@@ -81,7 +81,7 @@ GeoTileTaxonomy::usage = "Make geo-taxonomy based on tiles.";
 
 Begin["`Private`"];
 
-Needs[MathematicaForPredictionUtilities];
+Needs["MathematicaForPredictionUtilities`"];
 
 Clear[GeoTileTaxonomy];
 
