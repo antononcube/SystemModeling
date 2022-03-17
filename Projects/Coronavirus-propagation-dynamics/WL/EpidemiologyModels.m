@@ -107,7 +107,7 @@ EpidemiologyModelQ[model_] :=
         Length[ Intersection[ Keys[model], { "Stocks", "Rates", "Equations" } ] ] == 3 &&
         AssociationQ[model["Stocks"]] &&
         AssociationQ[model["Rates"]] &&
-        MatchQ[model["Equations"], { _Equal .. }];
+        MatchQ[model["Equations"], { (_Equal | _WhenEvent) .. }];
 
 Clear[EpidemiologyFullModelQ];
 EpidemiologyFullModelQ[model_] :=
@@ -115,7 +115,7 @@ EpidemiologyFullModelQ[model_] :=
         Sort[Keys[model]] == Sort[{ "Stocks", "Rates", "Equations", "InitialConditions", "RateRules" }] &&
         AssociationQ[model["Stocks"]] &&
         AssociationQ[model["Rates"]] &&
-        MatchQ[model["Equations"], { _Equal .. }] &&
+        MatchQ[model["Equations"], { (_Equal | _WhenEvent) .. }] &&
         AssociationQ[model["RateRules"]] &&
         MatchQ[model["InitialConditions"], { _Equal .. }];
 
