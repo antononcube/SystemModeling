@@ -15,6 +15,9 @@ for the models in this project.
 ["Coronavirus propagation dynamics"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics) 
 simulations can be applied and utilized for SD models for WGD. 
 
+
+-------
+
 ## Modeling scope
 
 The following mind-map illustrates the scope of the modeling work:
@@ -43,13 +46,15 @@ systems of differential equations.
 
 -------
 
-## Historical note
+## Historical notes
 
-Osipov derived Lanchester's laws and fitted them to existing data of wars, [LG1]:
+Osipov derived Lanchester's laws and fitted them to existing data of wars in 1915, [LG1]:
 
 > Osipov’s most unique and important contribution is the explicit and systematic 
 > application to quantitative historical data of what, for his time, 
 > were fairly advanced formal statistical methods.
+
+Lanchester published his work in 1916.
 
 ------
 
