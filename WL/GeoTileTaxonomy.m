@@ -91,6 +91,7 @@ makes a (graph) adjacency matrix for given taxonomy.";
 Begin["`Private`"];
 
 Needs["MathematicaForPredictionUtilities`"];
+Needs["SSparseMatrix`"];
 Needs["MonadicGeometricNearestNeighbors`"];
 
 (*------------------------------------------------------------*)
@@ -161,7 +162,7 @@ GeoTileTaxonomy[___] := $Failed;
 
 Clear[GeoTileTaxonomyAdjacencyMatrix];
 GeoTileTaxonomyAdjacencyMatrix[ aTaxonomy_?AssociationQ, nnsSpecArg_ : Automatic, opts : OptionsPattern[] ] :=
-    Block[{nnsSpec = nnsSpecArg, aCenters, gnnObj, matAdj},
+    Block[{nnsSpec = nnsSpecArg, aCenters, gnnObj, matAdj, dsNNs},
 
       If[ TrueQ[nnsSpec === Automatic],
 
@@ -218,7 +219,10 @@ GeoTileTaxonomyAdjacencyMatrix[ aTaxonomy_?AssociationQ, nnsSpecArg_ : Automatic
               GNNMonTakeValue
             }];
 
-      matAdj
+      dsNNs =
+          Dataset[SSparseMatrixToTriplets[matAdj]][All, AssociationThread[{"From", "To", "Distance"}, #] &][All, Prepend[#, "Taxonomy" -> Normal[aTaxonomy["Taxonomy"][1, "Taxonomy"]]] &];
+
+      <| "Matrix" -> matAdj, "TaxonomyNearestNeighbors" -> dsNNs |>
     ];
 
 GeoTileTaxonomyAdjacencyMatrix[___] := $Failed;
