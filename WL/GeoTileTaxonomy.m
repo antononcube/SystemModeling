@@ -148,9 +148,9 @@ GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("T
       dsItemCodes = Dataset @ KeyValueMap[ <| "Item" -> #1, "Lat" -> #2[[1]], "Lon" -> #2[[2]]|>&, aZIPToLatLon];
 
       dsUSAZIPCodesWithGeoTags =
-          dsItemCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#LON, #LAT}][[1]]|>] &];
+          dsItemCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#Lon, #Lat}][[1]]|>] &];
 
-      <|"Taxonomy" -> dsSquareTilesTaxonomy, "ZIPCodes" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles, "Type" -> tileBinsType, "CellSize" -> cellSize|>
+      <|"Taxonomy" -> dsSquareTilesTaxonomy, "Items" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles, "Type" -> tileBinsType, "CellSize" -> cellSize|>
     ];
 
 GeoTileTaxonomy[___] := $Failed;
