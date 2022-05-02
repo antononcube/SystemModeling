@@ -114,6 +114,9 @@ GeoTileTaxonomy[dsArg_Dataset, cellSize_?NumericQ, tileBinsType : ("TileBins" | 
       GeoTileTaxonomy[aZIPToLatLon, cellSize, tileBinsType, opts]
     ];
 
+GeoTileTaxonomy[lsPoints :{ {_?NumberQ, _?NumberQ} ..}, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
+    GeoTileTaxonomy[ToAutomaticKeysAssociation[lsPoints, "id"], cellSize, tileBinsType, opts];
+
 GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
     Block[{dfunc, taxonomyName, data, lsTags,
       aSquareTiles, aSquareTilesTaxonomy, dsSquareTilesTaxonomy, nf,
