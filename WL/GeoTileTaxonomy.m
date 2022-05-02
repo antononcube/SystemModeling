@@ -124,7 +124,7 @@ GeoTileTaxonomy[dsUSAZIPCodes_Dataset, cellSize_?NumericQ, tileBinsType : ("Tile
       dsUSAZIPCodesWithGeoTags =
           dsUSAZIPCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#LON, #LAT}][[1]]|>] &];
 
-      <|"Taxonomy" -> dsSquareTilesTaxonomy, "ZIPCodes" -> dsUSAZIPCodesWithGeoTags|>
+      <|"Taxonomy" -> dsSquareTilesTaxonomy, "ZIPCodes" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles|>
     ];
 
 End[]; (* `Private` *)
