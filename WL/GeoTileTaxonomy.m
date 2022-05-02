@@ -65,10 +65,14 @@ AbsoluteTiming[
 (**************************************************************)
 
 If[Length[DownValues[MathematicaForPredictionUtilities`ToAutomaticKeysAssociation]] == 0,
-      Echo["MathematicaForPredictionUtilities.m", "Importing from GitHub:"];
-      Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MathematicaForPredictionUtilities.m"];
+  Echo["MathematicaForPredictionUtilities.m", "Importing from GitHub:"];
+  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MathematicaForPredictionUtilities.m"];
 ];
 
+If[Length[DownValues[MonadicGeometricNearestNeighbors`GNNMonUnit]] == 0,
+  Echo["MonadicGeometricNearestNeighbors.m", "Importing from GitHub:"];
+  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/MonadicGeometricNearestNeighbors.m"];
+];
 
 (**************************************************************)
 (* Package definition                                         *)
@@ -77,22 +81,42 @@ If[Length[DownValues[MathematicaForPredictionUtilities`ToAutomaticKeysAssociatio
 BeginPackage["GeoTileTaxonomy`"];
 (* Exported symbols added here with SymbolName::usage *)
 
-GeoTileTaxonomy::usage = "Make geo-taxonomy based on tiles.";
+GeoTileTaxonomy::usage = "GeoTileTaxonomy[itemToCoords : (_Association | _Dataset), cellSize_?NumericQ, tileBinsType : (\"TileBins\" | \"HextileBins\"), OptionsPattern[]]
+makes geo-taxonomy based on tiles.
+If the argument itemToCoords is a dataset then it is expected to have the columns {\"Item\", \"Lat\", \"Lon\"}.";
+
+GeoTileTaxonomyAdjacencyMatrix::usage = "GeoTileTaxonomyAdjacencyMatrix[aTaxonomy_Association, nnsSpec_ : Automatic] \
+makes a (graph) adjacency matrix for given taxonomy.";
 
 Begin["`Private`"];
 
 Needs["MathematicaForPredictionUtilities`"];
+Needs["MonadicGeometricNearestNeighbors`"];
+
+(*------------------------------------------------------------*)
+(* Geo tile taxonomy                                          *)
+(*------------------------------------------------------------*)
 
 Clear[GeoTileTaxonomy];
 
 Options[GeoTileTaxonomy] = {DistanceFunction -> ChessboardDistance, "TaxonomyName" -> Automatic};
 
-GeoTileTaxonomy[dsUSAZIPCodes_Dataset, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
-    Block[{dfunc, taxonomyName, data, aZIPToLatLon, lsTags,
-      aSquareTiles, aSquareTilesTaxonomy, dsSquareTilesTaxonomy, nf,
-      dsUSAZIPCodesWithGeoTags},
+GeoTileTaxonomy[dsArg_Dataset, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
+    Block[{ds = dsArg, row, aZIPToLatLon},
 
-      aZIPToLatLon = Normal@dsUSAZIPCodes[Association, #ZIP -> {#LAT, #LON} &];
+      row = Normal[ds[[1]]];
+      If[ AssociationQ[row] && Apply[And, KeyExistsQ[Normal[ds[[1]]], #] & /@ {"ZIP", "LAT", "LON"}],
+        ds = Map[ Join[ KeyDrop[ #, {"ZIP", "LAT", "LON"} ], <| "Item" -> #["ZIP"], "Lat" -> #["LAT"], "Lon" -> #["LON"]|> ]&, ds];
+      ];
+      aZIPToLatLon = Normal @ ds[Association, #Item -> {#Lat, #Lon}&];
+
+      GeoTileTaxonomy[aZIPToLatLon, cellSize, tileBinsType, opts]
+    ];
+
+GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
+    Block[{dfunc, taxonomyName, data, lsTags,
+      aSquareTiles, aSquareTilesTaxonomy, dsSquareTilesTaxonomy, nf,
+      dsItemCodes, dsUSAZIPCodesWithGeoTags},
 
       dfunc = OptionValue[GeoTileTaxonomy, DistanceFunction];
       taxonomyName = OptionValue[GeoTileTaxonomy, "TaxonomyName"];
@@ -121,11 +145,83 @@ GeoTileTaxonomy[dsUSAZIPCodes_Dataset, cellSize_?NumericQ, tileBinsType : ("Tile
 
       nf = Nearest[Normal@dsSquareTilesTaxonomy[All, {#CenterLon, #CenterLat} -> #Tag &], DistanceFunction -> dfunc];
 
-      dsUSAZIPCodesWithGeoTags =
-          dsUSAZIPCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#LON, #LAT}][[1]]|>] &];
+      dsItemCodes = Dataset @ KeyValueMap[ <| "Item" -> #1, "Lat" -> #2[[1]], "Lon" -> #2[[2]]|>&, aZIPToLatLon];
 
-      <|"Taxonomy" -> dsSquareTilesTaxonomy, "ZIPCodes" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles|>
+      dsUSAZIPCodesWithGeoTags =
+          dsItemCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#LON, #LAT}][[1]]|>] &];
+
+      <|"Taxonomy" -> dsSquareTilesTaxonomy, "ZIPCodes" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles, "Type" -> tileBinsType, "CellSize" -> cellSize|>
     ];
+
+GeoTileTaxonomy[___] := $Failed;
+
+(*------------------------------------------------------------*)
+(* Nearest neighbors matrix                                   *)
+(*------------------------------------------------------------*)
+
+Clear[GeoTileTaxonomyAdjacencyMatrix];
+GeoTileTaxonomyAdjacencyMatrix[ aTaxonomy_?AssociationQ, nnsSpecArg_ : Automatic, opts : OptionsPattern[] ] :=
+    Block[{nnsSpec = nnsSpecArg, aCenters, gnnObj, matAdj},
+
+      If[ TrueQ[nnsSpec === Automatic],
+
+        If[ ! KeyExistsQ[aTaxonomy, "Type"],
+          Echo["Cannot find taxonomy type in the first argument.", "GeoTileTaxonomyAdjacencyMatrix:"];
+          Return[$Failed]
+        ];
+
+        If[ ! KeyExistsQ[aTaxonomy, "CellSize"],
+          Echo["Cannot find cell size in the first argument.", "GeoTileTaxonomyAdjacencyMatrix:"];
+          Return[$Failed]
+        ];
+
+        Which[
+
+          aTaxonomy["Type"] == "TileBins",
+          nnsSpec = {9, 1.1 * Sqrt[2] * aTaxonomy["CellSize"]},
+
+          aTaxonomy["Type"] == "HextileBins",
+          nnsSpec = {7, 1.1 / Cos[Pi / 6.] * aTaxonomy["CellSize"]},
+
+          True,
+          nnsSpec = {9, Infinity};
+          Echo[
+            Row[{
+              "Do not know how to process taxonomy type:", Spacer[3], aTaxonomy["Type"],
+              Spacer[3],
+              "Continuing with nearest neighbors spec to be:", Spacer[3], ToString[nnsSpec]
+            }],
+            "GeoTileTaxonomyAdjacencyMatrix:"];
+        ]
+      ];
+
+      If[ NumericQ[nnsSpec],
+        nnsSpec = {nnsSpec, Infinity}
+      ];
+
+      aCenters = Normal[aTaxonomy["Taxonomy"][Association, #Tag -> {#CenterLon, #CenterLat} &]];
+
+      gnnObj =
+          Fold[
+            GNNMonBind,
+            GNNMonUnit[aCenters],
+            {
+              GNNMonMakeNearestFunction[DistanceFunction -> EuclideanDistance],
+              GNNMonComputeThresholds[nnsSpec[[1]], "AggregationFunction" -> Mean]
+            }];
+
+      matAdj =
+          Fold[GNNMonBind,
+            gnnObj,
+            {
+              GNNMonComputeAdjacencyMatrix[nnsSpec],
+              GNNMonTakeValue
+            }];
+
+      matAdj
+    ];
+
+GeoTileTaxonomyAdjacencyMatrix[___] := $Failed;
 
 End[]; (* `Private` *)
 
