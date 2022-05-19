@@ -72,8 +72,7 @@ library(forecast)
 Apple mobile data was provided in this WWW page: [https://www.apple.com/covid19/mobility](https://www.apple.com/covid19/mobility) , [APPL1]. (The data has to be download from that web page -- there is an “agreement to terms”, etc.)
 
 ```{r}
-dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2021-09-19.csv", stringsAsFactors = FALSE)
-#dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2021-02-20.csv", stringsAsFactors = FALSE)
+dfAppleMobility <- read.csv( "~/Downloads/applemobilitytrends-2022-04-12.csv", stringsAsFactors = FALSE)
 #dfAppleMobility <- read.csv("https://covid19-static.cdn-apple.com/covid19-mobility-data/2024HotfixDev18/v3/en-us/applemobilitytrends-2021-01-15.csv")
 names(dfAppleMobility) <- gsub( "^X", "", names(dfAppleMobility))
 names(dfAppleMobility) <- gsub( ".", "-", names(dfAppleMobility), fixed = TRUE)
@@ -85,6 +84,7 @@ dfAppleMobility
 
 
 **Observation:** The directions requests volumes reference date for normalization is 2020-01-13 : all the values in that column are $100$.
+
 
 Data dimensions:
 
