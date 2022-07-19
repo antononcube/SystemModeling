@@ -61,12 +61,12 @@ Lanchester published his work in 1916.
 ## References
 
 [LG1] Lester W. Grau and Clint Reach,
-["A Mathematical Probability of Success for Soviets in Cold War Confrontation"](https://www.ikn.army.mil/apps/MIPBW/MIPB_Features/AMathematicalProbabilityofSuccessforSovietsinCOldWarConfrontation.pdf)
+["A Mathematical Probability of Success for Soviets in Cold War Confrontation"](https://www.ikn.army.mil/apps/MIPBW/MIPB_Features/AMathematicalProbabilityofSuccessforSovietsinCOldWarConfrontation.pdf),
 (2021),
 Military Intelligence.
 
 [NBM1] Н. В. МИТЮКОВ,
-["М. П. ОСИПОВ: К ИДЕНТИФИКАЦИИ ЛИЧНОСТИ АВТОРА ПЕРВОЙ МОДЕЛИ ГЛОБАЛЬНЫХ ПРОЦЕССОВ"](https://www.socionauki.ru/journal/files/ipisi/2011_2/mitukov.pdf)
+["М. П. ОСИПОВ: К ИДЕНТИФИКАЦИИ ЛИЧНОСТИ АВТОРА ПЕРВОЙ МОДЕЛИ ГЛОБАЛЬНЫХ ПРОЦЕССОВ"](https://www.socionauki.ru/journal/files/ipisi/2011_2/mitukov.pdf),
 (2011),
 Историческая психология и социология истории.
 
