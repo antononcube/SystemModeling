@@ -131,10 +131,14 @@ GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("T
       aSquareTiles = ResourceFunction[tileBinsType][data, cellSize];
       lsTags = Sort[Keys[aSquareTiles]];
 
+      (*
+        Using "Coordinates" -> PolygonCoordinates[#] gives twisted polygons.
+        Hence, I use "Coordinates" -> #[[1]] , hoping that that gives a list of polygon coordinates.
+      *)
       aSquareTilesTaxonomy =
           Map[<|"CenterLon" -> N[Mean[PolygonCoordinates[#]]][[1]],
             "CenterLat" -> N[Mean[PolygonCoordinates[#]]][[2]],
-            "Coordinates" -> PolygonCoordinates[#]|> &, lsTags];
+            "Coordinates" -> #[[1]]|> &, lsTags];
 
       aSquareTilesTaxonomy = ToAutomaticKeysAssociation[aSquareTilesTaxonomy, "tile"];
 
