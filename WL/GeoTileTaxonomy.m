@@ -88,6 +88,10 @@ If the argument itemToCoords is a dataset then it is expected to have the column
 GeoTileTaxonomyAdjacencyMatrix::usage = "GeoTileTaxonomyAdjacencyMatrix[aTaxonomy_Association, nnsSpec_ : Automatic] \
 makes a (graph) adjacency matrix for given taxonomy.";
 
+RegularGeoTagsTaxonomyForAPI::usage = "RegularGeoTagsTaxonomyForAPI[reg_, tileSize_?NumericQ, tileType:(\"Tile\"|\"Hextile\"), format:(\"CSV\"|\"JSON\"|\"Dataset\")] \
+makes geo-tiles over a regular grid of points derived from bounds, tileSize, and tileType. \
+The argument reg a list of 2D points, a _MeshRegion object, or Automatic.";
+
 Begin["`Private`"];
 
 Needs["MathematicaForPredictionUtilities`"];
@@ -233,6 +237,88 @@ GeoTileTaxonomyAdjacencyMatrix[ aTaxonomy_?AssociationQ, nnsSpecArg_ : Automatic
     ];
 
 GeoTileTaxonomyAdjacencyMatrix[___] := $Failed;
+
+
+(*------------------------------------------------------------*)
+(* RegularGeoTagsTaxonomyForAPI                               *)
+(*------------------------------------------------------------*)
+
+Clear[RegularGeoTagsTaxonomyForAPI];
+
+RegularGeoTagsTaxonomyForAPI[tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+    RegularGeoTagsTaxonomyForAPI[Automatic, tileSize, tileType, format];
+
+RegularGeoTagsTaxonomyForAPI[Automatic, tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+    Block[{geopol, mercpol, reg},
+
+      (*Using "Equirectangular" instead of,say,"Mercator":*)
+
+      geopol = Entity["Country", "USA"]["Polygon"];
+      mercpol = GeoGridPosition[geopol, "Equirectangular"];
+      reg = DiscretizeGraphics[mercpol];
+
+      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format]
+    ];
+
+RegularGeoTagsTaxonomyForAPI[points : {{_?NumericQ, _?NumericQ} ...}, tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+    Block[{geopol, mercpol, reg},
+
+      mercpol = ConvexHullRegion[points];
+      reg = DiscretizeGraphics[mercpol];
+
+      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format]
+    ];
+
+RegularGeoTagsTaxonomyForAPI[
+  reg_MeshRegion,
+  tileSize_?NumericQ,
+  tileType_String : "Hextile",
+  format_String : "JSON"] :=
+    Block[{bounds,
+      lsRegularGridPoints, lsRegularGridPoints2, aTilesUniform, aResTile,
+      dsGeoTileTaxonomies, dsGeoTileTaxonomies2},
+
+      bounds = RegionBounds[reg];
+
+      lsRegularGridPoints =
+          Join @@ Outer[List, Sequence @@ Map[Range[(1 - 0.05*Sign[#[[1]]])*#[[1]], (1 + 0.05*Sign[#[[1]]])*#[[2]], tileSize/2] &, bounds]];
+
+      lsRegularGridPoints2 = Pick[lsRegularGridPoints, RegionMember[reg, lsRegularGridPoints]];
+
+      aTilesUniform =
+          If[ToLowerCase[tileType] == ToLowerCase["Hextile"],
+            ResourceFunction["HextileBins"][lsRegularGridPoints2, tileSize],
+            (*ELSE*)
+            ResourceFunction["TileBins"][lsRegularGridPoints2, tileSize]
+          ];
+
+      aResTile =
+          If[ToLowerCase[tileType] == ToLowerCase["Hextile"],
+            GeoTileTaxonomy[Reverse /@ lsRegularGridPoints2, tileSize,
+              "HextileBins",
+              "TaxonomyName" -> "HexagonTile" <> ToString[tileSize] <> "deg",
+              DistanceFunction -> EuclideanDistance],
+            (*ELSE*)
+            GeoTileTaxonomy[Reverse /@ lsRegularGridPoints2, tileSize,
+              "TileBins",
+              "TaxonomyName" -> "SquareTile" <> ToString[tileSize] <> "deg",
+              DistanceFunction -> ChessboardDistance]
+          ];
+
+      dsGeoTileTaxonomies = aResTile["Taxonomy"];
+
+      Which[
+        ToLowerCase[format] == "csv",
+        ExportString[dsGeoTileTaxonomies, "CSV"],
+
+        ToLowerCase[format] == "json",
+        dsGeoTileTaxonomies2 = dsGeoTileTaxonomies[All, Append[#, "Coordinates" -> ImportString[#Coordinates, "JSON"]] &];
+        ExportString[Normal@dsGeoTileTaxonomies2, "JSON", "Compact" -> True],
+
+        True,
+        dsGeoTileTaxonomies
+      ]
+    ];
 
 End[]; (* `Private` *)
 
