@@ -118,7 +118,7 @@ GeoTileTaxonomy[dsArg_Dataset, cellSize_?NumericQ, tileBinsType : ("TileBins" | 
       GeoTileTaxonomy[aZIPToLatLon, cellSize, tileBinsType, opts]
     ];
 
-GeoTileTaxonomy[lsPoints :{ {_?NumericQ, _?NumericQ} ..}, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
+GeoTileTaxonomy[lsPoints : { {_?NumericQ, _?NumericQ} ..}, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
     GeoTileTaxonomy[ToAutomaticKeysAssociation[lsPoints, "id"], cellSize, tileBinsType, opts];
 
 GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("TileBins" | "HextileBins"), opts : OptionsPattern[]] :=
@@ -142,7 +142,9 @@ GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("T
       aSquareTilesTaxonomy =
           Map[<|"CenterLon" -> N[Mean[PolygonCoordinates[#]]][[1]],
             "CenterLat" -> N[Mean[PolygonCoordinates[#]]][[2]],
-            "Coordinates" -> #[[1]]|> &, lsTags];
+            "Coordinates" -> #[[1]],
+            "Polygon" -> #
+          |> &, lsTags];
 
       aSquareTilesTaxonomy = ToAutomaticKeysAssociation[aSquareTilesTaxonomy, "tile"];
 
@@ -162,7 +164,11 @@ GeoTileTaxonomy[aZIPToLatLon_Association, cellSize_?NumericQ, tileBinsType : ("T
       dsUSAZIPCodesWithGeoTags =
           dsItemCodes[All, Join[#, <|"Taxonomy" -> taxonomyName, "Tag" -> nf[{#Lon, #Lat}][[1]]|>] &];
 
-      <|"Taxonomy" -> dsSquareTilesTaxonomy, "Items" -> dsUSAZIPCodesWithGeoTags, "Tiles" -> aSquareTiles, "Type" -> tileBinsType, "CellSize" -> cellSize|>
+      <|"Taxonomy" -> dsSquareTilesTaxonomy,
+        "Items" -> dsUSAZIPCodesWithGeoTags,
+        "Tiles" -> aSquareTiles,
+        "TagToTile" -> Association @ Map[ #["Tag"] -> #["Polygon"]&, aSquareTilesTaxonomy],
+        "Type" -> tileBinsType, "CellSize" -> cellSize|>
     ];
 
 GeoTileTaxonomy[___] := $Failed;
@@ -245,10 +251,12 @@ GeoTileTaxonomyAdjacencyMatrix[___] := $Failed;
 
 Clear[RegularGeoTagsTaxonomyForAPI];
 
-RegularGeoTagsTaxonomyForAPI[tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+Options[RegularGeoTagsTaxonomyForAPI] = Options[GeoTileTaxonomy];
+
+RegularGeoTagsTaxonomyForAPI[tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON", opts : OptionsPattern[]] :=
     RegularGeoTagsTaxonomyForAPI[Automatic, tileSize, tileType, format];
 
-RegularGeoTagsTaxonomyForAPI[Automatic, tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+RegularGeoTagsTaxonomyForAPI[Automatic, tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON", opts : OptionsPattern[]] :=
     Block[{geopol, mercpol, reg},
 
       (*Using "Equirectangular" instead of,say,"Mercator":*)
@@ -257,23 +265,29 @@ RegularGeoTagsTaxonomyForAPI[Automatic, tileSize_?NumericQ, tileType_String : "H
       mercpol = GeoGridPosition[geopol, "Equirectangular"];
       reg = DiscretizeGraphics[mercpol];
 
-      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format]
+      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format, opts]
     ];
 
-RegularGeoTagsTaxonomyForAPI[points : {{_?NumericQ, _?NumericQ} ...}, tileSize_?NumericQ, tileType_String : "Hextile", format_String : "JSON"] :=
+RegularGeoTagsTaxonomyForAPI[
+  points : {{_?NumericQ, _?NumericQ} ...},
+  tileSize_?NumericQ,
+  tileType_String : "Hextile",
+  format_String : "JSON",
+  opts : OptionsPattern[] ] :=
     Block[{geopol, mercpol, reg},
 
       mercpol = ConvexHullRegion[points];
       reg = DiscretizeGraphics[mercpol];
 
-      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format]
+      RegularGeoTagsTaxonomyForAPI[reg, tileSize, tileType, format, opts]
     ];
 
 RegularGeoTagsTaxonomyForAPI[
   reg_MeshRegion,
   tileSize_?NumericQ,
   tileType_String : "Hextile",
-  format_String : "JSON"] :=
+  format_String : "JSON",
+  opts : OptionsPattern[] ] :=
     Block[{bounds,
       lsRegularGridPoints, lsRegularGridPoints2, aTilesUniform, aResTile,
       dsGeoTileTaxonomies, dsGeoTileTaxonomies2},
@@ -281,7 +295,7 @@ RegularGeoTagsTaxonomyForAPI[
       bounds = RegionBounds[reg];
 
       lsRegularGridPoints =
-          Join @@ Outer[List, Sequence @@ Map[Range[(1 - 0.05*Sign[#[[1]]])*#[[1]], (1 + 0.05*Sign[#[[1]]])*#[[2]], tileSize/2] &, bounds]];
+          Join @@ Outer[List, Sequence @@ Map[Range[(1 - 0.05 * Sign[#[[1]]]) * #[[1]], (1 + 0.05 * Sign[#[[1]]]) * #[[2]], tileSize / 2] &, bounds]];
 
       lsRegularGridPoints2 = Pick[lsRegularGridPoints, RegionMember[reg, lsRegularGridPoints]];
 
@@ -297,12 +311,12 @@ RegularGeoTagsTaxonomyForAPI[
             GeoTileTaxonomy[Reverse /@ lsRegularGridPoints2, tileSize,
               "HextileBins",
               "TaxonomyName" -> "HexagonTile" <> ToString[tileSize] <> "deg",
-              DistanceFunction -> EuclideanDistance],
+              opts, DistanceFunction -> EuclideanDistance],
             (*ELSE*)
             GeoTileTaxonomy[Reverse /@ lsRegularGridPoints2, tileSize,
               "TileBins",
               "TaxonomyName" -> "SquareTile" <> ToString[tileSize] <> "deg",
-              DistanceFunction -> ChessboardDistance]
+              opts, DistanceFunction -> ChessboardDistance]
           ];
 
       dsGeoTileTaxonomies = aResTile["Taxonomy"];
@@ -316,7 +330,7 @@ RegularGeoTagsTaxonomyForAPI[
         ExportString[Normal@dsGeoTileTaxonomies2, "JSON", "Compact" -> True],
 
         True,
-        dsGeoTileTaxonomies
+        aResTile
       ]
     ];
 
