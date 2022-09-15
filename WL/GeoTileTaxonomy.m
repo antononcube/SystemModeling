@@ -92,6 +92,8 @@ RegularGeoTagsTaxonomyForAPI::usage = "RegularGeoTagsTaxonomyForAPI[reg_, tileSi
 makes geo-tiles over a regular grid of points derived from bounds, tileSize, and tileType. \
 The argument reg a list of 2D points, a _MeshRegion object, or Automatic.";
 
+ReassignTileValues::usage = "ReassignTileValues[aTiles_Association, aValues_Association, opts___]";
+
 Begin["`Private`"];
 
 Needs["MathematicaForPredictionUtilities`"];
@@ -244,6 +246,43 @@ GeoTileTaxonomyAdjacencyMatrix[ aTaxonomy_?AssociationQ, nnsSpecArg_ : Automatic
 
 GeoTileTaxonomyAdjacencyMatrix[___] := $Failed;
 
+
+(*------------------------------------------------------------*)
+(* Reassign tile values                                       *)
+(*------------------------------------------------------------*)
+
+Clear[ReassignTileValues];
+
+Options[ReassignTileValues] = {"Format" -> Dataset, "Variable" -> Automatic};
+
+ReassignTileValues[
+  aTiles : Association[(_?AtomQ -> {_?NumericQ, _?NumericQ}) ..],
+  aValues : Association[({_?NumericQ, _?NumericQ} -> (_?NumericQ | _?QuantityQ)) ..],
+  opts : OptionsPattern[]] :=
+    Block[{gnnObj, aRes,
+      format = OptionValue[ReassignTileValues, Format],
+      variable = OptionValue[ReassignTileValues, "Variable"]},
+      gnnObj = Fold[GNNMonBind, GNNMonUnit[], {GNNMonSetData[aTiles], GNNMonMakeNearestFunction}];
+
+      aRes =
+          KeyValueMap[(
+            aRes = Fold[GNNMonBind, gnnObj, {GNNMonFindNearest[#1, 1], GNNMonTakeValue}];
+            <|"Tag" -> Keys[aRes][[1]],
+              "Lat" -> #1[[2]], "Lon" -> #1[[1]],
+              "Value" -> #2, "Variable" -> Automatic|>
+          ) &, aValues];
+
+      Which[
+        MemberQ[{Dataset, "Dataset"}, format],
+        Dataset[aRes],
+
+        MemberQ[{Association, "Association"}, format],
+        Association@Map[#Tag -> #Value &, aRes],
+
+        True,
+        aRes
+      ]
+    ];
 
 (*------------------------------------------------------------*)
 (* RegularGeoTagsTaxonomyForAPI                               *)
