@@ -268,8 +268,10 @@ ReassignTileValues[
           KeyValueMap[(
             aRes = Fold[GNNMonBind, gnnObj, {GNNMonFindNearest[#1, 1], GNNMonTakeValue}];
             <|"Tag" -> Keys[aRes][[1]],
-              "Lat" -> #1[[2]], "Lon" -> #1[[1]],
-              "Value" -> #2, "Variable" -> Automatic|>
+              "Lat" -> #1[[2]],
+              "Lon" -> #1[[1]],
+              "Value" -> #2,
+              "Variable" -> variable|>
           ) &, aValues];
 
       Which[
@@ -277,7 +279,7 @@ ReassignTileValues[
         Dataset[aRes],
 
         MemberQ[{Association, "Association"}, format],
-        Association@Map[#Tag -> #Value &, aRes],
+        GroupBy[ Map[KeyTake[#, {"Tag", "Value"}]&, aRes], #Tag&, #Value& /@ #&],
 
         True,
         aRes
