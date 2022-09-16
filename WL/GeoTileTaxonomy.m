@@ -257,7 +257,7 @@ Options[ReassignTileValues] = {"Format" -> Dataset, "Variable" -> Automatic};
 
 ReassignTileValues[
   aTiles : Association[(_?AtomQ -> {_?NumericQ, _?NumericQ}) ..],
-  aValues : Association[({_?NumericQ, _?NumericQ} -> (_?NumericQ | _?QuantityQ)) ..],
+  aValues : Association[({_?NumericQ, _?NumericQ} -> _) ..],
   opts : OptionsPattern[]] :=
     Block[{gnnObj, aRes,
       format = OptionValue[ReassignTileValues, Format],
