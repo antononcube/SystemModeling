@@ -315,7 +315,7 @@ RegularGeoTagsTaxonomyForAPI[
   tileType_String : "Hextile",
   format_String : "JSON",
   opts : OptionsPattern[] ] :=
-    Block[{geopol, mercpol, reg},
+    Block[{mercpol, reg},
 
       mercpol = ConvexHullRegion[points];
       reg = DiscretizeGraphics[mercpol];
@@ -341,14 +341,14 @@ RegularGeoTagsTaxonomyForAPI[
       lsRegularGridPoints2 = Pick[lsRegularGridPoints, RegionMember[reg, lsRegularGridPoints]];
 
       aTilesUniform =
-          If[ToLowerCase[tileType] == ToLowerCase["Hextile"],
+          If[MemberQ[ToLowerCase[{"Hextile", "HextileBins"}], ToLowerCase[tileType]],
             ResourceFunction["HextileBins"][lsRegularGridPoints2, tileSize],
             (*ELSE*)
             ResourceFunction["TileBins"][lsRegularGridPoints2, tileSize]
           ];
 
       aResTile =
-          If[ToLowerCase[tileType] == ToLowerCase["Hextile"],
+          If[MemberQ[ToLowerCase[{"Hextile", "HextileBins"}], ToLowerCase[tileType]],
             GeoTileTaxonomy[Reverse /@ lsRegularGridPoints2, tileSize,
               "HextileBins",
               "TaxonomyName" -> "HexagonTile" <> ToString[tileSize] <> "deg",
