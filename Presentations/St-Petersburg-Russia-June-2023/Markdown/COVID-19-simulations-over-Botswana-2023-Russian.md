@@ -2,11 +2,11 @@
 
 **COVID-19 simulations over Botswana**
 
-Антон Антонов
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
-[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)
-April 2020
-June 2023
+Антон Антонов   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)  
+[SystemModeling at GitHub](https://github.com/antononcube/SystemModeling)   
+April 2020   
+June 2023  
 
 ## Введение
 
