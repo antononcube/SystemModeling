@@ -11,20 +11,20 @@ The conference was co-organized by [Kirill Belov](https://community.wolfram.com/
 
 Here is a mind-map of the potential presentations Kirill and I discussed:
 
-[![](./Diagrams/WL-Conference-St.Petersburg-mind-map.png)](./Diagrams/WL-Conference-St.Petersburg-mind-map.pdf)
+[![](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Diagrams/WL-Conference-St.Petersburg-mind-map.png)](./Diagrams/WL-Conference-St.Petersburg-mind-map.pdf)
 
 ## System dynamics presentation
 
 I presented
-["Динамические системы : Расширение и улучшение эпидемиологических моделей"](./Markdown/Dynamic-systems-and-extensions-Russian.md).
+["Динамические системы : Расширение и улучшение эпидемиологических моделей"](https://github.com/antononcube/SystemModeling/blob/master/Presentations/St-Petersburg-Russia-June-2023/Markdown/Dynamic-systems-and-extensions-Russian.md)
 (in English: "Dynamics systems: extending and improving epidemiological models".)
 
 The main presentation slides had a dozen supplements:
-- [Diagrams](./Diagrams)
+- [Diagrams](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Diagrams)
 - NLP and AI utilization demos notebook
-- [Geo-spatial simulations of COVID-19 over Botswana notebook](./Markdown/COVID-19-simulations-over-Botswana-2023-Russian.md). 
+- [Geo-spatial simulations of COVID-19 over Botswana notebook](https://github.com/antononcube/SystemModeling/blob/master/Presentations/St-Petersburg-Russia-June-2023/Markdown/COVID-19-simulations-over-Botswana-2023-Russian.md)
 
-![](./Markdown/Diagrams/COVID-19-simulations-over-Botswana-2023-Russian/11p5r9gtpxdc9.png)
+![](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Markdown/Diagrams/COVID-19-simulations-over-Botswana-2023-Russian/11p5r9gtpxdc9.png)
 
 ## Making two presentations 
 
@@ -33,15 +33,15 @@ that the organizers listed another talk I discussed with them, on extending dyna
 (The latter one is the first we discussed, so, it was my "fault" that I wanted to talk about LSA.)
 
 Here are the presentation notebooks for LSA in 
-[English](./Notebooks/LSA-workflows-English.nb) and 
-[Russian](./Notebooks/LSA-workflows-Russian.nb).
+[English](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Notebooks/LSA-workflows-English.nb) and 
+[Russian](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Notebooks/LSA-workflows-Russian.nb).
 
 ## Some afterthoughts
 
 - Тhe conference was very "strong", my presentation was the "weakest."
   - With "strong" I refer to the content and style of the presentations.
 - This was also the first scientific presentation I gave in Russian.
-I also got a [participation diploma](./Diagrams/Diplom.jpeg).
+I also got a [participation diploma](https://raw.githubusercontent.com/antononcube/SystemModeling/master/Presentations/St-Petersburg-Russia-June-2023/Diagrams/Diplom.jpeg).
 - I used [PaLMMode](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/PaLMMode/) 
 and [NLPTemplateEngine](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/NLPTemplateEngine/) 
 to demonstrate generation of epidemiological modeling code.
