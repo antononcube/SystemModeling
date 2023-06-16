@@ -117,14 +117,14 @@
 ![0wvwsmgqwsh1o](./Diagrams/Dynamic-systems-and-extensions-Russian/0wvwsmgqwsh1o.png)
 
 ```mathematica
-ECMMonUnit[SEI2HRModel[t]]\[DoubleLongRightArrow]
-   ECMMonAssignInitialConditions[<|SP[0] -> 100000|>]\[DoubleLongRightArrow]
-   ECMMonAssignInitialConditions[<|INSP[0] -> 0|>]\[DoubleLongRightArrow]
-   ECMMonAssignInitialConditions[<|ISSP[0] -> 1|>]\[DoubleLongRightArrow]
-   ECMMonAssignRateRules[<|\[Beta][INSP] -> 0.56|>]\[DoubleLongRightArrow]
-   ECMMonAssignRateRules[<|\[Beta][ISSP] -> 0.58|>]\[DoubleLongRightArrow]
-   ECMMonAssignRateRules[<|\[Beta][HP] -> 0.1|>]\[DoubleLongRightArrow]
-   ECMMonSimulate["MaxTime" -> 240]\[DoubleLongRightArrow]
+ECMMonUnit[SEI2HRModel[t]]⟹
+   ECMMonAssignInitialConditions[<|SP[0] -> 100000|>]⟹
+   ECMMonAssignInitialConditions[<|INSP[0] -> 0|>]⟹
+   ECMMonAssignInitialConditions[<|ISSP[0] -> 1|>]⟹
+   ECMMonAssignRateRules[<|\[Beta][INSP] -> 0.56|>]⟹
+   ECMMonAssignRateRules[<|\[Beta][ISSP] -> 0.58|>]⟹
+   ECMMonAssignRateRules[<|\[Beta][HP] -> 0.1|>]⟹
+   ECMMonSimulate["MaxTime" -> 240]⟹
    ECMMonPlotSolutions["Stocks" -> __ ~~ "Population"];
 ```
 
