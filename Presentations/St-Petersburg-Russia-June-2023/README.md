@@ -7,11 +7,9 @@ Here are the corresponding announcements:
 - ["Конференция по Wolfram Language в Санкт-Петербурге"](https://pikabu.ru/story/konferentsiya_po_wolfram_language_v_sanktpeterburge_10203980)
 - ["Wolfram Language — Летняя Конференция в Санкт-Петербурге 2023"](https://habr.com/ru/news/732252/)
 
-The conference was co-organized by 
-[Kiril Belov](https://community.wolfram.com/web/kirillbelovtest) and  
-Petr Genadievich Tenishev.
+The conference was co-organized by [Kiril Belov](https://community.wolfram.com/web/kirillbelovtest) and Petr Genadievich Tenishev.
 
-Here are the topics Kiril and I discussed:
+Here is a mind-map of the potential presentations Kiril and I discussed:
 
 [![](./Diagrams/WL-Conference-St.Petersburg-mind-map.png)](./Diagrams/WL-Conference-St.Petersburg-mind-map.pdf)
 
@@ -25,6 +23,8 @@ The main presentation slides had a dozen supplements:
 - [Diagrams](./Diagrams)
 - NLP and AI utilization demos notebook
 - [Geo-spatial simulations of COVID-19 over Botswana notebook](./Markdown/COVID-19-simulations-over-Botswana-2023-Russian.md). 
+
+![](./Markdown/Diagrams/COVID-19-simulations-over-Botswana-2023-Russian/11p5r9gtpxdc9.png)
 
 ## Making two presentations 
 
@@ -47,6 +47,8 @@ and [NLPTemplateEngine](https://resources.wolframcloud.com/PacletRepository/reso
 to demonstrate generation of epidemiological modeling code.
 - Preparing for the conference reminded me of some the COVID-19 modeling hackathons I participated in.
   - E.g. ["WirVsVirus"](https://mathematicaforprediction.wordpress.com/2020/03/24/wirvsvirus-2020-hackathon-participation/).
+- I prepared the initial models of artillery shells manufacturing, but much more work has to be done
+in order to have a meaningful article or presentation. (Hopefully, I am finishing that soon.)
 
 ------
 
