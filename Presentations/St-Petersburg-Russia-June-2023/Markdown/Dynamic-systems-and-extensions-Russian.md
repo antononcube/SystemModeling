@@ -1,14 +1,12 @@
----
-
 # Динамические системы
 
 **Расширение и улучшение эпидемиологических моделей**
 
 **Wolfram Language — Летняя Конференция в Санкт-Петербурге, 1-2 июня 2023 года**
 
-Антон Антонов
-[MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction)
-[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)
+Антон Антонов   
+[MathematicaForPrediction at GitHub](https://github.com/antononcube/MathematicaForPrediction)   
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com)   
 
 ---
 
