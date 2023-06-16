@@ -7,9 +7,9 @@ Here are the corresponding announcements:
 - ["Конференция по Wolfram Language в Санкт-Петербурге"](https://pikabu.ru/story/konferentsiya_po_wolfram_language_v_sanktpeterburge_10203980)
 - ["Wolfram Language — Летняя Конференция в Санкт-Петербурге 2023"](https://habr.com/ru/news/732252/)
 
-The conference was co-organized by [Kiril Belov](https://community.wolfram.com/web/kirillbelovtest) and Petr Genadievich Tenishev.
+The conference was co-organized by [Kirill Belov](https://community.wolfram.com/web/kirillbelovtest) and Petr Genadievich Tenishev.
 
-Here is a mind-map of the potential presentations Kiril and I discussed:
+Here is a mind-map of the potential presentations Kirill and I discussed:
 
 [![](./Diagrams/WL-Conference-St.Petersburg-mind-map.png)](./Diagrams/WL-Conference-St.Petersburg-mind-map.pdf)
 
