@@ -30,7 +30,7 @@ The main presentation slides had a dozen supplements:
 
 Interestingly, I first prepared a Latent Semantic Analysis (LSA) talk, but then found out
 that the organizers listed another talk I discussed with them, on extending dynamic systems models. 
-(The later one is the first we discussed, so, it was my "fault" that I wanted to talk about LSA.)
+(The latter one is the first we discussed, so, it was my "fault" that I wanted to talk about LSA.)
 
 Here are the presentation notebooks for LSA in 
 [English](./Notebooks/LSA-workflows-English.nb) and 
