@@ -64,15 +64,15 @@ AbsoluteTiming[
 (* Load packages                                              *)
 (**************************************************************)
 
-If[Length[DownValues[MathematicaForPredictionUtilities`ToAutomaticKeysAssociation]] == 0,
-  Echo["MathematicaForPredictionUtilities.m", "Importing from GitHub:"];
-  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MathematicaForPredictionUtilities.m"];
-];
+(*If[Length[DownValues[MathematicaForPredictionUtilities`ToAutomaticKeysAssociation]] == 0,*)
+(*  Echo["MathematicaForPredictionUtilities.m", "Importing from GitHub:"];*)
+(*  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MathematicaForPredictionUtilities.m"];*)
+(*];*)
 
-If[Length[DownValues[MonadicGeometricNearestNeighbors`GNNMonUnit]] == 0,
-  Echo["MonadicGeometricNearestNeighbors.m", "Importing from GitHub:"];
-  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/MonadicGeometricNearestNeighbors.m"];
-];
+(*If[Length[DownValues[MonadicGeometricNearestNeighbors`GNNMonUnit]] == 0,*)
+(*  Echo["MonadicGeometricNearestNeighbors.m", "Importing from GitHub:"];*)
+(*  Import["https://raw.githubusercontent.com/antononcube/MathematicaForPrediction/master/MonadicProgramming/MonadicGeometricNearestNeighbors.m"];*)
+(*];*)
 
 (**************************************************************)
 (* Package definition                                         *)
@@ -94,11 +94,16 @@ The argument reg a list of 2D points, a _MeshRegion object, or Automatic.";
 
 ReassignTileValues::usage = "ReassignTileValues[aTiles_Association, aValues_Association, opts___]";
 
+PacletInstall["AntonAntonov/DataReshapers", AllowVersionUpdate -> False];
+PacletInstall["AntonAntonov/SSparseMatrix", AllowVersionUpdate -> False];
+PacletInstall["AntonAntonov/MonadicGeometricNearestNeighbors", AllowVersionUpdate -> False];
+
 Begin["`Private`"];
 
-Needs["MathematicaForPredictionUtilities`"];
-Needs["SSparseMatrix`"];
-Needs["MonadicGeometricNearestNeighbors`"];
+(*Needs["MathematicaForPredictionUtilities`"];*)
+Needs["AntonAntonov`DataReshapers`"];
+Needs["AntonAntonov`SSparseMatrix`"];
+Needs["AntonAntonov`MonadicGeometricNearestNeighbors`"];
 
 (*------------------------------------------------------------*)
 (* Geo tile taxonomy                                          *)
