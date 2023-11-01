@@ -48,6 +48,11 @@
 (* Importing packages (if needed)                             *)
 (**************************************************************)
 
+Needs["AntonAntonov`EpidemiologicalModeling`"];
+Needs["AntonAntonov`TileStats`"];
+Needs["AntonAntonov`SSparseMatrix`"];
+
+(*
 If[Length[DownValues[EpidemiologyModels`SIRModel]] == 0,
   Echo["EpidemiologyModels.m", "Importing from GitHub:"];
   Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModels.m"]
@@ -72,7 +77,7 @@ If[Length[DownValues[EpidemiologyModelingSimulationFunctions`AggregateForCellIDs
   Echo["EpidemiologyModelingSimulationFunctions.m", "Importing from GitHub:"];
   Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Projects/Coronavirus-propagation-dynamics/WL/EpidemiologyModelingSimulationFunctions.m"]
 ];
-
+*)
 
 (**************************************************************)
 (* Data reading function definition                           *)
