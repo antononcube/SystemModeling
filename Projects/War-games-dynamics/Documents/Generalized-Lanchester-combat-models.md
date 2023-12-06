@@ -117,7 +117,7 @@ In this case:
 
 #### **4.** ***Brackney*** model (coefficients $a$ and $f$ or $b$ and $e$)
 
-- The casualties of one one side is proportional to the number of encounters and the other to the number of its opponent.
+- The casualties of one side is proportional to the number of encounters and the other to the number of its opponent.
 
 - The model was inspired of the Vietnam War and describes quite satisfactory.
 
