@@ -39,7 +39,9 @@ The examples below use the Battle of Iwo Jima because that is convenient both da
 
 Here is the invasion map of Iwo Jima, prepared in February 1945, [DR1]:
 
-![](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png)
+<!-- ![](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png) -->
+
+[![<img src="./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png" width="500"/>]](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png)
 
 ### Notebook structure
 
