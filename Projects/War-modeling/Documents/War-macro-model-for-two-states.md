@@ -30,3 +30,5 @@ Let's break down the System Dynamics model for two states at war into groups of 
 In essence, this model captures the dynamics of a state preparing for and engaging in warfare, detailing the resources they have, 
 how they use them, and the factors that influence their readiness and willingness to fight. 
 The same model applies to both State A and State B, with the dynamics between them influencing each state's stocks and rates.
+
+[//]: # (Here's the System Dynamics model in LaTeX form:)

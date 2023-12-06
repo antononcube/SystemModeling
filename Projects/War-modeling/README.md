@@ -1,6 +1,6 @@
-# War Games Dynamics
+# War Modeling
 
-This project has models for different aspects of War Games Dynamics (WGD).
+This project has models for different aspects of War Modeling (WM).
 
 The aim is to produce comprehensive modeling support of war games simulations that:
 
@@ -13,7 +13,7 @@ for the models in this project.
 
 **Remark:** The modeling know-how and software framework developed for the 
 ["Coronavirus propagation dynamics"](https://github.com/antononcube/SystemModeling/tree/master/Projects/Coronavirus-propagation-dynamics) 
-simulations can be applied and utilized for SD models for WGD. 
+simulations can be applied and utilized for SD models for WM. 
 
 
 -------

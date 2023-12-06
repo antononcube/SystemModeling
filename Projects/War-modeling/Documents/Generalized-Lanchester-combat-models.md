@@ -11,9 +11,16 @@ October 2023
 
 In this notebook we present generalized [Lanchester combat models](https://en.wikipedia.org/wiki/Lanchester%27s_laws) and use one of them for simulation and calibration examples with data of the [Battle of Iwo Jima](https://en.wikipedia.org/wiki/Battle_of_Iwo_Jima).
 
-**Remark:** The content of this notebook is intentionally theoretically fundamental, but short and simple both mathematically and code-wise. Author's intent is to develop similar computational workflows for (1) field battles, like the [Normandy campaign](https://en.wikipedia.org/wiki/Operation_Overlord) during Word War II, 1944, or (2) urban warfare, like [Second Battle of Fallujah](https://en.wikipedia.org/wiki/Second_Battle_of_Fallujah), Iraq 2009, or [Battle of Bakhmut](https://en.wikipedia.org/wiki/Battle_of_Bakhmut), Ukraine 2023.
+**Remark:** The content of this notebook is intentionally theoretically fundamental, but short and simple both mathematically and code-wise. 
+Author's intent is to develop similar computational workflows for (1) field battles, like the [Normandy campaign](https://en.wikipedia.org/wiki/Operation_Overlord) during Word War II, 1944, or (2) urban warfare, like [Second Battle of Fallujah](https://en.wikipedia.org/wiki/Second_Battle_of_Fallujah), Iraq 2009, or [Battle of Bakhmut](https://en.wikipedia.org/wiki/Battle_of_Bakhmut), Ukraine 2023.
 
-The main computational workflows are done with a [System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) software monad implemented in the paclet ["MonadicSystemDynamics"](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/MonadicSystemDynamics/), [AAp2]. That paclet is based on the monad implementation presented in ["A monad for Epidemiologic Compartmental Modeling Workflows"](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/), [AA1]. The functions provided by the paclet [AAp2] have the prefix "SDMon", which stands for "**S**ystem **D**ynamics **Mon**ad".
+The main computational workflows are done with a 
+[System Dynamics (SD)](https://en.wikipedia.org/wiki/System_dynamics) 
+software monad implemented in the paclet 
+["MonadicSystemDynamics"](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/MonadicSystemDynamics/), [AAp2]. 
+That paclet is based on the monad implementation presented in 
+["A monad for Epidemiologic Compartmental Modeling Workflows"](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/), [AA1]. 
+The functions provided by the paclet [AAp2] have the prefix "SDMon", which stands for "**S**ystem **D**ynamics **Mon**ad".
 
 ### Why use the Battle of Iwo Jima in examples?
 
