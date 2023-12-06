@@ -27,7 +27,7 @@ See [WL](./WL).
 
 - [Pets retail dynamics](./Projects/Pets-retail-dynamics)
 
-- [War games dynamics](./Projects/War-games-dynamics)
+- [War modeling](./Projects/War-modeling)
 
 ## Presentations 
 
