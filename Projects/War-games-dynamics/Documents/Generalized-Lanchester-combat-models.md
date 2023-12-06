@@ -129,7 +129,12 @@ In this case:
 
 The simplest, with Osipov terms only, generalized Lanchester model is:
 
-$$x'(t)=-b y(t),y'(t)=-a x(t)$$.
+$$
+\begin{align}
+x'(t)=-b y(t), \\
+y'(t)=-a x(t).
+\end{align}
+$$
 
 That model is a "rigid model" that admits an exact solution. (See Arnold's book "«Rigid» and «soft» mathematical models", [VA1].)
 
