@@ -48,7 +48,7 @@ Here is the invasion map of Iwo Jima, prepared in February 1945, [DR1]:
 
 <!-- ![](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png) -->
 
-[![<img src="./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png" width="500"/>]](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png)
+<img src="./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png" width="500"/>
 
 ### Notebook structure
 
@@ -297,7 +297,7 @@ Clear[growthIwoJimaX];
 growthIwoJimaX[t_] := Piecewise[{{54000, 0 <= t < 1}, {6000, 2 <= t < 3}, {13000, 5 <= t < 6}}, 0]
 ```
 
-Here replace the constant term of the first equation in the generalized model with the growth function growthIwoJimaX.
+Here replace the constant term of the first equation in the generalized model with the growth function `growthIwoJimaX`.
 
 ```mathematica
 model1a = model1 /. growthX -> growthIwoJimaX[t];
