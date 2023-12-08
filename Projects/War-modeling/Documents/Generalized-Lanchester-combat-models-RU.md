@@ -59,7 +59,7 @@
 
 Вот карта вторжения в Иводзиму, подготовленная в феврале 1945 года, \[DR1\]:
 
-[![<img src="./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png" width="500"/>]](./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png)
+<img src="./Diagrams/Generalized-Lanchester-combat-models/Battle-of-Iwo-Jima-Map.png" width="500"/>
 
 ### Структура блокнота
 
