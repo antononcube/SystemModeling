@@ -537,50 +537,43 @@ Needs["AntonAntonov`EpidemiologicalModeling`"]
 Needs["AntonAntonov`MonadicSystemDynamics`"]
 ```
 
+-------
 
 ## Ссылки
 
 ### Статьи
 
-\[AA1\] Антон Антонов, [«Монада для рабочих процессов эпидемиологического компартментального моделирования»](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/), 
-(2021), [MathematicaForPrediction на WordPress](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/).
+[AA1] Anton Antonov, ["A monad for Epidemiologic Compartmental Modeling Workflows"](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/), (2021), [MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com/2021/01/02/epidemiology-compartmental-modeling-monad/).
 
-\[AS1\] Андрей Шатырко, Бедрик Пужа, Вероника Новотна, «Сравнительный
-анализ и новая область применения боевых моделей Ланчестера», (2018),
-Сборник материалов избранных докладов, расширенная версия. Конференция
-MITAV-2018, Брно, Чехия, 2018. С.118-133. ISBN 978-80-7582-065-5.
+[AS1] Andrei Shatyrko, Bedrik Puzha, Veronika Novotná, "Comparative Analysis and New Field of Application Lanchester’s Combat Models", (2018), 
+Post-conference proceedings of selected papers extended version Conference MITAV-2018, Brno, Czech Republic, 2018. P.118-133. ISBN 978-80-7582-065-5.
 
-\[JE1\] Дж. Х. Энгель, «Проверка закона Ланчестера», (1953), Журнал Американского общества исследования операций, Vol. 2, № 2. (май 1954 г.), стр. 163--171. ( [ссылка на JSTOR](https://www.jstor.org/stable/166602) .)
+[JE1] J.H. Engel, "A verification of Lanchester's law", (1953), Journal of the Operations Research Society of America, Vol. 2, No. 2. (May, 1954), pp. 163-171. 
+([JSTOR link](https://www.jstor.org/stable/166602).)
 
-\[DR1\] Дж. Дэвид Роджерс, [«Иводзима: самая дорогостоящая битва в американской истории»](https://web.mst.edu/~rogersda/american&military_history/BATTLE-OF-IWO-JIMA.pdf), Missouri S&T. ( [jdavidrogers.net](https://www.jdavidrogers.net/) .)
+[DR1] J. David Rogers, ["Iwo Jima: The costliest battle in  American history"](https://web.mst.edu/~rogersda/american&military_history/BATTLE-OF-IWO-JIMA.pdf), Missouri S&T.
+([jdavidrogers.net](https://www.jdavidrogers.net/).)
 
-\[NM1\] Митюков Николай Владимирович. Определение жертв войн с помощью моделей Ланчестера (2009), [Историческая психология и социология истории](https://www.socionauki.ru/journal/ipisi/) .
+[NM1] Николай В. МИТЮКОВ, [Определение жертв войн через Ланчестерские модели](https://www.socionauki.ru/journal/articles/130365/?sphrase_id=562105), [Историческая психология и социология истории](https://www.socionauki.ru/journal/ipisi/) 2/2009 122–140.
 
-\[NM1ru\] Н. В. МИТЮКОВ, [ОПРЕДЕЛЕНИЕ ЖЕРТВ ВОЙН ЧЕРЕЗ ЛАНЧЕСТЕРСКИЕ МОДЕЛИ](https://www.socionauki.ru/journal/articles/130365/?sphrase_id=562105),
-[Историческая психология и социология истории](https://www.socionauki.ru/journal/ipisi/) 2/2009 122--140.
+[RS1] Robert W. Samz, ⎡Some Comments on Engel's "A Verification of Lanchester's Law"⎦, (1972), Operations Research, Vol. 20, No. 1 (Jan. - Feb., 1972), pp. 49-52 (4 pages) ([JSTOR link](https://www.jstor.org/stable/169337).)
 
-\[RS1\] Robert W. Samz, ⎡Some Comments on Engel's "A Verification of Lanchester's Law"⎦, (1972), Operations Research, Vol. 20, No. 1 (Jan. - Feb., 1972), pp. 49-52 (4 pages) ([JSTOR link](https://www.jstor.org/stable/169337).)
+[Wk1] [Lanchester's laws, Wikipedia](https://en.wikipedia.org/wiki/Lanchester%27s_laws).
 
-\[Wk1\] [Lanchester's laws, Wikipedia](https://en.wikipedia.org/wiki/Lanchester%27s_laws).
+[Wk2] [Battle of Iwo Jima, Wikipedia](https://en.wikipedia.org/wiki/Battle_of_Iwo_Jima).
 
-\[Wk2\] [Battle of Iwo Jima, Wikipedia](https://en.wikipedia.org/wiki/Battle_of_Iwo_Jima).
 
-### Books
+### Книги
 
-\[VA1\] Vladimir I. Arnold, Rigid and soft mathematical models, 2nd ed. (2008), Moscow Center of Continuous Mathematical Education. 
-In Russian: Владимир И. Арнольд, "«Жесткие» и «мягкие» математические модели", (2008), М.: МЦНМО, 2014, 32 с. ISBN 978-5-94057-427-9.
+\[VA1\] Владимир И. Арнольд, "«Жесткие» и «мягкие» математические модели", (2008), М.: МЦНМО, 2014, 32 с. ISBN 978-5-94057-427-9.
 
-### Packages, paclets
+### Пакеты
 
-\[AAp1\] Anton Antonov,
-[EpidemiologicalModeling](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/EpidemiologicalModeling/),
-WL paclet, (2023), [Wolfram Language Paclet Repository](https://resources.wolframcloud.com/PacletRepository/).
+[AAp1] Anton Antonov, [EpidemiologicalModeling](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/EpidemiologicalModeling/), WL paclet, (2023), [Wolfram Language Paclet Repository](https://resources.wolframcloud.com/PacletRepository/).
 
-\[AAp2\] Anton Antonov,
-[MonadicSystemDynamics](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/MonadicSystemDynamics/),
-WL paclet, (2023), [Wolfram Language Paclet Repository](https://resources.wolframcloud.com/PacletRepository/).
+[AAp2] Anton Antonov, [MonadicSystemDynamics](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/MonadicSystemDynamics/), WL paclet, (2023), [Wolfram Language Paclet Repository](https://resources.wolframcloud.com/PacletRepository/).
 
-### Repositories
 
-\[AAr1\] Антон Антонов, [Системное моделирование](https://github.com/antononcube/SystemModeling),
-(2020-2023), [GitHub/antononcube](https://github.com/antononcube).
+### Хранилища
+
+[AAr1] Anton Antonov, [System Modeling](https://github.com/antononcube/SystemModeling), (2020-2023), [GitHub/antononcube](https://github.com/antononcube).
