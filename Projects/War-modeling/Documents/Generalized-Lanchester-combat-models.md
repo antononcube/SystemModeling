@@ -483,6 +483,8 @@ Needs["AntonAntonov`EpidemiologicalModeling`"]
 Needs["AntonAntonov`MonadicSystemDynamics`"]
 ```
 
+-------
+
 ## References
 
 ### Articles
