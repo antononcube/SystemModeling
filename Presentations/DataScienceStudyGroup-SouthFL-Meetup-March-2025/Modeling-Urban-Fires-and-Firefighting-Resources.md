@@ -1,6 +1,6 @@
 # Modeling Urban Fires and Firefighting Resources
 
-Generated with Grok using the prompt:
+Generated with Grok 3 beta using the prompt:
 
 > Outline the necessary knowledge, data, and concrete values (like cubic water per second rate) for modeling urban fires and their management with firefighting resources. 
 > Like firetrucks, water storage tanks, number of firemen, fire hydrants, etc.

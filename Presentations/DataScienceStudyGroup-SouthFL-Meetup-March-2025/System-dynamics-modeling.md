@@ -1,7 +1,7 @@
 
 ### System Dynamics Modeling
 
-Generated using Grok with the prompt:
+Generated using Grok 3 beta with the prompt:
 
 > Give the System Dynamics (SD) model for that outline:
 > - Clearly indicate what the stocks and what the rates
