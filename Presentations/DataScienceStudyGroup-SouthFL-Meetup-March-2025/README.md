@@ -18,9 +18,22 @@ the other for macro-scale long term firefighting.
 Finally, we examine in more detail simulations with those models and discuss their calibration.
 (Using "real life" data.)
 
+The application of Large Language Models (LLMs) to the modeling process is also discussed. 
+
+-----
+
+## Modeling
+
+- [Modeling Urban Fires and Firefighting Resources](./Modeling-Urban-Fires-and-Firefighting-Resources.md)
+- [System dynamics modeling](./System-dynamics-modeling.md)
+
 -----
 
 ## References
+
+### Articles, books
+
+TBD...
 
 ### Packages, paclets, repositories
 
