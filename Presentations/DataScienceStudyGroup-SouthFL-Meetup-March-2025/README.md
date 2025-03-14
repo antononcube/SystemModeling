@@ -1,5 +1,7 @@
 # Modeling of Urban Fires
 
+![](./Diagrams/Urban-fires-modeling-sketch.jpg)
+
 ----
 
 ## _ABSTRACT_
