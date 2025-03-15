@@ -38,15 +38,18 @@ Options[SEIBModel] = {
   "TotalPopulationRepresentation" -> None,
   "InitialConditions" -> True,
   "RateRules" -> True,
+  "BirthsTerm" -> False,
   "MoneyTracking" -> True };
 
 SEIBModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
-    Block[{addInitialConditionsQ, addRateRulesQ, moneyTrackingQ, tpRepr,
+    Block[{addInitialConditionsQ, addRateRulesQ, birthsTermQ, moneyTrackingQ, tpRepr,
       newlyInfectedTerm, aStocks, aRates, lsEquations, aRes, aRateRules, aInitialConditions},
 
       addInitialConditionsQ = TrueQ[ OptionValue[ SEIBModel, "InitialConditions" ] ];
 
       addRateRulesQ = TrueQ[ OptionValue[ SEIBModel, "RateRules" ] ];
+
+      birthsTermQ = TrueQ[ OptionValue[SEIBModel, "BirthsTerm"] ];
 
       moneyTrackingQ = TrueQ[ OptionValue[ SEIBModel, "MoneyTracking" ] ];
 
@@ -100,16 +103,20 @@ SEIBModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         ];
 
         (* Equations  *)
+        (* Equations  *)
         newlyInfectedTerm = contactRate[IF] / TF[t] * SF[t] * IF[t];
 
         lsEquations = {
-          SF'[t] == -newlyInfectedTerm - removalRate[TF] * SF[t],
+          If[ birthsTermQ,
+            SF'[t] == removalRate[TF] * TF[t] - newlyInfectedTerm - removalRate[TF] * SF[t],
+            (* ELSE *)
+            SF'[t] == - newlyInfectedTerm - removalRate[TF] * SF[t]
+          ],
           EF'[t] == newlyInfectedTerm - (removalRate[TF] + (1 / aincp) ) * EF[t],
-          IF'[t] == newlyInfectedTerm - (1 / aip) * IF[t] - removalRate[IF] * IF[t],
-          BF'[t] == (1 / aip) * BF[t] - removalRate[TF] * BF[t],
-          MLP'[t] == lpcr[IF] * (TF[t] - BF[t] - SF[t])
+          IF'[t] == (1 / aincp) * EF[t] - (1 / aip) * IF[t] - removalRate[IF] * IF[t],
+          BF'[t] == (1 / aip) * IF[t] - removalRate[TF] * BF[t],
+          MLP'[t] == lpcr[IF] * (TF[t] - BF[t] - EF[t])
         };
-
         If[ !moneyTrackingQ,
           lsEquations = Most @ lsEquations
         ];
@@ -122,7 +129,7 @@ SEIBModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
           lsEquations = lsEquations /. TF[t] -> ( SF[t] + EF[t] + IF[t] + BF[t] ),
 
           tpRepr == "AlgebraicEquation",
-          lsEquations = Append[lsEquations, TF[t] == Max[ 0, SF[t] + EF[t] + IF[t] + IF[t] + BF[t] ] ]
+          lsEquations = Append[lsEquations, TF[t] == Max[ 0, SF[t] + EF[t] + IF[t] + BF[t] ] ]
         ];
 
         aRes = <| "Stocks" -> aStocks, "Rates" -> aRates, "Equations" -> lsEquations |>;
@@ -130,8 +137,8 @@ SEIBModel[t_Symbol, context_String : "Global`", opts : OptionsPattern[] ] :=
         (* Rate Rules *)
         aRateRules =
             <| TF[0] -> 100000,
-              removalRate[TF] -> (800 / 10^5) / 365,
-              removalRate[IF] -> 0.035 / aip,
+              removalRate[TF] -> 0,
+              removalRate[IF] -> 0 / aip,
               contactRate[IF] -> 0.15,
               aip -> 26,
               aincp -> 6,
