@@ -1,4 +1,4 @@
-## Analogy between SEIR and Urban fire propagation
+# Analogy between SEIR and Urban fire propagation
 
 Generated using GPT-4o with the prompt:
 
