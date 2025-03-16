@@ -22,6 +22,8 @@ Finally, we examine in more detail simulations with those models and discuss the
 
 The application of Large Language Models (LLMs) to the modeling process is also discussed. 
 
+⚠️ Here is the **Markdown version of the presentation notebook** : [Modeling-of-Urban-Fires.md](./Modeling-of-Urban-Fires.md)
+
 -----
 
 ## Outline
