@@ -13,9 +13,9 @@ Data Science Study Group, South Florida
 
 In this presentation we discuss the modeling and simulation of urban fires.
 
-First, we briefly examine the problem domain:  
-• What are the "ingredients" of a large urban fire?
-• What are the components of an urban firefighting system?
+First, we briefly examine the problem domain:
+- What are the "ingredients" of a large urban fire?
+- What are the components of an urban firefighting system?
 
 Second, we outline a few methodologies for modeling of urban fires.
 
