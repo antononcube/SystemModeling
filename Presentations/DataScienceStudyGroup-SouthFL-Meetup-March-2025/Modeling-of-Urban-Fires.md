@@ -1,13 +1,11 @@
----
-
 # Modeling of Urban Fires
 
-Data Science Study Group, South Florida
+Data Science Study Group, South Florida   
 *March 2025*
 
 **Anton Antonov**
 
-![1q77ryyrjyxob](Diagrams/img/1q77ryyrjyxob.png)
+![](Diagrams/Urban-fires-modeling-sketch.jpg)
 
 ---
 
@@ -86,6 +84,8 @@ Managing expectations: Work in progress!
 ## System Dynamics primer
 
 A [SystemModeler](https://www.wolfram.com/system-modeler/graphical-system-modeling/) demo.
+
+![](./Diagrams/img/SystemModeler-SoftwareRework.png)
 
 ---
 
