@@ -196,15 +196,24 @@ MakeCoreMultiSiteModel[___] :=
 
 Clear[MakeMigrationTerms];
 
+SyntaxInformation[MakeMigrationTerms] = { "ArgumentsPattern" -> { _, _, _, _., OptionsPattern[] } };
+
+Options[MakeMigrationTerms] = {"MinGuard" -> True};
+
 MakeMigrationTerms::"nargs" = "The first argument is expected to be a matrix. \
 If there is no fourth argument then the second and third argument are expected to be lists of stock functions. \
 If a fourth argument is given then the second and third arguments are expected to be lists of stock symbols.";
 
-MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, t_Symbol] :=
-    MakeMigrationTerms[mat, Through[TPs, t], Through[Ps[t]] ];
+MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, t_Symbol, opts : OptionsPattern[]] :=
+    MakeMigrationTerms[mat, Through[TPs, t], Through[Ps[t]], opts ];
 
-MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
-    Block[{n = Dimensions[mat][[2]], res},
+MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List, opts : OptionsPattern[]] :=
+    Block[{n = Dimensions[mat][[2]], res, minGuardFunc = Min},
+
+      If[ !TrueQ[OptionValue[MakeMigrationTerms, "MinGuard"]],
+        minGuardFunc = #1&
+      ];
+
       res =
           Total /@
               Association[
@@ -217,13 +226,13 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
                           0,
 
                           TrueQ[mat[[j, i]] == 0],
-                          - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ],
+                          - minGuardFunc[ Ps[[i]] / TPs[[i]] * mat[[i, j]], Ps[[i]] ],
 
                           TrueQ[mat[[i, j]] == 0],
-                          Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ],
+                          minGuardFunc[ Ps[[j]] / TPs[[j]] * mat[[j, i]], Ps[[j]] ],
 
                           True,
-                          Min[ Ps[[j]] / TPs[[j]] * mat[[j, i]], TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mat[[i, j]], TPs[[i]] ]
+                          minGuardFunc[ Ps[[j]] / TPs[[j]] * mat[[j, i]], Ps[[j]] ] - minGuardFunc[ Ps[[i]] / TPs[[i]] * mat[[i, j]], Ps[[i]] ]
                         ],
                         {j, n}],
                   {i, n}]
@@ -235,8 +244,12 @@ MakeMigrationTerms[mat_?MatrixQ, TPs_List, Ps_List] :=
 
     ] /; TrueQ[Head[mat] =!= SparseArray] && Dimensions[mat][[1]] == Dimensions[mat][[2]] == Length[TPs] == Length[Ps];
 
-MakeMigrationTerms[mat_SparseArray, TPs_List, Ps_List] :=
-    Block[{res, lsRules, aRules, aGroups1, aGroups2, aGroups, NewTermCoeff},
+MakeMigrationTerms[mat_SparseArray, TPs_List, Ps_List, opts : OptionsPattern[]] :=
+    Block[{res, lsRules, aRules, aGroups1, aGroups2, aGroups, NewTermCoeff, minGuardFunc = Min},
+
+      If[ !TrueQ[OptionValue[MakeMigrationTerms, "MinGuard"]],
+        minGuardFunc = #1&
+      ];
 
       lsRules = Most @ ArrayRules[mat];
       aRules = Association @ lsRules;
@@ -253,17 +266,17 @@ MakeMigrationTerms[mat_SparseArray, TPs_List, Ps_List] :=
               0,
 
               TrueQ[mji == 0],
-              - Min[ Ps[[i]] / TPs[[i]] * mij, TPs[[i]] ],
+              - minGuardFunc[ Ps[[i]] / TPs[[i]] * mij, Ps[[i]] ],
 
               TrueQ[mij == 0],
-              Min[ Ps[[j]] / TPs[[j]] * mji, TPs[[j]] ],
+              minGuardFunc[ Ps[[j]] / TPs[[j]] * mji, Ps[[j]] ],
 
               True,
-              Min[ Ps[[j]] / TPs[[j]] * mji, TPs[[j]] ] - Min[ Ps[[i]] / TPs[[i]] * mij, TPs[[i]] ]
+              minGuardFunc[ Ps[[j]] / TPs[[j]] * mji, Ps[[j]] ] - minGuardFunc[ Ps[[i]] / TPs[[i]] * mij, Ps[[i]] ]
             ]
           ];
 
-      res = Total /@ Association[ KeyValueMap[ Function[{k,v}, Ps[[k]] -> Map[ NewTermCoeff[k, #]&, v]], aGroups ] ];
+      res = Total /@ Association[ KeyValueMap[ Function[{k, v}, Ps[[k]] -> Map[ NewTermCoeff[k, #]&, v]], aGroups ] ];
 
       res = AssociationThread[ Keys[res] /. p_[id_][__] :> p[id], Values[res]];
 
@@ -531,6 +544,8 @@ GetRateSymbols[ model_?EpidemiologyModelQ, descr : (_String | _StringExpression 
 
 Clear[ToSiteCompartmentsModel];
 
+SyntaxInformation[ToSiteCompartmentsModel] = { "ArgumentsPattern" -> { _, _, _., OptionsPattern[] } };
+
 ToSiteCompartmentsModel::"nargs" = "The first argument is expected to be a single cell model association. \
 The second argument is expected to be a square matrix. \
 The third optional argument is expected to be list of ID's with length that corresponds to number of rows of the first argument.";
@@ -538,7 +553,11 @@ The third optional argument is expected to be list of ID's with length that corr
 ToSiteCompartmentsModel::"nmgrpop" = "The values of the option \"MigratingPopulations\" is expected to be
 a subset of `1` or one of Automatic, All, or None.";
 
-Options[ToSiteCompartmentsModel] = {"MigratingPopulations" -> Automatic};
+Options[ToSiteCompartmentsModel] = {
+  "MigratingPopulations" -> Automatic,
+  "TotalPopulation" -> Automatic,
+  "PopulationPattern" -> Automatic,
+  "MinGuard" -> True};
 
 ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : OptionsPattern[] ] :=
     Block[{ids},
@@ -551,12 +570,17 @@ ToSiteCompartmentsModel[model_Association, matMigration_?MatrixQ, opts : Options
 (*    ];*)
 
 ToSiteCompartmentsModel[model_?EpidemiologyModelQ, matMigration_?MatrixQ, cellIDs_List, opts : OptionsPattern[] ] :=
-    Block[{allPops, migrPops, coreModel, eqs, newTerms},
+    Block[{allPops, migrPops, totalPop, popPat, coreModel, eqs, newTerms},
 
       migrPops = OptionValue[ToSiteCompartmentsModel, "MigratingPopulations"];
+      totalPop = OptionValue[ToSiteCompartmentsModel, "TotalPopulation"];
+      If[TrueQ[totalPop === Automatic], totalPop = "Total Population"];
 
-      allPops = Values @ Select[ model["Stocks"], StringMatchQ[#, __ ~~ "Population" ~~ EndOfString ]& ];
-      allPops = Complement[allPops, {"Total Population"} ];
+      popPat = OptionValue[ToSiteCompartmentsModel, "PopulationPattern"];
+      If[TrueQ[popPat === Automatic], popPat = __ ~~ "Population" ~~ EndOfString];
+
+      allPops = Values @ Select[ model["Stocks"], StringMatchQ[#, popPat ]& ];
+      allPops = Complement[allPops, {totalPop} ];
 
       Which[
         TrueQ[migrPops === None],
@@ -589,8 +613,9 @@ ToSiteCompartmentsModel[model_?EpidemiologyModelQ, matMigration_?MatrixQ, cellID
             newTerms =
                 MakeMigrationTerms[
                   matMigration,
-                  GetStocks[coreModel, "Total Population"],
-                  GetStocks[coreModel, #2]
+                  GetStocks[coreModel, totalPop],
+                  GetStocks[coreModel, #2],
+                  FilterRules[{opts}, Options[MakeMigrationTerms]]
                 ];
             AddTermsToEquations[#1, newTerms])&,
             eqs,
