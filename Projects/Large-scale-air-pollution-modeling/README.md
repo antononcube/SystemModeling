@@ -1,6 +1,6 @@
 # Large scale air pollution modeling
 
-This project folder is mostly created for references relevant documents.
+This project folder is mostly created for keeping references of relevant documents.
 
 Large Scale Air Pollution Modeling (LSAPM) provides rich sets of problems and modeling approaches.
 This project has references to LSAPM articles and models. 
