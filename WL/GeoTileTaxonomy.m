@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 (*
     Geo-Tile Taxonomy Mathematica package
     Copyright (C) 2022  Anton Antonov
@@ -33,7 +35,7 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     Written by Anton Antonov,
-    ʇǝu ˙ oǝʇsod @ ǝqnɔuouoʇuɐ
+    \:0287\:01ddu \:02d9 o\:01dd\:0287sod @ \:01ddqn\:0254uouo\:0287u\:0250
     Windermere, Florida, USA.
 *)
 
@@ -50,9 +52,12 @@
 
 Here is an usage example:
 
-dsUSAZIPCodes = ResourceFunction["ImportCSVToDataset"]["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSZipCodesFrom2013GovernmentData.csv"]
+dsUSAZIPCodes = Import["https://raw.githubusercontent.com/antononcube/SystemModeling/master/Data/dfUSZipCodesFrom2013GovernmentData.csv", {"CSV", "Dataset"}, "Numeric" -> False];
+dsUSAZIPCodes = dsUSAZIPCodes[All, ReplacePart[#, {"LAT" -> ToExpression[#LAT], "LON" -> ToExpression[#LON]}] &];
+
 aZIPToLatLon = Normal@dsUSAZIPCodes[Association, #ZIP -> {#LAT, #LON} &];
 
+cellSize = 1;
 AbsoluteTiming[
  aRes1 = GeoTileTaxonomy[dsUSAZIPCodes, cellSize, "TileBins", "TaxonomyName" -> "SquareTile1deg", DistanceFunction -> ChessboardDistance];
 ]
@@ -372,7 +377,7 @@ RegularGeoTagsTaxonomyForAPI[
         ExportString[dsGeoTileTaxonomies, "CSV"],
 
         ToLowerCase[format] == "json",
-        dsGeoTileTaxonomies2 = dsGeoTileTaxonomies[All, Append[#, "Coordinates" -> ImportString[#Coordinates, "JSON"]] &];
+        dsGeoTileTaxonomies2 = dsGeoTileTaxonomies[All, Append[KeyDrop[#,"Polygon"], "Coordinates" -> ImportString[#Coordinates, "JSON"]] &];
         ExportString[Normal@dsGeoTileTaxonomies2, "JSON", "Compact" -> True],
 
         True,
